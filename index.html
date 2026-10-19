@@ -120,6 +120,10 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .trak-row img{flex:none;border-radius:12px}
 .trak h3{margin:0 0 2px}
 .trak-lede{margin:0;font-size:14.5px}
+.trak-tiers{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.trak-tiers li{display:flex;flex-direction:column;gap:1px;font-size:13.5px}
+.trak-tiers b{font-size:14px}
+.trak-tiers span{color:var(--muted)}
 .trak-note{margin:10px 0 0;font-size:13px;color:var(--muted)}
 .btn.gold{background:var(--kuning);border:2px solid var(--ink);color:var(--ink);box-shadow:0 2px 0 var(--ink);width:100%}
 .toko{border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink)}
@@ -229,7 +233,10 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <div><h3>Traktir kampung</h3><p class="trak-lede">Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p></div>
         </div>
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
-        <p class="trak-note">Traktir minimal 2 Genteng dan tulis <b>username IG + warna atap</b> di pesan traktiran. Rumahmu dapat bendera emas, langsung dibangun walau belum komen.</p>
+        <ul class="trak-tiers">
+          <li><b>🚩 2 Genteng · Bendera Emas</b><span>Tulis username IG + warna atap di pesan traktiran. Rumahmu langsung dibangun walau belum komen. Boleh dicicil, DM @negerikomen untuk klaim.</span></li>
+          <li><b>🏪 20 Genteng · Buka Usaha</b><span>Rumahmu jadi toko selama 30 hari, tampil di daftar Toko Warga lengkap dengan link usahamu.</span></li>
+        </ul>
       </div>
 
       <div class="card voucher" id="voucher" hidden>

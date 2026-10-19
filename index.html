@@ -71,8 +71,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .btn:hover{border-color:var(--muted)}
 .btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
 .btn.gent{background:var(--genteng);border-color:var(--genteng);color:#fff}
-.mapbox{position:relative;height:min(68vh,760px);min-height:380px;border-radius:18px;overflow:hidden;background:var(--sawah);border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
-@media (max-width:920px){.mapbox{height:62vh}}
+.mapbox{position:relative;height:min(86vh,980px);min-height:420px;border-radius:18px;overflow:hidden;background:var(--sawah);border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
+@media (max-width:920px){.mapbox{height:72vh}}
 .mapbox canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 .mapbox canvas:active{cursor:grabbing}
 .zoom{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px}
@@ -814,7 +814,7 @@ function bounds(){
 }
 const BB=bounds();
 function homeView(){const w=BB.x1-BB.x0,h=BB.y1-BB.y0;fitZ=Math.min(cw/(w+T*2),ch/(h+T*3));
-  minZ=Math.max(.12,fitZ*.55);return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ}}
+  minZ=Math.max(.12,fitZ*.55);return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ*1.15}}
 function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);cw=Math.max(1,r.width);ch=Math.max(1,r.height);
   cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);homeView();dirty=true}
 const clampZ=z=>Math.max(minZ,Math.min(maxZ,z));

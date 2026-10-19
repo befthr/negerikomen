@@ -11,6 +11,7 @@ window.NK_DATA = {
  "target": 1000,
  "trakteer": {"url": "https://trakteer.id/negerikomen", "unit": "Genteng"},
  "voucher": {"url": "", "label": "Cek voucher Shopee hari ini"},
+ "toko": {"csv": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKo0SdR8Jn7nL4NZaD9ZbX35jJen2RTB-IEGK9BHIE7H-eWgPTOJONPZLWt95V45un5PB7fbXz4-8C/pub?gid=189929632&single=true&output=csv"},
  "residents": [],
  "buildings": [
   {"type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1},

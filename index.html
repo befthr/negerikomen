@@ -62,6 +62,10 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .result h2{font-family:var(--f-display);font-size:22px;font-weight:800;margin:0;line-height:1.15;overflow-wrap:anywhere}
 .result p{margin:2px 0 0;color:var(--muted);font-size:14.5px}
 .result .acts{display:flex;flex-wrap:wrap;gap:8px}
+.result .promo{margin-top:6px;color:var(--ink)}
+.result.quest{border:2px solid var(--kuning);background:#FFFBEA}
+.questbar{background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;font-weight:600;font-size:14.5px;display:flex;gap:8px;align-items:center}
+.questbar b{color:var(--kuning)}
 .result.miss{border-color:#E9C9BD;background:#FFF8F4}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:700;font-size:14px;border-radius:10px;padding:9px 14px;border:1px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer;text-decoration:none}
 .btn:hover{border-color:var(--muted)}
@@ -152,6 +156,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <ul class="sug" id="sug" role="listbox" hidden></ul>
       </div>
       <div class="result" id="result" hidden></div>
+      <div class="questbar" id="questbar" hidden></div>
       <div class="mapbox">
         <canvas id="map" role="img" aria-label="Peta kampung Negeri Komen"></canvas>
         <div class="maptag"><span id="tagDay">Hari ke-1</span><span class="y" id="tagWarga">1 warga</span></div>
@@ -512,6 +517,25 @@ function kite(x,y,t,c1,c2,seed){
 function bird(x,y,t,seed){const f=Math.sin(t*9+seed*6)*3.2;ctx.strokeStyle='#2B3A30';ctx.lineWidth=2;ctx.lineCap='round';
   ctx.beginPath();ctx.moveTo(x-7,y-f);ctx.quadraticCurveTo(x-3,y-2,x,y);ctx.quadraticCurveTo(x+3,y-2,x+7,y-f);ctx.stroke();ctx.lineCap='butt'}
 
+function drawScarecrow(x,y,t,s){
+  const sway=Math.sin(t*2.2)*0.12,bob=Math.abs(Math.sin(t*2.2))*3;
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  ctx.fillStyle='rgba(20,30,10,.22)';ctx.beginPath();ctx.ellipse(10,16,46,18,0,0,7);ctx.fill();
+  ctx.translate(0,-bob);ctx.rotate(sway);
+  ctx.strokeStyle='#6B4527';ctx.lineWidth=7;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-52,-4);ctx.lineTo(52,-4);ctx.stroke();ctx.lineCap='butt';
+  ctx.fillStyle='#E6C98A';[-52,52].forEach(hx=>{ctx.beginPath();for(let i=0;i<6;i++){const a=(hx<0?Math.PI:0)+(i-2.5)*0.28;ctx.moveTo(hx,-4);ctx.lineTo(hx+Math.cos(a)*14,-4+Math.sin(a)*14)}ctx.strokeStyle='#C9A54E';ctx.lineWidth=3;ctx.stroke()});
+  ctx.fillStyle='#C4402F';ctx.beginPath();ctx.moveTo(-34,-16);ctx.lineTo(34,-16);ctx.lineTo(28,26);ctx.lineTo(-28,26);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.4;ctx.beginPath();
+  for(let k=-26;k<=26;k+=13){ctx.moveTo(k,-16);ctx.lineTo(k*0.85,26)}for(let k=-6;k<=22;k+=12){ctx.moveTo(-32,k);ctx.lineTo(32,k)}ctx.stroke();
+  ctx.fillStyle='#E9DCC0';[[-30,26],[-14,30],[2,27],[18,31],[28,26]].forEach(([px,py])=>{ctx.beginPath();ctx.moveTo(px-5,26);ctx.lineTo(px,py+6);ctx.lineTo(px+5,26);ctx.closePath();ctx.fill()});
+  ctx.lineWidth=3;ctx.strokeStyle='#1C2520';ctx.beginPath();ctx.moveTo(-34,-16);ctx.lineTo(34,-16);ctx.lineTo(28,26);ctx.lineTo(-28,26);ctx.closePath();ctx.stroke();
+  ctx.fillStyle='#E6C98A';ctx.beginPath();ctx.arc(0,-26,30,0,7);ctx.fill();ctx.strokeStyle='#8A6A2E';ctx.lineWidth=3;ctx.stroke();
+  ctx.strokeStyle='rgba(138,106,46,.6)';ctx.lineWidth=1.6;for(let i=0;i<12;i++){const a=i/12*Math.PI*2;ctx.beginPath();ctx.moveTo(0,-26);ctx.lineTo(Math.cos(a)*30,-26+Math.sin(a)*30);ctx.stroke()}
+  ctx.fillStyle='#8A6A2E';ctx.beginPath();ctx.arc(0,-26,5,0,7);ctx.fill();
+  ctx.restore();
+}
+
 /* Gambar seluruh dunia. v={W,H,z,ox,oy}: layar = o + dunia*z.
    w={residents,buildings,free}. o={anim(kind,i)->{s,a}, vehicles}. Mengembalikan blok aktif. */
 function drawWorld(v,w,t,o={}){
@@ -620,7 +644,7 @@ function tag(x,y,name,sub,fs,strong,own){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,tag};
+  nextSlot,freePlots,parseRoof,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,tag};
 })();
 
 </script>
@@ -737,6 +761,18 @@ function drawLabels(v,t){
       .filter(o=>o.sx>-80&&o.sy>-40&&o.sx<cv.width+80&&o.sy<cv.height+80).sort((a,b)=>a.d-b.d).slice(0,120);
     list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy),'@'+o.r.name,'',false)})}
 }
+/* ---------- daily quest: Si Jaga Sawah muncul di jam tertentu (WIB) ---------- */
+const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
+  {name:D.quest.name||'Si Jaga Sawah',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||''}:null;
+const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
+function questOn(){if(!QUEST)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
+  return a<=b?(w>=a&&w<b):(w>=a||w<b)}
+let qOn=false;
+function questPos(t){const cx=(BB.x0+BB.x1)/2,cy=(BB.y0+BB.y1)/2,rx=(BB.x1-BB.x0)/2+T*3.2,ry=(BB.y1-BB.y0)/2+T*3.2,a=t*0.035+1.3;
+  return {x:cx+Math.cos(a)*rx,y:cy+Math.sin(a)*ry}}
+function questTick(){const on=questOn();if(on!==qOn){qOn=on;const qb=$('questbar');qb.hidden=!on;
+  if(on){qb.innerHTML='';qb.append('👀 ',Object.assign(document.createElement('span'),{textContent:'Ada yang berkeliaran di sawah… temukan sebelum '}),Object.assign(document.createElement('b'),{textContent:QUEST.end+' WIB'}),'!')}dirty=true}}
+if(QUEST){questTick();setInterval(questTick,20000)}
 function frame(now){
   if(fly){const k=Math.min(1,(now-fly.t0)/fly.ms),e=ease(k);
     const zf=Math.exp(Math.log(fly.from.zoom)+(Math.log(fly.to.zoom)-Math.log(fly.from.zoom))*e);
@@ -744,6 +780,7 @@ function frame(now){
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
     NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true});
+    if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawScarecrow(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
     drawLabels(v,reduce?0:t);dirty=false;
   }
   requestAnimationFrame(frame);
@@ -765,6 +802,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientR
 cv.addEventListener('dblclick',e=>{const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,1.7)});
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
+  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;showResult({kind:'q'});dirty=true;return}}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
   const bi=BLD.findIndex(b=>{const w=b.w||3;return tx>=b.x&&tx<b.x+w&&ty>=b.y&&ty<b.y+w});if(bi>=0)return select({kind:'b',i:bi});
@@ -810,8 +848,13 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+r.roof:'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+    if(r.promo&&r.promo.text){const pr=el('p','promo');pr.append(el('b',null,'📣 Promo pendukung: '),document.createTextNode(String(r.promo.text).slice(0,140)));left.append(pr);
+      if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     const cp=el('button','btn dark','Salin link rumahku');cp.type='button';
     cp.onclick=()=>copy(location.origin+location.pathname+'#'+encodeURIComponent(r.name));acts.append(cp)}
+  else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🎉`),
+      el('p',null,q.code?`Kode rahasia: ${q.code}. Tulis kode ini di komentar video terbaru @negerikomen sebelum ${q.end} WIB.`:`Screenshot layar ini dan komen "ketemu" di video terbaru @negerikomen sebelum ${q.end} WIB.`));
+    const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}
   else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'))}
   else{const b=BLD[s.i];left.append(el('h2',null,b.name||'Bangunan'),
       el('p',null,[(NK.BTYPES[b.type]||{}).label,b.by&&b.by!=='negerikomen'?'usulan @'+b.by:'dibangun kepala desa','hari ke-'+(b.day||1)].filter(Boolean).join(' · ')))}

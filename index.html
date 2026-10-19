@@ -122,6 +122,18 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .trak-lede{margin:0;font-size:14.5px}
 .trak-note{margin:10px 0 0;font-size:13px;color:var(--muted)}
 .btn.gold{background:var(--kuning);border:2px solid var(--ink);color:var(--ink);box-shadow:0 2px 0 var(--ink);width:100%}
+.toko{border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink)}
+.toko h3{color:var(--genteng)}
+.tlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.tlist button{width:100%;display:grid;grid-template-columns:56px minmax(0,1fr);gap:2px 12px;text-align:left;font:inherit;background:none;border:0;border-radius:12px;padding:8px;cursor:pointer;color:var(--ink)}
+.tlist button:hover{background:var(--field)}
+.tlist .th{grid-row:span 3;width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--field);border:1px solid var(--line);display:grid;place-items:center;font-size:24px}
+.tlist b{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tlist .who{font-size:13px;color:var(--muted)}
+.tlist .who em{font-style:normal;font-weight:700;color:var(--daun)}
+.tlist .ds{font-size:13.5px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.toko .note{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.result .shopimg{width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--line);float:left;margin:0 12px 4px 0}
 .voucher{border:2px dashed var(--genteng);background:#FFF8F4}
 .voucher .lbl{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--genteng);color:#fff;border-radius:6px;padding:3px 7px;margin-bottom:8px}
 .voucher p{margin:8px 0 0;font-size:13px;color:var(--muted)}
@@ -175,6 +187,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="stat"><b id="sWarga">1</b><span>Warga</span></div>
         <div class="stat free"><b id="sFree">50</b><span>Kavling kosong</span></div>
         <div class="stat"><b id="sBld">2</b><span>Bangunan</span></div>
+      </div>
+
+      <div class="card toko" id="toko" hidden>
+        <h3 id="tokoTitle">Toko Warga</h3>
+        <ul class="tlist" id="tList"></ul>
+        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Pilih paket <b>Buka Usaha</b> di Trakteer.</p>
       </div>
 
       <div class="card goal" id="goal" hidden>
@@ -338,6 +356,8 @@ function drawKavling(p,s,t,i){
   ctx.fillStyle='#D8312A';ctx.beginPath();ctx.moveTo(w/2-2,-w/2-12);ctx.lineTo(w/2+9,-w/2-9+wave);ctx.lineTo(w/2-2,-w/2-5);ctx.closePath();ctx.fill();
   ctx.restore();
 }
+function wibToday(){return new Date(Date.now()+252e5).toISOString().slice(0,10)}
+function shopOn(r,d){const o=r&&r.shop;if(!o||!o.name||typeof o.until!=='string')return false;d=d||wibToday();return o.until>=d&&(!o.start||o.start<=d)}
 function drawHouse(r,s,a){
   const lx=mod(r.x-C,S),ly=mod(r.y-C,S);
   const r1=ih(r.x,r.y,2),r2=ih(r.x,r.y,3),r3=ih(r.x,r.y,4);
@@ -355,7 +375,13 @@ function drawHouse(r,s,a){
   }else{ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w/2,h);ctx.fillStyle=shade(roof,-12);ctx.fillRect(0,-h/2,w/2,h);
     ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-h/2+5;k<h/2;k+=5){ctx.moveTo(-w/2,k);ctx.lineTo(w/2,k)}ctx.stroke();
     ctx.strokeStyle=shade(roof,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-h/2);ctx.lineTo(0,h/2);ctx.stroke()}
-  if(r.sup){ // pendukung Trakteer: bendera genteng emas
+  if(shopOn(r)){ // toko warga: tenda belang di sisi jalan
+    const L=horiz?w:h,F=horiz?h:w,n=5,sw=(L+4)/n,d=6.5;
+    ctx.save();ctx.rotate(dy===1?0:dy===-1?Math.PI:dx===1?-Math.PI/2:Math.PI/2);
+    for(let i=0;i<n;i++){const x0=-L/2-2+i*sw;ctx.fillStyle=i%2?'#FFFDF6':'#2E8B6A';ctx.fillRect(x0,F/2-1,sw,d);
+      ctx.beginPath();ctx.arc(x0+sw/2,F/2-1+d,sw/2,0,Math.PI);ctx.fill()}
+    ctx.strokeStyle='rgba(28,37,32,.75)';ctx.lineWidth=1.1;ctx.strokeRect(-L/2-2,F/2-1,L+4,d);ctx.restore()}
+  if(r.sup||shopOn(r)){ // pendukung Trakteer: bendera genteng emas
     ctx.fillStyle='#5A4A3A';ctx.fillRect(w/2-3,-h/2-13,2.2,16);
     ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(w/2-1,-h/2-13);ctx.lineTo(w/2+11,-h/2-9);ctx.lineTo(w/2-1,-h/2-5);ctx.closePath();ctx.fill();
     ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke()}
@@ -643,7 +669,7 @@ function tag(x,y,name,sub,fs,strong,own){
   if(sub){ctx.fillStyle=own?'#C4502F':'#5E6B62';ctx.font=`500 ${fs*0.78}px Figtree, "Segoe UI", sans-serif`;ctx.fillText(sub,bx+pw,by+fs*1.85)}
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
-return {T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
+return {wibToday,shopOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
   nextSlot,freePlots,parseRoof,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,tag};
 })();
 
@@ -692,6 +718,23 @@ if(!RES.length){$('newList').innerHTML='';const p=document.createElement('p');p.
 else showNew.slice().reverse().slice(0,40).forEach(({r,i})=>{const b=document.createElement('button');b.type='button';
   const sw=document.createElement('i');sw.style.background=NK.roofHex(r);b.append(sw,document.createTextNode('@'+r.name));
   b.onclick=()=>{select({kind:'r',i});scrollMap()};$('newList').append(b)});
+
+/* toko warga (30 hari) */
+const TODAY=NK.wibToday();
+const daysLeft=r=>Math.max(1,Math.round((Date.parse(r.shop.until)-Date.parse(TODAY))/864e5)+1);
+const safeImg=u=>typeof u==='string'&&(/^https:\/\//.test(u)||(/^[\w\-\/.]+$/.test(u)&&!u.includes('..')))?u:'';
+const safeUrl=u=>typeof u==='string'&&/^https:\/\//.test(u.trim())?u.trim():'';
+const SHOPS=RES.map((r,i)=>({r,i})).filter(o=>NK.shopOn(o.r,TODAY)).sort((a,b)=>String(b.r.shop.start||'').localeCompare(String(a.r.shop.start||''))||a.i-b.i);
+if(SHOPS.length){$('toko').hidden=false;$('tokoTitle').textContent=`Toko Warga (${fmt(SHOPS.length)})`;
+  SHOPS.forEach(({r,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+    const src=safeImg(r.shop.img);let th;
+    if(src){th=document.createElement('img');th.src=src;th.alt='';th.loading='lazy';th.width=56;th.height=56;th.onerror=()=>{const f=el('span','th','🏪');th.replaceWith(f)}}else th=el('span',null,'🏪');
+    th.classList.add('th');
+    const left=daysLeft(r);const who=el('span','who','@'+r.name+' · ');who.append(el('em',null,left===1?'hari terakhir':`tinggal ${left} hari`));
+    bt.append(th,el('b',null,r.shop.name),who);if(r.shop.desc)bt.append(el('span','ds',String(r.shop.desc).slice(0,140)));
+    bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('tList').append(li)})}
+if(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||''))){const a=document.createElement('a');a.href=D.trakteer.url.trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
+  const n=$('tokoNote');n.innerHTML='';n.append('Mau rumahmu jadi toko selama 30 hari? Pilih paket ',a,' di Trakteer.');if(!SHOPS.length){$('toko').hidden=false;$('tList').append(el('li','empty','Belum ada toko. Jadilah toko pertama di Negeri Komen!'))}}
 
 /* daftar bangunan */
 BLD.forEach((b,i)=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
@@ -750,16 +793,17 @@ function drawLabels(v,t){
     ctx.strokeStyle='rgba(28,37,32,.85)';ctx.lineWidth=1.5*dpr;ctx.stroke();ctx.restore()}
   const lift=y=>y-hs*.45*dpr;
   if(sel){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
-    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy),'@'+r.name,`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
+    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:'@'+r.name,NK.shopOn(r,TODAY)?'@'+r.name:`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'usulan @'+b.by:'',true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.name||'Bangunan','',false)});
+  if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
   if(hs>=24){const cx=cv.width/2,cy=cv.height/2;
     const list=RES.map((r,i)=>{const [sx,sy]=toS(r.x,r.y);return {r,i,sx,sy,d:Math.hypot(sx-cx,sy-cy)-(r.day===D.day?400*dpr:0)}})
       .filter(o=>o.sx>-80&&o.sy>-40&&o.sx<cv.width+80&&o.sy<cv.height+80).sort((a,b)=>a.d-b.d).slice(0,120);
-    list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy),'@'+o.r.name,'',false)})}
+    list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy),NK.shopOn(o.r,TODAY)?'🏪 '+o.r.shop.name:'@'+o.r.name,'',false)})}
 }
 /* ---------- daily quest: Si Jaga Sawah muncul di jam tertentu (WIB) ---------- */
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
@@ -814,10 +858,10 @@ let hintGone=false;function hideHint(){if(!hintGone){hintGone=true;$('hint').hid
 
 /* ---------- cari ---------- */
 const norm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/^@+/,'').replace(/\s+/g,'');
-const IDX=RES.map((r,i)=>({i,u:norm(r.name),n:norm(r.nick)}));
+const IDX=RES.map((r,i)=>({i,u:norm(r.name),n:norm(r.nick),t:NK.shopOn(r,TODAY)?norm(r.shop.name):''}));
 function find(q){const k=norm(q);if(!k)return [];const out=[];
   if('negerikomen'.startsWith(k)||k==='kepaladesa')out.push({kind:'o',score:0});
-  IDX.forEach(o=>{let s=9;if(o.u===k||o.n===k)s=0;else if(o.u.startsWith(k)||o.n.startsWith(k))s=1;else if(o.u.includes(k)||o.n.includes(k))s=2;
+  IDX.forEach(o=>{let s=9;if(o.u===k||o.n===k)s=0;else if(o.u.startsWith(k)||o.n.startsWith(k))s=1;else if(o.u.includes(k)||o.n.includes(k))s=2;else if(o.t&&o.t.includes(k))s=1;
     if(s<9)out.push({kind:'r',i:o.i,score:s})});
   return out.sort((a,b)=>a.score-b.score||(a.i||0)-(b.i||0)).slice(0,7)}
 let sugItems=[],active=-1;
@@ -848,6 +892,11 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+r.roof:'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+    if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);
+      const h=left.firstChild;const box2=el('div');if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.onerror=()=>im.remove();box2.append(im)}
+      box2.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)));
+      if(sh.desc)box2.append(Object.assign(el('p','promo',String(sh.desc).slice(0,140))));h.replaceWith(box2);
+      const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Kunjungi toko');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     if(r.promo&&r.promo.text){const pr=el('p','promo');pr.append(el('b',null,'📣 Promo pendukung: '),document.createTextNode(String(r.promo.text).slice(0,140)));left.append(pr);
       if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     const cp=el('button','btn dark','Salin link rumahku');cp.type='button';

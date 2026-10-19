@@ -108,6 +108,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:14px;font-weight:600;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chips button:hover{border-color:var(--daun)}
+.okb{background:#FFF8E6;border-color:#EBD58A}
+.okb .ico{background:#F2C230!important;border-color:#1C2520!important}
 .chips.gold button{background:#FFF6D8;border-color:#EBD58A}
 .chips button i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
 .empty{margin:0;color:var(--muted);font-size:14.5px}
@@ -245,6 +247,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <p class="note">Rumahmu muncul di episode berikutnya. Update tiap hari jam 19.00 WIB.</p>
       </div>
 
+      <div class="card okb" id="okb" hidden>
+        <h3 id="okbTitle">🏆 Orang Kaya Baru</h3>
+        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Rumah custom pemenang cerita paling seru.</p>
+        <ul class="blist" id="okbList"></ul>
+      </div>
+
       <div class="card" id="sups" hidden>
         <h3 id="supTitle">Pendukung kampung</h3>
         <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Terima kasih sudah traktir Genteng 🚩</p>
@@ -337,14 +345,32 @@ function freePlots(residents,buildings,n){
 }
 
 // warna atap dari komentar ("Budi, atap biru")
-const ROOF_HEX={'merah':'#C4402F','merah muda':'#E58AA6','biru':'#2F74B5','biru muda':'#6FB3E0','hijau':'#2E9C6A','kuning':'#E2B23A',
-  'oranye':'#E07A3E','ungu':'#8E5AA8','coklat':'#8E5A3C','hitam':'#3A3A3A','abu-abu':'#8A8F94','putih':'#E9E6DD','emas':'#D4A72C','tosca':'#2AA39A','navy':'#24406E'};
-const ROOF_WORDS=[['merah muda','merah muda'],['pink','merah muda'],['biru muda','biru muda'],['merah','merah'],['red','merah'],['biru','biru'],['blue','biru'],
+const ROOF_HEX={'merah':'#C4402F','merah muda':'#E58AA6','biru':'#2F74B5','biru muda':'#6FB3E0','hijau':'#2E9C6A','hijau muda':'#7CC46A','kuning':'#E2B23A',
+  'oranye':'#E07A3E','ungu':'#8E5AA8','ungu muda':'#B79AD8','coklat':'#8E5A3C','hitam':'#3A3A3A','abu-abu':'#8A8F94','putih':'#E9E6DD','emas':'#D4A72C',
+  'tosca':'#2AA39A','navy':'#24406E','krem':'#E8D6AE','marun':'#7A2333','terakota':'#C0643F'};
+// warna dinding: versi lebih lembut supaya atap tetap menonjol
+const WALL_HEX={'merah':'#D9725E','merah muda':'#F2B8C8','biru':'#7FA8D6','biru muda':'#BFDDF0','hijau':'#8CC7A3','hijau muda':'#C6E3B0','kuning':'#F3DB8A',
+  'oranye':'#F0B184','ungu':'#B79AD0','ungu muda':'#D9C9EE','coklat':'#B88A69','hitam':'#4A4A4A','abu-abu':'#B9BDC1','putih':'#FBF8F1','emas':'#E8C766',
+  'tosca':'#8FD3C9','navy':'#5A719B','krem':'#F1E4C6','marun':'#A9505E','terakota':'#DB8E6E'};
+const ROOF_WORDS=[['merah muda','merah muda'],['pink','merah muda'],['biru muda','biru muda'],['biru cerah','biru muda'],['biru langit','biru muda'],['hijau muda','hijau muda'],
+  ['ungu muda','ungu muda'],['lilac','ungu muda'],['lilak','ungu muda'],['lavender','ungu muda'],['merah','merah'],['red','merah'],['biru','biru'],['blue','biru'],
   ['hijau','hijau'],['green','hijau'],['kuning','kuning'],['yellow','kuning'],['oranye','oranye'],['orange','oranye'],['jingga','oranye'],['ungu','ungu'],['purple','ungu'],
   ['coklat','coklat'],['cokelat','coklat'],['brown','coklat'],['hitam','hitam'],['black','hitam'],['abu-abu','abu-abu'],['abu','abu-abu'],['grey','abu-abu'],['gray','abu-abu'],
-  ['putih','putih'],['white','putih'],['emas','emas'],['gold','emas'],['tosca','tosca'],['toska','tosca'],['navy','navy']];
-function parseRoof(text){const s=' '+String(text||'').toLowerCase()+' ';
-  for(const [w,c] of ROOF_WORDS){if(new RegExp('(^|[^a-z])'+w+'([^a-z]|$)').test(s))return c}return null}
+  ['putih','putih'],['white','putih'],['emas','emas'],['gold','emas'],['tosca','tosca'],['toska','tosca'],['navy','navy'],
+  ['cream','krem'],['krem','krem'],['beige','krem'],['burgundy','marun'],['maroon','marun'],['marun','marun'],['terracotta','terakota'],['terakota','terakota'],['genteng','terakota']];
+const COLOR_RE=new RegExp('(^|[^a-z])('+ROOF_WORDS.map(w=>w[0].replace('-','\\-')).join('|')+')(?=[^a-z]|$)','g');
+// semua warna di teks beserta posisinya
+function colorsIn(s){const out=[];let m;COLOR_RE.lastIndex=0;while((m=COLOR_RE.exec(s))){const w=m[2];out.push({i:m.index+m[1].length,c:ROOF_WORDS.find(x=>x[0]===w)[1]})}return out}
+// cari warna pertama dalam ~24 huruf setelah kata kunci
+function colorAfter(s,re){re.lastIndex=0;const m=re.exec(s);if(!m)return null;const from=m.index+m[0].length;
+  const hit=colorsIn(s).find(o=>o.i>=from&&o.i-from<=24);return hit?hit.c:null}
+// {roof, wall} dari komentar. "atap X" = atap, "rumah/dinding/tembok X" = dinding, warna tanpa kata kunci = atap
+function parseColors(text){const s=' '+String(text||'').toLowerCase().replace(/\s+/g,' ')+' ';
+  const roof=colorAfter(s,/atap(nya)?/g);const wall=colorAfter(s,/(rumah|rmh|dinding|tembok|cat)(nya)?/g);
+  let r=roof;if(!r){const all=colorsIn(s).filter(o=>!(wall&&o.c===wall));r=all.length?all[0].c:null;if(!r&&!wall){r=null}}
+  return {roof:r,wall}}
+function parseRoof(text){return parseColors(text).roof}
+function parseWall(text){return parseColors(text).wall}
 const NICK_STOP=/\b(atap|warna|bangun|rumah|mau|pindah|ikut|aku|saya|request|tolong|dong|min|kak|bang|bikin|buat|follow|udah|sudah|halo|hai)\b/i;
 function parseNick(text){const seg=String(text||'').split(/[,|\n.!]/)[0].trim();
   if(!seg||seg.length>20||/\d|@|#|http/.test(seg)||NICK_STOP.test(seg)||parseRoof(seg))return '';
@@ -398,7 +424,7 @@ function drawHouse(r,s,a){
   ctx.save();ctx.translate(wx(r.x),wx(r.y));ctx.scale(s,s);ctx.globalAlpha*=a;
   ctx.fillStyle='rgba(30,40,20,.22)';ctx.fillRect(-w/2+5,-h/2+6,w,h);
   ctx.fillStyle='rgba(235,225,190,.55)';ctx.fillRect(-w/2-3+dx*4,-h/2-3+dy*4,w+6,h+6);
-  ctx.fillStyle=WALLS[Math.floor(r3*WALLS.length)];ctx.fillRect(-w/2+dx*5,-h/2+dy*5,w,h);
+  ctx.fillStyle=WALL_HEX[r.wall]||WALLS[Math.floor(r3*WALLS.length)];ctx.fillRect(-w/2+dx*6,-h/2+dy*6,w,h);
   const roof=roofHex(r);
   if(horiz){ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w,h/2);ctx.fillStyle=shade(roof,-12);ctx.fillRect(-w/2,0,w,h/2);
     ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-w/2+5;k<w/2;k+=5){ctx.moveTo(k,-h/2);ctx.lineTo(k,h/2)}ctx.stroke();
@@ -731,7 +757,7 @@ function tag(x,y,name,sub,fs,strong,own){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wibToday,shopOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag};
+  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag};
 })();
 
 </script>
@@ -822,6 +848,13 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
     if(ri>=0){if(!NK.shopOn(RES[ri],TODAY)){RES[ri].shop=shop;IDX[ri].t=norm(name);changed=true}}
     else if(!EXTRA.some(e=>norm(e.name)===norm(user))){EXTRA.push(fake);changed=true}});
   if(changed){renderShops();renderSups();dirty=true}}).catch(()=>{});
+
+/* orang kaya baru: pemenang rumah custom */
+{const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.custom&&o.r.custom.title);
+  if(L.length){$('okb').hidden=false;$('okbTitle').textContent=`🏆 Orang Kaya Baru (${fmt(L.length)})`;
+    L.forEach(({r,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+      bt.append(el('span','ico','🏡'),el('b',null,'@'+r.name),el('span',null,String(r.custom.title).slice(0,80)+(r.custom.day?` · hari ke-${r.custom.day}`:'')));
+      bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('okbList').append(li)})}}
 
 /* pendukung Trakteer (bendera emas / toko) */
 function renderSups(){const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.sup||NK.shopOn(o.r,TODAY));const box=$('supList');box.innerHTML='';
@@ -986,6 +1019,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+r.roof:'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+    if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,80)))}
     if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);
       const h=left.firstChild;const box2=el('div');if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.onerror=()=>im.remove();box2.append(im)}
       box2.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)));

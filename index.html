@@ -589,6 +589,36 @@ function drawScarecrow(x,y,t,s){
   ctx.restore();
 }
 
+function drawUfo(x,y,t,s){
+  const hov=Math.sin(t*2.4)*5,tilt=Math.sin(t*1.3)*0.08,blink=Math.floor(t*6);
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  // sorot cahaya ke tanah
+  const pulse=0.55+0.25*Math.sin(t*3.1);
+  const g=ctx.createRadialGradient(18,30,4,18,30,62);g.addColorStop(0,`rgba(190,255,230,${0.55*pulse})`);g.addColorStop(1,'rgba(190,255,230,0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(18,30,62,40,0,0,7);ctx.fill();
+  // bayangan
+  ctx.fillStyle='rgba(20,30,10,.25)';ctx.beginPath();ctx.ellipse(18,30,40,16,0,0,7);ctx.fill();
+  ctx.translate(0,-22+hov);ctx.rotate(tilt);
+  // piringan
+  ctx.fillStyle='#9AA7B0';ctx.beginPath();ctx.ellipse(0,6,58,22,0,0,7);ctx.fill();
+  ctx.fillStyle='#C9D3D9';ctx.beginPath();ctx.ellipse(0,0,58,20,0,0,7);ctx.fill();
+  ctx.strokeStyle='#1C2520';ctx.lineWidth=3.5;ctx.beginPath();ctx.ellipse(0,2,58,22,0,0,7);ctx.stroke();
+  ctx.strokeStyle='rgba(28,37,32,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,1,40,13,0,0,7);ctx.stroke();
+  // lampu keliling berkedip
+  for(let i=0;i<8;i++){const a=i/8*Math.PI*2,on=(i+blink)%3===0;
+    ctx.fillStyle=on?'#F2C230':'#7A5A10';ctx.beginPath();ctx.arc(Math.cos(a)*48,4+Math.sin(a)*16,4.2,0,7);ctx.fill();
+    if(on){ctx.fillStyle='rgba(242,194,48,.35)';ctx.beginPath();ctx.arc(Math.cos(a)*48,4+Math.sin(a)*16,9,0,7);ctx.fill()}}
+  // kubah kaca
+  ctx.fillStyle='#7FE0C8';ctx.beginPath();ctx.ellipse(0,-6,24,18,0,Math.PI,0);ctx.lineTo(24,-6);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(-8,-14,7,4,-0.5,0,7);ctx.fill();
+  // alien kecil mengintip
+  ctx.fillStyle='#5BBF5B';ctx.beginPath();ctx.arc(4,-10,7,0,7);ctx.fill();
+  ctx.fillStyle='#1C2520';ctx.beginPath();ctx.arc(2,-11,1.6,0,7);ctx.arc(7,-11,1.6,0,7);ctx.fill();
+  ctx.strokeStyle='#1C2520';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-6,24,18,0,Math.PI,0);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-24,-6);ctx.lineTo(24,-6);ctx.stroke();
+  ctx.restore();
+}
+
 /* Gambar seluruh dunia. v={W,H,z,ox,oy}: layar = o + dunia*z.
    w={residents,buildings,free}. o={anim(kind,i)->{s,a}, vehicles}. Mengembalikan blok aktif. */
 function drawWorld(v,w,t,o={}){
@@ -697,7 +727,7 @@ function tag(x,y,name,sub,fs,strong,own){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wibToday,shopOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,tag};
+  nextSlot,freePlots,parseRoof,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag};
 })();
 
 </script>
@@ -865,17 +895,17 @@ function drawLabels(v,t){
       .filter(o=>o.sx>-80&&o.sy>-40&&o.sx<cv.width+80&&o.sy<cv.height+80).sort((a,b)=>a.d-b.d).slice(0,120);
     list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy),NK.shopOn(o.r,TODAY)?'🏪 '+o.r.shop.name:'@'+o.r.name,'',false)})}
 }
-/* ---------- daily quest: Si Jaga Sawah muncul di jam tertentu (WIB) ---------- */
+/* ---------- daily quest: UFO Nyasar muncul di jam tertentu (WIB) ---------- */
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
-  {name:D.quest.name||'Si Jaga Sawah',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||''}:null;
+  {name:D.quest.name||'UFO Nyasar',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||''}:null;
 const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
 function questOn(){if(!QUEST)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
   return a<=b?(w>=a&&w<b):(w>=a||w<b)}
 let qOn=false;
-function questPos(t){const cx=(BB.x0+BB.x1)/2,cy=(BB.y0+BB.y1)/2,rx=(BB.x1-BB.x0)/2+T*3.2,ry=(BB.y1-BB.y0)/2+T*3.2,a=t*0.035+1.3;
-  return {x:cx+Math.cos(a)*rx,y:cy+Math.sin(a)*ry}}
+function questPos(t){const cx=(BB.x0+BB.x1)/2,cy=(BB.y0+BB.y1)/2,rx=(BB.x1-BB.x0)/2+T*2.4,ry=(BB.y1-BB.y0)/2+T*2.4,a=t*0.035+1.3;
+  return {x:cx+Math.cos(a)*rx+Math.sin(t*0.41)*T*1.2,y:cy+Math.sin(a)*ry+Math.cos(t*0.33)*T*1.2}}
 function questTick(){const on=questOn();if(on!==qOn){qOn=on;const qb=$('questbar');qb.hidden=!on;
-  if(on){qb.innerHTML='';qb.append('👀 ',Object.assign(document.createElement('span'),{textContent:'Ada yang berkeliaran di sawah… temukan sebelum '}),Object.assign(document.createElement('b'),{textContent:QUEST.end+' WIB'}),'!')}dirty=true}}
+  if(on){qb.innerHTML='';qb.append('🛸 ',Object.assign(document.createElement('span'),{textContent:'Ada cahaya aneh di atas sawah… temukan UFO-nya sebelum '}),Object.assign(document.createElement('b'),{textContent:QUEST.end+' WIB'}),'!')}dirty=true}}
 if(QUEST){questTick();setInterval(questTick,20000)}
 function frame(now){
   if(fly){const k=Math.min(1,(now-fly.t0)/fly.ms),e=ease(k);
@@ -884,7 +914,7 @@ function frame(now){
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
     NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true});
-    if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawScarecrow(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
+    if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
     drawLabels(v,reduce?0:t);dirty=false;
   }
   requestAnimationFrame(frame);
@@ -961,7 +991,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     const cp=el('button','btn dark','Salin link rumahku');cp.type='button';
     cp.onclick=()=>copy(location.origin+location.pathname+'#'+encodeURIComponent(r.name));acts.append(cp)}
-  else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🎉`),
+  else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🛸`),
       el('p',null,q.code?`Kode rahasia: ${q.code}. Tulis kode ini di komentar video terbaru @negerikomen sebelum ${q.end} WIB.`:`Screenshot layar ini dan komen "ketemu" di video terbaru @negerikomen sebelum ${q.end} WIB.`));
     const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}
   else if(s.kind==='s'){const r=EXTRA[s.j],sh=r.shop,src=safeImg(sh.img);if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.referrerPolicy='no-referrer';im.onerror=()=>im.remove();left.append(im)}

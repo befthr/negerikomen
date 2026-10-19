@@ -205,7 +205,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="card toko" id="toko" hidden>
         <div class="trak-row">
           <img src="toko.png" alt="" width="56" height="56">
-          <div><h3 id="tokoTitle" style="margin:0 0 2px">Toko Warga</h3><p class="trak-lede">Usaha milik warga Negeri Komen. Klik untuk ke rumahnya.</p></div>
+          <div><h3 id="tokoTitle" style="margin:0 0 2px">Toko Warga (0)</h3><p class="trak-lede">Usaha milik warga Negeri Komen. Klik untuk ke rumahnya.</p></div>
         </div>
         <ul class="tlist" id="tList"></ul>
         <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Pilih paket <b>Buka Usaha</b> di Trakteer.</p>
@@ -754,7 +754,7 @@ function renderShops(){
   SHOPS=RES.map((r,i)=>({r,i})).filter(o=>NK.shopOn(o.r,TODAY)).concat(EXTRA.map((r,j)=>({r,i:-1,j})))
     .sort((a,b)=>String(b.r.shop.start||'').localeCompare(String(a.r.shop.start||''))||a.i-b.i);
   const ul=$('tList');ul.innerHTML='';
-  $('tokoTitle').textContent=SHOPS.length?`Toko Warga (${fmt(SHOPS.length)})`:'Toko Warga';
+  $('tokoTitle').textContent=`Toko Warga (${fmt(SHOPS.length)})`;
   if(!SHOPS.length){if(HAS_TRAK){$('toko').hidden=false;ul.append(el('li','empty','Belum ada toko. Jadilah toko pertama di Negeri Komen!'))}return}
   $('toko').hidden=false;
   SHOPS.forEach(o=>{const r=o.r,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';

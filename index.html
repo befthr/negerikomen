@@ -121,6 +121,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.badges i{font-style:normal;font-size:11.5px;font-weight:700;background:#1C2520;color:#F2C230;border-radius:999px;padding:2px 8px}
 .okb{background:#FFF8E6;border-color:#EBD58A}
 .okb .ico{background:#F2C230!important;border-color:#1C2520!important}
+.supnote{margin:12px 0 0;padding-top:10px;border-top:1.5px dashed #C9D1C6;font-size:13.5px;color:var(--muted)}
+.supnote a{font-weight:700;color:var(--genteng);text-decoration:none;white-space:nowrap}
 .chips.gold button{background:#FFF6D8;border-color:#EBD58A}
 .chips button i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
 .empty{margin:0;color:var(--muted);font-size:14.5px}
@@ -275,6 +277,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <h3 id="supTitle">Pendukung kampung</h3>
         <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Terima kasih sudah traktir Genteng 🚩</p>
         <div class="chips gold" id="supList"></div>
+        <p class="supnote" id="supNote" hidden>Mau namamu ikut nongol di sini? Cukup traktir <b>1 Genteng</b>, kepala desa langsung catat 🧱 <a id="supLink" href="#" target="_blank" rel="noopener">Traktir Genteng →</a></p>
       </div>
 
       <div class="card trak" id="trak" hidden>
@@ -930,6 +933,7 @@ function renderSups(){const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.sup||o.r.don
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent=(NK.shopOn(r,TODAY)?'🏪 ':r.sup?'🚩 ':'🧱 ')+'@'+r.name;
     b.onclick=()=>{select({kind:'r',i});scrollMap()};box.append(b)})}
 renderSups();
+if(HAS_TRAK){$('supNote').hidden=false;$('supLink').href=D.trakteer.url.trim()}
 
 /* daftar bangunan */
 BLD.forEach((b,i)=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';

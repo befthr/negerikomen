@@ -108,6 +108,12 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:14px;font-weight:600;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chips button:hover{border-color:var(--daun)}
+.award{background:linear-gradient(180deg,#FFF6D8,#FFFDF4);border:2px solid #E2B23A}
+.award h3{color:#8A6A10}
+.award .blist button>*:not(.ico){grid-column:2}
+.award .blist button>span:last-child:not(.badges){margin-top:4px}
+.award .ico{background:#F2C230!important;border-color:#1C2520!important}
+.badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.badges i{font-style:normal;font-size:11.5px;font-weight:700;background:#1C2520;color:#F2C230;border-radius:999px;padding:2px 8px}
 .okb{background:#FFF8E6;border-color:#EBD58A}
 .okb .ico{background:#F2C230!important;border-color:#1C2520!important}
 .chips.gold button{background:#FFF6D8;border-color:#EBD58A}
@@ -208,6 +214,11 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="stat"><b id="sWarga">1</b><span>Warga</span></div>
         <div class="stat free"><b id="sFree">50</b><span>Kavling kosong</span></div>
         <div class="stat"><b id="sBld">2</b><span>Bangunan</span></div>
+      </div>
+
+      <div class="card award" id="award" hidden>
+        <h3>🏅 Papan Penghargaan</h3>
+        <ul class="blist" id="awardList"></ul>
       </div>
 
       <div class="card toko" id="toko" hidden>
@@ -329,7 +340,8 @@ SLOTS.sort((a,b)=>a.k-b.k);
 const BTYPES={
   warung:{label:'Warung'},warkop:{label:'Warung kopi'},masjid:{label:'Masjid'},lapangan:{label:'Lapangan'},
   sekolah:{label:'Sekolah'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Puskesmas'},
-  umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'}
+  umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'},
+  padang:{label:'Rumah makan padang'},polisi:{label:'Kantor polisi'}
 };
 const STARTER=[
   {type:'posronda',name:'Pos Ronda',by:'negerikomen',day:1,x:C-1,y:C+1,w:1},
@@ -525,6 +537,40 @@ function drawBuilding(b,s,a){
     drawTree(X+28,Y+32,11,.8);drawTree(X+98,Y+46,10,.2);drawTree(X+34,Y+96,9,.6);
     [[X+56,Y+66,'#E58AA6'],[X+62,Y+72,'#E2B23A'],[X+50,Y+74,'#FFFFFF'],[X+70,Y+104,'#E58AA6']].forEach(([px,py,c])=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(px,py,3,0,7);ctx.fill()});
     ctx.fillStyle='#8E5A3C';ctx.fillRect(X+54,Y+40,18,5);
+  }else if(t==='padang'){
+    ctx.fillStyle='#E4D3B0';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    // badan rumah gadang
+    box(X+20,Y+24,80,44,'#7A2B1F');
+    // atap gonjong: ujung melengkung lancip ke luar (tampak atas)
+    const gj=(x0,x1,y0,y1,c)=>{const my=(y0+y1)/2;ctx.fillStyle=c;ctx.beginPath();
+      ctx.moveTo(x0+10,y0);ctx.lineTo(x1-10,y0);ctx.quadraticCurveTo(x1-4,y0-2,x1+6,y0-9);ctx.quadraticCurveTo(x1+2,my,x1+6,y1+9);
+      ctx.quadraticCurveTo(x1-4,y1+2,x1-10,y1);ctx.lineTo(x0+10,y1);ctx.quadraticCurveTo(x0+4,y1+2,x0-6,y1+9);ctx.quadraticCurveTo(x0-2,my,x0-6,y0-9);
+      ctx.quadraticCurveTo(x0+4,y0-2,x0+10,y0);ctx.closePath();ctx.fill();ctx.strokeStyle='#1C1410';ctx.lineWidth=2;ctx.stroke();
+      ctx.strokeStyle='#E2B23A';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0+2,my);ctx.lineTo(x1-2,my);ctx.stroke();
+      ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1;ctx.beginPath();for(let k=x0+8;k<x1-6;k+=6){ctx.moveTo(k,y0+2);ctx.lineTo(k,y1-2)}ctx.stroke()};
+    ctx.fillStyle=SH;ctx.fillRect(X+18,Y+20,90,52);
+    gj(X+14,X+106,Y+14,Y+66,'#3B2A22');
+    gj(X+44,X+76,Y+30,Y+50,'#4A3328');
+    // ukiran merah-emas di depan
+    ctx.fillStyle='#B3362A';ctx.fillRect(X+22,Y+68,76,7);ctx.fillStyle='#E2B23A';for(let k=X+24;k<X+96;k+=8)ctx.fillRect(k,Y+70,4,3);
+    // papan nama
+    ctx.fillStyle=SH;rr(X+30,Y+82,64,16,4);ctx.fill();ctx.fillStyle='#E2B23A';rr(X+28,Y+80,64,16,4);ctx.fill();
+    ctx.strokeStyle='#7A2B1F';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#7A2B1F';ctx.font='800 9px Figtree, sans-serif';ctx.textAlign='center';ctx.fillText('RM PADANG',X+60,Y+91.5);ctx.textAlign='left';
+    // meja makan
+    [[X+18,Y+104],[X+102,Y+104]].forEach(([px,py])=>{ctx.fillStyle=SH;ctx.beginPath();ctx.arc(px+2,py+3,7,0,7);ctx.fill();ctx.fillStyle='#F6F1E6';ctx.beginPath();ctx.arc(px,py,7,0,7);ctx.fill();ctx.fillStyle='#C4502F';ctx.beginPath();ctx.arc(px,py,2.5,0,7);ctx.fill()});
+  }else if(t==='polisi'){
+    ctx.fillStyle='#C9CDD0';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2;for(let k=0;k<3;k++){ctx.strokeRect(X+66+k*16,Y+84,14,26)}
+    box(X+14,Y+14,92,58,'#F4F4F2');
+    ctx.fillStyle='#24406E';ctx.fillRect(X+14,Y+14,92,58);ctx.fillStyle='#2F5A93';ctx.fillRect(X+20,Y+20,80,46);
+    ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(X+24,Y+24,30,16);
+    ctx.fillStyle='#F4F4F2';ctx.fillRect(X+14,Y+66,92,8);ctx.fillStyle='#24406E';ctx.fillRect(X+14,Y+69,92,2);
+    ctx.fillStyle='#FFFFFF';ctx.font='800 11px Figtree, sans-serif';ctx.textAlign='center';ctx.fillText('POLISI',cx,Y+47);ctx.textAlign='left';
+    flagPole(X+20,Y+80,24);
+    // mobil patroli
+    ctx.save();ctx.translate(X+40,Y+98);ctx.fillStyle='rgba(0,0,0,.22)';rr(-13,-6,30,15,3);ctx.fill();
+    ctx.fillStyle='#FFFFFF';rr(-15,-8,30,15,3);ctx.fill();ctx.strokeStyle='#24406E';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#24406E';ctx.fillRect(-15,-2,30,3);ctx.fillStyle='#D8312A';ctx.fillRect(-3,-6,3,4);ctx.fillStyle='#2F74B5';ctx.fillRect(0,-6,3,4);ctx.restore();
   }else if(t==='puskesmas'){
     ctx.fillStyle='#E7E1D2';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     box(X+14,Y+16,92,58,'#FFFFFF');gable(X+12,Y+14,96,60,'#3E9970',false);
@@ -772,7 +818,7 @@ const FREE=NK.freePlots(RES,BLD,Math.max(0,KAV-RES.length));
 const {T,C,S}=NK;
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'🏫',pasar:'🧺',taman:'🌳',puskesmas:'🏥',umum:'🏛️',posronda:'🛖'};
+const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'🏫',pasar:'🧺',taman:'🌳',puskesmas:'🏥',umum:'🏛️',posronda:'🛖',padang:'🍛',polisi:'🚓'};
 
 /* ---------- teks & statistik ---------- */
 $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
@@ -849,6 +895,16 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
     else if(!EXTRA.some(e=>norm(e.name)===norm(user))){EXTRA.push(fake);changed=true}});
   if(changed){renderShops();renderSups();dirty=true}}).catch(()=>{});
 
+/* papan penghargaan (berlaku sampai tanggal 'until') */
+const AWARDS=(Array.isArray(D.awards)?D.awards:[]).filter(a=>a&&a.user&&Array.isArray(a.badges)&&(!a.until||a.until>=TODAY));
+const awardOf=r=>AWARDS.find(a=>norm(a.user)===norm(r.name));
+if(AWARDS.length){$('award').hidden=false;
+  AWARDS.forEach(a=>{const i=RES.findIndex(r=>norm(r.name)===norm(a.user));const r=RES[i];const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+    const bd=el('span','badges');a.badges.forEach(b=>bd.append(el('i',null,b)));
+    bt.append(el('span','ico','🏅'),el('b',null,(r&&r.nick?r.nick+' · ':'')+'@'+a.user),bd);
+    if(a.note)bt.append(el('span',null,a.note));
+    if(i>=0)bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('awardList').append(li)})}
+
 /* orang kaya baru: pemenang rumah custom */
 {const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.custom&&o.r.custom.title);
   if(L.length){$('okb').hidden=false;$('okbTitle').textContent=`🏆 Orang Kaya Baru (${fmt(L.length)})`;
@@ -857,9 +913,9 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
       bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('okbList').append(li)})}}
 
 /* pendukung Trakteer (bendera emas / toko) */
-function renderSups(){const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.sup||NK.shopOn(o.r,TODAY));const box=$('supList');box.innerHTML='';
+function renderSups(){const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));const box=$('supList');box.innerHTML='';
   if(!L.length){$('sups').hidden=true;return}$('sups').hidden=false;$('supTitle').textContent=`Pendukung kampung (${fmt(L.length)})`;
-  L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent=(NK.shopOn(r,TODAY)?'🏪 ':'🚩 ')+'@'+r.name;
+  L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent=(NK.shopOn(r,TODAY)?'🏪 ':r.sup?'🚩 ':'🧱 ')+'@'+r.name;
     b.onclick=()=>{select({kind:'r',i});scrollMap()};box.append(b)})}
 renderSups();
 
@@ -984,7 +1040,7 @@ $('zhome').onclick=()=>{sel=null;$('result').hidden=true;flyTo(homeView(),700);t
 let hintGone=false;function hideHint(){if(!hintGone){hintGone=true;$('hint').hidden=true}}
 
 /* ---------- cari ---------- */
-const norm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/^@+/,'').replace(/\s+/g,'');
+function norm(s){return String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/^@+/,'').replace(/\s+/g,'')}
 const IDX=RES.map((r,i)=>({i,u:norm(r.name),n:norm(r.nick),t:NK.shopOn(r,TODAY)?norm(r.shop.name):''}));
 function find(q){const k=norm(q);if(!k)return [];const out=[];
   if('negerikomen'.startsWith(k)||k==='kepaladesa')out.push({kind:'o',score:0});
@@ -1019,6 +1075,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+r.roof:'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+    {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}
     if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,80)))}
     if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);
       const h=left.firstChild;const box2=el('div');if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.onerror=()=>im.remove();box2.append(im)}

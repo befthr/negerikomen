@@ -207,6 +207,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .demoBtn{margin-top:10px;box-shadow:0 0 0 0 rgba(242,194,48,.7);animation:demoPulse 1.8s ease-out infinite}@keyframes demoPulse{0%{box-shadow:0 0 0 0 rgba(242,194,48,.75)}70%{box-shadow:0 0 0 12px rgba(242,194,48,0)}100%{box-shadow:0 0 0 0 rgba(242,194,48,0)}}@media (prefers-reduced-motion:reduce){.demoBtn{animation:none}}
 .moreBtn{background:none;border:0;padding:0 0 4px;font:700 12.5px var(--f-body);color:#2F6B4F;cursor:pointer}.more p{margin-bottom:2px}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
+.staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
 .v3pv{position:fixed;inset:0;z-index:70;background:rgba(16,22,18,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.v3pv img{max-height:68vh;max-width:100%;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);-webkit-touch-callout:default;user-select:auto}.v3pv .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.v3pv p{color:#fff;font-size:13.5px;text-align:center;margin:0;max-width:380px}.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;padding:10px 16px;border-radius:999px;z-index:50;font-size:14px}
@@ -1148,7 +1149,7 @@ function drawLabels(v,t){
   if(sel){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
     if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy)-((r.sup||NK.shopOn(r,TODAY))?hs*.5*dpr:0),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:'@'+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
-    else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'usulan @'+b.by:'',true,true)}}
+    else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'👑 Bos @'+b.by:'',true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.name||'Bangunan','',false)});
@@ -1268,13 +1269,14 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'))}
   else{const b=BLD[s.i],bo=bossOf(b),st=staffOf(b);left.append(el('h2',null,b.name||'Bangunan'),
       el('p',null,[(NK.BTYPES[b.type]||{}).label,'dibangun hari ke-'+(b.day||1)].filter(Boolean).join(' · ')));
-    const sf=el('div','staff');sf.append(el('p',null,''));sf.firstChild.append(el('b',null,'👑 Bos: '),document.createTextNode(bo?'@'+bo+(b.type&&b.by?' (pengusul & pemenang voting)':''):'Kepala desa @negerikomen'));
+    const sf=el('div','staff');sf.append(el('p',null,''));const goRes=u=>{const a=el('a','who',(u==='negerikomen'?'Kepala desa ':'')+'@'+u);a.href='#'+encodeURIComponent(u);a.onclick=e=>{e.preventDefault();if(u==='negerikomen'){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===u);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')};return a};
+    sf.firstChild.append(el('b',null,'👑 Bos: '),goRes(bo||'negerikomen'));if(bo)sf.firstChild.append(document.createTextNode(' (pengusul & pemenang voting)'));
     const kp=el('p',null,'');kp.append(el('b',null,`👷 Karyawan (${st.length}): `));
-    if(st.length)kp.append(document.createTextNode(st.map(x=>'@'+x.user+(x.role?' · '+x.role:'')).join(', ')));
+    if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     sf.append(kp);left.append(sf);
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
-    if(bo){const go=el('button','btn dark','Lihat rumah bos');go.type='button';go.onclick=()=>{const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumah bos belum ada di peta')};acts.append(go)}}
+}
   box.append(left,acts)}
 function showMiss(q){sel=null;dirty=true;const box=$('result');box.className='result miss';box.innerHTML='';box.hidden=false;
   const left=el('div');left.append(el('h2',null,`Belum ada rumah untuk “${q}”`),

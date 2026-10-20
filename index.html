@@ -201,6 +201,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .v3x{position:absolute;right:10px;top:10px;z-index:2;width:40px;height:40px;border-radius:12px;border:2px solid var(--ink);background:#fff;font:700 16px var(--f-body);cursor:pointer}
 .v3load{position:absolute;left:0;right:0;top:40%;text-align:center;font-weight:700;color:var(--muted)}
 .v3info{padding:12px 16px 4px;background:#fff;border-top:1px solid var(--line)}.v3info b{display:block;font-family:var(--f-display);font-size:20px}.v3info span{font-size:13.5px;color:var(--muted)}
+.perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
 .v3pv{position:fixed;inset:0;z-index:70;background:rgba(16,22,18,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.v3pv img{max-height:68vh;max-width:100%;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);-webkit-touch-callout:default;user-select:auto}.v3pv .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.v3pv p{color:#fff;font-size:13.5px;text-align:center;margin:0;max-width:380px}.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;padding:10px 16px;border-radius:999px;z-index:50;font-size:14px}
@@ -1229,7 +1230,8 @@ function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className
 function showResult(s){const box=$('result');box.className='result';box.innerHTML='';box.hidden=false;
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
-      el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+      el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):''].filter(Boolean).join(' · ')));
+    {const pk=perksOf(r);if(pk.length){const bd=el('div','badges perks');pk.forEach(t=>bd.append(el('i',null,t)));left.append(bd)}}
     if(NK.jobOn(r)){const bd=el('div','badges');const t=el('i',null,'');t.append(helm(),document.createTextNode('Tukang Proyek'+(r.job.until?' · s/d '+new Date(r.job.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')));bd.append(t);left.append(bd)}
     {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}
     if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,120)))}
@@ -1386,6 +1388,14 @@ function build3DB(b){const T=THREE,g=new T.Group();
   tree(-3.1,-1.6,1.1);tree(3.0,-1.4,.85);
   [[-2.6,2.4],[2.8,1.0]].forEach(([x,z])=>{const s=new T.Mesh(new T.SphereGeometry(.35,12,10),M('#5E9E46'));s.position.set(x,.25,z);s.castShadow=true;g.add(s)});
   return {g,flag:null}}
+
+function perksOf(r){const L=[];
+  BLD.forEach(b=>{if(bossOf(b)===r.name)L.push('👑 Bos '+(b.name||'Bangunan'))});
+  BLD.forEach(b=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push('👷 '+(x.role||'Karyawan')+' '+(b.name||''))}));
+  if(r.custom&&r.custom.title)L.push('💰 Orang Kaya Baru');
+  if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
+  if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
+  return L}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
@@ -1393,7 +1403,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'dibangun hari ke-'+(bd0.day||1)].filter(Boolean).join(' · ');
     bd.append(el('i',null,bo?'👑 Bos @'+bo:'👑 Kepala desa'));bd.append(el('i',null,st.length?`👷 ${st.length} karyawan`:'👷 Belum ada karyawan'))}
   else{$('v3name').textContent=(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
-  if(!bd0&&r.sup)bd.append(el('i',null,'🚩 Pendukung'));if(!bd0&&NK.shopOn(r))bd.append(el('i',null,'🏪 '+r.shop.name));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
+  if(!bd0)perksOf(r).forEach(t=>bd.append(el('i',null,t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   try{await loadThree()}catch(e){$('v3load').textContent='Gagal memuat 3D. Coba lagi nanti.';return}
   const T=THREE,cv=$('v3c'),dpr=Math.min(2,window.devicePixelRatio||1);
   if(v3s)v3s.stop();
@@ -1441,8 +1451,11 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   /* nama */
   c.fillStyle='#1C2520';const nm=bd0?(bd0.name||'Bangunan'):(r.nick||('@'+r.name));fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
   c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(bd0?[(NK.BTYPES[bd0.type]||{}).label,'hari ke-'+(bd0.day||1)].filter(Boolean).join(' · '):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
-  const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'👑 Kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{if(r.sup)tags.push('🚩 Pendukung');if(NK.shopOn(r))tags.push('🏪 '+r.shop.name);if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
-  if(tags.length){c.font=`700 38px ${FB}`;const t=tags.join('   '),tw=c.measureText(t).width+60;c.fillStyle='#1C2520';rr(c,W/2-tw/2,1505,tw,70,35);c.fill();c.fillStyle='#F2C230';c.fillText(t,W/2,1553)}
+  const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'👑 Kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
+  if(tags.length){c.font=`700 32px ${FB}`;const rows=[[]];let rw=0;const gap=14,maxW=W-100;
+    tags.slice(0,6).forEach(t=>{const w=c.measureText(t).width+44;if(rw+w>maxW&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push({t,w});rw+=w+gap});
+    rows.slice(0,2).forEach((row,ri)=>{const tot=row.reduce((a,o)=>a+o.w,0)+gap*(row.length-1);let x=W/2-tot/2;const y=1498+ri*68;
+      row.forEach(o=>{c.fillStyle='#1C2520';rr(c,x,y,o.w,56,28);c.fill();c.fillStyle='#F2C230';c.fillText(o.t,x+o.w/2,y+39);x+=o.w+gap})})}
   /* ajakan + watermark besar */
   c.fillStyle='#F2C230';rr(c,90,1640,W-180,200,36);c.fill();c.lineWidth=5;c.strokeStyle='#1C2520';c.stroke();
   c.fillStyle='#1C2520';c.font=`600 38px ${FB}`;c.fillText('Mau punya rumah juga? Follow & komen di',W/2,1712);

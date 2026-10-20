@@ -6,7 +6,7 @@ window.NK_DATA = {
  "account": "negerikomen",
  "day": 2,
  "updated": "2026-10-20",
- "kavling": 947,
+ "kavling": 948,
  "followers": 812,
  "target": 1000,
  "trakteer": {
@@ -464,6 +464,7 @@ window.NK_DATA = {
   { "name": "sunnyptrrr", "x": 49, "y": 62, "day": 1, "nick": "Putra" },
   { "name": "melvin_jayadi1", "x": 58, "y": 56, "day": 1, "nick": "Melvin", "roof": "hitam" },
   { "name": "honey.ar36", "x": 59, "y": 56, "day": 1 },
+  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "sup": true, "donor": 10, "custom": { "title": "Pendukung terbesar! Total traktir 10 Genteng · rumah langsung dibangun + bendera emas", "day": 3 } },
   { "name": "panjulsnrlax", "x": 28, "y": 46, "day": 1, "nick": "Panjul", "roof": "#622599", "sup": true, "custom": { "title": "Atap ungu custom #622599 + bendera emas, karena traktir 2 Genteng", "day": 2 } },
   { "name": "dobitganteng", "x": 42, "y": 62, "day": 1, "roof": "marun", "wall": "merah" },
   { "name": "_biyan_455", "x": 37, "y": 62, "day": 1 },

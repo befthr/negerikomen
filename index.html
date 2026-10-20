@@ -336,7 +336,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         </div>
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
         <ul class="trak-tiers">
-          <li><b>🚩 2 Genteng · Bendera Emas</b><span>Dihitung <b>total</b>, boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, <b>warna rumah & atap persis pilihanmu</b>, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
+          <li><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Dihitung <b>total</b>, boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, <b>warna rumah & atap persis pilihanmu</b>, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
           <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
       </div>
@@ -1429,6 +1429,7 @@ function perksOf(r){const L=[];
   return L}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
+document.querySelectorAll('.emasLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.emas||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
 document.querySelectorAll('.usahaLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.usaha||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}

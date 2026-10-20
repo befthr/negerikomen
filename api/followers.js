@@ -1,7 +1,7 @@
 // Jumlah follower @negerikomen langsung dari Instagram API.
 // Token disimpan aman di Vercel (Environment Variable IG_TOKEN), tidak pernah dikirim ke browser.
 export default async function handler(req, res) {
-  const token = process.env.IG_TOKEN;
+  const token = String(process.env.IG_TOKEN || '').trim().replace(/^["']|["']$/g, '');
   if (!token) return res.status(500).json({ error: 'IG_TOKEN belum diatur' });
   try {
     const r = await fetch('https://graph.instagram.com/me?fields=username,followers_count&access_token=' + encodeURIComponent(token));

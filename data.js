@@ -21,7 +21,7 @@ window.NK_DATA = {
   "csv": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKo0SdR8Jn7nL4NZaD9ZbX35jJen2RTB-IEGK9BHIE7H-eWgPTOJONPZLWt95V45un5PB7fbXz4-8C/pub?gid=189929632&single=true&output=csv"
  },
  "residents": [
-  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "sup": true, "donor": 10, "custom": { "title": "Pendukung terbesar! Traktir 10 Genteng → dapat bendera emas", "day": 3 } },
+  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "roof": "putih", "wall": "merah", "sup": true, "donor": 10, "custom": { "title": "Pendukung terbesar! Traktir 10 Genteng → dapat rumah merah atap putih + bendera emas", "day": 3 } },
   { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 1, "sup": true, "custom": { "title": "Traktir 2 Genteng (1 + 1) → dapat bendera emas", "day": 3 } },
   { "name": "idri_s5982", "x": 44, "y": 47, "day": 1, "nick": "Idris", "wall": "biru" },
   { "name": "yumi_19_01_2017", "x": 47, "y": 44, "day": 1, "nick": "Yumi", "wall": "merah muda" },

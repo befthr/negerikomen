@@ -899,12 +899,14 @@ $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
 $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
 $('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE_N);$('sBld').textContent=fmt(BLD.length);
-if(Number.isFinite(D.followers)&&D.target){
+function showGoal(){if(!(Number.isFinite(D.followers)&&D.target))return;
   const pct=Math.min(100,D.followers/D.target*100);
   $('goal').hidden=false;$('gNow').textContent=fmt(D.followers);$('gTarget').textContent='dari '+fmt(D.target)+' follower';
   $('gBar').style.width=pct.toFixed(1)+'%';$('gBarWrap').setAttribute('aria-valuenow',Math.round(pct));
   $('gNote').textContent=D.followers>=D.target?'Target tercapai. Terima kasih, warga!':`${fmt(D.target-D.followers)} follower lagi menuju ${fmt(D.target)}.`;
 }
+showGoal();
+fetch('/api/followers',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Number.isFinite(j.followers)&&j.followers>0){D.followers=j.followers;showGoal()}}).catch(()=>{});
 if(D.updated){const d=new Date(D.updated+'T12:00:00');if(!isNaN(d))$('updated').textContent='Diperbarui '+d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}
 if(D.trakteer&&typeof D.trakteer.url==='string'&&/^https:\/\/(www\.)?trakteer\.id\//.test(D.trakteer.url.trim())){
   const u=D.trakteer.unit||'Genteng';$('trak').hidden=false;$('tLink').href=D.trakteer.url.trim();

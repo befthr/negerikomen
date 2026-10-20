@@ -337,7 +337,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
         <ul class="trak-tiers">
           <li><b>🚩 2 Genteng · Bendera Emas</b><span>Dihitung <b>total</b>, boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, <b>warna rumah & atap persis pilihanmu</b>, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
-          <li><b>🏪 20 Genteng · Buka Usaha</b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
+          <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
       </div>
 
@@ -988,7 +988,7 @@ function renderShops(){
     bt.append(th,el('b',null,r.shop.name),who);if(r.shop.desc)bt.append(el('span','ds',String(r.shop.desc).slice(0,140)));
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
-if(HAS_TRAK){const a=document.createElement('a');a.href=D.trakteer.url.trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
+if(HAS_TRAK){const a=document.createElement('a');a.href=(/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.usaha||''))?D.trakteer.usaha:D.trakteer.url).trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
   const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari lewat paket ',a,' (',b,') di Trakteer. ');const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}
 renderShops();
 /* toko dari Google Sheets (dicentang "Tayang") */
@@ -1429,6 +1429,7 @@ function perksOf(r){const L=[];
   return L}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
+document.querySelectorAll('.usahaLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.usaha||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;

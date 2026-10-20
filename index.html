@@ -224,6 +224,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .rank li{border-bottom:1.5px dashed #E2D6A8}
 .rank button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:9px 2px;font:600 14.5px var(--f-body);color:var(--ink);cursor:pointer;text-align:left}
 .rank .rkn{width:30px;flex:none;text-align:center;font-weight:800;color:var(--muted);font-size:13px}.rank .rkn.rkt{font-size:20px}
+.rank .roth{display:flex;align-items:center;gap:10px;padding:9px 2px;font:600 14.5px var(--f-body);color:var(--muted)}.rank .roth .rc{background:none;border:0}
 .rank .rn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank .rc{flex:none;font-weight:800;font-size:13px;background:#FFF3C4;border:1.5px solid #E2B23A;border-radius:999px;padding:2px 10px}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
@@ -1125,12 +1126,13 @@ if(AWARDS.length){$('award').hidden=false;
 
 /* pendukung Trakteer (bendera emas / toko) */
 function renderSups(){const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));const box=$('supList');box.innerHTML='';
-  if(!L.length){$('sups').hidden=true;return}$('sups').hidden=false;$('supTitle').textContent=`Pendukung kampung (${fmt(L.length)})`;
+  if(!L.length){$('sups').hidden=true;return}$('sups').hidden=false;const OTH=Math.max(0,+D.supOthers||0);$('supTitle').textContent=`Pendukung kampung (${fmt(L.length+OTH)})`;
   const n=r=>+r.donor||(r.sup?2:0);L.sort((a,b)=>n(b.r)-n(a.r));let rank=0,prev=null;
   L.forEach(({r,i},k)=>{if(n(r)!==prev){rank++;prev=n(r)}const li=document.createElement('li');const b=document.createElement('button');b.type='button';
     const md=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
     b.append(el('span','rkn'+(rank<=3?' rkt':''),md),el('span','rn',(r.sup?'🚩 ':'🧱 ')+'@'+r.name),el('span','rc',n(r)?fmt(n(r))+' Genteng':''));
-    b.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(b);box.append(li)})}
+    b.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(b);box.append(li)});
+  if(OTH){const li=el('li','roth');li.append(el('span','rkn','➕'),el('span','rn',`dan ${fmt(OTH)} warga lainnya`),el('span','rc','🧱'));box.append(li)}}
 renderSups();
 if(HAS_TRAK){$('supNote').hidden=false;$('supLink').href=D.trakteer.url.trim()}
 

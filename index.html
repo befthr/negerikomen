@@ -1015,6 +1015,16 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   desc:'Rumah Makan Padang baru buka. Butuh karyawan yang jago numpuk piring dan hafal semua lauk.',
   syarat:['Bisa bawa 10 piring sekaligus tanpa jatuh','Hafal bedanya rendang, kalio, dan dendeng','Nggak pelit kuah','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['Rumahmu jadi rumah karyawan RM Padang selama 30 hari (bisa diperpanjang)','Lencana Karyawan RM Padang saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
+  url:''},
+ {id:'warung',icon:'🏪',title:'Penjaga Warung Kades',sub:'Gantiin kepala desa jaga warung',
+  desc:'Dari hari pertama kepala desa jaga warung sendirian. Sekarang sibuk ngurus ratusan warga, warungnya butuh penjaga.',
+  syarat:['Jujur, nggak ngutang ke warung sendiri','Hafal harga kerupuk tanpa lihat catatan','Bisa nolak warga yang mau ngutang dengan sopan','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  benefit:['Rumahmu jadi rumah penjaga warung selama 30 hari (bisa diperpanjang)','Lencana Penjaga Warung Kades saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
+  url:''},
+ {id:'satpam',icon:'🔦',title:'Satpam Kampung',sub:'Jaga Pos Ronda tiap malam',
+  desc:'Dulu kepala desa ronda sendirian. Kampung makin ramai, Pos Ronda butuh satpam yang siaga.',
+  syarat:['Kuat begadang tanpa ketiduran di pos ronda','Bisa mukul kentongan dengan irama yang benar','Berani ngecek suara aneh di sawah malam-malam','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  benefit:['Rumahmu jadi rumah satpam selama 30 hari (bisa diperpanjang)','Lencana Satpam Kampung saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''}]);
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());

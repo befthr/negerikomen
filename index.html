@@ -213,6 +213,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .tcard .tth{aspect-ratio:4/5;background:#1C2520 center/cover no-repeat;position:relative;display:grid;place-items:center;color:#F2C230;font:800 15px var(--f-display);text-align:center;padding:10px}
 .tcard .tth:after{content:'▶';position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;display:grid;place-items:center}
 .tcard b{display:block;font-size:13px;line-height:1.35;padding:8px 10px 10px}
+.tcard small{display:block;font-size:11.5px;color:var(--muted);padding:0 10px 10px;margin-top:-6px}
+.tmorew{display:flex;flex-direction:column;gap:2px;margin-top:10px}.tmorew .tmore{margin-top:0}
 .tmore{display:inline-block;margin-top:12px;font-weight:700;font-size:14px;color:#C4502F}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
@@ -1305,7 +1307,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     sf.append(kp);left.append(sf);
     if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid');tancapCards(g,2);left.append(g);
-      const ak=String(TT.akun||'lembarpeta').replace(/^@/,'');const m=el('a','tmore',`Tonton semua di @${ak} →`);m.href='https://www.instagram.com/'+encodeURIComponent(ak)+'/';m.target='_blank';m.rel='noopener';left.append(m)}
+      left.append(tancapMore())}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }
   box.append(left,acts)}
@@ -1396,7 +1398,7 @@ function screenTex(){const c=document.createElement('canvas');c.width=512;c.heig
   const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#2F6B8F');g.addColorStop(1,'#E8C27A');x.fillStyle=g;x.fillRect(0,0,512,256);
   x.fillStyle='#8DBE5A';x.beginPath();x.moveTo(60,190);x.bezierCurveTo(120,120,200,200,260,150);x.bezierCurveTo(320,110,380,170,450,140);x.lineTo(450,220);x.lineTo(60,220);x.fill();
   x.fillStyle='#FFFFFF';x.textAlign='center';x.font='800 44px "Bricolage Grotesque",sans-serif';x.fillText('LAYAR TANCAP',256,70);
-  x.font='700 26px "Figtree",sans-serif';x.fillText('tayang: @lembarpeta',256,108);
+  x.font='700 24px "Figtree",sans-serif';x.fillText('tayang: '+((typeof TT_AKUN!=='undefined'&&TT_AKUN.length?TT_AKUN:['lembarpeta']).map(a=>'@'+a).join(' · ')),256,108);
   const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
 function signTex(text,bg,fg){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,512,128);
   x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';let s=70;do{x.font=`800 ${s}px "Bricolage Grotesque",sans-serif`;s-=4}while(x.measureText(text).width>470&&s>20);x.fillText(text,256,68);
@@ -1571,11 +1573,12 @@ $('v3x').onclick=close3D;$('v3').addEventListener('click',e=>{if(e.target===$('v
 /* layar tancap: tontonan dari akun tetangga */
 const TT=D.tontonan&&Array.isArray(D.tontonan.items)?D.tontonan:null;
 const TT_ITEMS=TT?TT.items.filter(o=>o&&o.title&&safeUrl(o.url)).slice(0,6):[];
+const TT_AKUN=TT?[].concat(TT.akun||[]).concat(TT_ITEMS.map(o=>o.akun).filter(Boolean)).map(a=>String(a).replace(/^@/,'')).filter((a,i,L)=>/^[\w.]+$/.test(a)&&L.indexOf(a)===i):[];
+function tancapMore(){const w=el('div','tmorew');TT_AKUN.forEach(a=>{const m=el('a','tmore',`Tonton semua di @${a} →`);m.href='https://www.instagram.com/'+encodeURIComponent(a)+'/';m.target='_blank';m.rel='noopener';w.append(m)});return w}
 function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(o=>{const a=el('a','tcard');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';
-  const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));box.append(a)})}
-if(TT_ITEMS.length){$('tancap').hidden=false;const ak=String(TT.akun||'lembarpeta').replace(/^@/,'');
-  $('tancapLede').textContent=`Tontonan warga malam ini, kiriman tetangga @${ak}.`;tancapCards($('tancapList'));
-  const m=$('tancapMore');m.href='https://www.instagram.com/'+encodeURIComponent(ak)+'/';m.textContent=`Tonton semua di @${ak} →`}
+  const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));if(o.akun)a.append(el('small',null,'@'+String(o.akun).replace(/^@/,'')));box.append(a)})}
+if(TT_ITEMS.length){$('tancap').hidden=false;
+  $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').replaceWith(tancapMore())}
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);

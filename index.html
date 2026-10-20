@@ -105,6 +105,11 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .bar{height:12px;border-radius:999px;background:var(--field);border:1px solid var(--line);overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--daun);border-radius:999px}
 .goal p{margin:8px 0 0;font-size:14px;color:var(--muted)}
+.nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.nhead h3{margin:0}
+.nhead select{font:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer}
+.nscroll{max-height:236px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px;mask-image:linear-gradient(180deg,#000 85%,transparent);-webkit-mask-image:linear-gradient(180deg,#000 85%,transparent)}
+.nscroll .chips{padding-bottom:18px}
+.nmore{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:14px;font-weight:600;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chips button:hover{border-color:var(--daun)}
@@ -238,8 +243,10 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       </div>
 
       <div class="card">
-        <h3 id="newTitle">Warga baru</h3>
-        <div class="chips" id="newList"></div>
+        <div class="nhead"><h3 id="newTitle">Warga baru</h3>
+          <select id="newSort" aria-label="Urutkan warga"><option value="new">Terbaru</option><option value="old">Pertama</option><option value="az">A–Z</option><option value="za">Z–A</option></select></div>
+        <div class="nscroll"><div class="chips" id="newList"></div></div>
+        <p class="nmore" id="newMore" hidden></p>
       </div>
 
       <div class="card">
@@ -848,9 +855,14 @@ const showNew=newest.length?newest:RES.map((r,i)=>({r,i})).slice(-30);
 $('newTitle').textContent=newest.length?`Warga baru hari ke-${D.day} (${fmt(newest.length)})`:'Warga terbaru';
 if(!RES.length){$('newList').innerHTML='';const p=document.createElement('p');p.className='empty';
   p.textContent='Baru ada kepala desa. Jadilah warga pertama: follow dan komen di video terbaru.';$('newList').append(p)}
-else showNew.slice().reverse().slice(0,40).forEach(({r,i})=>{const b=document.createElement('button');b.type='button';
-  const sw=document.createElement('i');sw.style.background=NK.roofHex(r);b.append(sw,document.createTextNode('@'+r.name));
-  b.onclick=()=>{select({kind:'r',i});scrollMap()};$('newList').append(b)});
+else{const nl=$('newList');
+  const renderNew=()=>{const m=$('newSort').value;let L=showNew.slice();
+    if(m==='new')L.reverse();else{const k=o=>o.r.name.toLowerCase().replace(/^[^a-z]+/,'')||o.r.name;L.sort((a,b)=>k(a).localeCompare(k(b),'id',{numeric:true}));if(m==='za')L.reverse()}
+    nl.innerHTML='';L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';
+      const sw=document.createElement('i');sw.style.background=NK.roofHex(r);b.append(sw,document.createTextNode('@'+r.name));
+      b.onclick=()=>{select({kind:'r',i});scrollMap()};nl.append(b)});
+    nl.parentElement.scrollTop=0;$('newMore').hidden=L.length<20;$('newMore').textContent='Geser daftar untuk melihat semua · atau cari namamu di atas peta'};
+  $('newSort').onchange=renderNew;renderNew()}
 
 /* toko warga (30 hari) */
 const TODAY=NK.wibToday();

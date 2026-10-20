@@ -154,7 +154,7 @@ window.NK_DATA = {
   { "name": "lily_treeholic", "x": 38, "y": 37, "day": 1 },
   { "name": "c7rxq.c", "x": 44, "y": 55, "day": 1, "nick": "Cain", "roof": "biru muda" },
   { "name": "wooygaa", "x": 52, "y": 38, "day": 1 },
-  { "name": "mandre.js", "x": 50, "y": 53, "day": 1, "nick": "Andre", "roof": "merah muda" },
+  { "name": "mandre.js", "x": 50, "y": 53, "day": 1, "nick": "Andre", "roof": "merah muda", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat bendera emas", "day": 3 } },
   { "name": "wjp_155", "x": 40, "y": 37, "day": 1, "nick": "Jhovi", "roof": "hijau" },
   { "name": "mariobekosihombing", "x": 38, "y": 38, "day": 1, "nick": "Beko", "roof": "coklat" },
   { "name": "bttrflysaaaa_", "x": 35, "y": 50, "day": 1, "nick": "Sasa" },

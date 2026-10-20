@@ -77,6 +77,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .mapbox canvas:active{cursor:grabbing}
 .zoom{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px}
 .zoom button{width:44px;height:44px;border-radius:12px;border:2px solid var(--ink);background:#fff;font:700 22px/1 var(--f-body);color:var(--ink);cursor:pointer;box-shadow:0 2px 0 var(--ink)}
+.zoom button.snd{font-size:19px;margin-bottom:6px}.zoom button.snd[aria-pressed="true"]{background:var(--kuning)}
 .zoom button.home{font-size:13px}
 .maptag{position:absolute;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
 .maptag span{background:var(--ink);color:#fff;font-weight:700;font-size:13px;padding:6px 11px;border-radius:999px}
@@ -208,6 +209,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="legend" aria-label="Keterangan peta"><span><i class="lf"></i>Bendera emas = pendukung</span><span><i class="la"></i>Tenda = toko warga</span></div>
         <div class="hint" id="hint">Geser untuk jelajah · cubit atau scroll untuk zoom · ketuk rumah</div>
         <div class="zoom">
+          <button type="button" id="snd" class="snd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button>
           <button type="button" id="zin" aria-label="Perbesar">+</button>
           <button type="button" id="zout" aria-label="Perkecil">−</button>
           <button type="button" class="home" id="zhome" aria-label="Lihat seluruh kampung">⌂</button>
@@ -972,7 +974,7 @@ function targetOf(s){
 }
 function select(s,opts={}){
   sel=s;const p=targetOf(s);flyTo({cx:p.x,cy:p.y+T*.3,zoom:Math.max(cam.zoom,clampZ(s.kind==='b'?1.1:1.5))},opts.instant?0:900);
-  showResult(s);dirty=true;
+  showResult(s);dirty=true;SND.play('pop',.8);
   if(s.kind==='r'){try{history.replaceState(null,'','#'+encodeURIComponent(RES[s.i].name))}catch(e){}}
 }
 function scrollMap(){if(window.innerWidth<=920)$('search').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}
@@ -1045,7 +1047,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientR
 cv.addEventListener('dblclick',e=>{const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,1.7)});
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
-  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;showResult({kind:'q'});dirty=true;return}}
+  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);showResult({kind:'q'});dirty=true;return}}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
   const bi=BLD.findIndex(b=>{const w=b.w||3;return tx>=b.x&&tx<b.x+w&&ty>=b.y&&ty<b.y+w});if(bi>=0)return select({kind:'b',i:bi});
@@ -1121,6 +1123,26 @@ function copy(text){const done=()=>toast('Link disalin. Bagikan ke temanmu!');
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,()=>fallback());else fallback();
   function fallback(){const ta=el('textarea');ta.value=text;document.body.append(ta);ta.select();try{document.execCommand('copy');done()}catch(e){toast(text)}ta.remove()}}
 let tt=null;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+
+/* ---------- suara kampung (ambience + sfx, tanpa musik) ---------- */
+const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loading=null;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  async function load(u){const r=await fetch(u);return ac.decodeAudioData(await r.arrayBuffer())}
+  async function init(){if(loading)return loading;ac=new AC();master=ac.createGain();master.gain.value=0;master.connect(ac.destination);
+    loading=Promise.all([load('ambience.mp3').then(b=>buf=b),load('sfx-pop.mp3').then(b=>fx.pop=b),load('sfx-ting.mp3').then(b=>fx.ting=b)]).catch(()=>{});return loading}
+  // putar berulang dengan crossfade 3 detik supaya tidak ada jeda
+  function loop(at){if(!on||!buf)return;const X=3,len=buf.duration,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;s.connect(g);g.connect(master);
+    g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(1,at+X);g.gain.setValueAtTime(1,at+len-X);g.gain.linearRampToValueAtTime(0,at+len);s.start(at);s.stop(at+len+.05);
+    const next=at+len-X;timer=setTimeout(()=>loop(next),Math.max(0,(next-ac.currentTime-1)*1000))}
+  let starting=false;async function start(){if(on||starting)return;starting=true;await init();starting=false;if(!ac)return;await ac.resume();on=true;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(.55,ac.currentTime,.6);loop(ac.currentTime+.05)}
+  function stop(){on=false;clearTimeout(timer);if(ac){master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(0,ac.currentTime,.15);setTimeout(()=>{if(!on)ac.suspend()},600)}}
+  function play(n,v){if(!on||!fx[n])return;const s=ac.createBufferSource(),g=ac.createGain();s.buffer=fx[n];g.gain.value=v||1;s.connect(g);g.connect(ac.destination);s.start()}
+  return {start,stop,play,get on(){return on},ok:!!AC}})();
+{const b=$('snd');if(!SND.ok)b.hidden=true;
+  const set=v=>{b.textContent=v?'🔊':'🔇';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
+  b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾 Tanpa musik, cuma suasana.')}};
+  let want=false;try{want=localStorage.getItem('nk-sound')==='1'}catch(e){}
+  if(want){set(false);b.textContent='🔇';const once=e=>{if(e.target===b)return;document.removeEventListener('pointerdown',once,true);if(!SND.on){SND.start();set(true)}};document.addEventListener('pointerdown',once,true)}}
 
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());

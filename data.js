@@ -151,7 +151,7 @@ window.NK_DATA = {
   { "name": "zikra.rputra", "x": 38, "y": 50, "day": 1, "nick": "Kiraz", "roof": "ungu" },
   { "name": "julkar_4927", "x": 52, "y": 50, "day": 1 },
   { "name": "nigro14730", "x": 50, "y": 54, "day": 1, "roof": "coklat" },
-  { "name": "ikhsan_p.a", "x": 52, "y": 40, "day": 1, "nick": "Ikhsan", "roof": "putih" },
+  { "name": "ikhsan_p.a", "x": 52, "y": 40, "day": 1, "nick": "Ikhsan", "roof": "putih", "donor": 1 },
   { "name": "rawza7603tama", "x": 46, "y": 35, "day": 1 },
   { "name": "valen14269", "x": 37, "y": 52, "day": 1 },
   { "name": "lixchico.17", "x": 50, "y": 36, "day": 1, "nick": "Salik Kamil", "roof": "abu-abu" },

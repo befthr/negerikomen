@@ -1,0 +1,71 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Ambil Komen · Negeri Komen</title>
+<style>
+:root{--ink:#1C2520;--muted:#5E6B63;--line:#DCE3D8;--bg:#F5F7F1;--gent:#C4502F;--kuning:#F2C230;--daun:#2F7D5B}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:24px 16px 60px}h1{margin:0 0 4px;font-size:26px}p.l{margin:0 0 18px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-weight:700;font-size:13px;margin:0 0 6px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>div{flex:1;min-width:220px}
+input,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--ink);color:#fff}
+button.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}button.gent{background:var(--gent)}button:disabled{opacity:.45;cursor:default}
+.small{font-size:12.5px;color:var(--muted);margin-top:6px}.stat{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 10px}.stat b{font-size:22px;display:block}
+.tbl{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{position:sticky;top:0;background:#EEF2EA}td.u{font-weight:700;white-space:nowrap}
+tr.rep td{background:#FAFBF8;color:var(--muted)}.err{color:#B3261E;font-weight:600}.ok{color:var(--daun);font-weight:600}
+</style></head><body><main>
+<h1>Ambil Komen</h1><p class="l">Alat pribadi kepala desa @negerikomen. Token hanya disimpan di browser ini dan hanya dikirim ke graph.instagram.com.</p>
+<div class="card"><div class="row">
+ <div><label for="tok">Token Instagram</label><input id="tok" type="password" placeholder="IGAA…" autocomplete="off"></div>
+ <div style="flex:0"><button id="load">Muat postingan</button></div></div>
+ <div class="small"><label style="display:inline;font-weight:500"><input id="rem" type="checkbox" style="width:auto"> Ingat token di browser ini</label></div></div>
+<div class="card"><div class="row">
+ <div><label for="post">Postingan</label><select id="post" disabled><option>Muat postingan dulu</option></select></div>
+ <div style="max-width:260px"><label for="cut">Batas waktu komen (WIB, opsional)</label><input id="cut" type="datetime-local"></div>
+ <div style="flex:0"><button id="go" class="gent" disabled>Ambil semua komentar</button></div></div>
+ <div class="small" id="msg"></div></div>
+<div class="card" id="res" hidden>
+ <div class="stat"><div><b id="nTop">0</b>komentar</div><div><b id="nRep">0</b>balasan</div><div><b id="nUser">0</b>akun unik</div></div>
+ <div class="row" style="margin-bottom:10px"><div style="flex:0"><button id="csv">Unduh CSV</button></div><div style="flex:0"><button id="copy" class="sec">Salin teks untuk Claude</button></div>
+ <div style="flex:0;min-width:auto"><label style="font-weight:500"><input id="noRep" type="checkbox" checked style="width:auto"> Tanpa balasan</label></div></div>
+ <div class="tbl"><table><thead><tr><th>#</th><th>Waktu (WIB)</th><th>Username</th><th>Komentar</th><th>♥</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+</main><script>
+const $=id=>document.getElementById(id),G='https://graph.instagram.com/';
+try{const t=localStorage.getItem('nk-tok');if(t){$('tok').value=t;$('rem').checked=true}}catch(e){}
+const tok=()=>$('tok').value.trim();
+function msg(t,cls){$('msg').className='small '+(cls||'');$('msg').textContent=t}
+async function get(url){const r=await fetch(url);const j=await r.json().catch(()=>({}));if(j.error)throw new Error(j.error.message||'Error dari Instagram');if(!r.ok)throw new Error('HTTP '+r.status);return j}
+const wib=s=>{const d=new Date(new Date(s).getTime()+7*3600e3);return d.toISOString().slice(0,16).replace('T',' ')};
+$('load').onclick=async()=>{if(!tok())return msg('Isi token dulu.','err');
+  try{if($('rem').checked)localStorage.setItem('nk-tok',tok());else localStorage.removeItem('nk-tok')}catch(e){}
+  msg('Memuat postingan…');
+  try{const j=await get(G+'me/media?fields=id,caption,permalink,timestamp,comments_count&limit=25&access_token='+encodeURIComponent(tok()));
+    const s=$('post');s.innerHTML='';(j.data||[]).forEach(m=>{const o=document.createElement('option');o.value=m.id;
+      o.textContent=wib(m.timestamp).slice(0,10)+' · '+(m.comments_count||0)+' komen · '+String(m.caption||m.permalink).replace(/\s+/g,' ').slice(0,60);s.append(o)});
+    s.disabled=false;$('go').disabled=!(j.data||[]).length;msg((j.data||[]).length+' postingan dimuat.','ok')}catch(e){msg('Gagal: '+e.message,'err')}};
+let ROWS=[];
+$('go').onclick=async()=>{const id=$('post').value;ROWS=[];$('go').disabled=true;
+  const F='id,text,timestamp,like_count,username,from';
+  try{let url=G+id+'/comments?fields='+F+',replies{'+F+'}&limit=50&access_token='+encodeURIComponent(tok()),page=0;
+    while(url){page++;msg('Mengambil halaman '+page+'… ('+ROWS.length+' baris)');const j=await get(url);
+      for(const c of j.data||[]){const u=(c.from&&c.from.username)||c.username||'';ROWS.push({t:c.timestamp,u,x:c.text||'',l:c.like_count||0,rep:false,id:c.id,p:''});
+        let rp=c.replies,rurl=null;
+        while(rp){for(const r of rp.data||[])ROWS.push({t:r.timestamp,u:(r.from&&r.from.username)||r.username||'',x:r.text||'',l:r.like_count||0,rep:true,id:r.id,p:u});
+          rurl=rp.paging&&rp.paging.next;rp=rurl?await get(rurl):null}}
+      url=j.paging&&j.paging.next||null}
+    ROWS.sort((a,b)=>a.t<b.t?-1:1);msg('Selesai: '+ROWS.length+' baris diambil.','ok');render()}catch(e){msg('Gagal: '+e.message,'err')}
+  $('go').disabled=false};
+function view(){const cut=$('cut').value?new Date($('cut').value+':00+07:00').getTime():Infinity;
+  return ROWS.filter(r=>new Date(r.t).getTime()<=cut&&!($('noRep').checked&&r.rep))}
+function render(){const v=view(),tb=$('tb');tb.innerHTML='';$('res').hidden=false;
+  $('nTop').textContent=v.filter(r=>!r.rep).length;$('nRep').textContent=v.filter(r=>r.rep).length;$('nUser').textContent=new Set(v.map(r=>r.u.toLowerCase())).size;
+  v.forEach((r,i)=>{const tr=document.createElement('tr');if(r.rep)tr.className='rep';
+    [i+1,wib(r.t),(r.rep?'↳ ':'')+'@'+(r.u||'?'),r.x,r.l].forEach((c,k)=>{const td=document.createElement('td');if(k===2)td.className='u';td.textContent=c;tr.append(td)});tb.append(tr)})}
+$('noRep').onchange=()=>ROWS.length&&render();$('cut').onchange=()=>ROWS.length&&render();
+const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+$('csv').onclick=()=>{const v=view(),lines=['waktu_wib,username,komentar,like,balasan,balasan_untuk,id'].concat(v.map(r=>[wib(r.t),r.u,q(r.x.replace(/\n/g,' ')),r.l,r.rep?1:0,r.p,q(r.id)].join(',')));
+  const b=new Blob(['﻿'+lines.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='komen-negerikomen-'+new Date().toISOString().slice(0,10)+'.csv';a.click()};
+$('copy').onclick=async()=>{const t=view().map(r=>(r.rep?'↳ ':'')+'@'+r.u+' | '+r.x.replace(/\n/g,' ')+' | '+r.l).join('\n');
+  try{await navigator.clipboard.writeText(t);msg('Teks disalin ('+view().length+' baris).','ok')}catch(e){msg('Gagal menyalin, pakai Unduh CSV saja.','err')}};
+</script></body></html>

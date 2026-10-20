@@ -1056,7 +1056,7 @@ if(AWARDS.length){$('award').hidden=false;
 {const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.custom&&o.r.custom.title);
   if(L.length){$('okb').hidden=false;$('okbTitle').textContent=`🏆 Orang Kaya Baru (${fmt(L.length)})`;
     L.forEach(({r,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
-      bt.append(el('span','ico','🏡'),el('b',null,'@'+r.name),el('span',null,String(r.custom.title).slice(0,80)+(r.custom.day?` · hari ke-${r.custom.day}`:'')));
+      bt.append(el('span','ico','🏡'),el('b',null,'@'+r.name),el('span',null,String(r.custom.title).slice(0,120)+(r.custom.day?` · hari ke-${r.custom.day}`:'')));
       bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('okbList').append(li)})}}
 
 /* pendukung Trakteer (bendera emas / toko) */
@@ -1225,7 +1225,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
     if(NK.jobOn(r)){const bd=el('div','badges');const t=el('i',null,'');t.append(helm(),document.createTextNode('Tukang Proyek'+(r.job.until?' · s/d '+new Date(r.job.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')));bd.append(t);left.append(bd)}
     {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}
-    if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,80)))}
+    if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,120)))}
     if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);
       const h=left.firstChild;const box2=el('div');if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.onerror=()=>im.remove();box2.append(im)}
       box2.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)));

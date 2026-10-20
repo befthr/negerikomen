@@ -1424,7 +1424,6 @@ function build3DB(b){const T=THREE,g=new T.Group();
 function perksOf(r){const L=[];
   BLD.forEach(b=>{if(bossOf(b)===r.name)L.push('👑 Bos '+(b.name||'Bangunan'))});
   BLD.forEach(b=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push('👷 '+(x.role||'Karyawan')+' '+(b.name||''))}));
-  if(r.custom&&r.custom.title)L.push('💰 Orang Kaya Baru');
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
   if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
   return L}

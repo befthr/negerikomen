@@ -6,7 +6,7 @@ window.NK_DATA = {
  "account": "negerikomen",
  "day": 1,
  "updated": "2026-10-20",
- "kavling": 418,
+ "kavling": 868,
  "followers": 311,
  "target": 1000,
  "trakteer": {

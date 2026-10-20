@@ -114,6 +114,12 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:14px;font-weight:600;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chips button:hover{border-color:var(--daun)}
+.loker{background:#FFF8E1;border:2px dashed #E2B23A}
+.loker .lbl{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:#1C2520;color:#F2C230;border-radius:6px;padding:3px 8px}
+.loker h3{color:var(--ink)!important;font-size:18px!important;letter-spacing:0!important;text-transform:none!important;font-family:var(--f-display)}
+.btn.soon{background:#E6E2D3;border-color:#E6E2D3;color:#6B6455;cursor:default}
+.loker-l{margin:0 0 12px;font-size:14px}.loker-n{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+.proyek .chips button{background:#FFF6D8;border-color:#EBD58A}
 .award{background:linear-gradient(180deg,#FFF6D8,#FFFDF4);border:2px solid #E2B23A}
 .award h3{color:#8A6A10}
 .award .blist button>*:not(.ico){grid-column:2}
@@ -223,6 +229,19 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="stat"><b id="sWarga">1</b><span>Warga</span></div>
         <div class="stat free"><b id="sFree">50</b><span>Kavling kosong</span></div>
         <div class="stat"><b id="sBld">2</b><span>Bangunan</span></div>
+      </div>
+
+      <div class="card loker" id="loker">
+        <span class="lbl">🔨 Lowongan kerja</span>
+        <h3 style="margin:8px 0 6px">Dicari: Tukang Proyek</h3>
+        <p class="loker-l">Kepala desa kewalahan bangun ratusan rumah sendirian. Bantu kampung jadi <b>Tukang Proyek</b>: rumahmu berubah jadi markas tukang (helm kuning + cone) dan namamu masuk daftar Tukang Proyek.</p>
+        <a class="btn dark soon" id="lokerLink" aria-disabled="true" style="width:100%">⏳ Segera dibuka</a>
+        <p class="loker-n" id="lokerNote">Coming soon! Pantau video @negerikomen, pendaftaran dibuka sebentar lagi.</p>
+      </div>
+
+      <div class="card proyek" id="proyek" hidden>
+        <h3 id="proyekTitle">👷 Tukang Proyek</h3>
+        <div class="chips" id="proyekList"></div>
       </div>
 
       <div class="card award" id="award" hidden>
@@ -456,6 +475,19 @@ function drawHouse(r,s,a){
   }else{ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w/2,h);ctx.fillStyle=shade(roof,-12);ctx.fillRect(0,-h/2,w/2,h);
     ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-h/2+5;k<h/2;k+=5){ctx.moveTo(-w/2,k);ctx.lineTo(w/2,k)}ctx.stroke();
     ctx.strokeStyle=shade(roof,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-h/2);ctx.lineTo(0,h/2);ctx.stroke()}
+  if(r.job==='proyek'){ // tukang proyek: list kuning-hitam di atap, cone & helm
+    ctx.save();ctx.beginPath();ctx.rect(-w/2,-h/2,w,h);ctx.clip();
+    for(let k=-w-h;k<w+h;k+=7){ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(k,-h/2);ctx.lineTo(k+3.5,-h/2);ctx.lineTo(k+3.5-h,h/2);ctx.lineTo(k-h,h/2);ctx.closePath();ctx.fill()}
+    ctx.restore();ctx.fillStyle=shade(roofHex(r),-5);ctx.fillRect(-w/2+3,-h/2+3,w-6,h-6);
+    ctx.strokeStyle='#1C2520';ctx.lineWidth=1.4;ctx.strokeRect(-w/2,-h/2,w,h);
+    // helm proyek di tengah atap
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.arc(1.5,1.5,5.8,0,7);ctx.fill();
+    ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(0,0,5.8,0,7);ctx.fill();ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#D9A520';ctx.fillRect(-1,-5.8,2,11.6);
+    // cone oranye di halaman
+    const cx=w/2+4,cy=h/2+2;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(cx-3,cy+2,7,3);
+    ctx.fillStyle='#E8702A';ctx.beginPath();ctx.moveTo(cx,cy-6);ctx.lineTo(cx+3.4,cy+3);ctx.lineTo(cx-3.4,cy+3);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#FFFFFF';ctx.fillRect(cx-2,cy-1.5,4,1.6)}
   if(shopOn(r)){ // toko warga: tenda belang di sisi jalan
     const L=horiz?w:h,F=horiz?h:w,n=5,sw=(L+4)/n,d=6.5;
     ctx.save();ctx.rotate(dy===1?0:dy===-1?Math.PI:dx===1?-Math.PI/2:Math.PI/2);
@@ -826,7 +858,8 @@ const D=Object.assign({day:1,kavling:50,followers:null,target:1000,residents:[],
 const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.isFinite(r.y));
 const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
 const KAV=Math.max(D.kavling||50,RES.length);
-const FREE=NK.freePlots(RES,BLD,Math.max(0,KAV-RES.length));
+const FREE_N=Math.max(0,KAV-RES.length);
+const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
 const {T,C,S}=NK;
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -836,7 +869,7 @@ const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'�
 $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
 $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
-$('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE.length);$('sBld').textContent=fmt(BLD.length);
+$('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE_N);$('sBld').textContent=fmt(BLD.length);
 if(Number.isFinite(D.followers)&&D.target){
   const pct=Math.min(100,D.followers/D.target*100);
   $('goal').hidden=false;$('gNow').textContent=fmt(D.followers);$('gTarget').textContent='dari '+fmt(D.target)+' follower';
@@ -911,6 +944,11 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
     if(ri>=0){if(!NK.shopOn(RES[ri],TODAY)){RES[ri].shop=shop;IDX[ri].t=norm(name);changed=true}}
     else if(!EXTRA.some(e=>norm(e.name)===norm(user))){EXTRA.push(fake);changed=true}});
   if(changed){renderShops();renderSups();dirty=true}}).catch(()=>{});
+
+/* lowongan & tukang proyek */
+if(D.lowongan&&typeof D.lowongan.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(D.lowongan.url.trim())){const a=$('lokerLink');a.href=D.lowongan.url.trim();a.target='_blank';a.rel='noopener';a.classList.remove('soon');a.removeAttribute('aria-disabled');a.textContent='Lamar sekarang';$('lokerNote').textContent='Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'}
+{const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.job==='proyek');if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`👷 Tukang Proyek (${fmt(L.length)})`;
+  L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent='👷 @'+r.name;b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}
 
 /* papan penghargaan (berlaku sampai tanggal 'until') */
 const AWARDS=(Array.isArray(D.awards)?D.awards:[]).filter(a=>a&&a.user&&Array.isArray(a.badges)&&(!a.until||a.until>=TODAY));
@@ -994,7 +1032,7 @@ function drawLabels(v,t){
     ctx.strokeStyle='rgba(28,37,32,.85)';ctx.lineWidth=1.5*dpr;ctx.stroke();ctx.restore()}
   const lift=y=>y-hs*.45*dpr;
   if(sel){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
-    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:'@'+r.name,NK.shopOn(r,TODAY)?'@'+r.name:`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
+    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:'@'+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(r.job==='proyek'?'👷 Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'usulan @'+b.by:'',true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
@@ -1093,6 +1131,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+r.roof:'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+    if(r.job==='proyek'){const bd=el('div','badges');bd.append(el('i',null,'👷 Tukang Proyek'));left.append(bd)}
     {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}
     if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,80)))}
     if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);
@@ -1140,7 +1179,7 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
   return {start,stop,play,get on(){return on},ok:!!AC}})();
 {const b=$('snd');if(!SND.ok)b.hidden=true;
   const set=v=>{b.textContent=v?'🔊':'🔇';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
-  b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾 Tanpa musik, cuma suasana.')}};
+  b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾')}};
   let want=false;try{want=localStorage.getItem('nk-sound')==='1'}catch(e){}
   if(want){set(false);b.textContent='🔇';const once=e=>{if(e.target===b)return;document.removeEventListener('pointerdown',once,true);if(!SND.on){SND.start();set(true)}};document.addEventListener('pointerdown',once,true)}}
 

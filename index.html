@@ -996,9 +996,9 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
 
 /* lowongan & tukang proyek */
 const helm=()=>{const i=document.createElement('img');i.src='helm.png';i.alt='';i.className='helm';return i};
-const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'helm',title:'Tukang Proyek',sub:'Bantu kepala desa bangun rumah warga',
+const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',dmSoon:'#LokerTukangProyek',icon:'helm',title:'Tukang Proyek',sub:'Bantu kepala desa bangun rumah warga',
   desc:'Kampung kebanjiran warga baru, kepala desa nggak sanggup bangun sendirian. Tukang Proyek jadi tangan kanan kades.',
-  syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Isi formulir: username IG + alasan ingin jadi Tukang Proyek','Diseleksi langsung oleh kepala desa','Masa kerja 30 hari. Setelah itu rumah kembali normal, kecuali diperpanjang'],
+  syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Lamar lewat DM Instagram @negerikomen dengan #LokerTukangProyek + alasanmu','Diseleksi langsung oleh kepala desa','Masa kerja 30 hari. Setelah itu rumah kembali normal, kecuali diperpanjang'],
   benefit:['Rumahmu jadi markas tukang selama 30 hari: atap garis kuning-hitam, helm & cone (bisa diperpanjang)','Lencana Tukang Proyek saat rumahmu diklik','Nama tampil di daftar Tukang Proyek di web ini','Nama yang lolos disebut di episode'],
   url:D.lowongan&&D.lowongan.url||''},
  {id:'marbot',icon:'🕌',title:'Marbot Masjid',sub:'Jaga dan rawat masjid kampung',
@@ -1037,7 +1037,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', 23.59 WIB. Pengumuman di episode hari Sabtu.'));
     const a=el('a','btn dark','Lamar via DM Instagram');a.href='https://ig.me/m/negerikomen';a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else if(ok){const a=el('a','btn dark','Lamar sekarang');a.href=j.url.trim();a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
-  else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran dibuka sebentar lagi.'))}
+  else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran lewat DM dibuka sebentar lagi.'))}
   d.append(bd);$('jobs').append(d)});
 {const L=RES.map((r,i)=>({r,i})).filter(o=>NK.jobOn(o.r));if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`Tukang Proyek (${fmt(L.length)})`;
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.append(helm(),document.createTextNode('@'+r.name));b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}

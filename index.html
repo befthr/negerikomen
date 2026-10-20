@@ -937,9 +937,9 @@ if(D.voucher&&typeof D.voucher.url==='string'&&/^https?:\/\//.test(D.voucher.url
 }
 
 /* daftar warga baru */
-const newest=RES.map((r,i)=>({r,i})).filter(o=>o.r.day===D.day);
-const showNew=newest.length?newest:RES.map((r,i)=>({r,i})).slice(-30);
-$('newTitle').textContent=newest.length?`Warga baru hari ke-${D.day} (${fmt(newest.length)})`:'Warga terbaru';
+let newest=RES.map((r,i)=>({r,i})).filter(o=>o.r.day===D.day);if(newest.length<10)newest=[];
+const showNew=newest.length?newest:RES.map((r,i)=>({r,i}));
+$('newTitle').textContent=newest.length?`Warga baru hari ke-${D.day} (${fmt(newest.length)})`:`Semua warga (${fmt(RES.length)})`;
 if(!RES.length){$('newList').innerHTML='';const p=document.createElement('p');p.className='empty';
   p.textContent='Baru ada kepala desa. Jadilah warga pertama: follow dan komen di video terbaru.';$('newList').append(p)}
 else{const nl=$('newList');
@@ -1053,7 +1053,7 @@ if(AWARDS.length){$('award').hidden=false;
     if(i>=0)bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('awardList').append(li)})}
 
 /* orang kaya baru: pemenang rumah custom */
-{const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.custom&&o.r.custom.title);
+{const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.custom&&o.r.custom.title).sort((a,b)=>(+b.r.donor||0)-(+a.r.donor||0));
   if(L.length){$('okb').hidden=false;$('okbTitle').textContent=`🏆 Orang Kaya Baru (${fmt(L.length)})`;
     L.forEach(({r,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
       bt.append(el('span','ico','🏡'),el('b',null,'@'+r.name),el('span',null,String(r.custom.title).slice(0,120)+(r.custom.day?` · hari ke-${r.custom.day}`:'')));

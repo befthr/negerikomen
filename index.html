@@ -205,6 +205,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .dshop{display:flex;gap:12px;margin:10px 0 2px;padding:10px;border:1.5px dashed var(--line);border-radius:14px;background:#FFFBEF}.dshop img{width:76px;height:76px;border-radius:12px;object-fit:cover;flex:none}.dshop b{display:block;font-size:15px}.dshop p{margin:2px 0 6px;font-size:13px;color:var(--muted)}.dshop .btn{font-size:12.5px;padding:6px 12px;opacity:.9}.dshop small{display:block;font-size:11.5px;color:var(--muted);margin-top:4px}
 .demoSm{align-self:flex-start;margin-top:8px;font:700 12.5px var(--f-body);color:var(--ink);background:#FFF;border:1.5px solid var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
 .demoBtn{margin-top:10px;box-shadow:0 0 0 0 rgba(242,194,48,.7);animation:demoPulse 1.8s ease-out infinite}@keyframes demoPulse{0%{box-shadow:0 0 0 0 rgba(242,194,48,.75)}70%{box-shadow:0 0 0 12px rgba(242,194,48,0)}100%{box-shadow:0 0 0 0 rgba(242,194,48,0)}}@media (prefers-reduced-motion:reduce){.demoBtn{animation:none}}
+.moreBtn{background:none;border:0;padding:0 0 4px;font:700 12.5px var(--f-body);color:#2F6B4F;cursor:pointer}.more p{margin-bottom:2px}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
 .v3pv{position:fixed;inset:0;z-index:70;background:rgba(16,22,18,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.v3pv img{max-height:68vh;max-width:100%;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);-webkit-touch-callout:default;user-select:auto}.v3pv .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.v3pv p{color:#fff;font-size:13.5px;text-align:center;margin:0;max-width:380px}.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
@@ -1251,7 +1252,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);
       const h=left.firstChild;const box2=el('div');if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.onerror=()=>im.remove();box2.append(im)}
       box2.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)));
-      if(sh.desc)box2.append(Object.assign(el('p','promo',String(sh.desc).slice(0,140))));h.replaceWith(box2);
+      if(sh.desc)box2.append(moreText('promo',sh.desc,3));h.replaceWith(box2);
       const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Kunjungi toko');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     if(r.promo&&r.promo.text){const pr=el('p','promo');pr.append(el('b',null,'📣 Promo pendukung: '),document.createTextNode(String(r.promo.text).slice(0,140)));left.append(pr);
       if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
@@ -1263,7 +1264,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}
   else if(s.kind==='s'){const r=EXTRA[s.j],sh=r.shop,src=safeImg(sh.img);if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.referrerPolicy='no-referrer';im.onerror=()=>im.remove();left.append(im)}
     left.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)+' · rumahnya dibangun di episode berikutnya'));
-    if(sh.desc)left.append(el('p','promo',sh.desc));const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Kunjungi toko');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
+    if(sh.desc)left.append(moreText('promo',sh.desc,3));const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Kunjungi toko');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
   else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'))}
   else{const b=BLD[s.i],bo=bossOf(b),st=staffOf(b);left.append(el('h2',null,b.name||'Bangunan'),
       el('p',null,[(NK.BTYPES[b.type]||{}).label,'dibangun hari ke-'+(b.day||1)].filter(Boolean).join(' · ')));
@@ -1431,12 +1432,17 @@ function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
 document.querySelectorAll('.emasLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.emas||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
 document.querySelectorAll('.usahaLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.usaha||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
+
+function moreText(cls,text,lines){const w=el('div','more');const p=el('p',cls,String(text).slice(0,500));p.style.cssText=`display:-webkit-box;-webkit-line-clamp:${lines||3};-webkit-box-orient:vertical;overflow:hidden`;
+  const b=el('button','moreBtn','Selengkapnya ▾');b.type='button';b.hidden=true;w.append(p,b);
+  requestAnimationFrame(()=>{if(p.scrollHeight>p.clientHeight+2)b.hidden=false});
+  b.onclick=e=>{e.stopPropagation();const open=p.style.webkitLineClamp==='unset';p.style.webkitLineClamp=open?String(lines||3):'unset';b.textContent=open?'Selengkapnya ▾':'Tutup ▴'};return w}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
   const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';
   if(r&&r.demo){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
-    tx.append(el('b',null,'🏪 Toko Kamu'),el('p',null,'Keripik pedas bikinan sendiri, level 1–5. Order lewat link di bawah ya!'));
+    tx.append(el('b',null,'🏪 Toko Kamu'),moreText(null,'Keripik pedas bikinan sendiri, level 1–5. Pedasnya nampol tapi bikin nagih! Dibuat tiap hari dari singkong pilihan, tanpa pengawet. Tersedia ukuran 100 gr dan 250 gr. Bisa COD sekitar kampung atau kirim ke seluruh Indonesia. Order lewat link di bawah ya!',2));
     const a=el('a','btn dark','Kunjungi toko ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link Shopee/IG/WA tokomu')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}
   if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'dibangun hari ke-'+(bd0.day||1)].filter(Boolean).join(' · ');
     bd.append(el('i',null,bo?'👑 Bos @'+bo:'👑 Kepala desa'));bd.append(el('i',null,st.length?`👷 ${st.length} karyawan`:'👷 Belum ada karyawan'))}

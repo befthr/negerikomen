@@ -1511,6 +1511,7 @@ new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{c
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
   if(q.toLowerCase()==='loker'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
+  if(/^(contoh-?ruko|ruko)$/i.test(q)){openDemoRuko();return}
   if(!q)return;$('q').value=q;const hits=find(q);if(hits.length&&hits[0].score===0)select(hits[0],{instant:false});else if(hits.length)select(hits[0]);else showMiss(q)}
 const go=()=>{fromLink();requestAnimationFrame(frame)};
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go,go);

@@ -386,7 +386,7 @@ const BTYPES={
   warung:{label:'Warung'},warkop:{label:'Warung kopi'},masjid:{label:'Masjid'},lapangan:{label:'Lapangan'},
   sekolah:{label:'Sekolah'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Puskesmas'},
   umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'},
-  padang:{label:'Rumah makan padang'},polisi:{label:'Kantor polisi'}
+  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'}
 };
 const STARTER=[
   {type:'posronda',name:'Pos Ronda',by:'negerikomen',day:1,x:C-1,y:C+1,w:1},
@@ -617,6 +617,17 @@ function drawBuilding(b,s,a){
     ctx.strokeStyle='#7A2B1F';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#7A2B1F';ctx.font='800 9px Figtree, sans-serif';ctx.textAlign='center';ctx.fillText('RM PADANG',X+60,Y+91.5);ctx.textAlign='left';
     // meja makan
     [[X+18,Y+104],[X+102,Y+104]].forEach(([px,py])=>{ctx.fillStyle=SH;ctx.beginPath();ctx.arc(px+2,py+3,7,0,7);ctx.fill();ctx.fillStyle='#F6F1E6';ctx.beginPath();ctx.arc(px,py,7,0,7);ctx.fill();ctx.fillStyle='#C4502F';ctx.beginPath();ctx.arc(px,py,2.5,0,7);ctx.fill()});
+  }else if(t==='bakso'){
+    ctx.fillStyle='#E9DCC0';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    box(X+16,Y+14,88,42,'#F3E8D2');gable(X+12,Y+10,96,30,'#2E8B57',false);
+    awning(X+12,Y+46,96,16,'#C4402F','#FFFFFF',8);
+    ctx.fillStyle='#F2C230';rr(X+30,Y+18,60,14,4);ctx.fill();ctx.fillStyle='#C4402F';ctx.font='800 10px Figtree, sans-serif';ctx.textAlign='center';ctx.fillText('BAKSO',X+60,Y+28.5);ctx.textAlign='left';
+    // gerobak bakso
+    ctx.fillStyle=SH;ctx.fillRect(X+20,Y+76,40,22);ctx.fillStyle='#2F74B5';ctx.fillRect(X+16,Y+72,40,20);ctx.fillStyle='#FFFFFF';ctx.fillRect(X+20,Y+76,32,6);
+    ctx.fillStyle='#3A3A3A';ctx.beginPath();ctx.arc(X+22,Y+94,4,0,7);ctx.arc(X+50,Y+94,4,0,7);ctx.fill();
+    // meja & mangkuk
+    [[X+80,Y+84],[X+98,Y+104],[X+70,Y+108]].forEach(([px,py])=>{ctx.fillStyle=SH;ctx.beginPath();ctx.arc(px+2,py+3,9,0,7);ctx.fill();ctx.fillStyle='#F6F1E6';ctx.beginPath();ctx.arc(px,py,9,0,7);ctx.fill();
+      ctx.fillStyle='#C9893F';ctx.beginPath();ctx.arc(px,py,5.5,0,7);ctx.fill();ctx.fillStyle='#8A5A2E';[[-2,-1],[2,1],[0,2]].forEach(([a,c])=>{ctx.beginPath();ctx.arc(px+a,py+c,1.6,0,7);ctx.fill()})});
   }else if(t==='polisi'){
     ctx.fillStyle='#C9CDD0';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2;for(let k=0;k<3;k++){ctx.strokeRect(X+66+k*16,Y+84,14,26)}
@@ -878,7 +889,7 @@ const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
 const {T,C,S}=NK;
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'🏫',pasar:'🧺',taman:'🌳',puskesmas:'🏥',umum:'🏛️',posronda:'🛖',padang:'🍛',polisi:'🚓'};
+const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'🏫',pasar:'🧺',taman:'🌳',puskesmas:'🏥',umum:'🏛️',posronda:'🛖',padang:'🍛',bakso:'🍜',polisi:'🚓'};
 
 /* ---------- teks & statistik ---------- */
 $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;

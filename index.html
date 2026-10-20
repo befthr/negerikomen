@@ -932,10 +932,12 @@ $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
 $('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE_N);$('sBld').textContent=fmt(BLD.length);
 function showGoal(){if(!(Number.isFinite(D.followers)&&D.target))return;
-  const pct=Math.min(100,D.followers/D.target*100);
-  $('goal').hidden=false;$('gNow').textContent=fmt(D.followers);$('gTarget').textContent='dari '+fmt(D.target)+' follower';
+  const GOALS=[{n:D.target},{n:3000,label:'Desa Baru'}];const G=GOALS.find(g=>D.followers<g.n)||GOALS[GOALS.length-1];const tgt=G.n;
+  $('goal').querySelector('h3').textContent=G.label?`Target follower · 🏘️ ${G.label}`:'Target follower';
+  const pct=Math.min(100,D.followers/tgt*100);
+  $('goal').hidden=false;$('gNow').textContent=fmt(D.followers);$('gTarget').textContent='dari '+fmt(tgt)+' follower';
   $('gBar').style.width=pct.toFixed(1)+'%';$('gBarWrap').setAttribute('aria-valuenow',Math.round(pct));
-  $('gNote').textContent=D.followers>=D.target?'Target tercapai. Terima kasih, warga!':`${fmt(D.target-D.followers)} follower lagi menuju ${fmt(D.target)}.`;
+  $('gNote').textContent=D.followers>=tgt?'Target tercapai. Terima kasih, warga!':G.label?`${fmt(tgt-D.followers)} follower lagi, kepala desa buka desa baru! 🏘️`:`${fmt(tgt-D.followers)} follower lagi menuju ${fmt(tgt)}.`;
 }
 showGoal();
 fetch('/api/followers',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Number.isFinite(j.followers)&&j.followers>0){D.followers=j.followers;showGoal()}}).catch(()=>{});

@@ -207,6 +207,13 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .demoBtn{margin-top:10px;box-shadow:0 0 0 0 rgba(242,194,48,.7);animation:demoPulse 1.8s ease-out infinite}@keyframes demoPulse{0%{box-shadow:0 0 0 0 rgba(242,194,48,.75)}70%{box-shadow:0 0 0 12px rgba(242,194,48,0)}100%{box-shadow:0 0 0 0 rgba(242,194,48,0)}}@media (prefers-reduced-motion:reduce){.demoBtn{animation:none}}
 .moreBtn{background:none;border:0;padding:0 0 4px;font:700 12.5px var(--f-body);color:#2F6B4F;cursor:pointer}.more p{margin-bottom:2px}
 .badges i.go{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.tancap .tico{font-size:34px;line-height:1;width:64px;height:64px;display:grid;place-items:center;background:#1C2520;border-radius:16px;flex:none}
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.tcard{display:block;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.tcard .tth{aspect-ratio:4/5;background:#1C2520 center/cover no-repeat;position:relative;display:grid;place-items:center;color:#F2C230;font:800 15px var(--f-display);text-align:center;padding:10px}
+.tcard .tth:after{content:'▶';position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;display:grid;place-items:center}
+.tcard b{display:block;font-size:13px;line-height:1.35;padding:8px 10px 10px}
+.tmore{display:inline-block;margin-top:12px;font-weight:700;font-size:14px;color:#C4502F}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
@@ -306,6 +313,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="card">
         <h3>Bangunan kampung</h3>
         <ul class="blist" id="bList"></ul>
+      </div>
+
+      <div class="card tancap" id="tancap" hidden>
+        <div class="trak-row"><span class="tico">🎬</span><div><h3 style="margin:0 0 2px">Layar Tancap</h3><p class="trak-lede" id="tancapLede">Tontonan warga malam ini.</p></div></div>
+        <div class="tgrid" id="tancapList"></div>
+        <a class="tmore" id="tancapMore" target="_blank" rel="noopener"></a>
       </div>
 
       <div class="card join">
@@ -413,7 +426,7 @@ const BTYPES={
   warung:{label:'Warung'},warkop:{label:'Warung kopi'},masjid:{label:'Masjid'},lapangan:{label:'Lapangan'},
   sekolah:{label:'Sekolah'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Puskesmas'},
   umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'},
-  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'}
+  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'},layartancap:{label:'Layar tancap'}
 };
 const STARTER=[
   {type:'posronda',name:'Pos Ronda',by:'negerikomen',day:1,x:C-1,y:C+1,w:1},
@@ -626,6 +639,21 @@ function drawBuilding(b,s,a){
     const cols=['#C4502F','#2F74B5','#E2B23A','#2E9C6A','#8E5AA8','#E07A3E'];
     for(let i=0;i<3;i++)for(let j=0;j<2;j++){const px=X+12+i*34,py=Y+16+j*50,c=cols[(i+j*3)%6];
       ctx.fillStyle=SH;ctx.fillRect(px+4,py+5,30,30);ctx.fillStyle='#F3E8D2';ctx.fillRect(px,py+18,30,14);awning(px,py,30,20,c,'#FFFFFF',4)}
+  }else if(t==='layartancap'){
+    ctx.fillStyle='#5E8F45';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    // layar putih + tiang bambu
+    ctx.fillStyle=SH;ctx.fillRect(X+22,Y+18,Z-40,8);
+    ctx.fillStyle='#C9A36A';ctx.fillRect(X+14,Y+10,5,26);ctx.fillRect(X+Z-19,Y+10,5,26);
+    ctx.fillStyle='#FFFFFF';ctx.fillRect(X+18,Y+12,Z-36,10);ctx.strokeStyle='#8A7A60';ctx.lineWidth=1.5;ctx.strokeRect(X+18,Y+12,Z-36,10);
+    // sinar proyektor
+    ctx.fillStyle='rgba(255,246,200,.28)';ctx.beginPath();ctx.moveTo(cx-5,Y+Z-24);ctx.lineTo(X+20,Y+24);ctx.lineTo(X+Z-20,Y+24);ctx.closePath();ctx.fill();
+    // tikar warna-warni + penonton
+    const mats=[['#C4502F',X+18,Y+44],['#2F74B5',X+64,Y+44],['#E2B23A',X+18,Y+70],['#8E5AA8',X+64,Y+70]];
+    mats.forEach(([c,px,py],i)=>{ctx.fillStyle=SH;ctx.fillRect(px+3,py+4,38,18);ctx.fillStyle=c;ctx.fillRect(px,py,38,18);
+      ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1;for(let k=px+6;k<px+38;k+=6){ctx.beginPath();ctx.moveTo(k,py);ctx.lineTo(k,py+18);ctx.stroke()}
+      [[8,7],[20,10],[31,6]].forEach(([dx,dy],j)=>{if((i+j)%3===2)return;ctx.fillStyle='#3A2A1E';ctx.beginPath();ctx.arc(px+dx,py+dy,3.4,0,7);ctx.fill()})});
+    // proyektor di meja
+    box(cx-10,Y+Z-30,20,12,'#7A5230');ctx.fillStyle='#2B2B2B';ctx.fillRect(cx-6,Y+Z-34,12,8);ctx.fillStyle='#FFF2B0';ctx.beginPath();ctx.arc(cx,Y+Z-35,2.4,0,7);ctx.fill();
   }else if(t==='taman'){
     ctx.fillStyle='#7FB85A';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     ctx.strokeStyle='#E6D7B0';ctx.lineWidth=10;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(X+10,Y+Z-24);ctx.bezierCurveTo(X+50,Y+Z-40,X+60,Y+30,X+Z-10,Y+22);ctx.stroke();ctx.lineCap='butt';
@@ -927,7 +955,7 @@ const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
 const {T,C,S}=NK;
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'🏫',pasar:'🧺',taman:'🌳',puskesmas:'🏥',umum:'🏛️',posronda:'🛖',padang:'🍛',bakso:'🍜',polisi:'🚓'};
+const ICON={warung:'🏪',warkop:'☕',masjid:'🕌',lapangan:'⚽',sekolah:'🏫',pasar:'🧺',taman:'🌳',puskesmas:'🏥',umum:'🏛️',posronda:'🛖',padang:'🍛',bakso:'🍜',polisi:'🚓',layartancap:'🎬'};
 
 /* ---------- teks & statistik ---------- */
 $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
@@ -1276,6 +1304,8 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     sf.append(kp);left.append(sf);
+    if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid');tancapCards(g,2);left.append(g);
+      const ak=String(TT.akun||'lembarpeta').replace(/^@/,'');const m=el('a','tmore',`Tonton semua di @${ak} →`);m.href='https://www.instagram.com/'+encodeURIComponent(ak)+'/';m.target='_blank';m.rel='noopener';left.append(m)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }
   box.append(left,acts)}
@@ -1362,6 +1392,12 @@ function build3D(r){const T=THREE,g=new T.Group();
   return {g,flag}}
 
 function shade3(c){const k=new THREE.Color(c);k.multiplyScalar(.75);return k}
+function screenTex(){const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#2F6B8F');g.addColorStop(1,'#E8C27A');x.fillStyle=g;x.fillRect(0,0,512,256);
+  x.fillStyle='#8DBE5A';x.beginPath();x.moveTo(60,190);x.bezierCurveTo(120,120,200,200,260,150);x.bezierCurveTo(320,110,380,170,450,140);x.lineTo(450,220);x.lineTo(60,220);x.fill();
+  x.fillStyle='#FFFFFF';x.textAlign='center';x.font='800 44px "Bricolage Grotesque",sans-serif';x.fillText('LAYAR TANCAP',256,70);
+  x.font='700 26px "Figtree",sans-serif';x.fillText('tayang: @lembarpeta',256,108);
+  const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
 function signTex(text,bg,fg){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,512,128);
   x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';let s=70;do{x.font=`800 ${s}px "Bricolage Grotesque",sans-serif`;s-=4}while(x.measureText(text).width>470&&s>20);x.fillText(text,256,68);
   const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
@@ -1400,6 +1436,15 @@ function build3DB(b){const T=THREE,g=new T.Group();
     [[1.1],[2.1]].forEach(([x])=>{const w=new T.Mesh(new T.CylinderGeometry(.22,.22,.06,16),M('#333'));w.rotation.x=Math.PI/2;w.position.set(x,.22,2.62);g.add(w)});
     const pot=new T.Mesh(new T.CylinderGeometry(.2,.2,.3,16),M('#C0C0C0',{metalness:.6,roughness:.3}));pot.position.set(1.85,1.31,2.3);g.add(pot);
     stool(-1.2,2.4);stool(-.5,2.6);
+  }else if(ty==='layartancap'){
+    [-2.2,2.2].forEach(x=>box(.14,3.2,.14,'#C9A36A',x,1.6,-1.8));
+    const scr=new T.Mesh(new T.PlaneGeometry(4.2,2.1),new T.MeshStandardMaterial({map:screenTex(),roughness:.9,emissive:'#222',emissiveIntensity:.2}));scr.position.set(0,2.05,-1.78);g.add(scr);
+    box(4.35,.08,.08,'#8A6B3A',0,3.12,-1.8);
+    [['#C4502F',-1.1,-.2],['#2F74B5',1.1,-.2],['#E2B23A',-1.1,1.1],['#8E5AA8',1.1,1.1]].forEach(([c,x,z])=>{box(1.8,.04,1,c,x,.03,z);
+      [[-.5,.1],[.2,-.1],[.6,.15]].forEach(([dx,dz],j)=>{const h=new T.Mesh(new T.SphereGeometry(.16,12,10),M(['#3A2A1E','#5A3A22','#2B2B2B'][j]));h.position.set(x+dx,.42,z+dz);h.castShadow=true;g.add(h);
+        const b2=new T.Mesh(new T.CylinderGeometry(.13,.17,.3,10),M(['#E35D3A','#5BA35B','#F2C230'][j]));b2.position.set(x+dx,.2,z+dz);g.add(b2)})});
+    box(.6,.5,.5,'#7A5230',0,.25,2.5);box(.4,.3,.35,'#2B2B2B',0,.65,2.5);
+    const beam=new T.Mesh(new T.ConeGeometry(2.1,4.3,4,1,true),new T.MeshBasicMaterial({color:'#FFF6C8',transparent:true,opacity:.12,side:T.DoubleSide,depthWrite:false}));beam.rotation.x=Math.PI/2;beam.rotation.y=Math.PI/4;beam.position.set(0,1.45,.35);g.add(beam);
   }else if(ty==='posronda'){
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([x,z])=>box(.14,1.3,.14,'#7A5230',x,.65,z));
     box(2.3,.12,2.3,'#A0723C',0,.75,0);
@@ -1522,6 +1567,15 @@ $('v3pvx').onclick=()=>{$('v3pv').hidden=true};$('v3pv').addEventListener('click
 function close3D(){$('v3').hidden=true;if(v3s){v3s.stop();v3s=null}}
 $('v3x').onclick=close3D;$('v3').addEventListener('click',e=>{if(e.target===$('v3'))close3D()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('v3').hidden)close3D()});
 
+
+/* layar tancap: tontonan dari akun tetangga */
+const TT=D.tontonan&&Array.isArray(D.tontonan.items)?D.tontonan:null;
+const TT_ITEMS=TT?TT.items.filter(o=>o&&o.title&&safeUrl(o.url)).slice(0,6):[];
+function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(o=>{const a=el('a','tcard');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';
+  const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));box.append(a)})}
+if(TT_ITEMS.length){$('tancap').hidden=false;const ak=String(TT.akun||'lembarpeta').replace(/^@/,'');
+  $('tancapLede').textContent=`Tontonan warga malam ini, kiriman tetangga @${ak}.`;tancapCards($('tancapList'));
+  const m=$('tancapMore');m.href='https://www.instagram.com/'+encodeURIComponent(ak)+'/';m.textContent=`Tonton semua di @${ak} →`}
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);

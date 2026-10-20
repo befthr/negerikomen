@@ -231,7 +231,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="stat"><b id="sBld">2</b><span>Bangunan</span></div>
       </div>
 
-      <div class="card loker" id="loker" hidden>
+      <div class="card loker" id="loker">
         <span class="lbl">🔨 Lowongan kerja</span>
         <h3 style="margin:8px 0 6px">Dicari: Tukang Proyek</h3>
         <p class="loker-l">Kepala desa kewalahan bangun ratusan rumah sendirian. Bantu kampung jadi <b>Tukang Proyek</b>: rumahmu berubah jadi markas tukang (helm kuning + cone) dan namamu masuk daftar Tukang Proyek.</p>
@@ -946,7 +946,7 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
   if(changed){renderShops();renderSups();dirty=true}}).catch(()=>{});
 
 /* lowongan & tukang proyek */
-if(D.lowongan&&typeof D.lowongan.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(D.lowongan.url.trim())){if(D.lowongan.web)$('loker').hidden=false;const a=$('lokerLink');a.href=D.lowongan.url.trim();a.target='_blank';a.rel='noopener';a.classList.remove('soon');a.removeAttribute('aria-disabled');a.textContent='Lamar sekarang';$('lokerNote').textContent='Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'}
+if(D.lowongan&&typeof D.lowongan.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(D.lowongan.url.trim())){const a=$('lokerLink');a.href=D.lowongan.url.trim();a.target='_blank';a.rel='noopener';a.classList.remove('soon');a.removeAttribute('aria-disabled');a.textContent='Lamar sekarang';$('lokerNote').textContent='Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'}
 {const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.job==='proyek');if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`👷 Tukang Proyek (${fmt(L.length)})`;
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent='👷 @'+r.name;b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}
 

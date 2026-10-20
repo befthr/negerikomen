@@ -254,7 +254,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 
       <div class="card loker" id="loker">
         <h3 id="lokerTitle">🔨 Lowongan Kerja</h3>
-        <p class="loker-l">Kepala desa kewalahan bangun kampung sendirian. Ayo bantu, ada posisi buat warga!</p>
+        <p class="loker-l">Kepala desa kewalahan urus kampung sendirian. Ayo bantu, ada posisi buat warga!</p>
         <div class="jobs" id="jobs"></div>
       </div>
 
@@ -982,7 +982,12 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   desc:'Kampung kebanjiran warga baru, kepala desa nggak sanggup bangun sendirian. Tukang Proyek jadi tangan kanan kades.',
   syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Isi formulir: username IG + alasan ingin jadi Tukang Proyek','Diseleksi langsung oleh kepala desa','Masa kerja 30 hari. Setelah itu rumah kembali normal, kecuali diperpanjang'],
   benefit:['Rumahmu jadi markas tukang selama 30 hari: atap garis kuning-hitam, helm & cone (bisa diperpanjang)','Lencana Tukang Proyek saat rumahmu diklik','Nama tampil di daftar Tukang Proyek di web ini','Nama yang lolos disebut di episode'],
-  url:D.lowongan&&D.lowongan.url||''}]);
+  url:D.lowongan&&D.lowongan.url||''},
+ {id:'marbot',icon:'🕌',title:'Marbot Masjid',sub:'Jaga dan rawat masjid kampung',
+  desc:'Kampung makin ramai, masjid butuh penjaga yang amanah. Marbot Masjid merawat masjid dan meramaikan kampung.',
+  syarat:['Sayang emak','Nggak suka bolos sekolah','Tidak pernah judol','Cita-citanya pengen jadi miliarder','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  benefit:['Rumahmu jadi rumah tipe islami selama 30 hari (bisa diperpanjang)','Setiap rumahmu diklik di web, terdengar suara "Masya Allah"','Nama tampil di daftar Marbot Masjid di web ini','Nama yang lolos disebut di episode'],
+  url:D.marbot&&D.marbot.url||''}]);
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());
   const sm=document.createElement('summary');const ic=el('span','jico',j.icon==='helm'?'':(j.icon||'🔨'));if(j.icon==='helm')ic.append(helm());const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+j.title),el('span',null,j.sub||''));

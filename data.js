@@ -21,6 +21,7 @@ window.NK_DATA = {
   "csv": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKo0SdR8Jn7nL4NZaD9ZbX35jJen2RTB-IEGK9BHIE7H-eWgPTOJONPZLWt95V45un5PB7fbXz4-8C/pub?gid=189929632&single=true&output=csv"
  },
  "residents": [
+  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "sup": true, "donor": 10, "custom": { "title": "Pendukung terbesar! Total traktir 10 Genteng + bendera emas", "day": 3 } },
   { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 1, "sup": true, "custom": { "title": "Bendera emas, karena total traktir 2 Genteng (1 + 1)", "day": 3 } },
   { "name": "idri_s5982", "x": 44, "y": 47, "day": 1, "nick": "Idris", "wall": "biru" },
   { "name": "yumi_19_01_2017", "x": 47, "y": 44, "day": 1, "nick": "Yumi", "wall": "merah muda" },
@@ -464,7 +465,6 @@ window.NK_DATA = {
   { "name": "sunnyptrrr", "x": 49, "y": 62, "day": 1, "nick": "Putra" },
   { "name": "melvin_jayadi1", "x": 58, "y": 56, "day": 1, "nick": "Melvin", "roof": "hitam" },
   { "name": "honey.ar36", "x": 59, "y": 56, "day": 1 },
-  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "sup": true, "donor": 10, "custom": { "title": "Pendukung terbesar! Total traktir 10 Genteng · rumah langsung dibangun + bendera emas", "day": 3 } },
   { "name": "panjulsnrlax", "x": 28, "y": 46, "day": 1, "nick": "Panjul", "roof": "#622599", "sup": true, "custom": { "title": "Atap ungu custom #622599 + bendera emas, karena traktir 2 Genteng", "day": 2 } },
   { "name": "dobitganteng", "x": 42, "y": 62, "day": 1, "roof": "marun", "wall": "merah" },
   { "name": "_biyan_455", "x": 37, "y": 62, "day": 1 },

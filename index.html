@@ -277,7 +277,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <div><h3 id="tokoTitle" style="margin:0 0 2px">Toko Warga (0)</h3><p class="trak-lede">Usaha milik warga Negeri Komen. Klik untuk ke rumahnya.</p></div>
         </div>
         <ul class="tlist" id="tList"></ul>
-        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Pilih paket <b>Buka Usaha</b> di Trakteer.</p>
+        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Pilih paket <b>Buka Usaha (20 Genteng)</b> di Trakteer.</p>
       </div>
 
       <div class="card goal" id="goal" hidden>
@@ -973,7 +973,7 @@ function renderShops(){
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
 if(HAS_TRAK){const a=document.createElement('a');a.href=D.trakteer.url.trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
-  const n=$('tokoNote');n.innerHTML='';n.append('Sudah jadi warga? Rumahmu bisa jadi toko selama 30 hari lewat paket ',a,' di Trakteer.')}
+  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi toko selama 30 hari lewat paket ',a,' (',b,') di Trakteer. Traktir 1 Genteng belum termasuk buka toko ya.')}
 renderShops();
 /* toko dari Google Sheets (dicentang "Tayang") */
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let k=0;k<t.length;k++){const ch=t[k];

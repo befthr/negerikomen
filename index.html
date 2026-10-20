@@ -895,7 +895,7 @@ if(!RES.length){$('newList').innerHTML='';const p=document.createElement('p');p.
   p.textContent='Baru ada kepala desa. Jadilah warga pertama: follow dan komen di video terbaru.';$('newList').append(p)}
 else{const nl=$('newList');
   const renderNew=()=>{const m=$('newSort').value;let L=showNew.slice();
-    if(m==='new')L.reverse();else{const k=o=>o.r.name.toLowerCase().replace(/^[^a-z]+/,'')||o.r.name;L.sort((a,b)=>k(a).localeCompare(k(b),'id',{numeric:true}));if(m==='za')L.reverse()}
+    if(m==='new')L.reverse();else if(m!=='old'){const k=o=>o.r.name.toLowerCase().replace(/^[^a-z]+/,'')||o.r.name;L.sort((a,b)=>k(a).localeCompare(k(b),'id',{numeric:true}));if(m==='za')L.reverse()}
     nl.innerHTML='';L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';
       const sw=document.createElement('i');sw.style.background=NK.roofHex(r);b.append(sw,document.createTextNode('@'+r.name));
       b.onclick=()=>{select({kind:'r',i});scrollMap()};nl.append(b)});

@@ -21,7 +21,7 @@ window.NK_DATA = {
   "csv": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKo0SdR8Jn7nL4NZaD9ZbX35jJen2RTB-IEGK9BHIE7H-eWgPTOJONPZLWt95V45un5PB7fbXz4-8C/pub?gid=189929632&single=true&output=csv"
  },
  "residents": [
-  { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 1 },
+  { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 1, "sup": true, "custom": { "title": "Bendera emas, karena total traktir 2 Genteng (1 + 1)", "day": 3 } },
   { "name": "idri_s5982", "x": 44, "y": 47, "day": 1, "nick": "Idris", "wall": "biru" },
   { "name": "yumi_19_01_2017", "x": 47, "y": 44, "day": 1, "nick": "Yumi", "wall": "merah muda" },
   { "name": "alfassssajaaaaaa", "x": 44, "y": 42, "day": 1, "nick": "Koncong", "wall": "putih" },

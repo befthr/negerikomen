@@ -1401,7 +1401,11 @@ function screenTex(){const c=document.createElement('canvas');c.width=512;c.heig
   x.fillStyle='#8DBE5A';x.beginPath();x.moveTo(60,190);x.bezierCurveTo(120,120,200,200,260,150);x.bezierCurveTo(320,110,380,170,450,140);x.lineTo(450,220);x.lineTo(60,220);x.fill();
   x.fillStyle='#FFFFFF';x.textAlign='center';x.font='800 44px "Bricolage Grotesque",sans-serif';x.fillText('LAYAR TANCAP',256,70);
   x.font='700 24px "Figtree",sans-serif';x.fillText('tayang: '+((typeof TT_AKUN!=='undefined'&&TT_AKUN.length?TT_AKUN:['lembarpeta']).map(a=>'@'+a).join(' · ')),256,108);
-  const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
+  const t=new THREE.CanvasTexture(c);t.anisotropy=4;
+  const it=(typeof TT_ITEMS!=='undefined'?TT_ITEMS:[]).find(o=>o.img&&safeImg(o.img));
+  if(it){const im=new Image();im.onload=()=>{x.fillStyle='#111';x.fillRect(0,0,512,256);const sw=im.width,sh=sw/2;x.drawImage(im,0,0,sw,sh,0,0,512,256);
+    x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,222,512,34);x.fillStyle='#F2C230';x.font='700 18px "Figtree",sans-serif';x.textAlign='left';x.fillText('▶ Sedang tayang · @'+String(it.akun||'lembarpeta').replace(/^@/,''),12,245);t.needsUpdate=true};im.src=safeImg(it.img)}
+  return t}
 function signTex(text,bg,fg){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,512,128);
   x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';let s=70;do{x.font=`800 ${s}px "Bricolage Grotesque",sans-serif`;s-=4}while(x.measureText(text).width>470&&s>20);x.fillText(text,256,68);
   const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
@@ -1493,6 +1497,7 @@ function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
   const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';
+  if(bd0&&bd0.type==='layartancap'&&TT_ITEMS.length){$('v3demo').append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid tmini');tancapCards(g,2);$('v3demo').append(g)}
   if(r&&r.demo){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
     tx.append(el('b',null,'🏪 Toko Kamu'),moreText(null,'Keripik pedas bikinan sendiri, level 1–5. Pedasnya nampol tapi bikin nagih! Dibuat tiap hari dari singkong pilihan, tanpa pengawet. Tersedia ukuran 100 gr dan 250 gr. Bisa COD sekitar kampung atau kirim ke seluruh Indonesia. Order lewat link di bawah ya!',2));
     const a=el('a','btn dark','Kunjungi toko ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link Shopee/IG/WA tokomu')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}

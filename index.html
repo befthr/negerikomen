@@ -219,6 +219,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .tmini .tcard .tth{width:56px;height:56px;aspect-ratio:auto;flex:none;padding:0;font-size:0;background-position:center top}.tmini .tcard .tth:after{width:20px;height:20px;font-size:9px;right:4px;bottom:4px}
 .tmini .tcard b{padding:0;font-size:13.5px}.tmini .tcard small{display:none}
 .tmore{display:inline-block;margin-top:12px;font-weight:700;font-size:14px;color:#C4502F}
+.nowplay a{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
@@ -1309,7 +1310,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     sf.append(kp);left.append(sf);
-    if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid tmini');tancapCards(g,2);left.append(g)}
+    if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }
   box.append(left,acts)}

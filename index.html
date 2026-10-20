@@ -964,8 +964,8 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
 const helm=()=>{const i=document.createElement('img');i.src='helm.png';i.alt='';i.className='helm';return i};
 const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'helm',title:'Tukang Proyek',sub:'Bantu kepala desa bangun rumah warga',
   desc:'Kampung kebanjiran warga baru, kepala desa nggak sanggup bangun sendirian. Tukang Proyek jadi tangan kanan kades.',
-  syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Isi formulir: username IG + alasan ingin jadi Tukang Proyek','Diseleksi langsung oleh kepala desa'],
-  benefit:['Rumahmu jadi markas tukang: atap garis kuning-hitam, helm & cone','Lencana Tukang Proyek saat rumahmu diklik','Nama tampil di daftar Tukang Proyek di web ini','Nama yang lolos disebut di episode'],
+  syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Isi formulir: username IG + alasan ingin jadi Tukang Proyek','Diseleksi langsung oleh kepala desa','Masa kerja 30 hari. Setelah itu rumah kembali normal, kecuali diperpanjang'],
+  benefit:['Rumahmu jadi markas tukang selama 30 hari: atap garis kuning-hitam, helm & cone (bisa diperpanjang)','Lencana Tukang Proyek saat rumahmu diklik','Nama tampil di daftar Tukang Proyek di web ini','Nama yang lolos disebut di episode'],
   url:D.lowongan&&D.lowongan.url||''}]);
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());

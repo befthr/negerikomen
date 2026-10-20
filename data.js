@@ -7,7 +7,7 @@ window.NK_DATA = {
  "day": 2,
  "updated": "2026-10-20",
  "kavling": 948,
- "followers": 812,
+ "followers": 1062,
  "target": 1000,
  "trakteer": {
   "url": "https://trakteer.id/negerikomen",

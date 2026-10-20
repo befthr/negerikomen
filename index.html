@@ -210,11 +210,14 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .tancap .tico{font-size:34px;line-height:1;width:64px;height:64px;display:grid;place-items:center;background:#1C2520;border-radius:16px;flex:none}
 .tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 .tcard{display:block;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
-.tcard .tth{aspect-ratio:4/5;background:#1C2520 center/cover no-repeat;position:relative;display:grid;place-items:center;color:#F2C230;font:800 15px var(--f-display);text-align:center;padding:10px}
+.tcard .tth{aspect-ratio:1/1;background-position:center top;background:#1C2520 center/cover no-repeat;position:relative;display:grid;place-items:center;color:#F2C230;font:800 15px var(--f-display);text-align:center;padding:10px}
 .tcard .tth:after{content:'▶';position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;display:grid;place-items:center}
 .tcard b{display:block;font-size:13px;line-height:1.35;padding:8px 10px 10px}
 .tcard small{display:block;font-size:11.5px;color:var(--muted);padding:0 10px 10px;margin-top:-6px}
 .tmorew{display:flex;flex-direction:column;gap:2px;margin-top:10px}.tmorew .tmore{margin-top:0}
+.tmini{grid-template-columns:1fr;gap:6px;margin-top:6px}.tmini .tcard{display:flex;align-items:center;gap:10px;border-radius:12px}
+.tmini .tcard .tth{width:56px;height:56px;aspect-ratio:auto;flex:none;padding:0;font-size:0;background-position:center top}.tmini .tcard .tth:after{width:20px;height:20px;font-size:9px;right:4px;bottom:4px}
+.tmini .tcard b{padding:0;font-size:13.5px}.tmini .tcard small{display:none}
 .tmore{display:inline-block;margin-top:12px;font-weight:700;font-size:14px;color:#C4502F}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
@@ -1306,7 +1309,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     sf.append(kp);left.append(sf);
-    if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid');tancapCards(g,2);left.append(g);
+    if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid tmini');tancapCards(g,2);left.append(g);
       left.append(tancapMore())}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }

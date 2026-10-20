@@ -9,6 +9,13 @@ window.NK_DATA = {
  "kavling": 948,
  "followers": 1062,
  "target": 1000,
+ "tontonan": {
+  "akun": ["lembarpeta"],
+  "items": [
+   { "title": "Kirain ibu kotanya Ternate?", "url": "https://www.instagram.com/reel/DetyLpFAdUB/", "img": "tontonan/lembarpeta-1.jpg", "akun": "lembarpeta" },
+   { "title": "Bakwan punya 12 nama", "url": "https://www.instagram.com/reel/Den1GV1gtYJ/", "img": "tontonan/lembarpeta-2.jpg", "akun": "lembarpeta" }
+  ]
+ },
  "trakteer": {
   "emas": "https://trakteer.id/negerikomen/reward/bendera-emas-eP19B",
   "usaha": "https://trakteer.id/negerikomen/reward/buka-usaha-rumahmu-jadi-toko-di-negeri-komen-7xKbp",
@@ -476,7 +483,8 @@ window.NK_DATA = {
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },
   { "type": "warung", "name": "Warung", "by": "negerikomen", "day": 1, "x": 46, "y": 44, "w": 1 },
   { "type": "bakso", "name": "Warung Bakso", "by": "simson__01", "day": 2, "x": 47, "y": 41, "w": 3 },
-  { "type": "padang", "name": "Rumah Makan Padang", "by": "sorminnn_fdlyy", "day": 2, "x": 41, "y": 47, "w": 3 }
+  { "type": "padang", "name": "Rumah Makan Padang", "by": "sorminnn_fdlyy", "day": 2, "x": 41, "y": 47, "w": 3 },
+  { "type": "layartancap", "name": "Layar Tancap", "by": "negerikomen", "day": 3, "x": 35, "y": 41, "w": 3 }
  ],
  "awards": [
   { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }

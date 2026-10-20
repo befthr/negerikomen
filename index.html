@@ -333,7 +333,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
         <ul class="trak-tiers">
           <li><b>🚩 2 Genteng · Bendera Emas</b><span>Dihitung <b>total</b>, boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, <b>warna rumah & atap persis pilihanmu</b>, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
-          <li><b>🏪 20 Genteng · Buka Usaha</b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small></li>
+          <li><b>🏪 20 Genteng · Buka Usaha</b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="btn gold3 demoRuko" style="margin-top:8px">👀 Lihat contoh ruko 3D</button></li>
         </ul>
       </div>
 
@@ -983,7 +983,7 @@ function renderShops(){
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
 if(HAS_TRAK){const a=document.createElement('a');a.href=D.trakteer.url.trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
-  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi toko selama 30 hari lewat paket ',a,' (',b,') di Trakteer.')}
+  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari lewat paket ',a,' (',b,') di Trakteer. ');const dm=el('a',null,'👀 Lihat contoh ruko');dm.href='#';dm.onclick=e=>{e.preventDefault();openDemoRuko()};n.append(dm)}
 renderShops();
 /* toko dari Google Sheets (dicentang "Tayang") */
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let k=0;k<t.length;k++){const ch=t[k];
@@ -1421,13 +1421,15 @@ function perksOf(r){const L=[];
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
   if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
   return L}
+function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
+document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
   const bd=$('v3bd');bd.innerHTML='';
   if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'dibangun hari ke-'+(bd0.day||1)].filter(Boolean).join(' · ');
     bd.append(el('i',null,bo?'👑 Bos @'+bo:'👑 Kepala desa'));bd.append(el('i',null,st.length?`👷 ${st.length} karyawan`:'👷 Belum ada karyawan'))}
-  else{$('v3name').textContent=(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo?'Contoh ruko · paket Buka Usaha (20 Genteng)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(el('i',null,t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   try{await loadThree()}catch(e){$('v3load').textContent='Gagal memuat 3D. Coba lagi nanti.';return}
   const T=THREE,cv=$('v3c'),dpr=Math.min(2,window.devicePixelRatio||1);
@@ -1475,7 +1477,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   c.restore();c.lineWidth=6;c.strokeStyle='#1C2520';rr(c,X,Y,S,S,40);c.stroke();
   /* nama */
   c.fillStyle='#1C2520';const nm=bd0?(bd0.name||'Bangunan'):(r.nick||('@'+r.name));fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
-  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(bd0?[(NK.BTYPES[bd0.type]||{}).label,'hari ke-'+(bd0.day||1)].filter(Boolean).join(' · '):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
+  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?[(NK.BTYPES[bd0.type]||{}).label,'hari ke-'+(bd0.day||1)].filter(Boolean).join(' · '):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
   const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'👑 Kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
   if(tags.length){c.font=`700 32px ${FB}`;const rows=[[]];let rw=0;const gap=14,maxW=W-100;
     tags.slice(0,6).forEach(t=>{const w=c.measureText(t).width+44;if(rw+w>maxW&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push({t,w});rw+=w+gap});

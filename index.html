@@ -996,9 +996,9 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
 
 /* lowongan & tukang proyek */
 const helm=()=>{const i=document.createElement('img');i.src='helm.png';i.alt='';i.className='helm';return i};
-const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',dmSoon:'#LokerTukangProyek',icon:'helm',title:'Tukang Proyek',sub:'Bantu kepala desa bangun rumah warga',
+const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'helm',title:'Tukang Proyek',sub:'Bantu kepala desa bangun rumah warga',
   desc:'Kampung kebanjiran warga baru, kepala desa nggak sanggup bangun sendirian. Tukang Proyek jadi tangan kanan kades.',
-  syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Lamar lewat DM Instagram @negerikomen dengan #LokerTukangProyek + alasanmu','Diseleksi langsung oleh kepala desa','Masa kerja 30 hari. Setelah itu rumah kembali normal, kecuali diperpanjang'],
+  syarat:['Pernah jadi KM (ketua murid) di sekolah','Bisa bedain semen sama pasir tanpa nyicip','Nggak takut ketinggian kalau naik genteng','Kuat ngangkat galon sendirian','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['Rumahmu jadi markas tukang selama 30 hari: atap garis kuning-hitam, helm & cone (bisa diperpanjang)','Lencana Tukang Proyek saat rumahmu diklik','Nama tampil di daftar Tukang Proyek di web ini','Nama yang lolos disebut di episode'],
   url:D.lowongan&&D.lowongan.url||''},
  {id:'marbot',icon:'🕌',title:'Marbot Masjid',sub:'Jaga dan rawat masjid kampung',

@@ -238,7 +238,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="mapbox">
         <canvas id="map" role="img" aria-label="Peta kampung Negeri Komen"></canvas>
         <div class="maptag"><span id="tagDay">Hari ke-1</span><span class="y" id="tagWarga">1 warga</span></div>
-        <div class="legend" aria-label="Keterangan peta"><span><i class="lf"></i>Bendera emas = pendukung</span><span><i class="la"></i>Tenda = toko warga</span></div>
+        <div class="legend" aria-label="Keterangan peta"><span><i class="lf"></i>Bendera emas = pendukung</span><span><i class="la"></i>Ruko = toko warga</span></div>
         <div class="hint" id="hint">Geser untuk jelajah · cubit atau scroll untuk zoom · ketuk rumah</div>
         <div class="zoom">
           <button type="button" id="snd" class="snd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button>
@@ -333,7 +333,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
         <ul class="trak-tiers">
           <li><b>🚩 2 Genteng · Bendera Emas</b><span>Dihitung <b>total</b>, boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, <b>warna rumah & atap persis pilihanmu</b>, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
-          <li><b>🏪 20 Genteng · Buka Usaha</b><span>Rumahmu jadi <b>toko bertenda</b> selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small></li>
+          <li><b>🏪 20 Genteng · Buka Usaha</b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan gambar, deskripsi, dan link usahamu. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small></li>
         </ul>
       </div>
 
@@ -505,7 +505,14 @@ function drawHouse(r,s,a){
   ctx.fillStyle='rgba(235,225,190,.55)';ctx.fillRect(-w/2-3+dx*4,-h/2-3+dy*4,w+6,h+6);
   ctx.fillStyle=wallHex(r);ctx.fillRect(-w/2+dx*6,-h/2+dy*6,w,h);
   const roof=roofHex(r);
-  if(horiz){ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w,h/2);ctx.fillStyle=shade(roof,-12);ctx.fillRect(-w/2,0,w,h/2);
+  if(shopOn(r)){ // ruko: atap dak datar + lis warna atap + toren air
+    ctx.fillStyle=roof;ctx.fillRect(-w/2-1,-h/2-1,w+2,h+2);
+    ctx.fillStyle='#E4DED0';ctx.fillRect(-w/2+2.5,-h/2+2.5,w-5,h-5);
+    ctx.strokeStyle='rgba(120,110,95,.35)';ctx.lineWidth=.8;ctx.beginPath();for(let k=-w/2+7;k<w/2-3;k+=6){ctx.moveTo(k,-h/2+3);ctx.lineTo(k,h/2-3)}ctx.stroke();
+    ctx.strokeStyle=shade(roof,-45);ctx.lineWidth=1.4;ctx.strokeRect(-w/2-1,-h/2-1,w+2,h+2);
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.arc(-w/4+1.2,-h/4+1.2,4.2,0,7);ctx.fill();
+    ctx.fillStyle='#3E86C6';ctx.beginPath();ctx.arc(-w/4,-h/4,4.2,0,7);ctx.fill();ctx.fillStyle='#7FB3E0';ctx.beginPath();ctx.arc(-w/4-1,-h/4-1,1.8,0,7);ctx.fill();
+  }else if(horiz){ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w,h/2);ctx.fillStyle=shade(roof,-12);ctx.fillRect(-w/2,0,w,h/2);
     ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-w/2+5;k<w/2;k+=5){ctx.moveTo(k,-h/2);ctx.lineTo(k,h/2)}ctx.stroke();
     ctx.strokeStyle=shade(roof,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-w/2,0);ctx.lineTo(w/2,0);ctx.stroke();
   }else{ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w/2,h);ctx.fillStyle=shade(roof,-12);ctx.fillRect(0,-h/2,w/2,h);
@@ -1303,6 +1310,23 @@ function build3D(r){const T=THREE,g=new T.Group();
   const ground=new T.Mesh(new T.CylinderGeometry(4.2,4.4,.3,40),M('#8DBE5A'));ground.position.y=-.15;ground.receiveShadow=true;g.add(ground);
   box(1.2,.04,2.2,'#C9B48A',0,.02,2.5);
   const wall=NK.wallHex(r),roof=NK.roofHex(r);
+  if(NK.shopOn(r)){ // ruko 2 lantai
+    box(3.3,1.7,2.6,'#EDE7DA',0,.85,0);
+    box(2.2,1.25,.05,'#9FD3E6',-.35,.75,1.31,{metalness:.2,roughness:.15});box(.06,1.25,.07,'#555',.3,.75,1.33);box(2.25,.06,.07,'#555',-.35,1.38,1.33);
+    box(.6,1.3,.06,'#6B4527',1.2,.65,1.31);
+    box(3.4,1.6,2.7,wall,0,2.5,0);
+    [-1.05,0,1.05].forEach(x=>{box(.62,.75,.06,'#BFE3F2',x,2.6,1.36);box(.72,.08,.1,'#FFFFFF',x,2.2,1.38)});
+    box(3.6,.18,2.9,roof,0,3.38,0);box(3.3,.25,2.6,shade3(roof),0,3.6,0);
+    const tk=new T.Mesh(new T.CylinderGeometry(.32,.32,.6,16),M('#3E86C6'));tk.position.set(-1,4.03,-.6);tk.castShadow=true;g.add(tk);
+    for(let i=0;i<6;i++){const a=new T.Mesh(new T.BoxGeometry(.56,.06,.75),M(i%2?'#FFFDF6':'#2E8B6A'));a.position.set(-1.4+i*.56,1.62,1.62);a.rotation.x=.38;a.castShadow=true;g.add(a)}
+    const sg=new T.Mesh(new T.PlaneGeometry(3.1,.42),new T.MeshStandardMaterial({map:signTex(r.shop.name||'TOKO','#1C2520','#F2C230'),roughness:.7}));sg.position.set(0,1.95,1.38);g.add(sg);
+    box(1.2,.04,1.4,'#C9B48A',0,.02,2.4);
+    const tree=(x,z,s)=>{const t=new T.Mesh(new T.CylinderGeometry(.08*s,.12*s,.8*s,8),M('#7A5230'));t.position.set(x,.4*s,z);t.castShadow=true;g.add(t);
+      const c=new T.Mesh(new T.SphereGeometry(.6*s,16,12),M('#4F8F3E'));c.position.set(x,1.05*s,z);c.castShadow=true;g.add(c)};
+    tree(-3,-1.6,1.1);tree(2.9,1.8,.8);
+    let flag=null;const p=new T.Mesh(new T.CylinderGeometry(.04,.04,2.4,8),M('#5A4A3A'));p.position.set(1.4,4.6,-.9);p.castShadow=true;g.add(p);
+    const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.1,roughness:.5,emissive:'#8A6A00',emissiveIntensity:.55}));flag.position.set(1.85,5.5,-.9);g.add(flag);flag.userData.base=fg.attributes.position.array.slice();
+    return {g,flag}}
   box(3.2,2,2.6,wall,0,1,0);
   // atap pelana
   const sh=new T.Shape();sh.moveTo(-1.95,0);sh.lineTo(1.95,0);sh.lineTo(0,1.35);sh.lineTo(-1.95,0);
@@ -1327,6 +1351,7 @@ function build3D(r){const T=THREE,g=new T.Group();
     const cone=new T.Mesh(new T.ConeGeometry(.25,.7,16),M('#E8702A'));cone.position.set(-1.3,.35,2.3);cone.castShadow=true;g.add(cone)}
   return {g,flag}}
 
+function shade3(c){const k=new THREE.Color(c);k.multiplyScalar(.75);return k}
 function signTex(text,bg,fg){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,512,128);
   x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';let s=70;do{x.font=`800 ${s}px "Bricolage Grotesque",sans-serif`;s-=4}while(x.measureText(text).width>470&&s>20);x.fillText(text,256,68);
   const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
@@ -1412,7 +1437,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   scn.add(new T.HemisphereLight('#FFFFFF','#6E8F4A',.5));const sun=new T.DirectionalLight('#FFF2D6',.75);sun.position.set(5,9,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
   Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6});scn.add(sun);
   const {g,flag}=bd0?build3DB(bd0):build3D(r);scn.add(g);
-  let yaw=-.6,pitch=.45,dist=bd0?13.5:12,auto=true,drag=null,raf=0,live=true;
+  let yaw=-.6,pitch=.45,dist=bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;
   const size=()=>{const w=cv.clientWidth,h=cv.clientHeight;rd.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()};size();
   const pts=new Map();
   cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});auto=false;if(pts.size===2){const [a,b]=[...pts.values()];drag={d:Math.hypot(a.x-b.x,a.y-b.y),dist}}};

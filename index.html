@@ -116,11 +116,23 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .chips button:hover{border-color:var(--daun)}
 .loker{background:#FFF8E1;border:2px dashed #E2B23A}
 .loker .lbl{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:#1C2520;color:#F2C230;border-radius:6px;padding:3px 8px}
-.loker h3{color:var(--ink)!important;font-size:18px!important;letter-spacing:0!important;text-transform:none!important;font-family:var(--f-display)}
 .btn.soon{background:#E6E2D3;border-color:#E6E2D3;color:#6B6455;cursor:default}
 @keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(242,194,48,0)}30%,70%{box-shadow:0 0 0 8px rgba(242,194,48,.6)}}
 .loker.flash{animation:flash 1.2s ease 2}
-.loker-l{margin:0 0 12px;font-size:14px}.loker-n{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+.loker h3{color:#8A6A10}
+.loker-l{margin:-4px 0 6px;font-size:14px}
+.jobs{border-top:1.5px dashed #D9C98F}
+.job{border-bottom:1.5px dashed #D9C98F}
+.job summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 2px;cursor:pointer}
+.job summary::-webkit-details-marker{display:none}
+.job .jico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:#F2C230;border:2px solid #1C2520;flex:none}
+.job .jt{flex:1;min-width:0}.job .jt b{display:block;font-family:var(--f-display);font-size:16.5px}.job .jt span{font-size:12.5px;color:var(--muted)}
+.job .chev{font-size:14px;color:var(--muted);transition:transform .2s}.job[open] .chev{transform:rotate(180deg)}
+.jst{font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;white-space:nowrap;background:#E6E2D3;color:#6B6455}.jst.open{background:var(--daun);color:#fff}
+.jbody{padding:0 2px 14px}.jbody p{margin:0 0 10px;font-size:14px}
+.jbody h4{margin:10px 0 4px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.jbody ul{margin:0 0 6px;padding-left:20px;font-size:14px}.jbody li{margin:2px 0}
+.jbody .btn{width:100%;margin-top:8px}.jnote{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
 .proyek .chips button{background:#FFF6D8;border-color:#EBD58A}
 .award{background:linear-gradient(180deg,#FFF6D8,#FFFDF4);border:2px solid #E2B23A}
 .award h3{color:#8A6A10}
@@ -234,11 +246,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       </div>
 
       <div class="card loker" id="loker">
-        <span class="lbl">🔨 Lowongan kerja</span>
-        <h3 style="margin:8px 0 6px">Dicari: Tukang Proyek</h3>
-        <p class="loker-l">Kepala desa kewalahan bangun ratusan rumah sendirian. Bantu kampung jadi <b>Tukang Proyek</b>: rumahmu berubah jadi markas tukang (helm kuning + cone) dan namamu masuk daftar Tukang Proyek.</p>
-        <a class="btn dark soon" id="lokerLink" aria-disabled="true" style="width:100%">⏳ Segera dibuka</a>
-        <p class="loker-n" id="lokerNote">Coming soon! Pantau video @negerikomen, pendaftaran dibuka sebentar lagi.</p>
+        <h3 id="lokerTitle">🔨 Lowongan Kerja</h3>
+        <p class="loker-l">Kepala desa kewalahan bangun kampung sendirian. Ayo bantu, ada posisi buat warga!</p>
+        <div class="jobs" id="jobs"></div>
       </div>
 
       <div class="card proyek" id="proyek" hidden>
@@ -948,7 +958,20 @@ if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!
   if(changed){renderShops();renderSups();dirty=true}}).catch(()=>{});
 
 /* lowongan & tukang proyek */
-if(D.lowongan&&typeof D.lowongan.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(D.lowongan.url.trim())){const a=$('lokerLink');a.href=D.lowongan.url.trim();a.target='_blank';a.rel='noopener';a.classList.remove('soon');a.removeAttribute('aria-disabled');a.textContent='Lamar sekarang';$('lokerNote').textContent='Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'}
+const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'👷',title:'Tukang Proyek',sub:'Bantu kepala desa bangun rumah warga',
+  desc:'Kampung kebanjiran warga baru, kepala desa nggak sanggup bangun sendirian. Tukang Proyek jadi tangan kanan kades.',
+  syarat:['Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)','Isi formulir: username IG + alasan ingin jadi Tukang Proyek','Diseleksi langsung oleh kepala desa'],
+  benefit:['Rumahmu jadi markas tukang: atap garis kuning-hitam, helm & cone','Lencana 👷 Tukang Proyek saat rumahmu diklik','Nama tampil di daftar Tukang Proyek di web ini','Nama yang lolos disebut di episode'],
+  url:D.lowongan&&D.lowongan.url||''}]);
+JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
+  const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());
+  const sm=document.createElement('summary');const ic=el('span','jico',j.icon||'🔨');const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+j.title),el('span',null,j.sub||''));
+  sm.append(ic,tt,el('span','jst'+(ok?' open':''),ok?'Dibuka':'Segera'),el('span','chev','▾'));d.append(sm);
+  const bd=el('div','jbody');if(j.desc)bd.append(el('p',null,j.desc));
+  [['Syarat',j.syarat],['Yang kamu dapat',j.benefit]].forEach(([h,L])=>{if(!L||!L.length)return;bd.append(el('h4',null,h));const ul=document.createElement('ul');L.forEach(t=>ul.append(el('li',null,t)));bd.append(ul)});
+  if(ok){const a=el('a','btn dark','Lamar sekarang');a.href=j.url.trim();a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
+  else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran dibuka sebentar lagi.'))}
+  d.append(bd);$('jobs').append(d)});
 {const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.job==='proyek');if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`👷 Tukang Proyek (${fmt(L.length)})`;
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent='👷 @'+r.name;b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}
 
@@ -1190,7 +1213,7 @@ resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
-  if(q.toLowerCase()==='loker'){const c=$('loker');c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
+  if(q.toLowerCase()==='loker'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
   if(!q)return;$('q').value=q;const hits=find(q);if(hits.length&&hits[0].score===0)select(hits[0],{instant:false});else if(hits.length)select(hits[0]);else showMiss(q)}
 const go=()=>{fromLink();requestAnimationFrame(frame)};
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go,go);

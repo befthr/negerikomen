@@ -509,10 +509,13 @@ function drawHouse(r,s,a){
     for(let i=0;i<n;i++){const x0=-L/2-2+i*sw;ctx.fillStyle=i%2?'#FFFDF6':'#2E8B6A';ctx.fillRect(x0,F/2-1,sw,d);
       ctx.beginPath();ctx.arc(x0+sw/2,F/2-1+d,sw/2,0,Math.PI);ctx.fill()}
     ctx.strokeStyle='rgba(28,37,32,.75)';ctx.lineWidth=1.1;ctx.strokeRect(-L/2-2,F/2-1,L+4,d);ctx.restore()}
-  if(r.sup||shopOn(r)){ // pendukung Trakteer: bendera genteng emas
-    ctx.fillStyle='#5A4A3A';ctx.fillRect(w/2-3,-h/2-13,2.2,16);
-    ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(w/2-1,-h/2-13);ctx.lineTo(w/2+11,-h/2-9);ctx.lineTo(w/2-1,-h/2-5);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke()}
+  if(r.sup||shopOn(r)){ // pendukung Trakteer: bendera emas tinggi
+    const px=w/2-4,top=-h/2-30;
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(px+2,top+3,2.6,34);
+    ctx.fillStyle='#5A4A3A';ctx.fillRect(px,top,2.6,34);
+    ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(px+2.6,top);ctx.lineTo(px+17,top+5);ctx.lineTo(px+2.6,top+10);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#FFF7C2';ctx.beginPath();ctx.moveTo(px+4,top+2.2);ctx.lineTo(px+9,top+3.6);ctx.lineTo(px+4,top+5);ctx.closePath();ctx.fill()}
   ctx.restore();
 }
 function drawOwner(){
@@ -1072,7 +1075,7 @@ function drawLabels(v,t){
     ctx.strokeStyle='rgba(28,37,32,.85)';ctx.lineWidth=1.5*dpr;ctx.stroke();ctx.restore()}
   const lift=y=>y-hs*.45*dpr;
   if(sel){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
-    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:'@'+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
+    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy)-((r.sup||NK.shopOn(r,TODAY))?hs*.5*dpr:0),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:'@'+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup?' · pendukung':''),true,true)}
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'usulan @'+b.by:'',true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
@@ -1082,7 +1085,7 @@ function drawLabels(v,t){
   if(hs>=24){const cx=cv.width/2,cy=cv.height/2;
     const list=RES.map((r,i)=>{const [sx,sy]=toS(r.x,r.y);return {r,i,sx,sy,d:Math.hypot(sx-cx,sy-cy)-(r.day===D.day?400*dpr:0)}})
       .filter(o=>o.sx>-80&&o.sy>-40&&o.sx<cv.width+80&&o.sy<cv.height+80).sort((a,b)=>a.d-b.d).slice(0,120);
-    list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy),NK.shopOn(o.r,TODAY)?'🏪 '+o.r.shop.name:'@'+o.r.name,'',false)})}
+    list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy)-((o.r.sup||NK.shopOn(o.r,TODAY))?hs*.5*dpr:0),NK.shopOn(o.r,TODAY)?'🏪 '+o.r.shop.name:'@'+o.r.name,'',false)})}
 }
 /* ---------- daily quest: UFO Nyasar muncul di jam tertentu (WIB) ---------- */
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?

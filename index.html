@@ -201,6 +201,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .v3x{position:absolute;right:10px;top:10px;z-index:2;width:40px;height:40px;border-radius:12px;border:2px solid var(--ink);background:#fff;font:700 16px var(--f-body);cursor:pointer}
 .v3load{position:absolute;left:0;right:0;top:40%;text-align:center;font-weight:700;color:var(--muted)}
 .v3info{padding:12px 16px 4px;background:#fff;border-top:1px solid var(--line)}.v3info b{display:block;font-family:var(--f-display);font-size:20px}.v3info span{font-size:13.5px;color:var(--muted)}
+.dshop{display:flex;gap:12px;margin:10px 0 2px;padding:10px;border:1.5px dashed var(--line);border-radius:14px;background:#FFFBEF}.dshop img{width:76px;height:76px;border-radius:12px;object-fit:cover;flex:none}.dshop b{display:block;font-size:15px}.dshop p{margin:2px 0 6px;font-size:13px;color:var(--muted)}.dshop .btn{font-size:12.5px;padding:6px 12px;opacity:.9}.dshop small{display:block;font-size:11.5px;color:var(--muted);margin-top:4px}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
 .v3pv{position:fixed;inset:0;z-index:70;background:rgba(16,22,18,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.v3pv img{max-height:68vh;max-width:100%;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);-webkit-touch-callout:default;user-select:auto}.v3pv .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.v3pv p{color:#fff;font-size:13.5px;text-align:center;margin:0;max-width:380px}.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
@@ -358,7 +359,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <button type="button" class="v3x" id="v3x" aria-label="Tutup">✕</button>
     <canvas id="v3c"></canvas>
     <div class="v3load" id="v3load">Membangun rumah 3D…</div>
-    <div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div></div>
+    <div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div><div id="v3demo"></div></div>
     <div class="v3act"><button type="button" class="btn" id="v3save">📸 Simpan & bagikan</button><span class="v3hint">Geser untuk memutar · cubit/scroll untuk zoom</span></div>
   </div>
 </div>
@@ -1426,7 +1427,10 @@ document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
-  const bd=$('v3bd');bd.innerHTML='';
+  const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';
+  if(r&&r.demo){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
+    tx.append(el('b',null,'🏪 Toko Kamu'),el('p',null,'Keripik pedas bikinan sendiri, level 1–5. Order lewat link di bawah ya!'));
+    const a=el('a','btn dark','Kunjungi toko ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link Shopee/IG/WA tokomu')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}
   if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'dibangun hari ke-'+(bd0.day||1)].filter(Boolean).join(' · ');
     bd.append(el('i',null,bo?'👑 Bos @'+bo:'👑 Kepala desa'));bd.append(el('i',null,st.length?`👷 ${st.length} karyawan`:'👷 Belum ada karyawan'))}
   else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo?'Contoh ruko · paket Buka Usaha (20 Genteng)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}

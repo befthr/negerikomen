@@ -1309,8 +1309,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     sf.append(kp);left.append(sf);
-    if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid tmini');tancapCards(g,2);left.append(g);
-      left.append(tancapMore())}
+    if(b.type==='layartancap'&&TT_ITEMS.length){left.append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid tmini');tancapCards(g,2);left.append(g)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }
   box.append(left,acts)}
@@ -1581,7 +1580,7 @@ function tancapMore(){const w=el('div','tmorew');TT_AKUN.forEach(a=>{const m=el(
 function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(o=>{const a=el('a','tcard');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';
   const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));if(o.akun)a.append(el('small',null,'@'+String(o.akun).replace(/^@/,'')));box.append(a)})}
 if(TT_ITEMS.length){$('tancap').hidden=false;
-  $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').replaceWith(tancapMore())}
+  $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove()}
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);

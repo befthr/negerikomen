@@ -435,7 +435,7 @@ function parseNick(text){const seg=String(text||'').split(/[,|\n.!]/)[0].trim();
   return words.map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}
 const ROOFS=['#C4502F','#B5452A','#CF6438','#A93D28','#C4502F','#B9563A','#6F8FA3','#5E8B5A','#C4502F','#8E5A3C'];
 const WALLS=['#F3E8D2','#EAD7B5','#DCE7EA','#F1DDD6','#E3EBD3','#F6F1E6'];
-const roofHex=r=>ROOF_HEX[r.roof]||ROOFS[Math.floor(ih(r.x,r.y,5)*ROOFS.length)];
+const roofHex=r=>(typeof r.roof==='string'&&/^#[0-9a-fA-F]{6}$/.test(r.roof)?r.roof:null)||ROOF_HEX[r.roof]||ROOFS[Math.floor(ih(r.x,r.y,5)*ROOFS.length)];
 
 /* ---------- gambar ---------- */
 let ctx=null;const use=c=>{ctx=c};
@@ -1170,7 +1170,7 @@ function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className
 function showResult(s){const box=$('result');box.className='result';box.innerHTML='';box.hidden=false;
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
-      el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+r.roof:'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
+      el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):'',r.sup?'⭐ pendukung kampung':''].filter(Boolean).join(' · ')));
     if(NK.jobOn(r)){const bd=el('div','badges');const t=el('i',null,'');t.append(helm(),document.createTextNode('Tukang Proyek'+(r.job.until?' · s/d '+new Date(r.job.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')));bd.append(t);left.append(bd)}
     {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}
     if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,80)))}

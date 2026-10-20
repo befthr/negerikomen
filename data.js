@@ -4,7 +4,7 @@
 window.NK_DATA = {
  "version": 1,
  "account": "negerikomen",
- "day": 1,
+ "day": 2,
  "updated": "2026-10-20",
  "kavling": 947,
  "followers": 812,
@@ -471,7 +471,9 @@ window.NK_DATA = {
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },
-  { "type": "warung", "name": "Warung", "by": "negerikomen", "day": 1, "x": 46, "y": 44, "w": 1 }
+  { "type": "warung", "name": "Warung", "by": "negerikomen", "day": 1, "x": 46, "y": 44, "w": 1 },
+  { "type": "bakso", "name": "Warung Bakso", "by": "simson__01", "day": 2, "x": 47, "y": 41, "w": 3 },
+  { "type": "padang", "name": "Rumah Makan Padang", "by": "sorminnn_fdlyy", "day": 2, "x": 41, "y": 47, "w": 3 }
  ],
  "awards": [
   { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }

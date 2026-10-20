@@ -201,7 +201,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .v3x{position:absolute;right:10px;top:10px;z-index:2;width:40px;height:40px;border-radius:12px;border:2px solid var(--ink);background:#fff;font:700 16px var(--f-body);cursor:pointer}
 .v3load{position:absolute;left:0;right:0;top:40%;text-align:center;font-weight:700;color:var(--muted)}
 .v3info{padding:12px 16px 4px;background:#fff;border-top:1px solid var(--line)}.v3info b{display:block;font-family:var(--f-display);font-size:20px}.v3info span{font-size:13.5px;color:var(--muted)}
-.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
+.v3pv{position:fixed;inset:0;z-index:70;background:rgba(16,22,18,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.v3pv img{max-height:68vh;max-width:100%;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);-webkit-touch-callout:default;user-select:auto}.v3pv .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.v3pv p{color:#fff;font-size:13.5px;text-align:center;margin:0;max-width:380px}.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;padding:10px 16px;border-radius:999px;z-index:50;font-size:14px}
 :focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -350,13 +350,14 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
   </footer>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="v3pv" id="v3pv" hidden role="dialog" aria-modal="true" aria-label="Gambar rumah"><img id="v3img" alt="Gambar rumah 3D"><div class="row"><button type="button" class="btn" id="v3share">📤 Bagikan</button><a class="btn" id="v3dl" download>⬇️ Download</a><button type="button" class="btn" id="v3pvx">Tutup</button></div><p>Kalau tombol tidak jalan (misalnya di browser Instagram): <b>tekan lama gambar</b> lalu pilih Simpan/Download.</p></div>
 <div class="v3" id="v3" hidden role="dialog" aria-modal="true" aria-label="Rumah 3D">
   <div class="v3box">
     <button type="button" class="v3x" id="v3x" aria-label="Tutup">✕</button>
     <canvas id="v3c"></canvas>
     <div class="v3load" id="v3load">Membangun rumah 3D…</div>
     <div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div></div>
-    <div class="v3act"><button type="button" class="btn" id="v3save">📸 Simpan gambar</button><span class="v3hint">Geser untuk memutar · cubit/scroll untuk zoom</span></div>
+    <div class="v3act"><button type="button" class="btn" id="v3save">📸 Simpan & bagikan</button><span class="v3hint">Geser untuk memutar · cubit/scroll untuk zoom</span></div>
   </div>
 </div>
 
@@ -1304,7 +1305,7 @@ function build3D(r){const T=THREE,g=new T.Group();
   [[-2.3,2.2],[2.4,-2.4],[-1.8,-2.8]].forEach(([x,z])=>{const b=new T.Mesh(new T.SphereGeometry(.35,12,10),M('#5E9E46'));b.position.set(x,.25,z);b.castShadow=true;g.add(b)});
   let flag=null;
   if(r.sup||NK.shopOn(r)){const p=new T.Mesh(new T.CylinderGeometry(.04,.04,2.4,8),M('#5A4A3A'));p.position.set(1.7,3.2,-1.1);p.castShadow=true;g.add(p);
-    const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.3,roughness:.4}));flag.position.set(2.15,4.1,-1.1);g.add(flag);flag.userData.base=fg.attributes.position.array.slice()}
+    const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.1,roughness:.5,emissive:'#8A6A00',emissiveIntensity:.55}));flag.position.set(2.15,4.1,-1.1);g.add(flag);flag.userData.base=fg.attributes.position.array.slice()}
   if(NK.shopOn(r)){for(let i=0;i<6;i++){const a=new T.Mesh(new T.BoxGeometry(.55,.06,.7),M(i%2?'#FFFDF6':'#2E8B6A'));a.position.set(-1.375+i*.55,2.05,1.55);a.rotation.x=.35;a.castShadow=true;g.add(a)}}
   if(NK.jobOn(r)){const h=new T.Mesh(new T.SphereGeometry(.45,20,12,0,Math.PI*2,0,Math.PI/2),M('#F2C230',{roughness:.4}));h.position.set(1.2,0,2.2);g.add(h);
     const br=new T.Mesh(new T.CylinderGeometry(.6,.6,.05,24),M('#D9A520'));br.position.set(1.2,.02,2.2);g.add(br);
@@ -1336,8 +1337,46 @@ async function open3D(r,i){const W=$('v3');W.hidden=false;$('v3load').hidden=fal
   raf=requestAnimationFrame(loop);$('v3load').hidden=true;
   const onR=()=>size();window.addEventListener('resize',onR);
   v3s={stop(){live=false;cancelAnimationFrame(raf);window.removeEventListener('resize',onR);rd.dispose()}};
-  $('v3save').onclick=()=>{const a=document.createElement('a');a.download='rumah-'+r.name+'.png';a.href=cv.toDataURL('image/png');a.click();toast('Gambar rumah 3D disimpan 📸')};
+  $('v3save').onclick=async()=>{const btn=$('v3save');btn.disabled=true;
+    try{rd.setPixelRatio(1);rd.setSize(1080,1080,false);cam.aspect=1;cam.updateProjectionMatrix();rd.render(scn,cam);
+      const blob=await makeCard(cv,r,i);rd.setPixelRatio(dpr);size();showCard(blob,r)}
+    catch(e){toast('Gagal bikin gambar. Coba lagi ya.')}finally{btn.disabled=false}};
   SND.play('ting',.6)}
+
+/* kartu rumah untuk dibagikan (1080x1920, cocok untuk Story) */
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function fitText(c,t,max,size,font){let s=size;do{c.font=`800 ${s}px ${font}`;s-=2}while(c.measureText(t).width>max&&s>24);return t}
+async function makeCard(src,r,i){try{await document.fonts.ready}catch(e){}
+  const W=1080,H=1920,k=document.createElement('canvas');k.width=W;k.height=H;const c=k.getContext('2d');
+  const FD='"Bricolage Grotesque","Trebuchet MS",sans-serif',FB='"Figtree","Segoe UI",sans-serif';
+  const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#EEF2E6');g.addColorStop(1,'#DCE8D2');c.fillStyle=g;c.fillRect(0,0,W,H);
+  c.fillStyle='#1C2520';c.textAlign='center';c.font=`700 34px ${FB}`;c.fillText('N E G E R I   K O M E N',W/2,150);
+  c.font=`800 76px ${FD}`;c.fillText('Rumahku di kampung',W/2,250);
+  /* gambar 3D */
+  const X=60,Y=320,S=960;c.save();rr(c,X,Y,S,S,40);c.clip();const sg=c.createLinearGradient(0,Y,0,Y+S);sg.addColorStop(0,'#DDEBF2');sg.addColorStop(.7,'#F5F7F1');c.fillStyle=sg;c.fillRect(X,Y,S,S);
+  c.drawImage(src,X,Y,S,S);
+  /* watermark di pojok gambar */
+  c.font=`800 34px ${FD}`;const wm='@negerikomen',ww=c.measureText(wm).width+44;c.globalAlpha=.85;c.fillStyle='#1C2520';rr(c,X+S-ww-28,Y+S-86,ww,60,30);c.fill();c.globalAlpha=1;c.fillStyle='#fff';c.fillText(wm,X+S-28-ww/2,Y+S-44);
+  c.restore();c.lineWidth=6;c.strokeStyle='#1C2520';rr(c,X,Y,S,S,40);c.stroke();
+  /* nama */
+  c.fillStyle='#1C2520';const nm=r.nick||('@'+r.name);fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
+  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText((r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
+  const tags=[];if(r.sup)tags.push('🚩 Pendukung');if(NK.shopOn(r))tags.push('🏪 '+r.shop.name);if(NK.jobOn(r))tags.push('🦺 Tukang Proyek');
+  if(tags.length){c.font=`700 38px ${FB}`;const t=tags.join('   '),tw=c.measureText(t).width+60;c.fillStyle='#1C2520';rr(c,W/2-tw/2,1505,tw,70,35);c.fill();c.fillStyle='#F2C230';c.fillText(t,W/2,1553)}
+  /* ajakan + watermark besar */
+  c.fillStyle='#F2C230';rr(c,90,1640,W-180,200,36);c.fill();c.lineWidth=5;c.strokeStyle='#1C2520';c.stroke();
+  c.fillStyle='#1C2520';c.font=`600 38px ${FB}`;c.fillText('Mau punya rumah juga? Follow & komen di',W/2,1712);
+  c.font=`800 72px ${FD}`;c.fillText('@negerikomen',W/2,1800);
+  c.font=`600 30px ${FB}`;c.fillStyle='#5B6860';c.fillText('negerikomen.vercel.app',W/2,1890);
+  return await new Promise(res=>k.toBlob(res,'image/png'))}
+let pvURL=null;
+function showCard(blob,r){const f=new File([blob],'rumah-'+r.name.replace(/[^\w.-]/g,'')+'-negerikomen.png',{type:'image/png'});
+  if(pvURL)URL.revokeObjectURL(pvURL);pvURL=URL.createObjectURL(blob);
+  $('v3img').src=pvURL;const dl=$('v3dl');dl.href=pvURL;dl.download=f.name;$('v3pv').hidden=false;
+  const sh=$('v3share');const can=!!(navigator.canShare&&navigator.canShare({files:[f]}));sh.hidden=!can;
+  sh.onclick=async()=>{try{await navigator.share({files:[f],title:'Rumahku di Negeri Komen',text:'Ini rumahku di Negeri Komen 🏡 Mau punya juga? Follow & komen di @negerikomen'})}catch(e){}};
+  SND.play('ting',.5)}
+$('v3pvx').onclick=()=>{$('v3pv').hidden=true};$('v3pv').addEventListener('click',e=>{if(e.target===$('v3pv'))$('v3pv').hidden=true});
 function close3D(){$('v3').hidden=true;if(v3s){v3s.stop();v3s=null}}
 $('v3x').onclick=close3D;$('v3').addEventListener('click',e=>{if(e.target===$('v3'))close3D()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('v3').hidden)close3D()});
 

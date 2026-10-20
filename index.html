@@ -1005,7 +1005,17 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   desc:'Kampung makin ramai, masjid butuh penjaga yang amanah. Marbot Masjid merawat masjid dan meramaikan kampung.',
   syarat:['Sayang emak','Nggak suka bolos sekolah','Tidak pernah judol','Cita-citanya pengen jadi miliarder','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['Rumahmu jadi rumah tipe islami selama 30 hari (bisa diperpanjang)','Setiap rumahmu diklik di web, terdengar suara "Masya Allah"','Nama tampil di daftar Marbot Masjid di web ini','Nama yang lolos disebut di episode'],
-  url:D.marbot&&D.marbot.url||''}]);
+  url:D.marbot&&D.marbot.url||''},
+ {id:'bakso',icon:'🍜',title:'Karyawan Warung Bakso',sub:'Bantu jualan di Warung Bakso @simson__01',
+  desc:'Warung Bakso baru buka dan pembelinya ramai. Butuh karyawan yang cekatan dan nggak gampang laper.',
+  syarat:['Kuat nahan godaan nyicip bakso pembeli','Bisa bedain bakso urat sama bakso halus','Hafal pesanan "kuah dipisah, sambel dikit, tanpa seledri"','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  benefit:['Rumahmu jadi rumah karyawan bakso selama 30 hari (bisa diperpanjang)','Lencana Karyawan Warung Bakso saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
+  url:''},
+ {id:'padang',icon:'🍛',title:'Karyawan Rumah Makan Padang',sub:'Bantu jualan di RM Padang @sorminnn_fdlyy',
+  desc:'Rumah Makan Padang baru buka. Butuh karyawan yang jago numpuk piring dan hafal semua lauk.',
+  syarat:['Bisa bawa 10 piring sekaligus tanpa jatuh','Hafal bedanya rendang, kalio, dan dendeng','Nggak pelit kuah','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  benefit:['Rumahmu jadi rumah karyawan RM Padang selama 30 hari (bisa diperpanjang)','Lencana Karyawan RM Padang saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
+  url:''}]);
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());
   const sm=document.createElement('summary');const ic=el('span','jico',j.icon==='helm'?'':(j.icon||'🔨'));if(j.icon==='helm')ic.append(helm());const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+j.title),el('span',null,j.sub||''));

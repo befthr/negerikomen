@@ -220,6 +220,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .tmini .tcard b{padding:0;font-size:13.5px}.tmini .tcard small{display:none}
 .tmore{display:inline-block;margin-top:12px;font-weight:700;font-size:14px;color:#C4502F}
 .nowplay a{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
+.rank{list-style:none;margin:8px 0 0;padding:0;border-top:1.5px dashed #E2D6A8}
+.rank li{border-bottom:1.5px dashed #E2D6A8}
+.rank button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:9px 2px;font:600 14.5px var(--f-body);color:var(--ink);cursor:pointer;text-align:left}
+.rank .rkn{width:30px;flex:none;text-align:center;font-weight:800;color:var(--muted);font-size:13px}.rank .rkn.rkt{font-size:20px}
+.rank .rn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .rc{flex:none;font-weight:800;font-size:13px;background:#FFF3C4;border:1.5px solid #E2B23A;border-radius:999px;padding:2px 10px}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
@@ -347,7 +353,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="card" id="sups" hidden>
         <h3 id="supTitle">Pendukung kampung</h3>
         <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Terima kasih sudah traktir Genteng 🧱</p>
-        <div class="chips gold" id="supList"></div>
+        <ol class="rank" id="supList"></ol>
         <p class="supnote" id="supNote" hidden>Mau namamu ikut nongol di sini? Cukup traktir <b>1 Genteng</b>, kepala desa langsung catat 🧱 <a id="supLink" href="#" target="_blank" rel="noopener">Traktir Genteng →</a></p>
       </div>
 
@@ -1120,8 +1126,11 @@ if(AWARDS.length){$('award').hidden=false;
 /* pendukung Trakteer (bendera emas / toko) */
 function renderSups(){const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));const box=$('supList');box.innerHTML='';
   if(!L.length){$('sups').hidden=true;return}$('sups').hidden=false;$('supTitle').textContent=`Pendukung kampung (${fmt(L.length)})`;
-  L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.textContent=(NK.shopOn(r,TODAY)?'🏪 ':r.sup?'🚩 ':'🧱 ')+'@'+r.name;
-    b.onclick=()=>{select({kind:'r',i});scrollMap()};box.append(b)})}
+  const n=r=>+r.donor||(r.sup?2:0);L.sort((a,b)=>n(b.r)-n(a.r));let rank=0,prev=null;
+  L.forEach(({r,i},k)=>{if(n(r)!==prev){rank++;prev=n(r)}const li=document.createElement('li');const b=document.createElement('button');b.type='button';
+    const md=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
+    b.append(el('span','rkn'+(rank<=3?' rkt':''),md),el('span','rn',(r.sup?'🚩 ':'🧱 ')+'@'+r.name),el('span','rc',n(r)?fmt(n(r))+' Genteng':''));
+    b.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(b);box.append(li)})}
 renderSups();
 if(HAS_TRAK){$('supNote').hidden=false;$('supLink').href=D.trakteer.url.trim()}
 

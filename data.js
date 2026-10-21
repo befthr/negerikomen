@@ -9,7 +9,7 @@ window.NK_DATA = {
  "kavling": 948,
  "followers": 1108,
  "target": 1000,
- "supOthers": 4,
+ "supOthers": 5,
  "tontonan": {
   "akun": ["lembarpeta"],
   "items": [

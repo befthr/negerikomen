@@ -1679,7 +1679,8 @@ function tancapMore(){const w=el('div','tmorew');TT_AKUN.forEach(a=>{const m=el(
 function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(o=>{const a=el('a','tcard');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';
   const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));if(o.akun)a.append(el('small',null,'@'+String(o.akun).replace(/^@/,'')));box.append(a)})}
 if(TT_ITEMS.length){$('tancap').hidden=false;
-  $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove()}
+  $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove();
+  const bi=BLD.findIndex(b=>b.type==='layartancap');if(bi>=0){const go=el('button','demoSm','📍 Lihat di peta');go.type='button';go.style.marginTop='12px';go.onclick=()=>{select({kind:'b',i:bi});scrollMap()};$('tancap').append(go)}}
 /* juragan genteng: pita di atas */
 {const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0)RES[j].juragan=true}
 /* ---------- mulai ---------- */

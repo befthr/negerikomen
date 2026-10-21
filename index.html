@@ -258,7 +258,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <p class="kicker" id="kicker">Hari ke-1 · update tiap hari 19.00 WIB</p>
     <h1>Kampung yang dibangun dari komentar</h1>
     <p class="lede">Setiap follower yang komen dapat satu rumah. Cari rumahmu di peta, lihat siapa tetangga barumu, dan bangunan apa yang menang voting.</p>
-    <button type="button" class="jstrip" id="jstrip" hidden></button>
   </section>
 
   <div class="layout">
@@ -1661,9 +1660,7 @@ function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(
 if(TT_ITEMS.length){$('tancap').hidden=false;
   $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove()}
 /* juragan genteng: pita di atas */
-{const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0){RES[j].juragan=true;const r=RES[j],g=supRank().find(o=>o.i===j).g,st=$('jstrip');st.hidden=false;
-  const sp=el('span');sp.append('👑 Juragan Genteng: ',el('b',null,'@'+r.name),` · ${fmt(g)} Genteng`);st.append(sp,el('span',null,' ›'));
-  st.onclick=()=>{select({kind:'r',i:j});scrollMap()}}}
+{const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0)RES[j].juragan=true}
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);

@@ -6,10 +6,10 @@ window.NK_DATA = {
  "account": "negerikomen",
  "day": 3,
  "updated": "2026-10-21",
- "kavling": 948,
+ "kavling": 949,
  "followers": 1108,
  "target": 1000,
- "supOthers": 5,
+ "supOthers": 4,
  "tontonan": {
   "akun": [ "lembarpeta"
   ],
@@ -680,7 +680,8 @@ window.NK_DATA = {
   { "name": "siti281226", "x": 50, "y": 23, "day": 3, "nick": "Nak Ikoot" },
   { "name": "ahmdzakyy10", "x": 54, "y": 64, "day": 3, "nick": "Gedung Musyawarah", "roof": "oranye", "wall": "putih" },
   { "name": "niki_nikmah_marzuki", "x": 58, "y": 61, "day": 3, "roof": "hitam", "wall": "putih" },
-  { "name": "jeriah7728", "x": 46, "y": 66, "day": 3, "nick": "Amanda", "roof": "merah muda", "wall": "merah muda" }
+  { "name": "jeriah7728", "x": 46, "y": 66, "day": 3, "nick": "Amanda", "roof": "merah muda", "wall": "merah muda" },
+  { "name": "nurr_amann", "x": 26, "y": 37, "day": 3, "nick": "Nur", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat rumah + bendera emas", "day": 3 } }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },

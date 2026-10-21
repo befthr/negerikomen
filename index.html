@@ -1688,8 +1688,8 @@ function moreText(cls,text,lines){const w=el('div','more');const p=el('p',cls,St
   requestAnimationFrame(()=>{if(p.scrollHeight>p.clientHeight+2)b.hidden=false});
   b.onclick=e=>{e.stopPropagation();const open=p.style.webkitLineClamp==='unset';p.style.webkitLineClamp=open?String(lines||3):'unset';b.textContent=open?'Selengkapnya ▾':'Tutup ▴'};return w}
 function resmi(day,short){const d=new Date(Date.UTC(2026,9,18+(+day||1)));return short?d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).replace(/\//g,'.'):d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
-const WAKAF=b=>b&&(b.wakaf||b.type==='masjid');
-const bossTxt=(b,u)=>WAKAF(b)?'🤲 Diwakafkan @'+u:'👑 Bos @'+u;
+function WAKAF(b){return !!(b&&(b.wakaf||b.type==='masjid'))}
+function bossTxt(b,u){return WAKAF(b)?'🤲 Diwakafkan @'+u:'👑 Bos @'+u}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;

@@ -1372,7 +1372,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(sh.desc)left.append(moreText('promo',sh.desc,3));const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Kunjungi toko');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
   else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'))}
   else{const b=BLD[s.i],bo=bossOf(b),st=staffOf(b);left.append(el('h2',null,b.name||'Bangunan'),
-      el('p',null,[(NK.BTYPES[b.type]||{}).label,'dibangun hari ke-'+(b.day||1)].filter(Boolean).join(' · ')));
+      el('p',null,[(NK.BTYPES[b.type]||{}).label,'diresmikan '+resmi(b.day)+' (hari ke-'+(b.day||1)+')'].filter(Boolean).join(' · ')));
     const sf=el('div','staff');sf.append(el('p',null,''));const goRes=u=>{const a=el('a','who',(u==='negerikomen'?'Kepala desa ':'')+'@'+u);a.href='#'+encodeURIComponent(u);a.onclick=e=>{e.preventDefault();if(u==='negerikomen'){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===u);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')};return a};
     sf.firstChild.append(el('b',null,'👑 Bos: '),goRes(bo||'negerikomen'));if(bo)sf.firstChild.append(document.createTextNode(' (pengusul & pemenang voting)'));
     const kp=el('p',null,'');kp.append(el('b',null,`👷 Karyawan (${st.length}): `));
@@ -1544,7 +1544,7 @@ function build3DB(b){const T=THREE,g=new T.Group();
     const ob=new T.Mesh(new T.CylinderGeometry(.18,.42,3.4,4),M('#ECE6D8'));ob.rotation.y=Math.PI/4;ob.position.set(0,1.9,-.8);ob.castShadow=true;g.add(ob);
     const cap=new T.Mesh(new T.BoxGeometry(.7,.14,.5),M('#C4502F'));cap.position.set(0,3.67,-.8);cap.castShadow=true;g.add(cap);
     const gold=new T.Mesh(new T.SphereGeometry(.16,14,12),M('#F2C230',{metalness:.6,roughness:.25,emissive:'#8A6A00',emissiveIntensity:.4}));gold.position.set(0,3.9,-.8);g.add(gold);
-    const sg=new T.Mesh(new T.PlaneGeometry(1.3,.32),new T.MeshStandardMaterial({map:signTex('TUGU GENTENG','#2F6B4F','#FFFFFF'),roughness:.7}));sg.position.set(0,.75,-.37);g.add(sg);
+    const sg=new T.Mesh(new T.PlaneGeometry(1.3,.32),new T.MeshStandardMaterial({map:signTex('TUGU GENTENG · '+resmi(b.day,true),'#2F6B4F','#FFFFFF'),roughness:.7}));sg.scale.set(1.5,1.2,1);sg.position.set(0,.75,-.37);g.add(sg);
   }else if(ty==='posronda'){
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([x,z])=>box(.14,1.3,.14,'#7A5230',x,.65,z));
     box(2.3,.12,2.3,'#A0723C',0,.75,0);
@@ -1586,6 +1586,7 @@ function moreText(cls,text,lines){const w=el('div','more');const p=el('p',cls,St
   const b=el('button','moreBtn','Selengkapnya ▾');b.type='button';b.hidden=true;w.append(p,b);
   requestAnimationFrame(()=>{if(p.scrollHeight>p.clientHeight+2)b.hidden=false});
   b.onclick=e=>{e.stopPropagation();const open=p.style.webkitLineClamp==='unset';p.style.webkitLineClamp=open?String(lines||3):'unset';b.textContent=open?'Selengkapnya ▾':'Tutup ▴'};return w}
+function resmi(day,short){const d=new Date(Date.UTC(2026,9,18+(+day||1)));return short?d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).replace(/\//g,'.'):d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
@@ -1595,7 +1596,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(r&&r.demo){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
     tx.append(el('b',null,'🏪 Toko Kamu'),moreText(null,'Keripik pedas bikinan sendiri, level 1–5. Pedasnya nampol tapi bikin nagih! Dibuat tiap hari dari singkong pilihan, tanpa pengawet. Tersedia ukuran 100 gr dan 250 gr. Bisa COD sekitar kampung atau kirim ke seluruh Indonesia. Order lewat link di bawah ya!',2));
     const a=el('a','btn dark','Kunjungi toko ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link Shopee/IG/WA tokomu')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}
-  if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'dibangun hari ke-'+(bd0.day||1)].filter(Boolean).join(' · ');
+  if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'diresmikan '+resmi(bd0.day)].filter(Boolean).join(' · ');
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?'👑 Bos @'+bo:'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
@@ -1650,7 +1651,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   c.restore();c.lineWidth=6;c.strokeStyle='#1C2520';rr(c,X,Y,S,S,40);c.stroke();
   /* nama */
   c.fillStyle='#1C2520';const nm=bd0?(bd0.name||'Bangunan'):(r.nick||('@'+r.name));fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
-  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?[(NK.BTYPES[bd0.type]||{}).label,'hari ke-'+(bd0.day||1)].filter(Boolean).join(' · '):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
+  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?'Diresmikan '+resmi(bd0.day):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
   const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'🏗️ Dibangun oleh kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r).map(String));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
   if(tags.length){c.font=`700 32px ${FB}`;const rows=[[]];let rw=0;const gap=14,maxW=W-100;
     tags.slice(0,6).forEach(t=>{const w=c.measureText(t).width+44;if(rw+w>maxW&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push({t,w});rw+=w+gap});

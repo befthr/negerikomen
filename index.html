@@ -568,8 +568,6 @@ function drawHouse(r,s,a){
     ctx.beginPath();ctx.moveTo(w/2-1,-h/2+6);ctx.lineTo(w/2-5,-h/2-9);ctx.lineTo(w/2-14,-h/2+2);ctx.closePath();ctx.fill();
     ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,w/2,h/2,0,0,7);ctx.fill();ctx.strokeStyle=gd;ctx.lineWidth=1.5;ctx.stroke();
     ctx.fillStyle='#C9CDD0';ctx.beginPath();ctx.ellipse(0,h*.18,w*.24,h*.26,0,0,7);ctx.fill();
-    ctx.fillStyle='#1C2520';ctx.beginPath();ctx.arc(0,h*.3,2.6,0,7);ctx.fill();
-    ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(-w*.2,-h*.08,2.4,0,7);ctx.arc(w*.2,-h*.08,2.4,0,7);ctx.fill();
   }else if(r.style==='victorian'){ // rumah victoria: atap kompleks + menara bulat + cerobong
     ctx.fillStyle='#E9E1CF';ctx.fillRect(-w/2-3,-h/2-3,w+6,h+6);
     const rf=roof;ctx.fillStyle=shade(rf,18);ctx.fillRect(-w/2,-h/2,w,h/2);ctx.fillStyle=shade(rf,-14);ctx.fillRect(-w/2,0,w,h/2);
@@ -1482,9 +1480,7 @@ function build3D(r){const T=THREE,g=new T.Group();
     const gr=M('#8E9499'),gd=M('#5E656B'),wt=M('#D6D9DC');
     const head=new T.Mesh(new T.SphereGeometry(1.6,24,18),gr);head.scale.set(1,.95,1);head.position.set(0,1.55,0);head.castShadow=true;g.add(head);
     const sn=new T.Mesh(new T.BoxGeometry(1.2,.9,1.4),wt);sn.position.set(0,1.05,1.35);sn.castShadow=true;g.add(sn);
-    const nose=new T.Mesh(new T.SphereGeometry(.2,12,10),M('#1C2520'));nose.position.set(0,1.4,2.05);g.add(nose);
-    [-0.8,0.8].forEach(x=>{const e=new T.Mesh(new T.ConeGeometry(.45,1.1,4),gd);e.position.set(x,3.15,-.1);e.rotation.z=x<0?.25:-.25;e.castShadow=true;g.add(e);
-      const eye=new T.Mesh(new T.SphereGeometry(.17,12,10),M('#F2C230',{emissive:'#8A6A00',emissiveIntensity:.6}));eye.position.set(x*.62,1.95,1.38);g.add(eye)});
+    [-0.8,0.8].forEach(x=>{const e=new T.Mesh(new T.ConeGeometry(.45,1.1,4),gd);e.position.set(x,3.15,-.1);e.rotation.z=x<0?.25:-.25;e.castShadow=true;g.add(e)});
     box(.6,.8,.06,'#3A2A1E',0,.4,2.02);
     treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
   if(r.style==='victorian'){

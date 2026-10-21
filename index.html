@@ -58,7 +58,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .sug button[aria-selected="true"],.sug button:hover{background:var(--field)}
 .sug b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sug span{color:var(--muted);font-size:13px;white-space:nowrap}
-.result{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.result{position:relative;padding-right:48px!important;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
 .result h2{font-family:var(--f-display);font-size:22px;font-weight:800;margin:0;line-height:1.15;overflow-wrap:anywhere}
 .result p{margin:2px 0 0;color:var(--muted);font-size:14.5px}
 .result .acts{display:flex;flex-wrap:wrap;gap:8px}
@@ -237,6 +237,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .rank .rc{flex:none;font-weight:800;font-size:13px;background:#FFF3C4;border:1.5px solid #E2B23A;border-radius:999px;padding:2px 10px}
 .jstrip{display:flex;align-items:center;gap:8px;margin:12px 0 0;padding:8px 14px;border-radius:999px;border:2px solid #1C2520;background:linear-gradient(90deg,#F7D45A,#F2C230 60%,#E2A72C);font:700 14px var(--f-body);color:#1C2520;cursor:pointer;box-shadow:0 3px 0 #1C2520;max-width:100%;text-align:left}
 .jstrip b{font-weight:800}.jstrip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resx{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:10px;border:1.5px solid var(--ink);background:#fff;font:700 15px var(--f-body);color:var(--ink);cursor:pointer;display:grid;place-items:center}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
@@ -1321,6 +1322,7 @@ $('q').addEventListener('blur',()=>setTimeout(()=>{sugItems=[];renderSug()},120)
 $('go').onclick=submit;
 
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+function resX(){const x=el('button','resx','✕');x.type='button';x.setAttribute('aria-label','Tutup');x.onclick=()=>{$('result').hidden=true;sel=null;dirty=true;if(location.hash)history.replaceState(null,'',location.pathname+location.search)};return x}
 function showResult(s){const box=$('result');box.className='result';box.innerHTML='';box.hidden=false;
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
@@ -1358,12 +1360,12 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }
-  box.append(left,acts)}
+  box.append(left,acts,resX())}
 function showMiss(q){sel=null;dirty=true;const box=$('result');box.className='result miss';box.innerHTML='';box.hidden=false;
   const left=el('div');left.append(el('h2',null,`Belum ada rumah untuk “${q}”`),
     el('p',null,'Rumah dibangun di episode berikutnya setelah kamu follow dan komen di video terbaru. Update tiap hari 19.00 WIB.'));
   const a=el('a','btn gent','Komen sekarang di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';
-  const acts=el('div','acts');acts.append(a);box.append(left,acts)}
+  const acts=el('div','acts');acts.append(a);box.append(left,acts,resX())}
 function copy(text){const done=()=>toast('Link disalin. Bagikan ke temanmu!');
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,()=>fallback());else fallback();
   function fallback(){const ta=el('textarea');ta.value=text;document.body.append(ta);ta.select();try{document.execCommand('copy');done()}catch(e){toast(text)}ta.remove()}}

@@ -122,7 +122,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .loker.flash{animation:flash 1.2s ease 2}
 .loker h3{color:#8A6A10}
 .loker-l{margin:-4px 0 6px;font-size:14px}
-.jobs{border-top:1.5px dashed #D9C98F}
+.jobs{border-top:1.5px dashed #D9C98F;max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.jobs::-webkit-scrollbar{width:6px}.jobs::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 .job{border-bottom:1.5px dashed #D9C98F}
 .job summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 2px;cursor:pointer}
 .job summary::-webkit-details-marker{display:none}
@@ -1112,6 +1113,8 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   syarat:['Kuat begadang tanpa ketiduran di pos ronda','Bisa mukul kentongan dengan irama yang benar','Berani ngecek suara aneh di sawah malam-malam','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['Rumahmu jadi rumah satpam selama 30 hari (bisa diperpanjang)','Lencana Satpam Kampung saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''}]);
+{const st=j=>{const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());const closed=j.until&&TODAY>j.until;return closed?2:(ok||j.dm)?0:1};
+  JOBS.sort((a,b)=>st(a)-st(b))}
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());
   const closed=j.until&&TODAY>j.until;const dm=!!j.dm&&!closed;const tgl=j.until?new Date(j.until+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'}):'';

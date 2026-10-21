@@ -1516,6 +1516,7 @@ function perkEl(t){const i=el('i',t.bi!=null?'go':null,String(t));if(t.bi!=null)
 function perksOf(r){const L=[];
   BLD.forEach((b,bi)=>{if(bossOf(b)===r.name)L.push(Object.assign(new String('👑 Bos '+(b.name||'Bangunan')),{bi}))});
   BLD.forEach((b,bi)=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push(Object.assign(new String('👷 '+(x.role||'Karyawan')+' '+(b.name||'')),{bi}))}));
+  {const top=supRank().filter(o=>o.rank===1);if(top.length===1&&top[0].r.name===r.name)L.push('👑 Juragan Genteng')}
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
   if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
   return L}

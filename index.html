@@ -242,6 +242,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .jstrip{display:flex;align-items:center;gap:8px;margin:12px 0 0;padding:8px 14px;border-radius:999px;border:2px solid #1C2520;background:linear-gradient(90deg,#F7D45A,#F2C230 60%,#E2A72C);font:700 14px var(--f-body);color:#1C2520;cursor:pointer;box-shadow:0 3px 0 #1C2520;max-width:100%;text-align:left}
 .jstrip b{font-weight:800}.jstrip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .resx{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:10px;border:1.5px solid var(--ink);background:#fff;font:700 15px var(--f-body);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+.top3{display:flex;flex-wrap:wrap;gap:6px 8px;margin:8px 0 4px}.top3 .t3{display:inline-flex;align-items:center;gap:4px;background:#FFF8E1;border:1.5px solid #E2C978;border-radius:999px;padding:4px 10px;font-size:13.5px}.top3 a{font-weight:700;color:#2F6B4F;text-decoration:none}.top3 small{color:var(--muted);font-weight:700}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
@@ -1377,8 +1378,8 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     const kp=el('p',null,'');kp.append(el('b',null,`👷 Karyawan (${st.length}): `));
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
-    if(b.type!=='tugu')sf.append(kp);left.append(sf);
-    if(b.type==='tugu'){supRank().slice(0,3).forEach(o=>{const pp=el('p','nowplay');pp.append(el('b',null,MEDAL(o.rank)+' '));const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};pp.append(a,document.createTextNode(` · ${fmt(o.g)} Genteng`));left.append(pp)});left.append(el('p','muted','Ranking lengkap di Lihat 3D 🏆'))}
+    if(b.type!=='tugu'){sf.append(kp);left.append(sf)}
+    if(b.type==='tugu'){const row=el('div','top3');supRank().slice(0,3).forEach(o=>{const c=el('span','t3');c.append(MEDAL(o.rank)+' ');const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};c.append(a,el('small',null,` ${fmt(o.g)}🧱`));row.append(c)});left.append(row,el('p','muted','Ranking lengkap di Lihat 3D 🏆'))}
     if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }

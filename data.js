@@ -9,7 +9,7 @@ window.NK_DATA = {
  "kavling": 949,
  "followers": 1108,
  "target": 1000,
- "supOthers": 4,
+ "supOthers": 3,
  "tontonan": {
   "akun": [ "lembarpeta"
   ],
@@ -522,7 +522,7 @@ window.NK_DATA = {
   { "name": "toufnn", "x": 62, "y": 36, "day": 3 },
   { "name": "araji.rayhan", "x": 28, "y": 37, "day": 3 },
   { "name": "marcel_alxndr", "x": 62, "y": 53, "day": 3, "nick": "Marcel", "roof": "hitam", "wall": "putih" },
-  { "name": "willsens.png", "x": 44, "y": 64, "day": 3, "nick": "Wills", "roof": "merah", "wall": "hitam" },
+  { "name": "willsens.png", "x": 44, "y": 64, "day": 3, "nick": "Willsens", "roof": "putih", "wall": "merah", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat rumah merah atap putih + bendera emas", "day": 3 } },
   { "name": "terh_heart", "x": 61, "y": 56, "day": 3, "nick": "Rafka", "roof": "biru", "wall": "kuning" },
   { "name": "sitnurhayati", "x": 29, "y": 34, "day": 3, "nick": "Menik", "wall": "merah muda" },
   { "name": "hamza_h201625", "x": 42, "y": 26, "day": 3, "nick": "Ikut Bg" },

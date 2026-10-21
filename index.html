@@ -1651,7 +1651,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   /* nama */
   c.fillStyle='#1C2520';const nm=bd0?(bd0.name||'Bangunan'):(r.nick||('@'+r.name));fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
   c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?[(NK.BTYPES[bd0.type]||{}).label,'hari ke-'+(bd0.day||1)].filter(Boolean).join(' · '):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
-  const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'👑 Kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r).map(String));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
+  const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'🏗️ Dibangun oleh kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r).map(String));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
   if(tags.length){c.font=`700 32px ${FB}`;const rows=[[]];let rw=0;const gap=14,maxW=W-100;
     tags.slice(0,6).forEach(t=>{const w=c.measureText(t).width+44;if(rw+w>maxW&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push({t,w});rw+=w+gap});
     rows.slice(0,2).forEach((row,ri)=>{const tot=row.reduce((a,o)=>a+o.w,0)+gap*(row.length-1);let x=W/2-tot/2;const y=1498+ri*68;

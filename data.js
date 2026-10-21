@@ -693,9 +693,6 @@ window.NK_DATA = {
   { "type": "coffeeshop", "name": "Coffee Shop", "by": "chaoticbounds", "day": 3, "x": 41, "y": 41, "w": 3 }
  ],
  "awards": [
-  { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" },
-  { "user": "jeruk_rasa_mangga", "badges": [ "🏆 Pemenang Lomba Rumah Impian" ], "note": "Rumah panggung yang elegan, sesuai cerita di lomba Hari 2.", "until": "2026-10-28" },
-  { "user": "irfan_4n", "badges": [ "🏆 Pemenang Lomba Rumah Impian" ], "note": "Rumah kepala serigala abu-abu, satu-satunya di Negeri Komen.", "until": "2026-10-28" },
-  { "user": "posthuman.log", "badges": [ "🏆 Pemenang Lomba Rumah Impian" ], "note": "Rumah Victoria tiga lantai bermenara, cerita paling detail di lomba Hari 2.", "until": "2026-10-28" }
+  { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }
  ]
 };

@@ -229,6 +229,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .rank .roth{display:flex;align-items:center;gap:10px;padding:9px 2px;font:600 14.5px var(--f-body);color:var(--muted)}.rank .roth .rc{background:none;border:0}
 .rank .rn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank .rc{flex:none;font-weight:800;font-size:13px;background:#FFF3C4;border:1.5px solid #E2B23A;border-radius:999px;padding:2px 10px}
+.jstrip{display:flex;align-items:center;gap:8px;margin:12px 0 0;padding:8px 14px;border-radius:999px;border:2px solid #1C2520;background:linear-gradient(90deg,#F7D45A,#F2C230 60%,#E2A72C);font:700 14px var(--f-body);color:#1C2520;cursor:pointer;box-shadow:0 3px 0 #1C2520;max-width:100%;text-align:left}
+.jstrip b{font-weight:800}.jstrip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .perks{margin:6px 0 2px}.perks i{font-size:12.5px;padding:3px 10px}
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
@@ -249,6 +251,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <p class="kicker" id="kicker">Hari ke-1 · update tiap hari 19.00 WIB</p>
     <h1>Kampung yang dibangun dari komentar</h1>
     <p class="lede">Setiap follower yang komen dapat satu rumah. Cari rumahmu di peta, lihat siapa tetangga barumu, dan bangunan apa yang menang voting.</p>
+    <button type="button" class="jstrip" id="jstrip" hidden></button>
   </section>
 
   <div class="layout">
@@ -1135,6 +1138,8 @@ if(AWARDS.length){$('award').hidden=false;
       bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('okbList').append(li)})}}
 
 /* pendukung Trakteer (bendera emas / toko) */
+let JUR=-2;
+function juraganIdx(){const top=supRank().filter(o=>o.rank===1);return top.length===1&&top[0].g>=2?top[0].i:-1}
 function supRank(){const n=r=>+r.donor||(r.sup?2:0);const L=RES.map((r,i)=>({r,i,g:n(r)})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));L.sort((a,b)=>b.g-a.g);let rank=0,prev=null;L.forEach(o=>{if(o.g!==prev){rank++;prev=o.g}o.rank=rank});return L}
 const MEDAL=k=>k===1?'🥇':k===2?'🥈':k===3?'🥉':'#'+k;
 function rankList(box,max){box.innerHTML='';const L=supRank(),OTH=Math.max(0,+D.supOthers||0);L.slice(0,max||99).forEach(({r,i,g,rank})=>{const li=document.createElement('li');const b=document.createElement('button');b.type='button';
@@ -1207,6 +1212,7 @@ function drawLabels(v,t){
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'👑 Bos @'+b.by:'',true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
+  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true)}}
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
@@ -1516,7 +1522,7 @@ function perkEl(t){const i=el('i',t.bi!=null?'go':null,String(t));if(t.bi!=null)
 function perksOf(r){const L=[];
   BLD.forEach((b,bi)=>{if(bossOf(b)===r.name)L.push(Object.assign(new String('👑 Bos '+(b.name||'Bangunan')),{bi}))});
   BLD.forEach((b,bi)=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push(Object.assign(new String('👷 '+(x.role||'Karyawan')+' '+(b.name||'')),{bi}))}));
-  {const top=supRank().filter(o=>o.rank===1);if(top.length===1&&top[0].r.name===r.name)L.push('👑 Juragan Genteng')}
+  {const j=juraganIdx();if(j>=0&&RES[j].name===r.name)L.push('👑 Juragan Genteng')}
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
   if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
   return L}
@@ -1579,9 +1585,12 @@ function fitText(c,t,max,size,font){let s=size;do{c.font=`800 ${s}px ${font}`;s-
 async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   const W=1080,H=1920,k=document.createElement('canvas');k.width=W;k.height=H;const c=k.getContext('2d');
   const FD='"Bricolage Grotesque","Trebuchet MS",sans-serif',FB='"Figtree","Segoe UI",sans-serif';
-  const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#EEF2E6');g.addColorStop(1,'#DCE8D2');c.fillStyle=g;c.fillRect(0,0,W,H);
-  c.fillStyle='#1C2520';c.textAlign='center';c.font=`700 34px ${FB}`;c.fillText('N E G E R I   K O M E N',W/2,150);
-  c.font=`800 76px ${FD}`;c.fillText(bd0?'Bangunan kampung':'Rumahku di kampung',W/2,250);
+  const JG=!bd0&&r&&!r.demo&&JUR>=0&&RES[JUR]&&RES[JUR].name===r.name;
+  const g=c.createLinearGradient(0,0,0,H);if(JG){g.addColorStop(0,'#FFF3C4');g.addColorStop(1,'#F2D27A')}else{g.addColorStop(0,'#EEF2E6');g.addColorStop(1,'#DCE8D2')}c.fillStyle=g;c.fillRect(0,0,W,H);
+  if(JG){c.lineWidth=28;c.strokeStyle='#D4A72C';c.strokeRect(14,14,W-28,H-28);c.lineWidth=6;c.strokeStyle='#1C2520';c.strokeRect(36,36,W-72,H-72)}
+  c.fillStyle='#1C2520';c.textAlign='center';c.font=`700 34px ${FB}`;c.fillText('N E G E R I   K O M E N',W/2,JG?100:150);
+  c.font=`800 76px ${FD}`;if(JG){c.font=`800 38px ${FB}`;c.fillStyle='#8A5A00';c.fillText('👑 JURAGAN GENTENG 👑',W/2,150);c.fillStyle='#1C2520';c.font=`800 76px ${FD}`}
+  c.fillText(bd0?'Bangunan kampung':'Rumahku di kampung',W/2,250);
   /* gambar 3D */
   const X=60,Y=320,S=960;c.save();rr(c,X,Y,S,S,40);c.clip();const sg=c.createLinearGradient(0,Y,0,Y+S);sg.addColorStop(0,'#DDEBF2');sg.addColorStop(.7,'#F5F7F1');c.fillStyle=sg;c.fillRect(X,Y,S,S);
   c.drawImage(src,X,Y,S,S);
@@ -1600,7 +1609,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   c.fillStyle='#F2C230';rr(c,90,1640,W-180,200,36);c.fill();c.lineWidth=5;c.strokeStyle='#1C2520';c.stroke();
   c.fillStyle='#1C2520';c.font=`600 38px ${FB}`;c.fillText('Mau punya rumah juga? Follow & komen di',W/2,1712);
   c.font=`800 72px ${FD}`;c.fillText('@negerikomen',W/2,1800);
-  c.font=`600 30px ${FB}`;c.fillStyle='#5B6860';c.fillText('negerikomen.vercel.app',W/2,1890);
+  c.font=`600 30px ${FB}`;c.fillStyle='#5B6860';c.fillText('negerikomen.vercel.app',W/2,JG?1872:1890);
   return await new Promise(res=>k.toBlob(res,'image/png'))}
 let pvURL=null;
 function showCard(blob,r){const f=new File([blob],'rumah-'+r.name.replace(/[^\w.-]/g,'')+'-negerikomen.png',{type:'image/png'});
@@ -1623,6 +1632,10 @@ function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(
   const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));if(o.akun)a.append(el('small',null,'@'+String(o.akun).replace(/^@/,'')));box.append(a)})}
 if(TT_ITEMS.length){$('tancap').hidden=false;
   $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove()}
+/* juragan genteng: pita di atas */
+{const j=JUR=juraganIdx();if(j>=0){const r=RES[j],g=supRank().find(o=>o.i===j).g,st=$('jstrip');st.hidden=false;
+  const sp=el('span');sp.append('👑 Juragan Genteng: ',el('b',null,'@'+r.name),` · ${fmt(g)} Genteng`);st.append(sp,el('span',null,' ›'));
+  st.onclick=()=>{select({kind:'r',i:j});scrollMap()}}}
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);

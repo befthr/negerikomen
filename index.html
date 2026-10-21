@@ -1423,6 +1423,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(b.type==='tugu'){const row=el('div','top3');supRank().slice(0,3).forEach(o=>{const c=el('span','t3');c.append(MEDAL(o.rank)+' ');const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};c.append(a,el('small',null,` ${fmt(o.g)}🧱`));row.append(c)});left.append(row,el('p','muted','Ranking lengkap di Lihat 3D 🏆'))}
     if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
+    const cpb=el('button','btn dark','Salin link');cpb.type='button';cpb.onclick=()=>copy(location.origin+location.pathname+'#'+bslug(b));acts.append(cpb);
 }
   box.append(left,acts,resX())}
 function showMiss(q){sel=null;dirty=true;const box=$('result');box.className='result miss';box.innerHTML='';box.hidden=false;
@@ -1688,6 +1689,7 @@ function moreText(cls,text,lines){const w=el('div','more');const p=el('p',cls,St
   requestAnimationFrame(()=>{if(p.scrollHeight>p.clientHeight+2)b.hidden=false});
   b.onclick=e=>{e.stopPropagation();const open=p.style.webkitLineClamp==='unset';p.style.webkitLineClamp=open?String(lines||3):'unset';b.textContent=open?'Selengkapnya ▾':'Tutup ▴'};return w}
 function resmi(day,short){const d=new Date(Date.UTC(2026,9,18+(+day||1)));return short?d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).replace(/\//g,'.'):d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
+function bslug(b){return 'b-'+String(b.name||b.type).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function WAKAF(b){return !!(b&&(b.wakaf||b.type==='masjid'))}
 function bossTxt(b,u){return WAKAF(b)?'🤲 Diwakafkan @'+u:'👑 Bos @'+u}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
@@ -1797,6 +1799,7 @@ function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}ca
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
   if(q.toLowerCase()==='loker'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
   if(/^(contoh-?ruko|ruko)$/i.test(q)){openDemoRuko();return}
+  if(/^b-/i.test(q)){const bi=BLD.findIndex(b=>bslug(b)===q.toLowerCase());if(bi>=0){select({kind:'b',i:bi});scrollMap();return}}
   if(!q)return;$('q').value=q;const hits=find(q);if(hits.length&&hits[0].score===0)select(hits[0],{instant:false});else if(hits.length)select(hits[0]);else showMiss(q)}
 const go=()=>{fromLink();requestAnimationFrame(frame)};
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go,go);

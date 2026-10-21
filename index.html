@@ -1195,7 +1195,7 @@ $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length)})`;
 BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(({b,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.q=[b.name,(NK.BTYPES[b.type]||{}).label,b.by,...staffOf(b).map(x=>x.user)].join(' ').toLowerCase();
   const ic=document.createElement('span');ic.className='ico';ic.textContent=ICON[b.type]||'🏠';
   const nm=document.createElement('b');nm.textContent=b.name||(NK.BTYPES[b.type]||{}).label||'Bangunan';
-  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?`👑 Bos @${bo}`:'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 ${resmi(b.day)}`}
+  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?`👑 Bos @${bo}`:'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 Diresmikan ${resmi(b.day)}`}
   bt.append(ic,nm,meta);bt.onclick=()=>{select({kind:'b',i});scrollMap()};li.append(bt);$('bList').append(li)});
 $('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,'');let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=!q||li.dataset.q.includes(q);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0};
 

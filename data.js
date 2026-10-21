@@ -485,7 +485,8 @@ window.NK_DATA = {
   { "type": "warung", "name": "Warung", "by": "negerikomen", "day": 1, "x": 46, "y": 44, "w": 1 },
   { "type": "bakso", "name": "Warung Bakso", "by": "simson__01", "day": 2, "x": 47, "y": 41, "w": 3 },
   { "type": "padang", "name": "Rumah Makan Padang", "by": "sorminnn_fdlyy", "day": 2, "x": 41, "y": 47, "w": 3 },
-  { "type": "layartancap", "name": "Layar Tancap", "by": "negerikomen", "day": 3, "x": 35, "y": 41, "w": 3 }
+  { "type": "layartancap", "name": "Layar Tancap", "by": "negerikomen", "day": 3, "x": 35, "y": 41, "w": 3 },
+  { "type": "tugu", "name": "Tugu Genteng", "by": "negerikomen", "day": 3, "x": 44, "y": 44, "w": 1 }
  ],
  "awards": [
   { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }

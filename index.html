@@ -1236,7 +1236,7 @@ $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length)})`;
 BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(({b,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.q=[b.name,(NK.BTYPES[b.type]||{}).label,b.by,...staffOf(b).map(x=>x.user)].join(' ').toLowerCase();
   const ic=document.createElement('span');ic.className='ico';ic.textContent=ICON[b.type]||'🏠';
   const nm=document.createElement('b');nm.textContent=b.name||(NK.BTYPES[b.type]||{}).label||'Bangunan';
-  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?`👑 Bos @${bo}`:'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 Diresmikan ${resmi(b.day)}`}
+  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?bossTxt(b,bo):'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 Diresmikan ${resmi(b.day)}`}
   bt.append(ic,nm,meta);bt.onclick=()=>{select({kind:'b',i});scrollMap()};li.append(bt);$('bList').append(li)});
 $('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,'');let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=!q||li.dataset.q.includes(q);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0};
 
@@ -1292,7 +1292,7 @@ function drawLabels(v,t){
   if(sel){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
     if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy)-((r.sup||NK.shopOn(r,TODAY))?hs*.5*dpr:0),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:(r.juragan?'👑 @':'@')+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(r.juragan?'Juragan Genteng · ':'')+(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup&&!r.juragan?' · pendukung':''),true,true)}
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
-    else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?'👑 Bos @'+b.by:'',true,true)}}
+    else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
   {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true)}}
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
@@ -1415,7 +1415,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   else{const b=BLD[s.i],bo=bossOf(b),st=staffOf(b);left.append(el('h2',null,b.name||'Bangunan'),
       el('p',null,[(NK.BTYPES[b.type]||{}).label,'📅 Diresmikan '+resmi(b.day)+' (hari ke-'+(b.day||1)+')'].filter(Boolean).join(' · ')));
     const sf=el('div','staff');sf.append(el('p',null,''));const goRes=u=>{const a=el('a','who',(u==='negerikomen'?'Kepala desa ':'')+'@'+u);a.href='#'+encodeURIComponent(u);a.onclick=e=>{e.preventDefault();if(u==='negerikomen'){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===u);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')};return a};
-    sf.firstChild.append(el('b',null,'👑 Bos: '),goRes(bo||'negerikomen'));if(bo)sf.firstChild.append(document.createTextNode(' (pengusul & pemenang voting)'));
+    sf.firstChild.append(el('b',null,WAKAF(b)&&bo?'🤲 Diwakafkan oleh: ':'👑 Bos: '),goRes(bo||'negerikomen'));if(bo&&!WAKAF(b))sf.firstChild.append(document.createTextNode(' (pengusul & pemenang voting)'));
     const kp=el('p',null,'');kp.append(el('b',null,`👷 Karyawan (${st.length}): `));
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
@@ -1671,7 +1671,7 @@ function build3DB(b){const T=THREE,g=new T.Group();
 
 function perkEl(t){const i=el('i',t.bi!=null?'go':null,String(t));if(t.bi!=null){i.title='Lihat bangunan';i.textContent=String(t)+' ›';i.onclick=e=>{e.stopPropagation();if(!$('v3').hidden)close3D();select({kind:'b',i:t.bi});scrollMap()}}return i}
 function perksOf(r){const L=[];
-  BLD.forEach((b,bi)=>{if(bossOf(b)===r.name)L.push(Object.assign(new String('👑 Bos '+(b.name||'Bangunan')),{bi}))});
+  BLD.forEach((b,bi)=>{if(bossOf(b)===r.name)L.push(Object.assign(new String((WAKAF(b)?'🤲 Pewakaf ':'👑 Bos ')+(b.name||'Bangunan')),{bi}))});
   BLD.forEach((b,bi)=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push(Object.assign(new String('👷 '+(x.role||'Karyawan')+' '+(b.name||'')),{bi}))}));
   {const j=juraganIdx();if(j>=0&&RES[j].name===r.name){const tb=BLD.findIndex(b=>b.type==='tugu');L.push(tb>=0?Object.assign(new String('👑 Juragan Genteng'),{bi:tb}):'👑 Juragan Genteng')}}
   if(r.style)L.push('🏆 Rumah Impian');
@@ -1688,6 +1688,8 @@ function moreText(cls,text,lines){const w=el('div','more');const p=el('p',cls,St
   requestAnimationFrame(()=>{if(p.scrollHeight>p.clientHeight+2)b.hidden=false});
   b.onclick=e=>{e.stopPropagation();const open=p.style.webkitLineClamp==='unset';p.style.webkitLineClamp=open?String(lines||3):'unset';b.textContent=open?'Selengkapnya ▾':'Tutup ▴'};return w}
 function resmi(day,short){const d=new Date(Date.UTC(2026,9,18+(+day||1)));return short?d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).replace(/\//g,'.'):d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
+const WAKAF=b=>b&&(b.wakaf||b.type==='masjid');
+const bossTxt=(b,u)=>WAKAF(b)?'🤲 Diwakafkan @'+u:'👑 Bos @'+u;
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
@@ -1699,7 +1701,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const a=el('a','btn dark','Kunjungi toko ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link Shopee/IG/WA tokomu')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}
   if(bd0){const bo=bossOf(bd0),st=staffOf(bd0);$('v3name').textContent=bd0.name||'Bangunan';$('v3sub').textContent=[(NK.BTYPES[bd0.type]||{}).label,'📅 Diresmikan '+resmi(bd0.day)].filter(Boolean).join(' · ');
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
-    bd.append(goU(bo?'👑 Bos @'+bo:'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
+    bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
   else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo?'Contoh ruko · paket Buka Usaha (20 Genteng)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
@@ -1753,7 +1755,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   /* nama */
   c.fillStyle='#1C2520';const nm=bd0?(bd0.name||'Bangunan'):(r.nick||('@'+r.name));fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
   c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?'📅 Diresmikan '+resmi(bd0.day):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
-  const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?'👑 Bos @'+bo:'🏗️ Dibangun oleh kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r).map(String));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
+  const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r).map(String));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
   if(tags.length){c.font=`700 32px ${FB}`;const rows=[[]];let rw=0;const gap=14,maxW=W-100;
     tags.slice(0,6).forEach(t=>{const w=c.measureText(t).width+44;if(rw+w>maxW&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push({t,w});rw+=w+gap});
     rows.slice(0,2).forEach((row,ri)=>{const tot=row.reduce((a,o)=>a+o.w,0)+gap*(row.length-1);let x=W/2-tot/2;const y=1498+ri*68;

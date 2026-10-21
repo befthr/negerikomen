@@ -682,7 +682,7 @@ window.NK_DATA = {
   { "name": "niki_nikmah_marzuki", "x": 58, "y": 61, "day": 3, "roof": "hitam", "wall": "putih" },
   { "name": "jeriah7728", "x": 46, "y": 66, "day": 3, "nick": "Amanda", "roof": "merah muda", "wall": "merah muda" },
   { "name": "nurr_amann", "x": 26, "y": 37, "day": 3, "nick": "Nur", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat rumah + bendera emas", "day": 3 } },
-  { "name": "dhafageka", "x": 46, "y": 23, "day": 3, "nick": "Dhafa", "sup": true, "donor": 20, "custom": { "title": "Pendukung terbesar! Traktir 20 Genteng → Juragan Genteng + Masjid Al-Jabbar", "day": 3 } }
+  { "name": "dhafageka", "x": 46, "y": 23, "day": 3, "nick": "Dhafa", "sup": true, "donor": 20, "custom": { "title": "Pendukung terbesar! Traktir 20 Genteng → Juragan Genteng + wakaf Masjid Al-Jabbar", "day": 3 } }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },

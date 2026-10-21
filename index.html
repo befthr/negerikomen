@@ -576,6 +576,12 @@ function drawHouse(r,s,a){
     for(let i=0;i<n;i++){const x0=-L/2-2+i*sw;ctx.fillStyle=i%2?'#FFFDF6':'#2E8B6A';ctx.fillRect(x0,F/2-1,sw,d);
       ctx.beginPath();ctx.arc(x0+sw/2,F/2-1+d,sw/2,0,Math.PI);ctx.fill()}
     ctx.strokeStyle='rgba(28,37,32,.75)';ctx.lineWidth=1.1;ctx.strokeRect(-L/2-2,F/2-1,L+4,d);ctx.restore()}
+  if(r.juragan){ // juragan genteng: pagar emas + mahkota di atap
+    ctx.strokeStyle='#D4A72C';ctx.lineWidth=2.4;ctx.setLineDash([3,2]);ctx.strokeRect(-w/2-7,-h/2-7,w+14,h+14);ctx.setLineDash([]);
+    ctx.fillStyle='#D4A72C';[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{ctx.fillRect(a*(w/2+7)-2,b*(h/2+7)-2,4,4)});
+    ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.moveTo(-6,3);ctx.lineTo(-6,-3);ctx.lineTo(-3,0);ctx.lineTo(1,-5);ctx.lineTo(4,0);ctx.lineTo(8,-3);ctx.lineTo(8,3);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#F2C230';ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-7,2);ctx.lineTo(-7,-4);ctx.lineTo(-3.5,-1);ctx.lineTo(0,-6);ctx.lineTo(3.5,-1);ctx.lineTo(7,-4);ctx.lineTo(7,2);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#C4402F';ctx.beginPath();ctx.arc(0,-.5,1.3,0,7);ctx.fill()}
   if(r.sup||shopOn(r)){ // pendukung Trakteer: bendera emas tinggi
     const px=w/2-4,top=-h/2-30;
     ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(px+2,top+3,2.6,34);
@@ -1416,6 +1422,15 @@ function build3D(r){const T=THREE,g=new T.Group();
   tree(-3,-1.6,1.1);tree(2.9,1.8,.8);
   [[-2.3,2.2],[2.4,-2.4],[-1.8,-2.8]].forEach(([x,z])=>{const b=new T.Mesh(new T.SphereGeometry(.35,12,10),M('#5E9E46'));b.position.set(x,.25,z);b.castShadow=true;g.add(b)});
   let flag=null;
+  if(r.juragan){ // juragan genteng: mahkota emas di atap, pagar emas, karpet merah
+    const gold=M('#F2C230',{metalness:.6,roughness:.3,emissive:'#8A6A00',emissiveIntensity:.35});
+    const band=new T.Mesh(new T.CylinderGeometry(.42,.42,.28,20,1,true),gold);band.position.set(0,3.75,0);g.add(band);
+    for(let k=0;k<5;k++){const a=k/5*Math.PI*2,sp=new T.Mesh(new T.ConeGeometry(.1,.32,8),gold);sp.position.set(Math.cos(a)*.38,4.03,Math.sin(a)*.38);g.add(sp);
+      const jw=new T.Mesh(new T.SphereGeometry(.05,8,6),M('#C4402F',{roughness:.3}));jw.position.set(Math.cos(a)*.43,3.75,Math.sin(a)*.43);g.add(jw)}
+    box(1.2,.03,2.2,'#B8322A',0,.05,2.5);
+    for(let k=-4;k<=4;k++){[[-3.3,null],[3.3,null]].forEach(([x])=>{const pz=k*.7;const post=new T.Mesh(new T.BoxGeometry(.1,.55,.1),gold);post.position.set(x,.28,pz);g.add(post)})}
+    [-3.3,3.3].forEach(x=>{const rail=new T.Mesh(new T.BoxGeometry(.06,.06,5.7),gold);rail.position.set(x,.5,0);g.add(rail)});
+  }
   if(r.sup||NK.shopOn(r)){const p=new T.Mesh(new T.CylinderGeometry(.04,.04,2.4,8),M('#5A4A3A'));p.position.set(1.7,3.2,-1.1);p.castShadow=true;g.add(p);
     const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.1,roughness:.5,emissive:'#8A6A00',emissiveIntensity:.55}));flag.position.set(2.15,4.1,-1.1);g.add(flag);flag.userData.base=fg.attributes.position.array.slice()}
   if(NK.shopOn(r)){for(let i=0;i<6;i++){const a=new T.Mesh(new T.BoxGeometry(.55,.06,.7),M(i%2?'#FFFDF6':'#2E8B6A'));a.position.set(-1.375+i*.55,2.05,1.55);a.rotation.x=.35;a.castShadow=true;g.add(a)}}
@@ -1633,7 +1648,7 @@ function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(
 if(TT_ITEMS.length){$('tancap').hidden=false;
   $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove()}
 /* juragan genteng: pita di atas */
-{const j=JUR=juraganIdx();if(j>=0){const r=RES[j],g=supRank().find(o=>o.i===j).g,st=$('jstrip');st.hidden=false;
+{const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0){RES[j].juragan=true;const r=RES[j],g=supRank().find(o=>o.i===j).g,st=$('jstrip');st.hidden=false;
   const sp=el('span');sp.append('👑 Juragan Genteng: ',el('b',null,'@'+r.name),` · ${fmt(g)} Genteng`);st.append(sp,el('span',null,' ›'));
   st.onclick=()=>{select({kind:'r',i:j});scrollMap()}}}
 /* ---------- mulai ---------- */

@@ -197,8 +197,9 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .voucher p{margin:8px 0 0;font-size:13px;color:var(--muted)}
 footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
 .v3{position:fixed;inset:0;z-index:60;background:rgba(16,22,18,.72);display:grid;place-items:center;padding:16px}
-.v3box{position:relative;width:min(560px,100%);background:linear-gradient(180deg,#DDEBF2,#F5F7F1 70%);border-radius:22px;border:2px solid var(--ink);box-shadow:0 6px 0 var(--ink);overflow:hidden}
-.v3box canvas{display:block;width:100%;height:min(62vh,440px);touch-action:none;cursor:grab}
+.v3box{position:relative;width:min(560px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:linear-gradient(180deg,#DDEBF2,#F5F7F1 70%);border-radius:22px;border:2px solid var(--ink);box-shadow:0 6px 0 var(--ink);overflow:hidden}
+.v3scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.v3box canvas{display:block;flex:none;width:100%;height:min(46vh,420px);touch-action:none;cursor:grab}
 .v3x{position:absolute;right:10px;top:10px;z-index:2;width:40px;height:40px;border-radius:12px;border:2px solid var(--ink);background:#fff;font:700 16px var(--f-body);cursor:pointer}
 .v3load{position:absolute;left:0;right:0;top:40%;text-align:center;font-weight:700;color:var(--muted)}
 .v3info{padding:12px 16px 4px;background:#fff;border-top:1px solid var(--line)}.v3info b{display:block;font-family:var(--f-display);font-size:20px}.v3info span{font-size:13.5px;color:var(--muted)}
@@ -391,8 +392,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <button type="button" class="v3x" id="v3x" aria-label="Tutup">✕</button>
     <canvas id="v3c"></canvas>
     <div class="v3load" id="v3load">Membangun rumah 3D…</div>
-    <div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div><div id="v3demo"></div></div>
-    <div class="v3act"><button type="button" class="btn" id="v3save">📸 Simpan & bagikan</button><span class="v3hint">Geser untuk memutar · cubit/scroll untuk zoom</span></div>
+    <div class="v3scroll"><div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div><div id="v3demo"></div></div>
+    <div class="v3act"><button type="button" class="btn" id="v3save">📸 Simpan & bagikan</button><span class="v3hint">Geser untuk memutar · cubit/scroll untuk zoom</span></div></div>
   </div>
 </div>
 

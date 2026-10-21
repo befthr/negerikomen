@@ -98,7 +98,7 @@ window.NK_DATA = {
   { "name": "sii_esaa", "x": 38, "y": 48, "day": 1, "wall": "putih" },
   { "name": "timo_imbenay", "x": 52, "y": 47, "day": 1, "roof": "biru" },
   { "name": "sat_zky", "x": 52, "y": 42, "day": 1 },
-  { "name": "faiturr_", "x": 53, "y": 46, "day": 1, "nick": "Faitur", "roof": "hijau", "sup": true, "donor": 3, "custom": { "title": "Traktir 3 Genteng → dapat bendera emas + warna pilihan", "day": 3 } },
+  { "name": "faiturr_", "x": 53, "y": 46, "day": 1, "nick": "Piturr", "roof": "hijau", "sup": true, "donor": 3, "custom": { "title": "Traktir 3 Genteng → dapat bendera emas + warna pilihan", "day": 3 } },
   { "name": "halo_semua_kawan", "x": 43, "y": 38, "day": 1 },
   { "name": "eliezarmanglassa2004", "x": 52, "y": 46, "day": 1, "nick": "Eliezar", "wall": "merah" },
   { "name": "mish.njibbb_", "x": 41, "y": 52, "day": 1, "nick": "Hashbimmm", "roof": "biru" },

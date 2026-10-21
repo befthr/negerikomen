@@ -953,6 +953,22 @@ function drawWorld(v,w,t,o={}){
       if(act.has(k2)||seen.has(k2)||farmers>=6)return;seen.add(k2);if(ih(nx,ny,113)>0.45)return;farmers++;
       farmer(nx*S*T+T*(1+ih(nx,ny,127)*3.5)+Math.sin(t*0.3+nx)*4,ny*S*T+T*(1+ih(nx,ny,131)*3.5),ih(nx,ny,137))}));
   }
+  if(life){ // pengunjung di bangunan: orang duduk makan + motor/mobil parkir
+    const SH2=['#C4502F','#2F74B5','#2E9C6A','#E2B23A','#8E5AA8','#FFFFFF','#E58AA6'];
+    const sit=(x,y,c,ph)=>{const bob=Math.sin(t*2.2+ph)*0.6;ctx.fillStyle='rgba(0,0,0,.18)';ctx.beginPath();ctx.arc(x+1.2,y+1.6,4.6,0,7);ctx.fill();
+      ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,4.4,0,7);ctx.fill();ctx.fillStyle='#3A2A1E';ctx.beginPath();ctx.arc(x,y+bob-0.4,2.7,0,7);ctx.fill()};
+    const park=(x,y,k,vert)=>drawVehicle(x,y,!vert,1,k);
+    const diners=(px,py,n,seed)=>{for(let j=0;j<n;j++){const a=seed*2.1+j*(Math.PI*2/n);sit(px+Math.cos(a)*11,py+Math.sin(a)*11,SH2[Math.floor(ih(seed,j,151)*SH2.length)],seed+j)}};
+    bld.forEach((b,i)=>{const m=anim('b',i);if(m.a<=0)return;const X=wx(b.x)-T/2,Y=wx(b.y)-T/2,cx=wx(b.x),cy=wx(b.y);
+      ctx.save();ctx.globalAlpha*=m.a;
+      if(b.type==='padang'){diners(X+18,Y+104,2,i+1);diners(X+102,Y+104,2,i+3);park(X+44,Y+106,0.7,true);park(X+56,Y+106,0.9,true);park(X+68,Y+106,0.75,true)}
+      else if(b.type==='bakso'){diners(X+80,Y+84,2,i+2);diners(X+98,Y+104,1,i+5);diners(X+70,Y+108,2,i+7);sit(X+36,Y+66,'#FFFFFF',i);park(X+28,Y+108,0.8,true);park(X+40,Y+108,0.66,true)}
+      else if(b.type==='warung'){sit(cx-10,cy+T*.42,SH2[i%7],i);sit(cx+8,cy+T*.46,SH2[(i+3)%7],i+1)}
+      else if(b.type==='posronda'){sit(cx-T*.5,cy+T*.1,'#2F74B5',i);sit(cx-T*.1,cy+T*.5,'#2E9C6A',i+2)}
+      else if(b.type==='layartancap'){park(X+18,Y+104,0.7,false);park(X+102,Y+104,0.9,false);park(X+102,Y+92,0.0,false)}
+      else if(b.type==='masjid'||b.type==='sekolah'||b.type==='pasar'){park(X+20,Y+108,0.7,false);park(X+34,Y+108,0.85,false)}
+      ctx.restore()});
+  }
   res.forEach((r,i)=>{const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
   if(life){
     let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;blocks.forEach(([bx,by])=>{mnx=Math.min(mnx,bx);mny=Math.min(mny,by);mxx=Math.max(mxx,bx);mxy=Math.max(mxy,by)});

@@ -151,6 +151,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .chips.gold button{background:#FFF6D8;border-color:#EBD58A}
 .chips button i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
 .empty{margin:0;color:var(--muted);font-size:14.5px}
+.bsearch{width:100%;margin:2px 0 10px;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;font:500 14px var(--f-body);background:#F7F8F3;color:var(--ink)}
+.bscroll{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}.bscroll::-webkit-scrollbar{width:6px}.bscroll::-webkit-scrollbar-thumb{background:#C9D1C6;border-radius:6px}
 .blist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
 .blist button{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;text-align:left;font:inherit;background:none;border:0;border-radius:10px;padding:8px;cursor:pointer;color:var(--ink)}
 .blist button:hover{background:var(--field)}
@@ -339,8 +341,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       </div>
 
       <div class="card">
-        <h3>Bangunan kampung</h3>
-        <ul class="blist" id="bList"></ul>
+        <div class="nhead"><h3 id="bTitle">Bangunan kampung</h3></div>
+        <input type="search" class="bsearch" id="bSearch" placeholder="🔍 Cari bangunan atau bos…" aria-label="Cari bangunan">
+        <div class="bscroll"><ul class="blist" id="bList"></ul><p class="empty" id="bNone" hidden>Bangunan tidak ditemukan.</p></div>
       </div>
 
       <div class="card tancap" id="tancap" hidden>
@@ -1163,11 +1166,13 @@ renderSups();
 if(HAS_TRAK){$('supNote').hidden=false;$('supLink').href=D.trakteer.url.trim()}
 
 /* daftar bangunan */
-BLD.forEach((b,i)=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+$('bTitle').textContent=`Bangunan kampung (${fmt(BLD.length)})`;
+BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(({b,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.q=[b.name,(NK.BTYPES[b.type]||{}).label,b.by,...staffOf(b).map(x=>x.user)].join(' ').toLowerCase();
   const ic=document.createElement('span');ic.className='ico';ic.textContent=ICON[b.type]||'🏠';
   const nm=document.createElement('b');nm.textContent=b.name||(NK.BTYPES[b.type]||{}).label||'Bangunan';
-  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?`👑 Bos @${bo}`:'👑 Kepala desa')+` · ${n} karyawan · hari ke-${b.day||1}`}
+  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?`👑 Bos @${bo}`:'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · hari ke-${b.day||1}`}
   bt.append(ic,nm,meta);bt.onclick=()=>{select({kind:'b',i});scrollMap()};li.append(bt);$('bList').append(li)});
+$('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,'');let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=!q||li.dataset.q.includes(q);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0};
 
 /* ---------- peta ---------- */
 const cv=$('map'),ctx=cv.getContext('2d');NK.use(ctx);

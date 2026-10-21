@@ -1378,7 +1378,9 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(st.length)st.forEach((x,k)=>{if(k)kp.append(document.createTextNode(', '));kp.append(goRes(x.user));if(x.role)kp.append(document.createTextNode(' · '+x.role))});
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     if(b.type!=='tugu')sf.append(kp);left.append(sf);
-    if(b.type==='tugu'){const top=supRank().filter(o=>o.rank===1);if(top.length){const pp=el('p','nowplay');pp.append(el('b',null,'🥇 Juara 1: '));top.forEach((o,k)=>{if(k)pp.append(document.createTextNode(', '));const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};pp.append(a)});pp.append(document.createTextNode(` · ${fmt(top[0].g)} Genteng`));left.append(pp);left.append(el('p','muted','Ranking lengkap: pencet tombol Lihat 3D 🏆'))}}
+    if(b.type==='tugu'){const L=supRank();[1,2,3].forEach(k=>{const grp=L.filter(o=>o.rank===k);if(!grp.length)return;const pp=el('p','nowplay');pp.append(el('b',null,MEDAL(k)+' '));
+      grp.forEach((o,n)=>{if(n)pp.append(document.createTextNode(', '));const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};pp.append(a)});
+      pp.append(document.createTextNode(` · ${fmt(grp[0].g)} Genteng`));left.append(pp)});left.append(el('p','muted','Ranking lengkap: pencet tombol Lihat 3D 🏆'))}
     if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(null,s.i,b);acts.append(v3);
 }

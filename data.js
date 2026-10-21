@@ -611,7 +611,7 @@ window.NK_DATA = {
   { "name": "m.rizkytzyy", "x": 46, "y": 65, "day": 3, "nick": "Rizky", "roof": "biru", "wall": "putih" },
   { "name": "m.zkal_18", "x": 28, "y": 55, "day": 3, "nick": "Kall" },
   { "name": "bilqisclarisapriadinita", "x": 64, "y": 48, "day": 3, "nick": "Bilqis", "roof": "putih", "wall": "biru" },
-  { "name": "rafajmber", "x": 49, "y": 26, "day": 3, "nick": "Rafa", "roof": "hijau", "wall": "putih" },
+  { "name": "rafajmber", "x": 49, "y": 26, "day": 3, "nick": "Rafa", "roof": "hijau", "wall": "putih", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng (1 + 1) → dapat rumah putih atap hijau + bendera emas", "day": 3 } },
   { "name": "dapur_mamindut", "x": 26, "y": 54, "day": 3, "nick": "Raja", "roof": "hijau", "wall": "biru" },
   { "name": "bachtiar_rizki", "x": 60, "y": 58, "day": 3, "nick": "Rume" },
   { "name": "bernad__bob12", "x": 61, "y": 32, "day": 3, "nick": "Bernad_bob12", "roof": "hitam", "wall": "biru" },

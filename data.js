@@ -478,7 +478,7 @@ window.NK_DATA = {
   { "name": "dobitganteng", "x": 42, "y": 62, "day": 1, "roof": "marun", "wall": "merah" },
   { "name": "_biyan_455", "x": 37, "y": 62, "day": 1 },
   { "name": "bisagahan", "x": 34, "y": 30, "day": 1, "nick": "Farhanprndt Warn", "roof": "merah", "wall": "merah muda" },
-  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "roof": "putih", "wall": "merah", "sup": true, "donor": 10, "custom": { "title": "Pendukung terbesar! Traktir 10 Genteng → dapat rumah merah atap putih + bendera emas", "day": 3 } }
+  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "roof": "putih", "wall": "merah", "sup": true, "donor": 11, "custom": { "title": "Pendukung terbesar! Traktir 11 Genteng → dapat rumah merah atap putih + bendera emas", "day": 3 } }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },

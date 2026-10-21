@@ -6,7 +6,7 @@ window.NK_DATA = {
  "account": "negerikomen",
  "day": 3,
  "updated": "2026-10-21",
- "kavling": 949,
+ "kavling": 950,
  "followers": 1108,
  "target": 1000,
  "supOthers": 3,
@@ -477,7 +477,7 @@ window.NK_DATA = {
   { "name": "dobitganteng", "x": 42, "y": 62, "day": 1, "roof": "marun", "wall": "merah" },
   { "name": "_biyan_455", "x": 37, "y": 62, "day": 1 },
   { "name": "bisagahan", "x": 34, "y": 30, "day": 1, "nick": "Farhanprndt Warn", "roof": "merah", "wall": "merah muda" },
-  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "roof": "putih", "wall": "merah", "sup": true, "donor": 11, "custom": { "title": "Pendukung terbesar! Traktir 11 Genteng → dapat rumah merah atap putih + bendera emas", "day": 3 } },
+  { "name": "genter0.25", "x": 53, "y": 62, "day": 2, "nick": "Rohman", "roof": "putih", "wall": "merah", "sup": true, "donor": 11, "custom": { "title": "Traktir 11 Genteng → dapat rumah merah atap putih + bendera emas", "day": 3 } },
   { "name": "putrayusuf59", "x": 50, "y": 62, "day": 3, "nick": "Putrayusuf59", "roof": "biru" },
   { "name": "wald_an01", "x": 62, "y": 41, "day": 3 },
   { "name": "zuzizamm", "x": 26, "y": 42, "day": 3 },
@@ -681,7 +681,8 @@ window.NK_DATA = {
   { "name": "ahmdzakyy10", "x": 54, "y": 64, "day": 3, "nick": "Gedung Musyawarah", "roof": "oranye", "wall": "putih" },
   { "name": "niki_nikmah_marzuki", "x": 58, "y": 61, "day": 3, "roof": "hitam", "wall": "putih" },
   { "name": "jeriah7728", "x": 46, "y": 66, "day": 3, "nick": "Amanda", "roof": "merah muda", "wall": "merah muda" },
-  { "name": "nurr_amann", "x": 26, "y": 37, "day": 3, "nick": "Nur", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat rumah + bendera emas", "day": 3 } }
+  { "name": "nurr_amann", "x": 26, "y": 37, "day": 3, "nick": "Nur", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat rumah + bendera emas", "day": 3 } },
+  { "name": "dhafageka", "x": 46, "y": 23, "day": 3, "nick": "Dhafa", "sup": true, "donor": 20, "custom": { "title": "Pendukung terbesar! Traktir 20 Genteng → Juragan Genteng + Masjid Al-Jabbar", "day": 3 } }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },
@@ -691,7 +692,8 @@ window.NK_DATA = {
   { "type": "layartancap", "name": "Layar Tancap", "by": "negerikomen", "day": 3, "x": 35, "y": 41, "w": 3 },
   { "type": "tugu", "name": "Tugu Genteng", "by": "negerikomen", "day": 3, "x": 44, "y": 44, "w": 1 },
   { "type": "penginapan", "name": "Penginapan", "by": "ryukaarvellacevana", "day": 3, "x": 47, "y": 47, "w": 3 },
-  { "type": "coffeeshop", "name": "Coffee Shop", "by": "chaoticbounds", "day": 3, "x": 41, "y": 41, "w": 3 }
+  { "type": "coffeeshop", "name": "Coffee Shop", "by": "chaoticbounds", "day": 3, "x": 41, "y": 41, "w": 3 },
+  { "type": "masjid", "name": "Masjid Al-Jabbar", "by": "dhafageka", "day": 3, "x": 41, "y": 35, "w": 3 }
  ],
  "awards": [
   { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }

@@ -1635,6 +1635,16 @@ function build3DB(b){const T=THREE,g=new T.Group();
     sign('COFFEE SHOP','#3B2A22','#F3E1C4',1.7,.38,0,2.05,1.0);
     [[-1.5,1.9,'#2E8B6A'],[0,2.5,'#C4502F'],[1.5,1.9,'#E2B23A']].forEach(([x,z,c])=>{box(.6,.05,.6,'#F3E8D2',x,.55,z);box(.06,.55,.06,'#555',x,.28,z);
       const um=new T.Mesh(new T.ConeGeometry(.7,.35,8),M(c));um.position.set(x,1.45,z);um.castShadow=true;g.add(um);box(.04,.9,.04,'#555',x,1,z);stool(x-.45,z);stool(x+.45,z)});
+  }else if(ty==='masjid'){
+    box(4.2,.2,3.6,'#E7E1D2',0,.1,-.1);
+    box(3.2,1.8,2.8,'#FAFAF6',0,1.1,-.2);
+    [-1,0,1].forEach(x=>{const ar=new T.Mesh(new T.CylinderGeometry(.32,.32,.08,16,1,false,0,Math.PI),M('#2F7D5B'));ar.rotation.x=Math.PI/2;ar.rotation.z=Math.PI/2;ar.position.set(x,1.35,1.21);g.add(ar);box(.64,.9,.06,'#2F7D5B',x,.9,1.21)});
+    const dome=new T.Mesh(new T.SphereGeometry(1.15,24,16,0,Math.PI*2,0,Math.PI/2),M('#2F7D5B',{roughness:.5}));dome.position.set(0,2.0,-.2);dome.castShadow=true;g.add(dome);
+    const cr=new T.Mesh(new T.CylinderGeometry(.03,.03,.5,8),M('#E2B63B',{metalness:.5}));cr.position.set(0,3.4,-.2);g.add(cr);const st=new T.Mesh(new T.SphereGeometry(.09,10,8),M('#E2B63B',{metalness:.5}));st.position.set(0,3.65,-.2);g.add(st);
+    [[-1.9,-1.7],[1.9,-1.7],[-1.9,1.3],[1.9,1.3]].forEach(([x,z])=>{const t=new T.Mesh(new T.CylinderGeometry(.16,.2,3.2,12),M('#FAFAF6'));t.position.set(x,1.6,z);t.castShadow=true;g.add(t);
+      const c=new T.Mesh(new T.ConeGeometry(.24,.6,12),M('#2F7D5B'));c.position.set(x,3.5,z);g.add(c);box(.5,.08,.5,'#E2B63B',x,2.6,z)});
+    sign((b.name||'MASJID').toUpperCase(),'#2F7D5B','#FFFFFF',2.4,.38,0,2.2,1.24);
+    box(1.4,.04,1.4,'#C9B48A',0,.02,2.5);
   }else if(ty==='posronda'){
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([x,z])=>box(.14,1.3,.14,'#7A5230',x,.65,z));
     box(2.3,.12,2.3,'#A0723C',0,.75,0);

@@ -346,9 +346,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       </div>
 
       <div class="card">
-        <div class="nhead"><h3 id="bTitle">Bangunan kampung</h3></div>
-        <input type="search" class="bsearch" id="bSearch" placeholder="🔍 Cari bangunan atau bos…" aria-label="Cari bangunan">
-        <div class="bscroll"><ul class="blist" id="bList"></ul><p class="empty" id="bNone" hidden>Bangunan tidak ditemukan.</p></div>
+        <div class="nhead"><h3 id="bTitle">Fasilitas kampung</h3></div>
+        <input type="search" class="bsearch" id="bSearch" placeholder="🔍 Cari fasilitas atau bos…" aria-label="Cari bangunan">
+        <div class="bscroll"><ul class="blist" id="bList"></ul><p class="empty" id="bNone" hidden>Fasilitas tidak ditemukan.</p></div>
       </div>
 
       <div class="card tancap" id="tancap" hidden>
@@ -1190,7 +1190,7 @@ renderSups();
 if(HAS_TRAK){$('supNote').hidden=false;$('supLink').href=D.trakteer.url.trim()}
 
 /* daftar bangunan */
-$('bTitle').textContent=`Bangunan kampung (${fmt(BLD.length)})`;
+$('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length)})`;
 BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(({b,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.q=[b.name,(NK.BTYPES[b.type]||{}).label,b.by,...staffOf(b).map(x=>x.user)].join(' ').toLowerCase();
   const ic=document.createElement('span');ic.className='ico';ic.textContent=ICON[b.type]||'🏠';
   const nm=document.createElement('b');nm.textContent=b.name||(NK.BTYPES[b.type]||{}).label||'Bangunan';

@@ -961,7 +961,8 @@ window.NK_DATA = {
   { "name": "gitsafiee", "x": 52, "y": 19, "day": 4, "nick": "Gita", "roof": "abu-abu" },
   { "name": "firzhi_yak", "x": 54, "y": 70, "day": 4 },
   { "name": "surry_41", "x": 20, "y": 43, "day": 4, "nick": "Surya", "roof": "biru" },
-  { "name": "ivy_471", "x": 68, "y": 35, "day": 4 }
+  { "name": "ivy_471", "x": 68, "y": 35, "day": 4 },
+  { "name": "nathanel1805", "x": 58, "y": 67, "day": 4, "nick": "Nathan", "roof": "hitam", "wall": "putih", "sup": true, "donor": 2, "custom": { "title": "Traktir 2 Genteng → dapat rumah putih atap hitam + bendera emas", "day": 4 } }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },

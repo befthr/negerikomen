@@ -21,6 +21,10 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
     } else {
       const raw = jparse(await kv(['HGET', 'itemplus', v.u])), kol = raw && Array.isArray(raw.own) ? raw : { own: [], pajang: [] };
+      if (v.items.includes('robot')) { // Robot Raksasa cuma 1: kunci permanen untuk pemiliknya
+        const p = await kv(['GET', 'robot:pemilik']);
+        if (p && p !== v.u) v.items = v.items.filter(id => id !== 'robot'); else await kv(['SET', 'robot:pemilik', v.u]);
+      }
       v.items.forEach(id => {
         const o = { id, day, ...(id === 'papan' ? { teks: v.teks } : {}), ...(v.warna && v.warna[id] ? { warna: v.warna[id] } : {}) }, i = kol.own.findIndex(x => x.id === id);
         if (i >= 0) kol.own[i] = o; else kol.own.push(o);

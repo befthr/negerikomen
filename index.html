@@ -153,6 +153,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .kk-wait{margin-top:14px;padding:12px 14px;border-radius:12px;background:#FFF6D6}.kk-kode{font-family:var(--f-display);font-weight:800;font-size:24px;margin:6px 0;letter-spacing:.06em;cursor:pointer}.kk-pv{display:flex;align-items:center;gap:14px;margin:10px 0;padding:12px;border-radius:14px;background:#EEF2E6}.kk-pvsvg{width:84px;height:84px;flex:none}.kk-pv span{font-weight:700;font-size:14px}.kk-pal{margin:10px 0}.kk-pal b{font-size:14px}.kk-sw{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:6px 0}.kk-sw button{aspect-ratio:1;border-radius:50%;border:2px solid rgba(0,0,0,.18);cursor:pointer;padding:0}.kk-sw button.on{outline:3px solid #1C2520;outline-offset:2px}.kk-pal input{width:100%;padding:7px 10px;border-radius:10px;border:1.5px solid var(--line);font:inherit;font-size:13px}.kk-req{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1.5px dashed #E2C978}.kk-req svg{width:52px;height:52px;flex:none}.kk-req b{display:block;font-size:13.5px}.kk-req span{font-size:12.5px;color:var(--muted)}.kk-req .kk-row{margin:6px 0 0}
 .kk-x.back{right:auto;left:10px;font-size:19px}.kk-box.kkback .kk-body>h3:first-child{margin:0 0 8px 48px;min-height:36px;display:flex;align-items:center}
 .kk-req.lunas{background:#E8F4DF;border-radius:10px;padding:8px}.kk-cf{margin-top:8px;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #E2C978}.kk-cf p{margin:0!important;font-size:13.5px!important}
+.card.toko.kosong{padding-top:12px;padding-bottom:12px}.card.toko.kosong .trak-row,.card.toko.kosong #tokoNote br{display:none}.card.toko.kosong .tlist{margin:0;border:0}.card.toko.kosong .tlist li{border:0}.card.toko.kosong .tlist .empty{font-weight:700;color:var(--ink);padding:0}.card.toko.kosong #tokoNote{margin-top:6px}
 .trak-how{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#fff;border:1.5px dashed #E2C978;font-size:14px;line-height:1.45}
 .kk-stat p{margin:4px 0!important;font-size:13px!important}
 .etalase{margin-top:12px}.trak-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 0;padding-top:10px;border-top:1.5px dashed #E2C978;font-size:13px;color:var(--muted)}.trak-foot a{font-weight:700;color:var(--genteng)}.eta-lede{margin:0 0 8px;font-size:13.5px;color:var(--ink)}.eta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
@@ -332,15 +333,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <ul class="blist" id="awardList"></ul>
       </div>
 
-      <div class="card toko" id="toko" hidden>
-        <div class="trak-row">
-          <img src="toko.png?v=ruko" alt="" width="56" height="56">
-          <div><h3 id="tokoTitle" style="margin:0 0 2px">Toko Warga (0)</h3><p class="trak-lede">Usaha milik warga Negeri Komen. Klik untuk ke rumahnya.</p></div>
-        </div>
-        <ul class="tlist" id="tList"></ul>
-        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Buka <b>Kartu Komen → Ubah rumah → Jadi ruko</b> (20 Genteng).</p>
-      </div>
-
       <div class="card" id="sups" hidden>
         <h3 id="supTitle">Pendukung kampung</h3>
         <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Terima kasih sudah traktir Genteng 🧱</p>
@@ -414,7 +406,16 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
           <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
-        <p class="trak-foot" data-kk hidden><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button><span>Traktir biasa jadi <b>Saldo Genteng</b>: tulis @username-mu di pesan. <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
+        <p class="trak-foot" data-kk hidden><span>Traktir biasa jadi <b>Saldo Genteng</b>: tulis @username-mu di pesan. <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
+      </div>
+
+      <div class="card toko" id="toko" hidden>
+        <div class="trak-row">
+          <img src="toko.png?v=ruko" alt="" width="56" height="56">
+          <div><h3 id="tokoTitle" style="margin:0 0 2px">Toko Warga (0)</h3><p class="trak-lede">Usaha milik warga Negeri Komen. Klik untuk ke rumahnya.</p></div>
+        </div>
+        <ul class="tlist" id="tList"></ul>
+        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Buka <b>Kartu Komen → Ubah rumah → Jadi ruko</b> (20 Genteng).</p>
       </div>
 
       <div class="card voucher" id="voucher" hidden>
@@ -1326,7 +1327,8 @@ function renderShops(){
     .sort((a,b)=>String(b.r.shop.start||'').localeCompare(String(a.r.shop.start||''))||a.i-b.i);
   const ul=$('tList');ul.innerHTML='';
   $('tokoTitle').textContent=`Toko Warga (${fmt(SHOPS.length)})`;
-  if(!SHOPS.length){if(HAS_TRAK){$('toko').hidden=false;ul.append(el('li','empty','Belum ada toko. Jadilah toko pertama di Negeri Komen!'))}return}
+  $('toko').classList.toggle('kosong',!SHOPS.length);
+  if(!SHOPS.length){if(HAS_TRAK){$('toko').hidden=false;ul.append(el('li','empty','🏪 Belum ada toko warga. Jadilah yang pertama!'))}return}
   $('toko').hidden=false;
   SHOPS.forEach(o=>{const r=o.r,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     const src=safeImg(r.shop.img);let th;

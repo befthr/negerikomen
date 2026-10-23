@@ -361,6 +361,16 @@ export default async function handler(req, res) {
       for (const x of L) { if (await kv(['HSETNX', 'saldo:awal', x.u, String(x.n)])) { await kvMany([['HINCRBY', 'saldo', x.u, x.n], ['LPUSH', 'saldo:log:' + x.u, JSON.stringify({ at: Date.now(), n: x.n, ket: 'hadiah pendukung lama' })]]); out.push(x) } }
       return res.status(200).json({ ok: true, dikirim: out, total: out.reduce((t, x) => t + x.n, 0) });
     }
+    if (aksi === 'ufo' || aksi === 'ufo-daftar') { // quest UFO: klaim penemu (urutan siapa cepat) — hanya saat UFO muncul
+      const q = D.quest || {}, w = new Date(Date.now() + 7 * 3600e3), tgl = w.toISOString().slice(0, 10), mnt = w.getUTCHours() * 60 + w.getUTCMinutes();
+      const mm = s => { const [a, b] = String(s || '').replace('.', ':').split(':').map(Number); return a * 60 + b };
+      const key = 'ufo:' + (q.tanggal || tgl);
+      if (aksi === 'ufo-daftar') { if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' }); return res.status(200).json({ daftar: (await kv(['LRANGE', key, 0, -1]) || []).map(jparse) }) }
+      if (!q.start || !q.end || (q.tanggal && q.tanggal !== tgl) || !(mnt >= mm(q.start) && mnt < mm(q.end))) return res.status(400).json({ error: 'UFO-nya sudah pergi… tunggu quest berikutnya ya!' });
+      if (!(await kv(['SET', key + ':' + s.u, '1', 'NX', 'EX', 30 * 864e2]))) { const L = (await kv(['LRANGE', key, 0, -1]) || []).map(jparse); const i = L.findIndex(x => x && x.u === s.u); return res.status(200).json({ ok: true, ke: i + 1, sudah: true }) }
+      const ke = await kv(['RPUSH', key, JSON.stringify({ u: s.u, at: Date.now() })]); await kv(['EXPIRE', key, 30 * 864e2]);
+      return res.status(200).json({ ok: true, ke });
+    }
     if (aksi === 'saldo-lihat') { await kv(['SET', 'saldo:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'tambah-saldo') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

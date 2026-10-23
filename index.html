@@ -1549,9 +1549,9 @@ function drawLabels(v,t){
 }
 /* ---------- daily quest: UFO Nyasar muncul di jam tertentu (WIB) ---------- */
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
-  {name:D.quest.name||'UFO Nyasar',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||''}:null;
+  {name:D.quest.name||'UFO Nyasar',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||'',tanggal:D.quest.tanggal||''}:null;
 const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
-function questOn(){if(!QUEST)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
+function questOn(){if(!QUEST)return false;if(QUEST.tanggal&&new Date(Date.now()+252e5).toISOString().slice(0,10)!==QUEST.tanggal)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
   return a<=b?(w>=a&&w<b):(w>=a||w<b)}
 let qOn=false;
 function questPos(t){const cx=(BB.x0+BB.x1)/2,cy=(BB.y0+BB.y1)/2,rx=(BB.x1-BB.x0)/2+T*2.4,ry=(BB.y1-BB.y0)/2+T*2.4,a=t*0.035+1.3;
@@ -1655,8 +1655,14 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     cp.onclick=()=>copy(location.origin+location.pathname+'#'+encodeURIComponent(r.name));acts.append(cp);
     if(KK_ON){const mine=(kkGet()||{}).u===String(r.name).toLowerCase();const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kamu':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka(r.name);acts.append(kb)}}
   else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🛸`),
-      el('p',null,q.code?`Kode rahasia: ${q.code}. Tulis kode ini di komentar video terbaru @negerikomen sebelum ${q.end} WIB.`:`Screenshot layar ini dan komen "ketemu" di video terbaru @negerikomen sebelum ${q.end} WIB.`));
-    const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}
+      el('p',null,'Cepat! Yang paling cepat klaim jadi penemu pertama dan dapat hadiah dari kepala desa.'));
+    const k=kkGet(),msg=el('p','kk-msg');left.append(msg);
+    if(KK_ON&&k&&k.t){const b=el('button','btn gold3','🛸 Klaim pakai Kartu Komen');b.type='button';b.onclick=async()=>{b.disabled=true;const r=await kkApi('ufo',{},true);
+        if(!r.ok){b.disabled=false;msg.textContent=r.error||'Gagal';msg.className='kk-msg err';return}try{SND.play('ting',.9)}catch(_){}
+        msg.className='kk-msg';msg.textContent=r.ke===1?'🥇 KAMU PENEMU PERTAMA! Kepala desa akan menghubungimu.':`✅ Tercatat! Kamu penemu ke-${r.ke}.`;b.remove()};acts.append(b)}
+    else{const c=q.code||'UFO NYASAR';left.append(el('p',null,`Belum punya Kartu Komen? Salin kode ini, lalu komen di video terbaru @negerikomen sebelum ${q.end} WIB:`));
+      const f=el('div','kk-frasa',c);f.onclick=()=>kkSalin(c);left.append(f);acts.append(kkBtn('📋 Salin kode','gold3',()=>kkSalin(c)));
+      const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}}
   else if(s.kind==='s'){const r=EXTRA[s.j],sh=r.shop,src=safeImg(sh.img);if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.referrerPolicy='no-referrer';im.onerror=()=>im.remove();left.append(im)}
     left.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)+' · rumahnya dibangun di episode berikutnya'));
     if(sh.desc)left.append(moreText('promo',sh.desc,3));const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Buka link ↗');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
@@ -2217,6 +2223,9 @@ function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'🧾 
       if(r.sudah>=r.daftar.length){sa.append(el('p','kk-muted',`✅ Sudah dikirim ke ${r.sudah} pendukung lama.`));return}
       sa.append(el('p','kk-muted',`${r.daftar.length} pendukung lama · total ${r.total} Genteng: `+r.daftar.map(x=>'@'+x.u+' '+x.n).join(', ')));
       sa.append(kkBtn(`🎁 Kirim ${r.total} Genteng ke saldo mereka`,'sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('saldo-awal',{kirim:true},true);toast(r2.ok?`Terkirim ${r2.total} Genteng ke ${r2.dikirim.length} warga`:(r2.error||'Gagal'));sa.innerHTML='';sa.append(el('p','kk-muted',r2.ok?`✅ Sudah dikirim ke ${r2.dikirim.length} pendukung lama.`:'Gagal'))}))})();
+    if(QUEST){const uf=el('div');w.append(el('p','kk-sub','🛸 Penemu UFO'),uf);const isi=async()=>{const r=await kkApi('ufo-daftar',{},true);uf.innerHTML='';if(!r.ok){uf.append(el('p','kk-muted',r.error||'Gagal'));return}
+      if(!r.daftar.length){uf.append(el('p','kk-muted',`Belum ada. Quest ${QUEST.tanggal||''} ${QUEST.start}–${QUEST.end} WIB.`));return}
+      uf.append(el('p','kk-muted',r.daftar.map((x,i)=>`${i===0?'🥇':(i+1)+'.'} @${x.u} · ${new Date(x.at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`).join('\n')));uf.lastChild.style.whiteSpace='pre-line'};isi();w.append(kkBtn('Muat ulang penemu','sm',isi))}
     const tw=el('div');w.append(el('p','kk-sub','💸 Traktiran tanpa kode'),el('p','kk-muted','Traktiran tanpa kode pesanan, tanpa @username warga, dan tanpa kode dompet. Kalau tahu siapa orangnya, masukkan ke saldonya.'),tw);kkTanpaKode(tw);
     body.append(w);kkAntre(box)}
 async function kkTanpaKode(tw){tw.innerHTML='';const res=await kkApi('tanpa-kode',{},true);if(!res.ok){tw.append(el('p','kk-muted',res.error||'Gagal memuat'));return}

@@ -1740,8 +1740,8 @@ function histBox(r,onPick,opts={}){const V=histOf(r);if(V.length<2)return null;l
   const go=d=>e=>{e.stopPropagation();const m=n+d;if(m<0||m>=V.length)return;n=m;show(true);try{SND.play('pop',.5)}catch(_){}};
   pv.onclick=go(-1);nx.onclick=go(1);
   pk.onclick=async e=>{e.stopPropagation();pk.hidden=true;cf.hidden=false;cf.textContent='Mengecek jatah…';
-    const sisa=opts.sisa?await opts.sisa():null;cf.innerHTML='';
-    if(sisa===0){cf.append(el('span',null,'Jatah ganti rumah minggu ini sudah habis. Jatahnya kembali hari Senin.'));return}
+    const jt=opts.jatah?await opts.jatah():null,sisa=jt?jt.sisa:null;cf.innerHTML='';
+    if(sisa===0){cf.append(el('span',null,`Jatah ganti rumah minggu ini sudah habis. Jatahnya kembali ${kkTgl(jt.reset)}.`));return}
     const ya=el('button','rh-ya','Ya, pakai'),no=el('button','rh-no','Batal');ya.type=no.type='button';
     cf.append(el('span',null,`Pakai versi ${n+1} untuk rumahmu?`+(sisa!=null?` Jatah minggu ini ${sisa} → ${sisa-1}.`:'')),ya,no);
     no.onclick=ev=>{ev.stopPropagation();show(false)};
@@ -1756,6 +1756,7 @@ function histBox(r,onPick,opts={}){const V=histOf(r);if(V.length<2)return null;l
 const KK_MULAI=Date.parse('2026-10-24T08:30:00+07:00');
 const KK_ON=Date.now()>=KK_MULAI||/[?&]kartu=1\b/.test(location.search)||!!kkGet();
 const KK_IG='https://www.instagram.com/negerikomen/';
+function kkTgl(iso){const d=new Date(Date.parse(iso)+7*3600e3);return isNaN(d)?'hari Senin':d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
 function kkGet(){try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
 function kkSet(v){try{v?localStorage.setItem('nk_kartu',JSON.stringify(v)):localStorage.removeItem('nk_kartu')}catch(e){}}
 async function kkApi(aksi,body,auth){const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
@@ -1803,7 +1804,7 @@ function kkTampil(body,c,baru){body.innerHTML='';
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
   if(i>=0&&c.versi>1){body.append(el('p','kk-sub',`🏠 Rumahmu punya ${c.versi} versi · sedang pakai versi ${c.dipakai+1}`),
-      el('p','kk-muted',`Jatah ganti minggu ini: ${c.jatah.sisa} dari ${c.jatah.total} (kembali hari Senin)`),
+      el('p','kk-muted',`Jatah ganti minggu ini: ${c.jatah.sisa} dari ${c.jatah.total} (kembali ${kkTgl(c.reset)})`),
       kkBtn('🏠 Ganti rumah di 3D','gold3',()=>{kkTutup();select({kind:'r',i},{instant:true});open3D(RES[i],i)}))}
   else if(i>=0)body.append(el('p','kk-muted','Rumahmu baru punya 1 versi. Versi baru muncul kalau rumahmu menang lomba, dapat hadiah quest, atau ganti warna lewat traktir.'));
   if(c.admin)kkAdmin(body);
@@ -1855,7 +1856,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();
-    const hb=histBox(r,look=>{want=look;if(swap)swap(look)},mine?{onPakai:n=>kkPakai(i,n),sisa:async()=>{const r2=await kkApi('saya',null,true);return r2.ok?r2.kartu.jatah.sisa:null}}:{});if(hb)$('v3demo').append(hb)}
+    const hb=histBox(r,look=>{want=look;if(swap)swap(look)},mine?{onPakai:n=>kkPakai(i,n),jatah:async()=>{const r2=await kkApi('saya',null,true);return r2.ok?{sisa:r2.kartu.jatah.sisa,reset:r2.kartu.reset}:null}}:{});if(hb)$('v3demo').append(hb)}
   try{await loadThree()}catch(e){$('v3load').textContent='Gagal memuat 3D. Coba lagi nanti.';return}
   const T=THREE,cv=$('v3c'),dpr=Math.min(2,window.devicePixelRatio||1);
   if(v3s)v3s.stop();

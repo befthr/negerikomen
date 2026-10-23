@@ -173,7 +173,8 @@ export default async function handler(req, res) {
       if (!(n >= 0 && n < V.length)) return res.status(400).json({ error: 'Versi rumah tidak ada' });
       const info = await infoKartu(D, s.u);
       if (n === info.dipakai) return res.status(200).json({ kartu: info });
-      if (info.jatah.sisa <= 0) return res.status(429).json({ error: 'Jatah ganti rumah minggu ini sudah habis. Jatahnya kembali hari Senin.', kartu: info });
+      if (info.jatah.sisa <= 0) { const d = new Date(Date.parse(info.reset) + 7 * 3600e3), BL = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return res.status(429).json({ error: `Jatah ganti rumah minggu ini sudah habis. Jatahnya kembali ${d.getUTCDate()} ${BL[d.getUTCMonth()]} ${d.getUTCFullYear()}.`, kartu: info }); }
       const g = (jparse(await kv(['GET', 'ganti:' + s.u])) || []).filter(t => t >= awalMinggu() - 7 * 864e5);
       g.push(Date.now());
       await kvMany([

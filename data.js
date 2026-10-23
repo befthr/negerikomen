@@ -1442,8 +1442,8 @@ window.NK_DATA = {
   { "type": "puskesmas", "name": "Rumah Sakit Negeri Komen", "by": "faiturr_", "day": 4, "x": 53, "y": 41, "w": 3, "staff": [] },
   { "type": "tokokampung", "name": "Toko Pak Kades", "by": "negerikomen", "day": 5, "x": 41, "y": 53, "w": 3, "staff": [] },
   { "type": "dealer", "name": "Dealer Motor & Sepeda", "by": "negerikomen", "day": 5, "x": 47, "y": 53, "w": 3, "staff": [] },
-  { "type": "sekolah", "name": "SMP Negeri 1 Negeri Komen", "by": "simson__01", "day": 5, "x": 53, "y": 35, "w": 3, "atap": "#2F5E9E", "staff": [] },
-  { "type": "tk", "name": "TK Al-Mudaaris Al-Hasanah", "by": "alifrmnxhrn", "day": 5, "x": 35, "y": 35, "w": 3, "staff": [] }
+  { "type": "sekolah", "name": "SMP Negeri 1 Negeri Komen", "by": "simson__01", "day": 5, "x": 59, "y": 41, "w": 3, "atap": "#2F5E9E", "staff": [] },
+  { "type": "tk", "name": "TK Al-Mudaaris Al-Hasanah", "by": "alifrmnxhrn", "day": 5, "x": 29, "y": 41, "w": 3, "staff": [] }
  ],
  "awards": [
   { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }

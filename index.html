@@ -669,7 +669,9 @@ function drawHouse(r,s,a){
 // item tampak atas (±10 px), tanpa wajah
 // jadwal motor/sepeda ala GTA jadul: parkir di pekarangan → keluar ke jalan, keliling kampung lewat persimpangan acak → pulang lewat jalan yang sama → parkir.
 // Motor lebih cepat & sesekali ngegas; sepeda santai. Mengembalikan null kalau sedang parkir, atau {x,y,ang,gas}.
-function rideOf(r,o,oi,t){if(o.id!=='motor'&&o.id!=='sepeda')return null;const mt=o.id==='motor',R=mt?40:56,PK=45,CY=R+PK,ph=ih(r.x,r.y,90+oi)*CY,tt=t+ph,cyc=Math.floor(tt/CY),tc=tt-cyc*CY;
+function rideOf(r,o,oi,t){if(o.id!=='motor'&&o.id!=='sepeda')return null;const mt=o.id==='motor',R=mt?40:56,PK=45,CY=R+PK,now=Date.now()/1000; // jam dunia: semua penonton melihat posisi yang sama
+  let cyc,tc;const jf=r.jalan&&r.jalan.id===o.id?(now-r.jalan.at/1000):-1;
+  if(jf>=0&&jf<R){tc=jf;cyc=Math.floor(r.jalan.at/1000)}else{const ph=ih(r.x,r.y,90+oi)*CY,tt=now+ph;cyc=Math.floor(tt/CY);tc=tt-cyc*CY;if(jf>=R&&jf<R+PK)return null}
   if(tc>=R)return null;
   const L=S*T,lane=T*.22,[bx,by]=blockOf(r.x,r.y),lx=mod(r.x-C,S),ly=mod(r.y-C,S),X0=bx*L,Y0=by*L;
   // titik jalan depan rumah + arah keluar menuju persimpangan
@@ -1074,9 +1076,9 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   // warga yang punya motor/sepeda (dipajang) sesekali pergi keliling blok lalu pulang & parkir lagi, lengkap dengan namanya
   {res.forEach(r=>{if(!Array.isArray(r.items))return;r.items.forEach((o,oi)=>{const st=rideOf(r,o,oi,t);if(!st)return;const {x,y,ang}=st;
     ctx.save();ctx.translate(x,y);ctx.save();ctx.rotate(ang);if(st.gas>=0){for(let q=1;q<=3;q++){ctx.fillStyle=`rgba(200,200,200,${.55-q*.15})`;ctx.beginPath();ctx.arc(-9-q*4-st.gas*3,(q%2?1:-1)*1.2,1.6+q*.9,0,7);ctx.fill()}}
-    ctx.scale(1.5,1.5);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
-    ctx.font='700 7px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
-    const nm='@'+String(r.name).slice(0,18);ctx.strokeText(nm,0,-9);ctx.fillText(nm,0,-9);ctx.restore()})})}
+    ctx.scale(2,2);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
+    ctx.font='800 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
+    const nm='@'+String(r.name).slice(0,18);ctx.strokeText(nm,0,-11);ctx.fillText(nm,0,-11);ctx.restore()})})}
   if(life){
     const SHIRT=['#C4502F','#2F74B5','#2E9C6A','#E2B23A','#8E5AA8','#FFFFFF'];
     blocks.forEach(([bx,by])=>{
@@ -1141,7 +1143,7 @@ function tag(x,y,name,sub,fs,strong,own){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag};
+  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf};
 })();
 
 </script>
@@ -1419,7 +1421,10 @@ function questPos(t){const cx=(BB.x0+BB.x1)/2,cy=(BB.y0+BB.y1)/2,rx=(BB.x1-BB.x0
 function questTick(){const on=questOn();if(on!==qOn){qOn=on;const qb=$('questbar');qb.hidden=!on;
   if(on){qb.innerHTML='';qb.append('🛸 ',Object.assign(document.createElement('span'),{textContent:'Ada cahaya aneh di atas sawah… temukan UFO-nya sebelum '}),Object.assign(document.createElement('b'),{textContent:QUEST.end+' WIB'}),'!')}dirty=true}}
 if(QUEST){questTick();setInterval(questTick,20000)}
+let IKUT=null; // kamera mengikuti motor/sepeda warga setelah tombol Keliling dipencet
 function frame(now){
+  if(IKUT){const r=RES[IKUT.i],o=r&&(r.items||[]).find(x=>x.id===IKUT.id),st=o?NK.rideOf(r,o,r.items.indexOf(o),now/1000):null;
+    if(!st||Date.now()>IKUT.sampai){IKUT=null}else{const k=fly?0:.12;if(!fly){cam.cx+=(st.x-cam.cx)*k;cam.cy+=(st.y-cam.cy)*k}dirty=true}}
   if(fly){const k=Math.min(1,(now-fly.t0)/fly.ms),e=ease(k);
     const zf=Math.exp(Math.log(fly.from.zoom)+(Math.log(fly.to.zoom)-Math.log(fly.from.zoom))*e);
     cam.cx=fly.from.cx+(fly.to.cx-fly.from.cx)*e;cam.cy=fly.from.cy+(fly.to.cy-fly.from.cy)*e;cam.zoom=zf;if(k>=1)fly=null;dirty=true}
@@ -1434,7 +1439,7 @@ function frame(now){
 
 /* sentuh, seret, cubit, scroll */
 const pts=new Map();let moved=0,pinch=null;
-cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;fly=null;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;fly=null;IKUT=null;
   if(pts.size===2){const [a,b]=[...pts.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom}}hideHint()});
 cv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const p=pts.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;
   pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -2155,6 +2160,11 @@ function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',.
 function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...it.pajang];
   w.append(el('b',null,'🎁 Koleksi item'),el('p','kk-muted',`Pilih maksimal 3 untuk dipajang di pekarangan. Yang lain tetap milikmu.`));
   const g=el('div','kk-items');const msg=el('p','kk-msg');
+  const jl=el('div','kk-row');['motor','sepeda'].forEach(id=>{if(!it.own.some(o=>o.id===id))return;
+    jl.append(kkBtn(id==='motor'?'🛵 Keliling naik motor':'🚲 Keliling naik sepeda','sm gold3',async e=>{if(!paj.includes(id)){msg.textContent=`Pajang dulu ${id}-mu (ketuk kotaknya di bawah).`;msg.className='kk-msg err';return}
+      e.target.disabled=true;const r=await kkApi('jalan',{id},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
+      const k=kkResIdx(c.u);if(k>=0){RES[k].jalan={id,at:r.at};kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.6);IKUT={i:k,id,sampai:Date.now()+(id==='motor'?40:56)*1000};scrollMap()}toast(id==='motor'?'Brumm! Motormu berangkat keliling kampung 🛵':'Kring kring! Sepedamu berangkat keliling kampung 🚲')}))});
+  if(jl.childNodes.length)w.append(jl);
   it.own.forEach(o=>{const b=el('button','kk-it'+(paj.includes(o.id)?' on':''));b.type='button';b.append(kkItemSVG(o.id,o.teks,o.warna),el('span',null,KK_ITEM[o.id]?KK_ITEM[o.id].n+(o.warna?' '+o.warna:''):o.id));
     b.onclick=async()=>{const nx=paj.includes(o.id)?paj.filter(x=>x!==o.id):[...paj,o.id];if(nx.length>3){msg.textContent='Maksimal 3 item dipajang. Lepas satu dulu.';msg.className='kk-msg err';return}
       b.disabled=true;const res=await kkApi('pajang',{ids:nx},true);b.disabled=false;if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}
@@ -2254,6 +2264,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
+  Object.entries(j.jalan||{}).forEach(([u,v])=>{const i=kkResIdx(u);if(i>=0)RES[i].jalan=v});
   Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
   if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length)try{renderSups()}catch(e){}
   Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});

@@ -574,6 +574,26 @@ const adaLampu=(k,q)=>k%2===0&&q%2===0&&(k===0||q===0);
 function lampu(k,q,t,horiz){const c=((t+ih(k+40,q+40,300)*16)%16+16)%16,m=horiz?c:(c+8)%16;return m<7?'h':m<8?'k':'m'}
 let LAMPU_POS=[];
 const VS=new Map(); // posisi kendaraan (berhenti saat lampu merah / antre)
+// sungai selebar 3 petak, berkelok tanpa terputus di tepi utara kampung (di sawah): dermaga, perahu, bebek, batu & rumput tepi
+function drawSungai(tepi,vx0,vx1,t){const c=ctx,SL=S*T,W=T*3,Y0=tepi-T*3.4,yc=x=>Y0+Math.sin(x/(SL*1.7))*T*.85+Math.sin(x/(SL*.63)+1)*T*.25;
+  const x0=Math.floor(vx0/8)*8-16,x1=vx1+16;if(Y0+W*2<-1e9)return;
+  const band=(hw,f)=>{c.fillStyle=f;c.beginPath();for(let x=x0;x<=x1;x+=8)c.lineTo(x,yc(x)-hw);for(let x=x1;x>=x0;x-=8)c.lineTo(x,yc(x)+hw);c.closePath();c.fill()};
+  band(W/2+10,'#D9C28F');band(W/2+4,'#7FB65A');band(W/2,'#4F9BD1');band(W*.3,'#3E8FC9');
+  // arus air
+  c.fillStyle='rgba(255,255,255,.55)';for(let x=Math.floor(x0/46)*46;x<x1;x+=46){const k=Math.floor(x/46),xx=x+((t*22)%46),o=(ih(k,3,500)-.5)*W*.6;c.fillRect(xx,yc(xx)+o,12,1.6)}
+  // batu & rumput tepi
+  for(let x=Math.floor(x0/30)*30;x<x1;x+=30){const k=Math.floor(x/30),r=ih(k,7,510),sd=r<.5?-1:1,yy=yc(x)+sd*(W/2+3);
+    if(r<.25){c.fillStyle='#9AA0A6';c.beginPath();c.ellipse(x,yy,4,3,0,0,7);c.fill()}
+    else if(r<.7){c.strokeStyle='#4E8B3A';c.lineWidth=1.6;for(let j=-1;j<=1;j++){c.beginPath();c.moveTo(x+j*3,yy);c.lineTo(x+j*4+Math.sin(t*2+k)*1.5,yy-sd*-0-8);c.stroke()}}}
+  // dermaga kayu
+  [-2.5,2.5].forEach(k=>{const dx=k*SL,yb=yc(dx)+W/2+6;if(dx<x0||dx>x1)return;c.fillStyle='#8A5A2E';c.fillRect(dx-5,yb-T*1.3,10,T*1.3);c.fillStyle='rgba(0,0,0,.2)';for(let y=yb-T*1.3;y<yb;y+=4)c.fillRect(dx-5,y,10,1)});
+  // perahu menyusuri sungai
+  [0,1,2,3].forEach(i=>{const L=SL*14,px=((t*(i%2?14:-10)+i*L*.27)%L+L)%L-L/2,py=yc(px)+(i%2?-W*.18:W*.15);if(px<x0||px>x1)return;
+    c.save();c.translate(px,py);c.scale(i%2?1.6:-1.6,1.6);c.fillStyle='rgba(0,0,0,.18)';c.beginPath();c.ellipse(1.5,2,12,4.5,0,0,7);c.fill();
+    c.fillStyle='#8A5A2E';c.beginPath();c.moveTo(-12,-3);c.lineTo(12,-3);c.lineTo(8,4);c.lineTo(-8,4);c.closePath();c.fill();c.fillStyle=['#C4502F','#2F74B5','#F2C230','#2E9C6A'][i];c.fillRect(-4,-2,8,4);if(i===2){c.fillStyle='#F4EFE3';c.beginPath();c.moveTo(0,-3);c.lineTo(0,-14);c.lineTo(8,-4);c.closePath();c.fill()}c.restore()});
+  // bebek berenang (tanpa wajah)
+  for(let g=0;g<3;g++){const gx=(g-1)*SL*3.3+Math.sin(t*.3+g)*T*1.5;if(gx<x0||gx>x1)continue;for(let d=0;d<3;d++){const dx=gx+d*9,dy=yc(dx)+Math.sin(t*2+d+g)*1.2+(d-1)*3;
+    c.fillStyle='#FFFFFF';c.beginPath();c.ellipse(dx,dy,4.2,2.8,0,0,7);c.fill();c.beginPath();c.arc(dx+3.4,dy-1.2,1.9,0,7);c.fill();c.fillStyle='#F2A93B';c.fillRect(dx+5,dy-1.6,2,1.2)}}}
 const TEMA_KHUSUS={'2,2':'lapangan','-3,-2':'empang','3,-3':'empang'};
 function temaBlok(bx,by){if(bx>=-1&&bx<=0&&by>=-1&&by<=0)return 'kebun';const k=TEMA_KHUSUS[bx+','+by];if(k)return k;
   const r=ih(bx*7+3,by*11+5,140),ring=Math.max(Math.abs(bx+.5),Math.abs(by+.5));
@@ -1103,6 +1123,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   ctx.fillStyle='#CDB07D';
   for(let q=Math.floor((ty0-C)/S);q<=Math.ceil((ty1-C)/S);q++)ctx.fillRect(vx0,q*S*T-T*.18,vx1-vx0,T*.36);
   for(let q=Math.floor((tx0-C)/S);q<=Math.ceil((tx1-C)/S);q++)ctx.fillRect(q*S*T-T*.18,vy0,T*.36,vy1-vy0);
+  {let mb=0;act.forEach(k=>{const y=+k.split(',')[1];if(y<mb)mb=y});drawSungai(mb*S*T,vx0,vx1,t||0)}
   const blocks=[...act].map(k=>k.split(',').map(Number));
   // ruas jalan (unik), digambar dari yang paling sederhana ke jalan besar; mulut jalan kecil yang bertemu jalan lebih besar dibuat melengkung
   {const seg=new Map();blocks.forEach(([bx,by])=>{[[1,by,bx],[1,by+1,bx],[0,bx,by],[0,bx+1,by]].forEach(([hz,q,sg])=>{const k=hz+','+q+','+sg;if(!seg.has(k))seg.set(k,{hz,q,sg,j:jenisJalan(hz,q,sg)})})});

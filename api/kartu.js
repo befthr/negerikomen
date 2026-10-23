@@ -369,7 +369,10 @@ export default async function handler(req, res) {
       if (!q.start || !q.end || (q.tanggal && q.tanggal !== tgl) || !(mnt >= mm(q.start) && mnt < mm(q.end))) return res.status(400).json({ error: 'UFO-nya sudah pergi… tunggu quest berikutnya ya!' });
       if (!(await kv(['SET', key + ':' + s.u, '1', 'NX', 'EX', 30 * 864e2]))) { const L = (await kv(['LRANGE', key, 0, -1]) || []).map(jparse); const i = L.findIndex(x => x && x.u === s.u); return res.status(200).json({ ok: true, ke: i + 1, sudah: true }) }
       const ke = await kv(['RPUSH', key, JSON.stringify({ u: s.u, at: Date.now() })]); await kv(['EXPIRE', key, 30 * 864e2]);
-      return res.status(200).json({ ok: true, ke });
+      // hadiah Saldo Genteng untuk 20 penemu pertama: #1 = 10, #2–3 = 5, #4–10 = 3, #11–20 = 1
+      const hadiah = ke === 1 ? 10 : ke <= 3 ? 5 : ke <= 10 ? 3 : ke <= 20 ? 1 : 0;
+      if (hadiah) await kvMany([['HINCRBY', 'saldo', s.u, hadiah], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: hadiah, ket: 'hadiah UFO #' + ke })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
+      return res.status(200).json({ ok: true, ke, hadiah });
     }
     if (aksi === 'saldo-lihat') { await kv(['SET', 'saldo:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'tambah-saldo') {

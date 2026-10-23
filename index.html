@@ -1655,11 +1655,11 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     cp.onclick=()=>copy(location.origin+location.pathname+'#'+encodeURIComponent(r.name));acts.append(cp);
     if(KK_ON){const mine=(kkGet()||{}).u===String(r.name).toLowerCase();const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kamu':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka(r.name);acts.append(kb)}}
   else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🛸`),
-      el('p',null,'Cepat! Yang paling cepat klaim jadi penemu pertama dan dapat hadiah dari kepala desa.'));
+      el('p',null,'Cepat! 20 penemu pertama dapat Saldo Genteng: 🥇 10 · 🥈🥉 5 · ke-4–10 dapat 3 · ke-11–20 dapat 1.'));
     const k=kkGet(),msg=el('p','kk-msg');left.append(msg);
     if(KK_ON&&k&&k.t){const b=el('button','btn gold3','🛸 Klaim pakai Kartu Komen');b.type='button';b.onclick=async()=>{b.disabled=true;const r=await kkApi('ufo',{},true);
         if(!r.ok){b.disabled=false;msg.textContent=r.error||'Gagal';msg.className='kk-msg err';return}try{SND.play('ting',.9)}catch(_){}
-        msg.className='kk-msg';msg.textContent=r.ke===1?'🥇 KAMU PENEMU PERTAMA! Kepala desa akan menghubungimu.':`✅ Tercatat! Kamu penemu ke-${r.ke}.`;b.remove()};acts.append(b)}
+        msg.className='kk-msg';msg.textContent=(r.ke===1?'🥇 KAMU PENEMU PERTAMA!':`✅ Kamu penemu ke-${r.ke}!`)+(r.hadiah?` +${r.hadiah} Genteng masuk ke saldomu 🎉`:(r.sudah?'':' (hadiah saldo untuk 20 penemu pertama sudah habis)'));b.remove()};acts.append(b)}
     else{const c=q.code||'UFO NYASAR';left.append(el('p',null,`Belum punya Kartu Komen? Salin kode ini, lalu komen di video terbaru @negerikomen sebelum ${q.end} WIB:`));
       const f=el('div','kk-frasa',c);f.onclick=()=>kkSalin(c);left.append(f);acts.append(kkBtn('📋 Salin kode','gold3',()=>kkSalin(c)));
       const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}}
@@ -2140,8 +2140,8 @@ function kkKunci(body,u,res){body.innerHTML='';
 function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
-  if(i>=0&&c.saldoBaru){const nb=el('div','kk-baru');const hadiah=(c.saldoBaru.ket||[]).includes('hadiah pendukung lama');
-    nb.append(el('b',null,`🎉 +${c.saldoBaru.n} Genteng masuk ke saldomu!`),el('span',null,hadiah?'Hadiah terima kasih untuk pendukung lama. Pakai belanja di Toko Pak Kades ya!':'Dari traktiranmu. Makasih udah bantu bangun kampung! Saldonya bisa langsung dipakai belanja.'));
+  if(i>=0&&c.saldoBaru){const nb=el('div','kk-baru');const hadiah=(c.saldoBaru.ket||[]).includes('hadiah pendukung lama'),ufo=(c.saldoBaru.ket||[]).some(k=>/^hadiah UFO/.test(k));
+    nb.append(el('b',null,`🎉 +${c.saldoBaru.n} Genteng masuk ke saldomu!`),el('span',null,hadiah?'Hadiah terima kasih untuk pendukung lama. Pakai belanja di Toko Pak Kades ya!':ufo?'Hadiah karena kamu menemukan UFO Nyasar 🛸':'Dari traktiranmu. Makasih udah bantu bangun kampung! Saldonya bisa langsung dipakai belanja.'));
     body.append(nb);kkApi('saldo-lihat',{},true);try{SND.play('ting',.7)}catch(_){}}
   if(i>=0&&!c.admin){const sw=el('div','kk-saldo');const im=el('img','kk-gico');im.src='genteng.png';im.alt='';const tx=el('span');tx.append('Saldo Genteng: ',el('b',null,fmt(c.saldo||0)));
     sw.append(im,tx,kkBtn('+ Isi saldo','sm',()=>kkIsiSaldo(body,c)));body.append(sw)}

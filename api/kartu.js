@@ -339,7 +339,7 @@ export default async function handler(req, res) {
         let teks = null;
         if (ids.includes('papan')) { teks = String(body.teks || '').replace(/\s+/g, ' ').trim(); if (!okTeks(teks)) return res.status(400).json({ error: 'Tulisan papan nama 1–20 huruf/angka.' }) }
         const warna = {}; for (const id of ['motor', 'sepeda']) if (ids.includes(id)) { const w = String((body.warna || {})[id] || 'merah'); if (!VWARNA.includes(w)) return res.status(400).json({ error: 'Warna ' + id + ' tidak tersedia.' }); warna[id] = w }
-        if (ids.includes('robot')) { const p = await kv(['GET', ROBOT]); if (p && p !== s.u) { const sudah = (await koleksi(p)).own.some(o => o.id === 'robot'); return res.status(400).json({ error: 'Robot Raksasa cuma ada 1 di kampung, dan ' + (sudah ? 'sudah dimiliki' : 'sedang dipesan') + ' @' + p + '.' }) }
+        if (ids.includes('robot')) { const p = await kv(['GET', ROBOT]); if (p && p !== s.u) { const sudah = (await koleksi(p)).own.some(o => o.id === 'robot'); return res.status(400).json({ error: 'GENTO cuma ada 1 di kampung, dan ' + (sudah ? 'sudah dimiliki' : 'sedang dipesan') + ' @' + p + '.' }) }
           if (!p) await kv(['SET', ROBOT, s.u, 'NX', 'EX', 14 * 864e2]) }
         isi = { items: ids, teks, warna, harga: ids.reduce((t, id) => t + KATALOG[id], 0) };
       }

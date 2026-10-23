@@ -927,7 +927,7 @@ function drawBuilding(b,s,a){
   }else if(t==='tb'){ // toko bangunan: gudang beratap seng + tumpukan bata, genteng, sak semen, kaleng cat
     ctx.fillStyle='#D8CCB4';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     box(X+14,Y+12,92,38,'#F3E8D2','#8A7A60');ctx.fillStyle='#2F74B5';ctx.fillRect(X+10,Y+8,100,12);ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=1;for(let k=X+14;k<X+110;k+=6){ctx.beginPath();ctx.moveTo(k,Y+8);ctx.lineTo(k,Y+20);ctx.stroke()}
-    ctx.fillStyle='#1C2520';ctx.fillRect(X+30,Y+52,60,8);ctx.fillStyle='#F2C230';ctx.font='800 6.5px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('TB GENTENG JAYA JAYA JOSS',X+60,Y+56.3);
+    ctx.fillStyle='#1C2520';ctx.fillRect(X+12,Y+51,96,11);ctx.strokeStyle='#F2C230';ctx.lineWidth=1;ctx.strokeRect(X+13,Y+52,94,9);{const tx='TB GENTENG JAYA JAYA JOSS';let f=7.5;ctx.textAlign='center';ctx.textBaseline='middle';do{ctx.font=`800 ${f}px sans-serif`;f-=.25}while(ctx.measureText(tx).width>88&&f>4);ctx.fillStyle='#F2C230';ctx.fillText(tx,X+60,Y+56.8)}
     const bata=(x,y)=>{for(let r2=0;r2<3;r2++)for(let c2=0;c2<4;c2++){ctx.fillStyle=(r2+c2)%2?'#B5532E':'#C4643A';ctx.fillRect(x+c2*7+(r2%2?3:0),y+r2*4,6.4,3.4)}};
     bata(X+14,Y+70);bata(X+14,Y+86);
     for(let k=0;k<4;k++){ctx.fillStyle=k%2?'#A8432A':'#C4502F';ctx.beginPath();ctx.ellipse(X+56,Y+72+k*5,10,3,0,0,7);ctx.fill()} // tumpukan genteng

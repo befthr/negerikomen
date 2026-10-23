@@ -389,7 +389,9 @@ export default async function handler(req, res) {
     if (aksi === 'saldo-lihat') { await kv(['SET', 'saldo:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'gaji') { // kades: gaji mingguan karyawan fasilitas (sekali per pekan)
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
-      const minggu = awalMinggu(), staf = [...new Set((D.buildings || []).flatMap(b => Array.isArray(b.staff) ? b.staff : []).map(x => cleanU(x && x.user)).filter(u => okU(u) && warga(D, u)))];
+      const minggu = awalMinggu(), hariIniStr = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+      const tukang = (D.residents || []).filter(r => r.job && (!r.job.until || String(r.job.until) >= hariIniStr)).map(r => ({ user: r.name }));
+      const staf = [...new Set([...(D.buildings || []).flatMap(b => Array.isArray(b.staff) ? b.staff : []), ...tukang].map(x => cleanU(x && x.user)).filter(u => okU(u) && warga(D, u)))];
       const sudah = await kv(['GET', 'gaji:' + minggu]);
       if (!body.kirim) return res.status(200).json({ staf, per: GAJI, total: staf.length * GAJI, sudah: !!sudah });
       if (!staf.length) return res.status(400).json({ error: 'Belum ada karyawan di data kampung.' });

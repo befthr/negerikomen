@@ -2072,7 +2072,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
     const up=new T.Group();up.position.set(sd*.25,-.7,0);sh.add(up);mk(RB(1,2.3,1.05,.4),PT,0,-1.15,0,null,up);
     const el=new T.Group();el.position.set(0,-2.45,0);up.add(el);mk(Sp(.52),GR,0,0,0,null,el);
     mk(RB(1.25,2.4,1.3,.45),PT,0,-1.3,0,null,el);mk(RB(1.3,.9,.4,.15),MR,0,-1,.6,null,el);{const bl=mk(PL([[0,0],[0,-2],[.7,-.3]],.16),NV,sd*.68,-.4,0,null,el);bl.rotation.y=sd>0?0:Math.PI}mk(RB(1.3,.25,1.35,.1),NV,0,-.5,0,null,el);
-    const hd=new T.Group();hd.position.set(0,-2.75,0);el.add(hd);mk(Sp(.5),GR,0,0,0,null,hd);for(let k=0;k<4;k++)mk(Cy(.09,.09,.55,10),GR,-.3+k*.2,-.5,.3,null,hd);
+    const hd=new T.Group();hd.position.set(0,-2.75,0);el.add(hd);mk(Sp(.45),GR,0,0,0,null,hd);mk(RB(.95,.85,1,.25),GR,0,-.55,.05,null,hd);mk(RB(.98,.28,.45,.1),NV,0,-.4,.4,null,hd);mk(RB(.3,.6,.6,.1),GR,sd*-.5,-.45,.2,null,hd);
     let meriam=null;if(sd>0){meriam=new T.Group();meriam.position.set(.75,-1.4,0);el.add(meriam);mk(Cy(.32,.32,2.2),MR,0,-.2,0,null,meriam);mk(Cy(.38,.38,.3),PT,0,-1.3,0,null,meriam);mk(Cy(.36,.36,.25),NV,0,.9,0,null,meriam);mk(Cy(.2,.2,.1),DK,0,-1.46,0,null,meriam)}
     return {sh,up,el,hd,meriam}};
   const kl=lengan(-1),ka=lengan(1);
@@ -2105,7 +2105,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   const GAYA=[{n:'Siaga',lsz:-.3,rsz:.3,lux:-.45,rux:-.45,lex:-.9,rex:-.9,lk:-.14,rk:.14,hx:.12,sayap:.4},
     {n:'Pahlawan',rsz:2.9,rez:.15,lsz:-.75,lez:1.7,lux:.15,lk:-.16,rk:.16,hx:-.12,hy:-.2,sayap:.6},
     {n:'Kuda-kuda',lsz:-1.15,lez:-1.2,rsz:1.15,rez:1.2,lux:-.6,rux:-.6,lk:-.34,rk:.34,ry:-.25,turun:.7,hx:.18,sayap:.6},
-    {n:'Bidik',rsz:1.55,rez:0,rux:-1.4,lsz:-.5,lez:-1.2,lux:-.4,ry:.5,hx:.1},
+    {n:'Bidik',rsz:.08,rez:0,rux:-1.55,rex:0,lsz:.45,lux:-1.35,lex:-.75,lez:.35,lk:-.18,rk:.2,lkx:-.3,rkx:.25,ry:.45,turun:.35,hx:.12,hy:-.1,sayap:.8},
     {n:'Siap tempur',rsz:.15,rux:-1.55,rex:-.1,lsz:-.35,lux:-1.25,lex:-1.7,lk:-.2,rk:.25,lkx:-.25,rkx:.2,ry:.35,rx:.06,turun:.25,hx:.16,sayap:1},
     {n:'Terbang',rsz:.15,rux:-2.9,rez:0,lsz:-.25,lux:.35,lex:-.4,lkx:.5,rkx:-.15,naik:1,sayap:1,hx:-.2},
     {n:'Duduk di rumah',sit:-1.35,lux:-.95,lex:-.8,lsz:-.35,rux:-1.15,rex:-.25,rsz:.3,rx:.12,ux:1.2,uz:-.4,uy:-4.35,hx:.18,hy:.15,sayap:.5},

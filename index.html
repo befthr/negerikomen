@@ -400,11 +400,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <div><h3>Traktir kampung</h3><p class="trak-lede">Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p></div>
         </div>
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
-        <p class="trak-how">🔑 <b>Sudah punya rumah?</b> Buka <b>Kartu Komen</b> → <b>Ubah rumah</b>, pilih yang kamu mau, lalu tulis <b>kode pesanan</b> di pesan traktiran. Lunas = langsung berubah.</p>
+        <p class="trak-how" data-kk hidden>🔑 <b>Sudah punya rumah?</b> Buka <b>Kartu Komen</b> → <b>Ubah rumah</b>, pilih yang kamu mau, lalu tulis <b>kode pesanan</b> di pesan traktiran. Lunas = langsung berubah.</p>
         <ul class="trak-tiers">
-          <li><b>🎨 1 Genteng · Ubah warna</b><span>Pilih warna baru untuk rumahmu. Rumah lama tetap tercatat milikmu.</span></li>
-          <li><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Rumahmu dapat <b>bendera emas</b> di peta dan namamu masuk daftar Pendukung kampung. Boleh dicicil (1 + 1) dengan kode yang sama, dalam 14 hari.</span><small>Belum punya rumah? Tulis username IG + warna rumah + warna atap di pesan traktiran, rumahmu langsung dibangun.</small></li>
-          <li><b>🎁 1–3 Genteng · Item pekarangan</b><span>Motor, sepeda, ayam, kucing, kambing, kolam ikan, ayunan, lampu taman, pohon mangga, dan <b>papan nama</b> bertuliskan namamu.</span></li>
+          <li data-kk hidden><b>🎨 1 Genteng · Ubah warna</b><span>Pilih warna baru untuk rumahmu. Rumah lama tetap tercatat milikmu.</span></li>
+          <li data-kk hidden><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Rumahmu dapat <b>bendera emas</b> di peta dan namamu masuk daftar Pendukung kampung. Boleh dicicil (1 + 1) dengan kode yang sama, dalam 14 hari.</span><small>Belum punya rumah? Tulis username IG + warna rumah + warna atap di pesan traktiran, rumahmu langsung dibangun.</small></li>
+          <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
+          <li data-kk hidden><b>🎁 1–3 Genteng · Item pekarangan</b><span>Motor, sepeda, ayam, kucing, kambing, kolam ikan, ayunan, lampu taman, pohon mangga, dan <b>papan nama</b> bertuliskan namamu.</span></li>
           <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
       </div>
@@ -1178,7 +1179,8 @@ function renderShops(){
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
 if(HAS_TRAK){const a=document.createElement('a');a.href=(/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.usaha||''))?D.trakteer.usaha:D.trakteer.url).trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
-  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari: buka Kartu Komen → Ubah rumah → Jadi ruko (',b,'), lalu traktir lewat paket ',a,'. ');const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}
+  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';const k1=el('span');k1.dataset.kk='';k1.hidden=true;k1.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari: buka Kartu Komen → Ubah rumah → Jadi ruko (',b,'), lalu traktir lewat paket ',a,'. ');
+  const b2=document.createElement('b');b2.textContent='20 Genteng';const a2=a.cloneNode(true);const k2=el('span');k2.dataset.nokk='';k2.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari lewat paket ',a2,' (',b2,') di Trakteer. ');n.append(k1,k2);const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}
 renderShops();
 /* toko dari Google Sheets (dicentang "Tayang") */
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let k=0;k<t.length;k++){const ch=t[k];
@@ -1858,6 +1860,9 @@ function histBox(r,onPick,opts={}){const V=histOf(r);if(V.length<2)return null;l
    server mengecek komentar lewat Instagram, lalu kartu tersimpan di perangkat ini (localStorage).
    Menyala otomatis setelah postingan Kartu Komen (caption memuat #kartukomen) diunggah; sebelum itu hanya lewat ?kartu=1 (uji). */
 let KK_ON=/[?&]kartu=1\b/.test(location.search);
+// teks yang menyebut Kartu Komen baru tampil setelah fitur dibuka untuk umum
+function kkPublik(){document.querySelectorAll('[data-kk]').forEach(e=>e.hidden=!KK_ON);document.querySelectorAll('[data-nokk]').forEach(e=>e.hidden=KK_ON)}
+kkPublik();
 const KK_IG='https://www.instagram.com/negerikomen/';
 function kkTgl(iso){const d=new Date(Date.parse(iso)+7*3600e3);return isNaN(d)?'hari Senin':d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
 function kkGet(){try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
@@ -2130,7 +2135,7 @@ async function kkTerimaLink(tok){try{history.replaceState(null,'',location.pathn
   if(!res.ok){kkSet(null);toast(res.error||'Link kartu tidak berlaku');return}kkSet({t:tok,u:res.kartu.u});{const i=kkResIdx(res.kartu.u);if(i>=0){select({kind:'r',i},{instant:true});scrollMap()}else kkRefreshPanel()}const body=kkModal();kkTampil(body,res.kartu,true)}
 function kkRefreshPanel(){if(sel&&sel.kind==='r')showResult(sel)}
 /* versi rumah pilihan warga (dipasang di peta saat halaman dibuka) */
-fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;if(j.aktif&&!KK_ON){KK_ON=true}
+fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;if(j.aktif&&!KK_ON){KK_ON=true;kkPublik()}
   Object.entries(j.extra||{}).forEach(([u,ex])=>kkExtra(u,ex));
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
@@ -2273,7 +2278,7 @@ if(TT_ITEMS.length){$('tancap').hidden=false;
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
-  if(/^kartu=/.test(q)){KK_ON=true;kkTerimaLink(q.slice(6));return}
+  if(/^kartu=/.test(q)){KK_ON=true;kkPublik();kkTerimaLink(q.slice(6));return}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
   if(q.toLowerCase()==='loker'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
   if(/^(contoh-?ruko|ruko)$/i.test(q)){openDemoRuko();return}

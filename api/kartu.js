@@ -232,7 +232,6 @@ export default async function handler(req, res) {
     }
     if (aksi === 'minta-warna') {
       const r = await wargaPlus(D, s.u); if (!r) return res.status(404).json({ error: 'Rumahmu tidak ditemukan' });
-      if (r.style === 'globe' || r.style === 'serigala') return res.status(400).json({ error: 'Rumah bentuk khusus ini warnanya tetap.' });
       const wall = String(body.wall || ''), roof = String(body.roof || '');
       if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna dinding dan atap dulu.' });
       { const now = histOf(r).slice(-1)[0].look; if ((now.wall || null) === wall && (now.roof || null) === roof) return res.status(400).json({ error: 'Warnanya sama dengan rumahmu sekarang.' }); }

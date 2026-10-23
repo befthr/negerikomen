@@ -555,6 +555,9 @@ function wallHex(r){return (typeof r.wall==='string'&&/^#[0-9a-fA-F]{6}$/.test(r
 function wibToday(){return new Date(Date.now()+252e5).toISOString().slice(0,10)}
 function shopOn(r,d){const o=r&&r.shop;if(!o||!o.name||typeof o.until!=='string')return false;d=d||wibToday();return o.until>=d&&(!o.start||o.start<=d)}
 function jobOn(r,d){const j=r&&r.job;if(!j)return false;if(j==='proyek')return true;if(typeof j==='object'&&j.type==='proyek'){d=d||wibToday();return !j.until||j.until>=d}return false}
+// warna rumah unik: globe (dinding=laut, atap=pulau), serigala (dinding=bulu, atap=telinga); kosong = warna bawaan
+function uniqCol(r){const c=v=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:ROOF_HEX[v];
+  return {sea:(r.wall&&c(r.wall))||'#3E8FC9',land:(r.roof&&c(r.roof))||'#6FB35A',fur:(r.wall&&r.wall!=='abu-abu'&&c(r.wall))||'#8E9499',ear:(r.roof&&r.roof!=='abu-abu'&&c(r.roof))||'#5E656B'}}
 function drawHouse(r,s,a){
   const lx=mod(r.x-C,S),ly=mod(r.y-C,S);
   const r1=ih(r.x,r.y,2),r2=ih(r.x,r.y,3),r3=ih(r.x,r.y,4);
@@ -575,15 +578,15 @@ function drawHouse(r,s,a){
   }else if(r.style==='globe'){ // rumah globe (tampak atas): alas kayu + bola dunia + cincin meridian
     ctx.fillStyle='#8A5A2E';ctx.fillRect(-w/2-2,-h/2-2,w+4,h+4);
     const R=Math.min(w,h)/2+1;ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.arc(3,4,R,0,7);ctx.fill();
-    ctx.fillStyle='#3E8FC9';ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.fill();
+    const U=uniqCol(r);ctx.fillStyle=U.sea;ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.fill();
     ctx.save();ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.clip();
-    ctx.fillStyle='#6FB35A';[[-.45,-.35,.38,.26],[.3,-.1,.3,.42],[-.2,.45,.34,.2],[.55,.5,.18,.14]].forEach(([x,y,a,b])=>{ctx.beginPath();ctx.ellipse(x*R,y*R,a*R,b*R,.5,0,7);ctx.fill()});
+    ctx.fillStyle=U.land;[[-.45,-.35,.38,.26],[.3,-.1,.3,.42],[-.2,.45,.34,.2],[.55,.5,.18,.14]].forEach(([x,y,a,b])=>{ctx.beginPath();ctx.ellipse(x*R,y*R,a*R,b*R,.5,0,7);ctx.fill()});
     ctx.fillStyle='#E2B23A';ctx.beginPath();ctx.ellipse(.32*R,.05*R,.12*R,.16*R,.3,0,7);ctx.fill();
     ctx.fillStyle='rgba(255,255,255,.28)';ctx.beginPath();ctx.ellipse(-.35*R,-.45*R,.35*R,.18*R,-.6,0,7);ctx.fill();ctx.restore();
     ctx.strokeStyle='#D4A72C';ctx.lineWidth=2.4;ctx.beginPath();ctx.ellipse(0,0,R+2,R*.38,-.6,0,7);ctx.stroke();
     ctx.fillStyle='#5A3A1E';ctx.fillRect(-3.5,h/2-1,7,6);
   }else if(r.style==='serigala'){ // rumah kepala serigala (tampak atas)
-    const g='#8E9499',gd='#5E656B';
+    const U2=uniqCol(r),g=U2.fur,gd=U2.ear;
     ctx.fillStyle=gd;ctx.beginPath();ctx.moveTo(-w/2+1,-h/2+6);ctx.lineTo(-w/2+5,-h/2-9);ctx.lineTo(-w/2+14,-h/2+2);ctx.closePath();ctx.fill();
     ctx.beginPath();ctx.moveTo(w/2-1,-h/2+6);ctx.lineTo(w/2-5,-h/2-9);ctx.lineTo(w/2-14,-h/2+2);ctx.closePath();ctx.fill();
     ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,w/2,h/2,0,0,7);ctx.fill();ctx.strokeStyle=gd;ctx.lineWidth=1.5;ctx.stroke();
@@ -1061,7 +1064,7 @@ function tag(x,y,name,sub,fs,strong,own){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag};
+  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag};
 })();
 
 </script>
@@ -1508,8 +1511,8 @@ function build3D(r){const T=THREE,g=new T.Group();
     const ped=new T.Mesh(new T.CylinderGeometry(.75,1.05,1.1,20),M(wood));ped.position.y=.85;ped.castShadow=true;g.add(ped);
     box(.5,.8,.06,'#3A2A1E',0,.7,.92);
     const gl=new T.Group();gl.position.y=2.75;gl.rotation.z=.41;g.add(gl);
-    const R=1.45,ball=new T.Mesh(new T.SphereGeometry(R,32,24),M('#3E8FC9',{roughness:.6}));ball.castShadow=true;gl.add(ball);
-    [[.5,.3,.55,'#6FB35A'],[.1,1.6,.7,'#6FB35A'],[-.4,-.5,.5,'#6FB35A'],[.9,2.6,.35,'#F3F1EA'],[-.2,2.3,.4,'#E2B23A'],[-.9,1.0,.4,'#F3F1EA'],[.2,-1.6,.45,'#6FB35A']].forEach(([la,lo,sz,c])=>{
+    const U=NK.uniqCol(r),R=1.45,ball=new T.Mesh(new T.SphereGeometry(R,32,24),M(U.sea,{roughness:.6}));ball.castShadow=true;gl.add(ball);
+    [[.5,.3,.55,U.land],[.1,1.6,.7,U.land],[-.4,-.5,.5,U.land],[.9,2.6,.35,'#F3F1EA'],[-.2,2.3,.4,'#E2B23A'],[-.9,1.0,.4,'#F3F1EA'],[.2,-1.6,.45,U.land]].forEach(([la,lo,sz,c])=>{
       const m=new T.Mesh(new T.SphereGeometry(sz,14,10),M(c));m.scale.set(1,1,.22);
       const p=new T.Vector3(Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)).multiplyScalar(R*.96);m.position.copy(p);m.lookAt(p.clone().multiplyScalar(2));gl.add(m)});
     const ring=new T.Mesh(new T.TorusGeometry(R+.22,.06,8,56),M('#D4A72C',{metalness:.4,roughness:.4}));gl.add(ring);
@@ -1518,7 +1521,7 @@ function build3D(r){const T=THREE,g=new T.Group();
       const wdw=new T.Mesh(new T.CircleGeometry(.22,18),M('#BFE3F2',{side:T.DoubleSide}));wdw.position.copy(p);wdw.lookAt(p.clone().multiplyScalar(2));gl.add(wdw)});
     treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
   if(r.style==='serigala'){
-    const gr=M('#8E9499'),gd=M('#5E656B'),wt=M('#D6D9DC');
+    const U=NK.uniqCol(r),gr=M(U.fur),gd=M(U.ear),wt=M('#D6D9DC');
     const head=new T.Mesh(new T.SphereGeometry(1.6,24,18),gr);head.scale.set(1,.95,1);head.position.set(0,1.55,0);head.castShadow=true;g.add(head);
     const sn=new T.Mesh(new T.BoxGeometry(1.2,.9,1.4),wt);sn.position.set(0,1.05,1.35);sn.castShadow=true;g.add(sn);
     [-0.8,0.8].forEach(x=>{const e=new T.Mesh(new T.ConeGeometry(.45,1.1,4),gd);e.position.set(x,3.15,-.1);e.rotation.z=x<0?.25:-.25;e.castShadow=true;g.add(e)});
@@ -1812,9 +1815,10 @@ function kkBtn(t,cls,fn){const b=el('button','btn '+(cls||''),t);b.type='button'
 function kkRumahMini(r){const ns='http://www.w3.org/2000/svg',sv=document.createElementNS(ns,'svg');sv.setAttribute('viewBox','0 0 64 64');sv.setAttribute('class','kk-mini');sv.setAttribute('aria-hidden','true');
   const add=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);sv.append(e);return e};
   const W=NK.wallHex(r),R=NK.roofHex(r);
-  if(r.style==='globe'){add('rect',{x:24,y:50,width:16,height:8,fill:'#8A5A2E'});add('circle',{cx:32,cy:30,r:20,fill:'#3E8FC9'});
-    add('ellipse',{cx:25,cy:24,rx:8,ry:5,fill:'#6FB35A'});add('ellipse',{cx:38,cy:36,rx:7,ry:6,fill:'#6FB35A'});add('ellipse',{cx:32,cy:30,rx:24,ry:8,fill:'none',stroke:'#D4A72C','stroke-width':2.5,transform:'rotate(-25 32 30)'});return sv}
-  if(r.style==='serigala'){add('circle',{cx:32,cy:36,r:20,fill:'#8E9499'});add('polygon',{points:'14,26 18,6 28,20',fill:'#5E656B'});add('polygon',{points:'50,26 46,6 36,20',fill:'#5E656B'});add('ellipse',{cx:32,cy:44,rx:9,ry:8,fill:'#D6D9DC'});return sv}
+  const U=NK.uniqCol(r);
+  if(r.style==='globe'){add('rect',{x:24,y:50,width:16,height:8,fill:'#8A5A2E'});add('circle',{cx:32,cy:30,r:20,fill:U.sea});
+    add('ellipse',{cx:25,cy:24,rx:8,ry:5,fill:U.land});add('ellipse',{cx:38,cy:36,rx:7,ry:6,fill:U.land});add('ellipse',{cx:32,cy:30,rx:24,ry:8,fill:'none',stroke:'#D4A72C','stroke-width':2.5,transform:'rotate(-25 32 30)'});return sv}
+  if(r.style==='serigala'){add('circle',{cx:32,cy:36,r:20,fill:U.fur});add('polygon',{points:'14,26 18,6 28,20',fill:U.ear});add('polygon',{points:'50,26 46,6 36,20',fill:U.ear});add('ellipse',{cx:32,cy:44,rx:9,ry:8,fill:'#D6D9DC'});return sv}
   if(r.style==='panggung'){add('rect',{x:10,y:46,width:4,height:12,fill:'#5A3A1E'});add('rect',{x:50,y:46,width:4,height:12,fill:'#5A3A1E'});add('rect',{x:8,y:44,width:48,height:4,fill:'#8A5A2E'});
     add('rect',{x:14,y:28,width:36,height:16,fill:W});add('polygon',{points:'6,30 32,10 58,30',fill:R});add('rect',{x:28,y:34,width:8,height:10,fill:'#5A3A1E'});return sv}
   if(r.style==='victorian'){add('rect',{x:16,y:22,width:34,height:36,fill:W});add('polygon',{points:'12,24 33,6 54,24',fill:R});add('rect',{x:8,y:20,width:10,height:38,fill:W});
@@ -1822,7 +1826,7 @@ function kkRumahMini(r){const ns='http://www.w3.org/2000/svg',sv=document.create
   add('rect',{x:12,y:28,width:40,height:28,fill:W});add('polygon',{points:'6,30 32,8 58,30',fill:R});add('rect',{x:28,y:40,width:8,height:16,fill:'#5A3A1E'});
   add('rect',{x:16,y:34,width:8,height:7,fill:'#BFE3F2'});add('rect',{x:40,y:34,width:8,height:7,fill:'#BFE3F2'});return sv}
 function kkKartuEl(c){const r=RES[kkResIdx(c.u)]||{},jur=JUR>=0&&RES[JUR]&&RES[JUR].name===r.name;
-  const k=el('div','kk-card'+(jur?' gold':''));if(r.name){if(!jur)k.style.borderTop='10px solid '+(r.style==='globe'?'#3E8FC9':NK.roofHex(r));k.append(kkRumahMini(r))}k.append(el('span','kk-lbl','🔑 KARTU KOMEN'),el('b',null,c.admin?'Kepala desa':(c.nick||r.nick||'@'+c.u)),
+  const k=el('div','kk-card'+(jur?' gold':''));if(r.name){if(!jur)k.style.borderTop='10px solid '+(r.style==='globe'?NK.uniqCol(r).sea:NK.roofHex(r));k.append(kkRumahMini(r))}k.append(el('span','kk-lbl','🔑 KARTU KOMEN'),el('b',null,c.admin?'Kepala desa':(c.nick||r.nick||'@'+c.u)),
     el('span',null,'@'+c.u+(c.nomor?' · Warga #'+c.nomor:'')),el('span',null,c.hari?'Pindah '+resmi(c.hari):'Warga #1 · sejak hari pertama'));
   const bd=el('div','badges');(r.name?perksOf(r):[]).slice(0,3).forEach(t=>bd.append(el('i',null,String(t))));if(bd.childNodes.length)k.append(bd);return k}
 async function kkBuka(u){const body=kkModal();const k=kkGet();u=String(u||(k&&k.u)||'').toLowerCase();
@@ -1872,18 +1876,18 @@ function kkBagianWarna(body,c,i){const r=RES[i];
     const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';
     row.append(a,kkBtn('📋 Salin kode','',()=>kkSalin(c.minta.kode)),kkBtn('Batalkan','',async()=>{const res=await kkApi('batal-warna',{},true);if(res.ok)kkTampil(body,res.kartu);else toast(res.error||'Gagal')}));
     w.append(row);body.append(w);return}
-  if(r.style==='globe'||r.style==='serigala')return;
   body.append(kkBtn('🎨 Ganti warna · 1 Genteng','',()=>kkWarna(body,c,i)))}
 function kkWarna(body,c,i){const r=RES[i];let W=r.wall||'putih',R=r.roof||'merah';body.innerHTML='';
-  body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-muted','Pilih warna dinding dan atap. Warna baru jadi versi baru di riwayat rumahmu (tidak memakai jatah ganti), jadi warna lama tetap bisa dipakai lagi.'));
+  const LB=r.style==='globe'?['Laut','Pulau']:r.style==='serigala'?['Bulu','Telinga']:['Dinding','Atap'];
+  body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-muted',`Pilih warna ${LB[0].toLowerCase()} dan ${LB[1].toLowerCase()}. Warna baru jadi versi baru di riwayat rumahmu (tidak memakai jatah ganti), jadi warna lama tetap bisa dipakai lagi.`));
   const pv=el('div','kk-pv');body.append(pv);
-  const draw=()=>{pv.innerHTML='';const sv=kkRumahMini({...r,wall:W,roof:R});sv.setAttribute('class','kk-pvsvg');pv.append(sv,el('span',null,`Dinding ${kkNamaWarna(W)} · atap ${kkNamaWarna(R)}`))};
+  const draw=()=>{pv.innerHTML='';const sv=kkRumahMini({...r,wall:W,roof:R});sv.setAttribute('class','kk-pvsvg');pv.append(sv,el('span',null,`${LB[0]} ${kkNamaWarna(W)} · ${LB[1].toLowerCase()} ${kkNamaWarna(R)}`))};
   const baris=(judul,get,set,warnaFn)=>{const w=el('div','kk-pal');w.append(el('b',null,judul));const g=el('div','kk-sw');
     KK_WARNA.forEach(n=>{const b=el('button');b.type='button';b.title=n;b.setAttribute('aria-label',judul+' '+n);b.style.background=warnaFn(n);b.onclick=()=>{set(n);upd()};g.append(b)});
     const inp=el('input');inp.placeholder='atau kode warna, mis. #622599';inp.maxLength=7;inp.autocapitalize='off';
     inp.oninput=()=>{const v=inp.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v)){set(v.toUpperCase());upd()}};
     const upd=()=>{[...g.children].forEach(b=>b.classList.toggle('on',b.title===get()));draw()};w.append(g,inp);w._upd=upd;return w};
-  const bw=baris('Dinding',()=>W,v=>W=v,n=>NK.wallHex({wall:n,x:0,y:0})),br=baris('Atap',()=>R,v=>R=v,n=>NK.roofHex({roof:n,x:0,y:0}));
+  const bw=baris(LB[0],()=>W,v=>W=v,n=>r.style==='globe'||r.style==='serigala'?NK.roofHex({roof:n,x:0,y:0}):NK.wallHex({wall:n,x:0,y:0})),br=baris(LB[1],()=>R,v=>R=v,n=>NK.roofHex({roof:n,x:0,y:0}));
   body.append(bw,br);bw._upd();br._upd();
   const msg=el('p','kk-msg'),row=el('div','kk-row');
   row.append(kkBtn('Lanjut: traktir 1 Genteng','gold3',async e=>{e.target.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R},true);e.target.disabled=false;

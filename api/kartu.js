@@ -19,11 +19,13 @@
 //   POST pajang {ids} (Bearer) → pilih maks 3 item koleksi yang tampil di pekarangan
 //   POST cicil {kode,n} (Bearer kartu @negerikomen) → catat Genteng cicilan yang sudah masuk untuk pesanan itu
 //   POST tanpa-kode {hapus?} (Bearer kartu @negerikomen) → traktiran dari webhook Trakteer yang tidak memuat kode pesanan
+//   POST bayar-saldo {kode} (Bearer) → lunasi pesanan pakai Saldo Genteng
+//   POST tambah-saldo {target,n,hapus?} (Bearer kartu @negerikomen) → masukkan traktiran tanpa kode ke saldo warga
 //   POST cari-kode {kode} (Bearer kartu @negerikomen) → cari pesanan lewat kode, termasuk yang dibatalkan/diganti warga
 //   POST antre-ubah / konfirmasi-ubah {kode,ok} (Bearer kartu @negerikomen) → cek & setujui pesanan
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
-import { terapkan } from './_terapkan.js';
+import { terapkan, bolehOtomatis } from './_terapkan.js';
 
 const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
 const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || '');
@@ -140,11 +142,14 @@ async function infoKartu(D, u) {
   const pesan = {}; J.forEach((j, k) => { const v = jparse(reqs[k]); pesan[j] = kodes[k] && v && v.status === 'menunggu' ? { kode: kodes[k], ...v } : null });
   let pil = jparse(p); if (pil && pil.nv !== V.length) pil = null; // kades bikin versi baru → versi baru yang tampil
   const kol = jparse(it); const m = pesan.warna;
+  let [saldo, dompet] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u]]);
+  if (!dompet && r) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (let t = 0; t < 5 && !dompet; t++) { let c = 'DOMPET-'; for (let i = 0; i < 4; i++) c += A[crypto.randomInt(A.length)];
+      if (await kv(['SET', 'dompet:k:' + c, u, 'NX'])) { await kv(['SET', 'dompet:u:' + u, c]); dompet = c } } }
   return { u, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
     emas: !!(r && r.sup) || !!em, ruko: jparse(rk), items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
-    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null };
+    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, dompet: dompet || null };
 }
 
 const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
@@ -330,6 +335,30 @@ export default async function handler(req, res) {
       const kode = await kv(['GET', jenis + ':user:' + s.u]);
       if (kode) { await simpanStatus(jenis, kode, 'dibatalkan'); await kvMany([['DEL', jenis + ':user:' + s.u], ['SREM', jenis + ':antre', kode]]) }
       return res.status(200).json({ kartu: await infoKartu(D, s.u) });
+    }
+    if (aksi === 'bayar-saldo') {
+      const kode = String(body.kode || '').toUpperCase(), jenis = Object.keys(JENIS).find(j => kode.startsWith(JENIS[j].awal + '-'));
+      const v = jenis && jparse(await kv(['GET', jenis + ':req:' + kode]));
+      if (!v || v.u !== s.u || v.status !== 'menunggu') return res.status(404).json({ error: 'Pesanan tidak ditemukan atau sudah diproses' });
+      const sisa = Math.max(0, (v.harga || 1) - (+v.bayar || 0));
+      if (sisa > 0) {
+        const after = await kv(['HINCRBY', 'saldo', s.u, -sisa]);
+        if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, sisa]); return res.status(400).json({ error: 'Saldo Genteng belum cukup.' }) }
+        v.bayar = (+v.bayar || 0) + sisa; v.trk = [...(v.trk || []), { nama: 'saldo', qty: sisa, at: Date.now() }].slice(-10);
+        await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify(v), 'KEEPTTL'], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -sisa, ket: kode })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
+      }
+      let otomatis = false; if (bolehOtomatis(jenis, v)) { await terapkan(kv, kvMany, jenis, kode, v, true, 'saldo'); otomatis = true }
+      return res.status(200).json({ ok: true, otomatis, kartu: await infoKartu(D, s.u) });
+    }
+    if (aksi === 'tambah-saldo') {
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const t = cleanU(body.target), n = Math.floor(+body.n);
+      if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
+      if (!(n >= 1 && n <= 500)) return res.status(400).json({ error: 'Jumlah Genteng 1–500' });
+      const saldo = await kv(['HINCRBY', 'saldo', t, n]);
+      await kvMany([['HINCRBY', 'donasi', t, n], ['LPUSH', 'saldo:log:' + t, JSON.stringify({ at: Date.now(), n, ket: 'kades' })], ['LTRIM', 'saldo:log:' + t, 0, 49]]);
+      if (body.hapus) await kv(['LREM', 'trk:tanpakode', 1, String(body.hapus)]);
+      return res.status(200).json({ ok: true, u: t, saldo });
     }
     if (aksi === 'pajang') {
       const kol = await koleksi(s.u), punya = kol.own.map(o => o.id);

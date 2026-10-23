@@ -1,6 +1,7 @@
 // Webhook Trakteer: setiap traktiran masuk, Trakteer mengirim datanya ke sini.
 // - Kode pesanan di pesan traktiran (WARNA-/EMAS-/RUKO-/ITEM-XXXX) dibaca otomatis → Genteng dicatat ke pesanan itu (cicilan ikut terhitung).
-// - Traktiran tanpa kode masuk daftar "tanpa kode" supaya kepala desa bisa mencocokkan manual.
+// - Tanpa kode pesanan: kalau ada kode DOMPET-XXXX atau @username warga → masuk Saldo Genteng warga itu; kalau tidak ada → daftar "tanpa kode" untuk kades.
+// - Kelebihan bayar pesanan juga masuk Saldo Genteng.
 // - Lunas → langsung diterapkan otomatis (warna, bendera emas, item). Ruko & papan nama tetap menunggu konfirmasi kepala desa.
 // Keamanan: header X-Webhook-Token harus sama dengan env TRAKTEER_WEBHOOK_TOKEN (token dari dashboard Trakteer → Integrations → Webhook).
 import { terapkan, bolehOtomatis } from './_terapkan.js';
@@ -16,6 +17,13 @@ async function kvMany(cmds) {
   return j.map(x => x && x.result);
 }
 const kv = async c => (await kvMany([c]))[0];
+let DATA = null, DATA_AT = 0;
+async function dataKampung(req) {
+  if (DATA && Date.now() - DATA_AT < 60000) return DATA;
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const t = await (await fetch('https://' + host + '/data.js?v=' + Math.floor(Date.now() / 60000))).text();
+  DATA = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); DATA_AT = Date.now(); return DATA;
+}
 const jparse = s => { try { return s ? JSON.parse(s) : null } catch (e) { return null } };
 // semua teks di payload (pesan bisa ada di supporter_message / message / dll.)
 const teksSemua = o => { const out = []; const jalan = v => { if (typeof v === 'string') out.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(jalan) }; jalan(o); return out.join(' ') };
@@ -45,15 +53,25 @@ export default async function handler(req, res) {
       await kvMany([['SET', key, JSON.stringify(v), 'KEEPTTL'], ['SADD', jenis + ':antre', kode]]);
       let auto = false;
       if (v.bayar >= (v.harga || 1) && bolehOtomatis(jenis, v)) { await terapkan(kv, kvMany, jenis, kode, v, true, 'otomatis'); auto = true }
-      hasil.push({ kode, ada: true, bayar: v.bayar, harga: v.harga || 1, otomatis: auto });
+      hasil.push({ kode, ada: true, u: v.u, bayar: v.bayar, harga: v.harga || 1, otomatis: auto });
     }
-    const cocok = hasil.some(h => h.ada);
+    // kelebihan bayar pesanan → masuk Saldo Genteng
+    for (const h of hasil) if (h.ada && h.bayar > h.harga) { const lebih = Math.min(qty, h.bayar - h.harga), u = h.u; if (u && lebih > 0) await kvMany([['HINCRBY', 'saldo', u, lebih], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at: masuk.at, n: lebih, ket: 'lebih ' + h.kode })]]) }
+    let cocok = hasil.some(h => h.ada), saldoU = null;
+    // tanpa kode pesanan → Saldo Genteng (lewat kode DOMPET-XXXX atau @username warga)
+    if (!cocok) {
+      const dk = (teksSemua(b).toUpperCase().match(/\bDOMPET-[A-Z0-9]{4}\b/) || [])[0];
+      if (dk) saldoU = await kv(['GET', 'dompet:k:' + dk]);
+      if (!saldoU) { const ats = (pesan.match(/@([A-Za-z0-9._]{1,30})/g) || []).map(x => x.slice(1).toLowerCase().replace(/\.+$/, ''));
+        if (ats.length) { const D = await dataKampung(req); saldoU = ats.find(a => (D.residents || []).some(r => String(r.name).toLowerCase() === a)) || null } }
+      if (saldoU) { await kvMany([['HINCRBY', 'saldo', saldoU, qty], ['HINCRBY', 'donasi', saldoU, qty], ['LPUSH', 'saldo:log:' + saldoU, JSON.stringify({ at: masuk.at, n: qty, ket: 'traktir' })], ['LTRIM', 'saldo:log:' + saldoU, 0, 49]]); cocok = true }
+    }
     await kvMany([
-      ['LPUSH', 'trk:log', JSON.stringify({ ...masuk, kodes, cocok })], ['LTRIM', 'trk:log', 0, 199],
+      ['LPUSH', 'trk:log', JSON.stringify({ ...masuk, kodes, cocok, saldo: saldoU })], ['LTRIM', 'trk:log', 0, 199],
       ...(cocok ? [] : [['LPUSH', 'trk:tanpakode', JSON.stringify({ ...masuk, kodes })], ['LTRIM', 'trk:tanpakode', 0, 99]]),
       ['SET', 'trk:terakhir', JSON.stringify(b).slice(0, 4000), 'EX', 30 * 864e2],
     ]);
-    return res.status(200).json({ ok: true, hasil });
+    return res.status(200).json({ ok: true, hasil, saldo: saldoU });
   } catch (e) {
     return res.status(500).json({ error: 'Gagal mencatat', detail: String(e && e.message || e).slice(0, 120) });
   }

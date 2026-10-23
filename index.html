@@ -160,6 +160,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .eta svg{width:44px;height:44px;animation:etaB 2.4s ease-in-out infinite}.eta small{font-size:11px;color:var(--muted)}.eta:hover{border-color:#1C2520}
 @keyframes etaB{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px) rotate(-2deg)}}@media (prefers-reduced-motion:reduce){.eta svg{animation:none}}
 .eta-cta{margin-top:10px}.promo-toko{margin-top:10px;padding:12px;border-radius:14px;background:#FFF6D6;border:1.5px solid #E2C978}.promo-toko p{margin:4px 0}.promo-toko small{display:block;color:var(--muted);margin-bottom:8px}
+.kk-saldo{display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 10px;border-radius:12px;background:#FFF6D6;font-size:14px}.kk-saldo span{flex:1}.kk-saldo .kk-gico{margin:0}
 .kk-aksi{display:flex;gap:8px;margin-top:12px}.kk-aksi .btn{flex:1;min-width:0;font-size:13.5px!important;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap}.btn.kk-gratis{background:#fff;border:2px solid #1C2520;color:#1C2520}.kk-ubah .kk-gico{margin:0 6px 0 0}.kk-tabs{display:flex;gap:6px;margin:6px 0 10px;background:#F1EEE6;padding:4px;border-radius:12px}.kk-tabs button{flex:1;border:0;background:none;border-radius:9px;padding:8px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;color:var(--muted)}.kk-tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.15)}.kk-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kk-tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px;border-radius:14px;border:2px solid #1C2520;background:#FFFBEF;font:inherit;text-align:left;cursor:pointer;box-shadow:0 2px 0 #1C2520}.kk-tile i{font-style:normal;font-size:26px;line-height:1}.kk-tile b{font-size:14.5px}.kk-tile span{font-size:12.5px;font-weight:700;color:var(--muted)}.kk-tile.off{border-color:var(--line);background:#F6F4EE;box-shadow:none;cursor:default;opacity:.8}.kk-items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}.kk-it{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:8px 4px;line-height:1.2;text-align:center;min-width:0;border-radius:12px;border:2px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.kk-it svg{width:48px;height:48px}.kk-it small{font-size:11.5px;color:var(--muted)}.kk-it.on{border-color:#1C2520;background:#FFF6D6;box-shadow:0 2px 0 #1C2520}.kk-it.own{opacity:.55;cursor:default}.kk-total .btn{flex:none;white-space:nowrap}.kk-total span{min-width:0;font-size:12.5px}
 .kk-total{position:sticky;bottom:-18px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px -18px -18px;padding:10px 18px 14px;box-shadow:0 -6px 12px rgba(0,0,0,.06);background:#fff;border-top:1.5px solid var(--line);font-size:13px;font-weight:700}.kk-kol{margin-top:14px;padding:12px;border-radius:12px;background:#F6F4EE}.kk-kol b{font-size:14.5px}.kk-body>input{width:100%;margin:4px 0;padding:8px 10px;border-radius:10px;border:1.5px solid #1C2520;font:inherit;font-size:14px}
 .kk-links{display:flex;justify-content:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted)}.kk-links button{border:0;background:none;padding:2px;font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer}
@@ -411,7 +412,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
           <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
-        <p class="trak-foot" data-kk hidden><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button><span>Cuma mau traktir kepala desa? <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
+        <p class="trak-foot" data-kk hidden><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button><span>Traktir biasa jadi <b>Saldo Genteng</b>: tulis @username-mu di pesan. <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
       </div>
 
       <div class="card voucher" id="voucher" hidden>
@@ -1990,6 +1991,8 @@ function kkKunci(body,u,res){body.innerHTML='';
 function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
+  if(i>=0&&!c.admin){const sw=el('div','kk-saldo');const im=el('img','kk-gico');im.src='genteng.png';im.alt='';const tx=el('span');tx.append('Saldo Genteng: ',el('b',null,fmt(c.saldo||0)));
+    sw.append(im,tx,kkBtn('+ Isi saldo','sm',()=>kkIsiSaldo(body,c)));body.append(sw)}
   if(i>=0&&c.versi>1){body.append(el('p','kk-sub',`🏠 Rumahmu punya ${c.versi} versi · sedang pakai versi ${c.dipakai+1}`),
       kkBtn('🏠 Ganti di 3D','kk-gratis',()=>{kkTutup();select({kind:'r',i},{instant:true});V3BACK=()=>kkBuka(c.u);open3D(RES[i],i)}))}
   else if(i>=0)body.append(el('p','kk-muted','Rumahmu baru punya 1 versi. Versi baru muncul kalau rumahmu menang lomba, dapat hadiah quest, atau ganti warna lewat traktir.'));
@@ -2064,12 +2067,15 @@ function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'🧾 
       const row=el('div','kk-req'),tx=el('div');tx.append(el('b',null,`${KK_JENIS[a.jenis].ic} ${a.kode} · @${a.u} · ${a.harga||1} Genteng`),el('span',null,`${kkPesanTeks(a)} · status: ${st}`));
       if(['menunggu','dibatalkan','diganti'].includes(a.status)){const act=el('div','kk-row');act.append(kkBtn('✅ Konfirmasi','sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-ubah',{kode:a.kode,ok:true},true);toast(r2.ok?`Pesanan @${a.u} disetujui`:(r2.error||'Gagal'));co.innerHTML='';kkAntre(box)}));tx.append(act)}
       row.append(tx);co.append(row)}),co);
-    const tw=el('div');w.append(el('p','kk-sub','💸 Traktiran tanpa kode'),el('p','kk-muted','Masuk otomatis dari Trakteer. Cocokkan sendiri (mis. lewat nama), lalu tandai sudah dicek.'),tw);kkTanpaKode(tw);
+    const tw=el('div');w.append(el('p','kk-sub','💸 Traktiran tanpa kode'),el('p','kk-muted','Traktiran tanpa kode pesanan, tanpa @username warga, dan tanpa kode dompet. Kalau tahu siapa orangnya, masukkan ke saldonya.'),tw);kkTanpaKode(tw);
     body.append(w);kkAntre(box)}
 async function kkTanpaKode(tw){tw.innerHTML='';const res=await kkApi('tanpa-kode',{},true);if(!res.ok){tw.append(el('p','kk-muted',res.error||'Gagal memuat'));return}
   if(!res.list.length){tw.append(el('p','kk-muted','Belum ada.'));return}
   res.list.forEach(t=>{const row=el('div','kk-req'),tx=el('div');tx.append(el('b',null,`${t.nama||'Tanpa nama'} · ${t.qty||1} Genteng`),el('span',null,`"${t.pesan||'(tanpa pesan)'}" · ${new Date(t.at).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`));
-    const act=el('div','kk-row');act.append(kkBtn('✓ Sudah dicek','sm',async e=>{e.target.disabled=true;await kkApi('tanpa-kode',{hapus:t.raw},true);kkTanpaKode(tw)}));tx.append(act);row.append(tx);tw.append(row)})}
+    const act=el('div','kk-row'),ui=el('input');ui.placeholder='@username warga';ui.autocapitalize='off';ui.style.cssText='flex:1;min-width:120px;margin:0';
+    act.append(ui,kkBtn(`💰 Masukkan ${t.qty||1} ke saldo`,'sm gold3',async e=>{const u=ui.value.trim().replace(/^@/,'').toLowerCase();if(!u){toast('Isi username warganya dulu');return}e.target.disabled=true;
+      const r2=await kkApi('tambah-saldo',{target:u,n:t.qty||1,hapus:t.raw},true);e.target.disabled=false;toast(r2.ok?`Saldo @${r2.u} sekarang ${r2.saldo} Genteng`:(r2.error||'Gagal'));if(r2.ok)kkTanpaKode(tw)}),
+      kkBtn('✓ Sudah dicek','sm',async e=>{e.target.disabled=true;await kkApi('tanpa-kode',{hapus:t.raw},true);kkTanpaKode(tw)}));tx.append(act);row.append(tx);tw.append(row)})}
 const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga'),el('p','kk-muted','Link aktivasi: untuk warga yang kuncinya tidak terdeteksi (kirim lewat DM, hanya ke pemiliknya). Reset jatah: untuk warga yang salah pencet.'));
   const inp=el('input');inp.placeholder='username warga, mis. simson__01';inp.autocapitalize='off';inp.autocomplete='off';inp.spellcheck=false;const out=el('div','kk-out');
   w.append(inp,kkBtn('Buat link aktivasi','dark',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase();if(!t){out.textContent='Isi username warga dulu';return}
@@ -2116,12 +2122,23 @@ function kkFormUrl(u,kode){const f=D.toko||{};if(!f.form||!/^https:\/\/(docs\.go
 function kkPesanTeks(p){if(p.jenis==='warna')return `Dinding ${kkNamaWarna(p.wall)} · atap ${kkNamaWarna(p.roof)}`;if(p.jenis==='emas')return 'Bendera emas di rumahmu';
   if(p.jenis==='ruko')return `Ruko · dinding ${kkNamaWarna(p.wall)} · atap ${kkNamaWarna(p.roof)}`;return (p.items||[]).map(id=>KK_ITEM[id]?KK_ITEM[id].n+(id==='papan'&&p.teks?` "${p.teks}"`:'')+(p.warna&&p.warna[id]?' '+p.warna[id]:''):id).join(', ')}
 function kkLinkJenis(j){return j==='emas'?kkUrl('emas'):j==='ruko'?kkUrl('usaha'):kkTrakteerUrl()}
+// tombol bayar pakai Saldo Genteng (kalau cukup)
+function kkBayarSaldo(body,c,p){const sisa=Math.max(0,(p.harga||1)-(+p.bayar||0));if(!(c&&(c.saldo||0)>=sisa&&sisa>0))return null;
+  return kkGBtn('💰 Bayar pakai saldo · ',sisa+' Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('bayar-saldo',{kode:p.kode},true);bt.disabled=false;
+    if(!res.ok){toast(res.error||'Gagal');return}try{SND.play('ting',.7)}catch(_){}toast(res.otomatis?'Lunas! Rumahmu langsung berubah 🎉':'Lunas! Tinggal dicek kepala desa.');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1500)})}
+function kkIsiSaldo(body,c){body.innerHTML='';kkBack(body,()=>kkTampil(body,c));
+  body.append(el('h3',null,'💰 Isi Saldo Genteng'),el('p',null,'Traktir Genteng berapa saja di Trakteer. Genteng-nya masuk jadi saldo, bisa kamu pakai belanja kapan saja di Toko Kampung.'));
+  const ol=el('ol','kk-steps');['Buka Trakteer @negerikomen, pilih jumlah Genteng','Di kolom pesan, tulis username-mu atau kode dompetmu (salah satu)','Saldo langsung bertambah begitu traktiran masuk'].forEach(t=>ol.append(el('li',null,t)));body.append(ol);
+  const k1=el('div','kk-frasa','@'+c.u);k1.onclick=()=>kkSalin('@'+c.u);body.append(k1);if(c.dompet){body.append(el('p','kk-muted','atau kode dompet:'));const k2=el('div','kk-kode',c.dompet);k2.onclick=()=>kkSalin(c.dompet);body.append(k2)}
+  const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin @'+c.u,'',()=>kkSalin('@'+c.u)));body.append(row,
+    el('p','kk-muted','Bisa juga mentraktir teman: tulis @username temanmu, saldonya masuk ke dia.'))}
 // bagian di kartu: pesanan menunggu + tombol Ubah rumah + koleksi item
 function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',...c.minta,harga:1}:null};
   Object.keys(KK_JENIS).forEach(j=>{const p=P[j];if(!p)return;const w=el('div','kk-wait');
     w.append(el('b',null,`⏳ ${KK_JENIS[j].ic} ${KK_JENIS[j].n} menunggu kepala desa`),el('div','kk-kode',p.kode),el('p','kk-muted',`${kkPesanTeks({jenis:j,...p})}. Traktir ${p.harga||1} Genteng dan tulis kode pesanan ini di pesan traktiran.`+((p.harga||1)>1?` Boleh dicicil dengan kode yang sama dalam 14 hari${p.bayar?` (sudah masuk ${p.bayar}/${p.harga} Genteng)`:''}.`:'')));
     w.querySelector('.kk-kode').onclick=()=>kkSalin(p.kode);
     const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkLinkJenis(j);a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(p.kode)));
+    {const bs=kkBayarSaldo(body,c,{...p,jenis:j});if(bs)row.prepend(bs)}
     if(j==='ruko'){const f=kkFormUrl(c.u,p.kode);if(f){const b=el('a','btn','📝 Isi formulir toko');b.href=f;b.target='_blank';b.rel='noopener';row.append(b)}}
     const bt=kkBtn('Batalkan','',()=>{bt.hidden=true;const cf=el('div','kk-cf');
       cf.append(el('p',null,'⚠️ Sudah traktir Genteng untuk kode ini? Jangan dibatalkan, tunggu kepala desa mengecek. Batalkan hanya kalau kamu belum traktir.'));
@@ -2205,7 +2222,8 @@ function kkKode(body,res){const j=res.jenis||'warna',h=res.harga||1;body.innerHT
   const st=[`Buka Trakteer @negerikomen, pilih ${h} Genteng`,'Tulis kode pesanan di atas di kolom pesan'];
   if(j==='ruko')st.push('Isi formulir toko: nama toko, deskripsi, link, dan foto');st.push(`Kepala desa mengecek, lalu ${hasil}`);
   const ol=el('ol','kk-steps');st.forEach(t=>ol.append(el('li',null,t)));body.append(ol);
-  const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkLinkJenis(j);a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(res.kode)));
+  const row=el('div','kk-row');const bs=kkBayarSaldo(body,res.kartu,{kode:res.kode,harga:h,bayar:0});if(bs){row.append(bs);body.append(el('p','kk-note',`💰 Saldo Genteng-mu ${fmt(res.kartu.saldo)}, cukup untuk bayar langsung!`))}
+  const a=el('a','btn '+(bs?'':'gold3'),'Buka Trakteer');a.href=kkLinkJenis(j);a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(res.kode)));
   if(j==='ruko'){const f=kkFormUrl(res.kartu.u,res.kode);if(f){const b=el('a','btn','📝 Isi formulir toko');b.href=f;b.target='_blank';b.rel='noopener';row.append(b)}else body.append(el('p','kk-muted','Link formulir toko menyusul dari kepala desa.'))}
   body.append(row)}
 // pintu belanja: dari etalase / toko di peta → Kartu Komen → Ubah rumah
@@ -2220,7 +2238,7 @@ function renderEtalase(){const box=$('etalase');if(!box)return;box.innerHTML='';
   let k=2;Object.entries(KK_ITEM).forEach(([id,v])=>tile(kkItemSVG(id,id==='papan'?'NAMAMU':null,id==='motor'?'biru':id==='sepeda'?'pink':null),v.n,String(v.h),'item',k++));
   tile(kkRukoMini('krem','biru'),'Ruko','20','rumah',k);
   const cta=el('button','btn gold eta-cta',KK_ON?'🛍️ Belanja lewat Kartu Komen':'⏳ Dibuka bareng Kartu Komen');cta.type='button';cta.onclick=()=>kkBelanja('rumah');
-  box.append(el('p','eta-lede',KK_ON?'Pilih barangnya, belinya lewat Kartu Komen-mu → Ubah rumah. Lunas = langsung muncul di rumahmu!':'Segera dibuka! Barang-barang ini bisa kamu pasang di rumahmu lewat Kartu Komen.'),g,cta)}
+  box.append(el('p','eta-lede',KK_ON?'Pilih barangnya, belinya lewat Kartu Komen-mu → Ubah rumah. Punya Saldo Genteng? Bayar langsung, barangnya langsung muncul!':'Segera dibuka! Barang-barang ini bisa kamu pasang di rumahmu lewat Kartu Komen.'),g,cta)}
 try{renderEtalase()}catch(e){}
 async function kkTerimaLink(tok){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(!/^[A-Za-z0-9_-]{20,64}$/.test(tok))return;kkSet({t:tok,u:''});const res=await kkApi('saya',null,true);

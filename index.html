@@ -1779,9 +1779,8 @@ function histBox(r,onPick,opts={}){const V=histOf(r);if(V.length<2)return null;l
 /* ============ Kartu Komen ============
    Bukti "ini rumahku": warga komen kunci (mis. "kunci genteng merah 27") di postingan Kartu Komen yang di-pin,
    server mengecek komentar lewat Instagram, lalu kartu tersimpan di HP ini (localStorage).
-   Tampil untuk semua mulai Sabtu 24 Okt 2026 08.30 WIB; sebelum itu hanya lewat ?kartu=1 (uji). */
-const KK_MULAI=Date.parse('2026-10-24T08:30:00+07:00');
-const KK_ON=Date.now()>=KK_MULAI||/[?&]kartu=1\b/.test(location.search)||!!kkGet();
+   Menyala otomatis setelah postingan Kartu Komen (caption memuat #kartukomen) diunggah; sebelum itu hanya lewat ?kartu=1 (uji). */
+let KK_ON=/[?&]kartu=1\b/.test(location.search);
 const KK_IG='https://www.instagram.com/negerikomen/';
 function kkTgl(iso){const d=new Date(Date.parse(iso)+7*3600e3);return isNaN(d)?'hari Senin':d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
 function kkGet(){try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
@@ -1852,7 +1851,7 @@ async function kkTerimaLink(tok){try{history.replaceState(null,'',location.pathn
   if(!res.ok){kkSet(null);toast(res.error||'Link kartu tidak berlaku');return}kkSet({t:tok,u:res.kartu.u});kkRefreshPanel();const body=kkModal();kkTampil(body,res.kartu,true)}
 function kkRefreshPanel(){if(sel&&sel.kind==='r')showResult(sel)}
 /* versi rumah pilihan warga (dipasang di peta saat halaman dibuka) */
-fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;
+fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;if(j.aktif&&!KK_ON){KK_ON=true}
   Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
   if(sel&&sel.kind==='r')showResult(sel)}).catch(()=>{});
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
@@ -1986,7 +1985,7 @@ if(TT_ITEMS.length){$('tancap').hidden=false;
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
-  if(/^kartu=/.test(q)){kkTerimaLink(q.slice(6));return}
+  if(/^kartu=/.test(q)){KK_ON=true;kkTerimaLink(q.slice(6));return}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
   if(q.toLowerCase()==='loker'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
   if(/^(contoh-?ruko|ruko)$/i.test(q)){openDemoRuko();return}

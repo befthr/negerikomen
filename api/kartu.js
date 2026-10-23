@@ -4,7 +4,7 @@
 // Database: Upstash Redis lewat env KV_REST_API_URL + KV_REST_API_TOKEN (dipasang otomatis oleh Vercel).
 //
 // Aksi (?aksi=...):
-//   GET  pilihan              → versi rumah yang dipilih warga (publik, dipakai peta)
+//   GET  pilihan              → versi rumah yang dipilih warga + aktif (postingan #kartukomen sudah ada?)
 //   POST kunci   {u}          → buat kunci baru (berlaku 30 menit)
 //   POST cek     {u}          → cari komentar kunci; kalau cocok → {token}
 //   GET  saya    (Bearer)     → info kartu: jatah ganti minggu ini, versi dipakai, admin?
@@ -19,6 +19,7 @@ const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
 const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || '');
 const IG_TOKEN = String(process.env.IG_TOKEN || '').trim().replace(/^["']|["']$/g, '');
 const OWNER = 'negerikomen';
+const PENANDA = 'kartukomen'; // hashtag di caption postingan Kartu Komen yang di-pin
 const KUNCI_DETIK = 30 * 60;
 const SESI_DETIK = 400 * 24 * 3600;
 const JATAH = 3;
@@ -102,11 +103,22 @@ async function infoKartu(D, u) {
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER };
 }
 
+const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
+// fitur menyala otomatis setelah postingan #kartukomen diunggah (cek tiap 5 menit)
+let AKTIF = null, AKTIF_AT = 0;
+async function kartuAktif() {
+  if (AKTIF === true || (AKTIF !== null && Date.now() - AKTIF_AT < 300000)) return AKTIF;
+  try {
+    const r = await fetch('https://graph.instagram.com/v21.0/me/media?fields=caption&limit=15&access_token=' + encodeURIComponent(IG_TOKEN));
+    const j = await r.json(); AKTIF = (j.data || []).some(m => adaPenanda(m.caption)); AKTIF_AT = Date.now();
+  } catch (e) { if (AKTIF === null) return false }
+  return AKTIF;
+}
 // cari komentar kunci di postingan Kartu Komen (caption memuat "kartu komen") + video terbaru
 async function cariKomen(u, frasa) {
   const g = async url => { const r = await fetch(url); const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error('ig: ' + ((j.error && j.error.message) || r.status)); return j };
   const media = (await g('https://graph.instagram.com/v21.0/me/media?fields=id,caption,timestamp&limit=15&access_token=' + encodeURIComponent(IG_TOKEN))).data || [];
-  const target = media.filter((m, i) => i === 0 || norm(m.caption).includes('kartu komen')).slice(0, 3);
+  const target = media.filter((m, i) => i === 0 || adaPenanda(m.caption)).slice(0, 3);
   const f = norm(frasa), f2 = f.replace(/^kunci /, '');
   for (const m of target) {
     let url = 'https://graph.instagram.com/v21.0/' + m.id + '/comments?fields=text,timestamp,hidden,from{username}&limit=50&access_token=' + encodeURIComponent(IG_TOKEN);
@@ -132,7 +144,7 @@ export default async function handler(req, res) {
       const raw = await kv(['HGETALL', 'pilihan']) || [], out = {};
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out });
+      return res.status(200).json({ pilihan: out, aktif: await kartuAktif() });
     }
     if (req.method !== 'POST' && aksi !== 'saya') return res.status(405).json({ error: 'Metode tidak didukung' });
     const D = await dataKampung(req);

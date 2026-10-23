@@ -569,6 +569,16 @@ function drawHouse(r,s,a){
     const rf=roof;ctx.fillStyle=shade(rf,22);ctx.fillRect(-w/2+2,-h/2+2,w-4,(h-4)/2);ctx.fillStyle=shade(rf,-12);ctx.fillRect(-w/2+2,0,w-4,(h-4)/2);
     ctx.strokeStyle=shade(rf,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-w/2+2,0);ctx.lineTo(w/2-2,0);ctx.stroke();
     ctx.fillStyle='#6B4527';ctx.fillRect(-4,h/2+5,8,7);
+  }else if(r.style==='globe'){ // rumah globe (tampak atas): alas kayu + bola dunia + cincin meridian
+    ctx.fillStyle='#8A5A2E';ctx.fillRect(-w/2-2,-h/2-2,w+4,h+4);
+    const R=Math.min(w,h)/2+1;ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.arc(3,4,R,0,7);ctx.fill();
+    ctx.fillStyle='#3E8FC9';ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.fill();
+    ctx.save();ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.clip();
+    ctx.fillStyle='#6FB35A';[[-.45,-.35,.38,.26],[.3,-.1,.3,.42],[-.2,.45,.34,.2],[.55,.5,.18,.14]].forEach(([x,y,a,b])=>{ctx.beginPath();ctx.ellipse(x*R,y*R,a*R,b*R,.5,0,7);ctx.fill()});
+    ctx.fillStyle='#E2B23A';ctx.beginPath();ctx.ellipse(.32*R,.05*R,.12*R,.16*R,.3,0,7);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.28)';ctx.beginPath();ctx.ellipse(-.35*R,-.45*R,.35*R,.18*R,-.6,0,7);ctx.fill();ctx.restore();
+    ctx.strokeStyle='#D4A72C';ctx.lineWidth=2.4;ctx.beginPath();ctx.ellipse(0,0,R+2,R*.38,-.6,0,7);ctx.stroke();
+    ctx.fillStyle='#5A3A1E';ctx.fillRect(-3.5,h/2-1,7,6);
   }else if(r.style==='serigala'){ // rumah kepala serigala (tampak atas)
     const g='#8E9499',gd='#5E656B';
     ctx.fillStyle=gd;ctx.beginPath();ctx.moveTo(-w/2+1,-h/2+6);ctx.lineTo(-w/2+5,-h/2-9);ctx.lineTo(-w/2+14,-h/2+2);ctx.closePath();ctx.fill();
@@ -1488,6 +1498,20 @@ function build3D(r){const T=THREE,g=new T.Group();
     for(let k=0;k<5;k++)box(.7,.08,.28,'#7A5230',0,.2+k*.25,1.5+(4-k)*.25);
     for(let k=-1.6;k<=1.6;k+=.4)box(.06,.5,.06,'#5A3A1E',k,1.55,1.38);box(3.3,.06,.06,'#5A3A1E',0,1.8,1.38);
     treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
+  if(r.style==='globe'){ // rumah globe: tiang kayu + bola dunia miring + cincin meridian emas + pintu
+    const wood='#8A5A2E';box(2.6,.3,2.6,'#6B4527',0,.15,0);
+    const ped=new T.Mesh(new T.CylinderGeometry(.75,1.05,1.1,20),M(wood));ped.position.y=.85;ped.castShadow=true;g.add(ped);
+    box(.5,.8,.06,'#3A2A1E',0,.7,.92);
+    const gl=new T.Group();gl.position.y=2.75;gl.rotation.z=.41;g.add(gl);
+    const R=1.45,ball=new T.Mesh(new T.SphereGeometry(R,32,24),M('#3E8FC9',{roughness:.6}));ball.castShadow=true;gl.add(ball);
+    [[.5,.3,.55,'#6FB35A'],[.1,1.6,.7,'#6FB35A'],[-.4,-.5,.5,'#6FB35A'],[.9,2.6,.35,'#F3F1EA'],[-.2,2.3,.4,'#E2B23A'],[-.9,1.0,.4,'#F3F1EA'],[.2,-1.6,.45,'#6FB35A']].forEach(([la,lo,sz,c])=>{
+      const m=new T.Mesh(new T.SphereGeometry(sz,14,10),M(c));m.scale.set(1,1,.22);
+      const p=new T.Vector3(Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)).multiplyScalar(R*.96);m.position.copy(p);m.lookAt(p.clone().multiplyScalar(2));gl.add(m)});
+    const ring=new T.Mesh(new T.TorusGeometry(R+.22,.06,8,56),M('#D4A72C',{metalness:.4,roughness:.4}));gl.add(ring);
+    const ax=new T.Mesh(new T.CylinderGeometry(.05,.05,R*2+.7,8),M('#D4A72C'));gl.add(ax);
+    [[.0,.45],[.0,-.45]].forEach(([la,lo])=>{const p=new T.Vector3(Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)).multiplyScalar(R*1.0);
+      const wdw=new T.Mesh(new T.CircleGeometry(.22,18),M('#BFE3F2',{side:T.DoubleSide}));wdw.position.copy(p);wdw.lookAt(p.clone().multiplyScalar(2));gl.add(wdw)});
+    treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
   if(r.style==='serigala'){
     const gr=M('#8E9499'),gd=M('#5E656B'),wt=M('#D6D9DC');
     const head=new T.Mesh(new T.SphereGeometry(1.6,24,18),gr);head.scale.set(1,.95,1);head.position.set(0,1.55,0);head.castShadow=true;g.add(head);
@@ -1704,7 +1728,7 @@ function perksOf(r){const L=[];
   BLD.forEach((b,bi)=>{if(bossOf(b)===r.name)L.push(Object.assign(new String((WAKAF(b)?'🤲 Pewakaf ':'👑 Bos ')+(b.name||'Bangunan')),{bi}))});
   BLD.forEach((b,bi)=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push(Object.assign(new String('👷 '+(x.role||'Karyawan')+' '+(b.name||'')),{bi}))}));
   {const j=juraganIdx();if(j>=0&&RES[j].name===r.name){const tb=BLD.findIndex(b=>b.type==='tugu');L.push(tb>=0?Object.assign(new String('👑 Juragan Genteng'),{bi:tb}):'👑 Juragan Genteng')}}
-  if(r.style)L.push('🏆 Rumah Impian');
+  if(r.style&&['panggung','serigala','victorian'].includes(r.style))L.push('🏆 Rumah Impian');
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
   if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
   return L}
@@ -1714,16 +1738,16 @@ function perksOf(r){const L=[];
 const LOOK=['roof','wall','style'];
 const sameLook=(a,b)=>LOOK.every(k=>(a[k]==null?null:a[k])===(b[k]==null?null:b[k]));
 function histOf(r){const d0=+r.day||1,ev=[],B=r.base||{},S=r._asli||r; // S = tampilan asli dari data.js (sebelum pilihan warga)
-  if(r.style||S.style)ev.push({day:+r.styleDay||3,txt:'🏆 Menang lomba rumah impian, rumahnya dibangun ulang',set:{style:S.style,roof:S.roof,wall:S.wall}});
+  if((r.style||S.style)&&!(r.history||[]).some(h=>h&&'style' in h))ev.push({day:+r.styleDay||3,txt:'🏆 Menang lomba rumah impian, rumahnya dibangun ulang',set:{style:S.style,roof:S.roof,wall:S.wall}});
   if(r.custom&&r.custom.title)ev.push({day:+r.custom.day||d0,txt:'🎨 '+String(r.custom.title).slice(0,100),set:{roof:S.roof,wall:S.wall}});
   (Array.isArray(r.history)?r.history:[]).forEach(h=>{if(!h)return;const set={};LOOK.forEach(k=>{if(k in h)set[k]=h[k]});
-    ev.push({day:+h.day||d0,txt:String(h.note||'🎨 Tampilan rumah diganti').slice(0,100),set})});
+    ev.push({day:+h.day||d0,txt:String(h.note||'🎨 Tampilan rumah diganti').slice(0,100),set,h:1})});
   ev.forEach((e,k)=>e.k=k);ev.sort((a,b)=>a.day-b.day||a.k-b.k);
   let look={roof:'roof' in B?B.roof:S.roof,wall:'wall' in B?B.wall:S.wall,style:'style' in B?B.style:null};
   const V=[{day:d0,lines:['🏠 Pindah ke kampung, dapat rumah standar'],look:{...look}}];
   ev.forEach(e=>{look=Object.assign({},look,e.set);const day=Math.max(e.day,d0),last=V[V.length-1];
     if(sameLook(look,last.look))return; // tampilan tidak berubah: bukan versi baru
-    if(V.length>1&&last.day===day){last.lines.push(e.txt);last.look={...look}}else V.push({day,lines:[e.txt],look:{...look}})});
+    if(V.length>1&&last.day===day&&!e.h&&!last.h){last.lines.push(e.txt);last.look={...look}}else V.push({day,lines:[e.txt],look:{...look},h:e.h})});
   const cur={};LOOK.forEach(k=>cur[k]=S[k]);V[V.length-1].look=cur;
   for(let k=V.length-1;k>0;k--)if(sameLook(V[k].look,V[k-1].look))V.splice(k,1);
   return V}

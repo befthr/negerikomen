@@ -60,16 +60,16 @@ const LOOK = ['roof', 'wall', 'style'];
 const sameLook = (a, b) => LOOK.every(k => (a[k] == null ? null : a[k]) === (b[k] == null ? null : b[k]));
 function histOf(r) {
   const d0 = +r.day || 1, ev = [], B = r.base || {};
-  if (r.style) ev.push({ day: +r.styleDay || 3, set: { style: r.style, roof: r.roof, wall: r.wall } });
+  if (r.style && !(r.history || []).some(h => h && 'style' in h)) ev.push({ day: +r.styleDay || 3, set: { style: r.style, roof: r.roof, wall: r.wall } });
   if (r.custom && r.custom.title) ev.push({ day: +r.custom.day || d0, set: { roof: r.roof, wall: r.wall } });
-  (Array.isArray(r.history) ? r.history : []).forEach(h => { if (!h) return; const set = {}; LOOK.forEach(k => { if (k in h) set[k] = h[k] }); ev.push({ day: +h.day || d0, set }) });
+  (Array.isArray(r.history) ? r.history : []).forEach(h => { if (!h) return; const set = {}; LOOK.forEach(k => { if (k in h) set[k] = h[k] }); ev.push({ day: +h.day || d0, set, h: 1 }) });
   ev.forEach((e, k) => e.k = k); ev.sort((a, b) => a.day - b.day || a.k - b.k);
   let look = { roof: 'roof' in B ? B.roof : r.roof, wall: 'wall' in B ? B.wall : r.wall, style: 'style' in B ? B.style : null };
   const V = [{ day: d0, look: { ...look } }];
   ev.forEach(e => {
     look = Object.assign({}, look, e.set); const day = Math.max(e.day, d0), last = V[V.length - 1];
     if (sameLook(look, last.look)) return;
-    if (V.length > 1 && last.day === day) last.look = { ...look }; else V.push({ day, look: { ...look } });
+    if (V.length > 1 && last.day === day && !e.h && !last.h) last.look = { ...look }; else V.push({ day, look: { ...look }, h: e.h });
   });
   const cur = {}; LOOK.forEach(k => cur[k] = r[k]); V[V.length - 1].look = cur;
   for (let k = V.length - 1; k > 0; k--) if (sameLook(V[k].look, V[k - 1].look)) V.splice(k, 1);

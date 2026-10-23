@@ -346,7 +346,7 @@ export default async function handler(req, res) {
       const sisa = Math.max(0, (v.harga || 1) - (+v.bayar || 0));
       if (sisa > 0) {
         const after = await kv(['HINCRBY', 'saldo', s.u, -sisa]);
-        if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, sisa]); return res.status(400).json({ error: 'Saldo Genteng belum cukup.' }) }
+        if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, sisa]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
         v.bayar = (+v.bayar || 0) + sisa; v.trk = [...(v.trk || []), { nama: 'saldo', qty: sisa, at: Date.now() }].slice(-10);
         await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify(v), 'KEEPTTL'], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -sisa, ket: kode })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
       }
@@ -379,7 +379,7 @@ export default async function handler(req, res) {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const t = cleanU(body.target), n = Math.floor(+body.n);
       if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
-      if (!(n >= 1 && n <= 500)) return res.status(400).json({ error: 'Jumlah Genteng 1–500' });
+      if (!(n >= 1 && n <= 500)) return res.status(400).json({ error: 'Jumlah Receh 1–500' });
       const saldo = await kv(['HINCRBY', 'saldo', t, n]);
       await kvMany([['HINCRBY', 'donasi', t, n], ['LPUSH', 'saldo:log:' + t, JSON.stringify({ at: Date.now(), n, ket: 'kades' })], ['LTRIM', 'saldo:log:' + t, 0, 49]]);
       if (body.hapus) await kv(['LREM', 'trk:tanpakode', 1, String(body.hapus)]);

@@ -156,6 +156,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .card.toko.kosong{padding-top:12px;padding-bottom:12px}.card.toko.kosong .trak-row,.card.toko.kosong #tokoNote br{display:none}.card.toko.kosong .tlist{margin:0;border:0}.card.toko.kosong .tlist li{border:0}.card.toko.kosong .tlist .empty{font-weight:700;color:var(--ink);padding:0}.card.toko.kosong #tokoNote{margin-top:6px}
 .trak-how{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#fff;border:1.5px dashed #E2C978;font-size:14px;line-height:1.45}
 .kk-stat p{margin:4px 0!important;font-size:13px!important}
+.goalk{margin-top:12px;padding:12px;border-radius:14px;background:#fff;border:1.5px solid #E2C978}.gk-top b{font-size:14.5px}.gk-bar{height:14px;border-radius:99px;background:#F1EEE6;border:1.5px solid #1C2520;overflow:hidden;margin:8px 0 6px}.gk-bar i{display:block;height:100%;background:repeating-linear-gradient(45deg,#F2C230 0 10px,#E8B520 10px 20px)}.gk-num{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)}.gk-num b{color:var(--ink)}
 .etalase{margin-top:12px}.trak-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 0;padding-top:10px;border-top:1.5px dashed #E2C978;font-size:13px;color:var(--muted)}.trak-foot a{font-weight:700;color:var(--genteng)}.eta-lede{margin:0 0 8px;font-size:13.5px;color:var(--ink)}.eta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .eta{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;border:1.5px solid #E2C978;background:#fff;font:inherit;font-size:11.5px;font-weight:800;line-height:1.15;text-align:center;cursor:pointer;min-width:0}
 .eta svg{width:44px;height:44px;animation:etaB 2.4s ease-in-out infinite}.eta small{font-size:11px;color:var(--muted)}.eta:hover{border-color:#1C2520}
@@ -410,6 +411,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <div><h3 data-nokk>Traktir kampung</h3><h3 data-kk hidden>🛍️ Toko Pak Kades</h3><p class="trak-lede" data-nokk>Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p><p class="trak-lede" data-kk hidden>Ubah rumahmu dan ramaikan pekaranganmu pakai <b>Genteng</b>.</p></div>
         </div>
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener" data-nokk>Traktir Genteng di Trakteer</a>
+        <div class="goalk" id="goalk" hidden></div>
         <div class="etalase" id="etalase"></div>
         <ul class="trak-tiers" data-nokk>
           <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
@@ -2384,6 +2386,12 @@ async function kkBelanja(tab){if(!KK_ON){toast('Toko Pak Kades dibuka bareng Kar
   const k=kkGet();if(!k||!k.u){toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}return}
   const body=kkModal();body.append(el('p','kk-muted','Memuat kartu…'));const res=await kkApi('saya',null,true);if(!res.ok){body.innerHTML='';kkIntro(body,k.u,res.error);return}
   const i=kkResIdx(res.kartu.u);if(i<0||res.kartu.admin){kkTampil(body,res.kartu);return}kkUbah(body,res.kartu,i,tab||'rumah')}
+// progres goal kampung (Trakteer): dihitung dalam Genteng dari webhook
+function renderGoalK(n){const g=D.goalKampung,box=$('goalk');if(!g||!box||!(g.target>0))return;const now=(+g.awal||0)+n,pct=Math.min(100,now/g.target*100);box.hidden=false;box.innerHTML='';
+  const im=el('img','kk-gico');im.src='genteng.png';im.alt='';const top=el('div','gk-top');top.append(el('b',null,'🏗️ '+g.judul));
+  const bar=el('div','gk-bar'),fill=el('i');fill.style.width=Math.max(2,pct)+'%';bar.append(fill);
+  const nb=el('div','gk-num');nb.append(im,el('b',null,fmt(now)),document.createTextNode(` dari ${fmt(g.target)} Genteng · ${Math.floor(pct)}%`));box.append(top,bar,nb)}
+try{renderGoalK(0)}catch(e){}
 function renderEtalase(){const box=$('etalase');if(!box)return;box.innerHTML='';const g=el('div','eta-grid');
   const tile=(sv,nm,h,tab,k)=>{const b=el('button','eta');b.type='button';sv.style.animationDelay=(k*.27%2)+'s';const hh=el('small');const im=el('img','kk-gico');im.src='genteng.png';im.alt='';hh.append(im,h);b.append(sv,el('span',null,nm),hh);b.onclick=()=>kkBelanja(tab);g.append(b)};
   const rw=kkRumahMini({x:0,y:0,wall:'#F4D35E',roof:'#8E5AA8'});tile(rw,'Ubah warna','1','rumah',0);
@@ -2407,6 +2415,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
+  renderGoalK(+j.goal||0);
   Object.entries(j.jalan||{}).forEach(([u,v])=>{const i=kkResIdx(u);if(i>=0)RES[i].jalan=v});
   Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
   if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length)try{renderSups()}catch(e){}

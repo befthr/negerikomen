@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     const nama = String(b.supporter_name || b.name || b.supporter || '').slice(0, 60);
     const pesan = String(b.supporter_message || b.message || b.support_message || '').slice(0, 300);
     const masuk = { id, nama, qty, pesan, at: Date.now() };
+    await kv(['INCRBY', 'goal:genteng', qty]); // progres goal kampung (semua traktiran)
     const kodes = [...new Set((teksSemua(b).toUpperCase().match(/\b(WARNA|EMAS|RUKO|ITEM)-[A-Z0-9]{4}\b/g) || []))];
     const hasil = [];
     for (const kode of kodes.slice(0, 3)) {

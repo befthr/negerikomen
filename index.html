@@ -1874,9 +1874,9 @@ const kkNamaWarna=w=>/^#/.test(w||'')?w.toUpperCase():(w||'acak');
 function kkTrakteerUrl(){const u=D.trakteer&&D.trakteer.url;return u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u)?u:'https://trakteer.id/negerikomen'}
 function kkBagianWarna(body,c,i){const r=RES[i];
   if(c.minta){const w=el('div','kk-wait');w.append(el('b',null,'⏳ Ganti warna menunggu kepala desa'),
-      el('div','kk-kode',c.minta.kode),el('p','kk-muted',`Dinding ${kkNamaWarna(c.minta.wall)} · atap ${kkNamaWarna(c.minta.roof)}. Traktir 1 Genteng dan tulis kode ini di pesan traktiran.`));
+      el('div','kk-kode',c.minta.kode),el('p','kk-muted',`Dinding ${kkNamaWarna(c.minta.wall)} · atap ${kkNamaWarna(c.minta.roof)}. Traktir 1 Genteng dan tulis kode pesanan ini di pesan traktiran.`));
     const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';
-    row.append(a,kkBtn('📋 Salin kode','',()=>kkSalin(c.minta.kode)),kkBtn('Batalkan','',async()=>{const res=await kkApi('batal-warna',{},true);if(res.ok)kkTampil(body,res.kartu);else toast(res.error||'Gagal')}));
+    row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(c.minta.kode)),kkBtn('Batalkan','',async()=>{const res=await kkApi('batal-warna',{},true);if(res.ok)kkTampil(body,res.kartu);else toast(res.error||'Gagal')}));
     w.append(row);body.append(w);return}
   body.append(kkGBtn('🎨 Ganti warna · ','1 Genteng','',()=>kkWarna(body,c,i)))}
 // tombol dengan ikon genteng (genteng.png) di depan harga
@@ -1906,11 +1906,11 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
       if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkWarnaKode(body,res)}),
     kkBtn('Kembali','',async()=>{const res=await kkApi('saya',null,true);if(res.ok)kkTampil(body,res.kartu)}));
   body.append(msg,row)}
-function kkWarnaKode(body,res){body.innerHTML='';body.append(el('h3',null,'Satu langkah lagi!'),el('p',null,'Traktir 1 Genteng di Trakteer, lalu tulis kode ini di pesan traktiranmu:'));
+function kkWarnaKode(body,res){body.innerHTML='';body.append(el('h3',null,'Satu langkah lagi!'),el('p',null,'Traktir 1 Genteng di Trakteer, lalu tulis kode pesanan ini di pesan traktiranmu:'));
   const k=el('div','kk-frasa',res.kode);k.onclick=()=>kkSalin(res.kode);body.append(k);
-  const ol=el('ol','kk-steps');['Buka Trakteer @negerikomen, pilih 1 Genteng','Tulis kode di atas di kolom pesan','Kepala desa mengecek, lalu rumahmu langsung ganti warna'].forEach(t=>ol.append(el('li',null,t)));body.append(ol);
+  const ol=el('ol','kk-steps');['Buka Trakteer @negerikomen, pilih 1 Genteng','Tulis kode pesanan di atas di kolom pesan','Kepala desa mengecek, lalu rumahmu langsung ganti warna'].forEach(t=>ol.append(el('li',null,t)));body.append(ol);
   const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';
-  row.append(a,kkBtn('📋 Salin kode','',()=>kkSalin(res.kode)),kkBtn('Kembali ke kartu','',()=>kkTampil(body,res.kartu)));body.append(row)}
+  row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(res.kode)),kkBtn('Kembali ke kartu','',()=>kkTampil(body,res.kartu)));body.append(row)}
 async function kkAntre(box){box.innerHTML='';box.append(el('p','kk-muted','Memuat antrean…'));const res=await kkApi('antre-warna',{},true);box.innerHTML='';
   if(!res.ok){box.append(el('p','kk-muted',res.error||'Gagal memuat'));return}
   if(!res.antre.length){box.append(el('p','kk-muted','Belum ada permintaan ganti warna.'));return}
@@ -1919,7 +1919,7 @@ async function kkAntre(box){box.innerHTML='';box.append(el('p','kk-muted','Memua
     const act=el('div','kk-row');act.append(kkBtn('✅ Konfirmasi','sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-warna',{kode:a.kode,ok:true},true);toast(r2.ok?`Rumah @${a.u} ganti warna`:(r2.error||'Gagal'));kkAntre(box)}),
       kkBtn('Tolak','sm',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-warna',{kode:a.kode,ok:false},true);toast(r2.ok?'Permintaan ditolak':(r2.error||'Gagal'));kkAntre(box)}));
     tx.append(act);row.append(sv,tx);box.append(row)})}
-function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'🎨 Antrean ganti warna'),el('p','kk-muted','Cocokkan kode dengan pesan traktiran 1 Genteng di dashboard Trakteer, lalu konfirmasi.'));
+function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'🎨 Antrean ganti warna'),el('p','kk-muted','Cocokkan kode pesanan dengan pesan traktiran 1 Genteng di dashboard Trakteer, lalu konfirmasi.'));
     const box=el('div','kk-antre');w.append(box,kkBtn('Muat ulang','sm',()=>kkAntre(box)));body.append(w);kkAntre(box)}
 const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga'),el('p','kk-muted','Link aktivasi: untuk warga yang kuncinya tidak terdeteksi (kirim lewat DM, hanya ke pemiliknya). Reset jatah: untuk warga yang salah pencet.'));
   const inp=el('input');inp.placeholder='username warga, mis. simson__01';inp.autocapitalize='off';inp.autocomplete='off';inp.spellcheck=false;const out=el('div','kk-out');

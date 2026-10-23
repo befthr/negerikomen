@@ -1,7 +1,9 @@
 // Webhook Trakteer: setiap traktiran masuk, Trakteer mengirim datanya ke sini.
 // - Kode pesanan di pesan traktiran (WARNA-/EMAS-/RUKO-/ITEM-XXXX) dibaca otomatis → Genteng dicatat ke pesanan itu (cicilan ikut terhitung).
 // - Traktiran tanpa kode masuk daftar "tanpa kode" supaya kepala desa bisa mencocokkan manual.
+// - Lunas → langsung diterapkan otomatis (warna, bendera emas, item). Ruko & papan nama tetap menunggu konfirmasi kepala desa.
 // Keamanan: header X-Webhook-Token harus sama dengan env TRAKTEER_WEBHOOK_TOKEN (token dari dashboard Trakteer → Integrations → Webhook).
+import { terapkan, bolehOtomatis } from './_terapkan.js';
 const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
 const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || '');
 const TOKEN = String(process.env.TRAKTEER_WEBHOOK_TOKEN || '').trim();
@@ -40,7 +42,9 @@ export default async function handler(req, res) {
       if (v.status !== 'menunggu') v.status = 'menunggu'; // sudah dibayar → kembali ke antrean walau sempat dibatalkan/diganti
       v.bayar = (+v.bayar || 0) + qty; v.trk = [...(v.trk || []), { nama, qty, at: masuk.at }].slice(-10);
       await kvMany([['SET', key, JSON.stringify(v), 'KEEPTTL'], ['SADD', jenis + ':antre', kode]]);
-      hasil.push({ kode, ada: true, bayar: v.bayar, harga: v.harga || 1 });
+      let auto = false;
+      if (v.bayar >= (v.harga || 1) && bolehOtomatis(jenis, v)) { await terapkan(kv, kvMany, jenis, kode, v, true, 'otomatis'); auto = true }
+      hasil.push({ kode, ada: true, bayar: v.bayar, harga: v.harga || 1, otomatis: auto });
     }
     const cocok = hasil.some(h => h.ada);
     await kvMany([

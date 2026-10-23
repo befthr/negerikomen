@@ -23,6 +23,7 @@
 //   POST antre-ubah / konfirmasi-ubah {kode,ok} (Bearer kartu @negerikomen) → cek & setujui pesanan
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
+import { terapkan } from './_terapkan.js';
 
 const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
 const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || '');
@@ -348,29 +349,7 @@ export default async function handler(req, res) {
       const kode = String(body.kode || '').toUpperCase(), jenis = Object.keys(JENIS).find(j => kode.startsWith(JENIS[j].awal + '-'));
       const v = jenis && jparse(await kv(['GET', jenis + ':req:' + kode]));
       if (!v || !['menunggu', 'dibatalkan', 'diganti'].includes(v.status)) return res.status(404).json({ error: 'Pesanan ' + kode + ' tidak ditemukan atau sudah diproses' });
-      if (body.ok) {
-        const day = hariIni();
-        if (jenis === 'warna') {
-          const ex = jparse(await kv(['HGET', 'warnaplus', v.u])) || [];
-          ex.push({ day, note: '🎨 Ganti warna (traktir 1 Genteng)', wall: v.wall, roof: v.roof, style: v.style === undefined ? undefined : v.style });
-          await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
-        } else if (jenis === 'emas') {
-          await kv(['HSET', 'emasplus', v.u, JSON.stringify({ day, kode })]);
-        } else if (jenis === 'ruko') {
-          await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
-        } else {
-          const kol = await koleksi(v.u);
-          v.items.forEach(id => {
-            const o = { id, day, ...(id === 'papan' ? { teks: v.teks } : {}) }, i = kol.own.findIndex(x => x.id === id);
-            if (i >= 0) kol.own[i] = o; else kol.own.push(o);
-            if (!kol.pajang.includes(id) && kol.pajang.length < MAKS_PAJANG) kol.pajang.push(id);
-          });
-          await kv(['HSET', 'itemplus', v.u, JSON.stringify(kol)]);
-        }
-      }
-      await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ ...v, status: body.ok ? 'disetujui' : 'ditolak' }), 'EX', 7 * 864e2],
-        ['SREM', jenis + ':antre', kode]]);
-      if (await kv(['GET', jenis + ':user:' + v.u]) === kode) await kv(['DEL', jenis + ':user:' + v.u]);
+      await terapkan(kv, kvMany, jenis, kode, v, !!body.ok, 'kades');
       return res.status(200).json({ ok: true, u: v.u, jenis, status: body.ok ? 'disetujui' : 'ditolak' });
     }
     if (aksi === 'reset-jatah') {

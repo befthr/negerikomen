@@ -1834,7 +1834,6 @@ function kkTampil(body,c,baru){body.innerHTML='';
       kkBtn('🏠 Ganti rumah di 3D','gold3',()=>{kkTutup();select({kind:'r',i},{instant:true});open3D(RES[i],i)}))}
   else if(i>=0)body.append(el('p','kk-muted','Rumahmu baru punya 1 versi. Versi baru muncul kalau rumahmu menang lomba, dapat hadiah quest, atau ganti warna lewat traktir.'));
   if(c.admin)kkAdmin(body);
-  if(i>=0)body.append(el('div','kk-row'));if(i>=0)body.lastChild.append(kkBtn('Lihat rumahku','',()=>{kkTutup();select({kind:'r',i});scrollMap()}));
   const lk=el('div','kk-links'),a1=el('button',null,'Keluarkan HP lain'),a2=el('button',null,'Keluar dari HP ini');a1.type=a2.type='button';
   a1.onclick=async()=>{const r=await kkApi('keluar-lain',{},true);toast(r.ok?(r.dikeluarkan?`${r.dikeluarkan} HP lain dikeluarkan`:'Tidak ada HP lain'):(r.error||'Gagal'))};
   a2.onclick=async()=>{await kkApi('keluar',{},true);kkSet(null);kkTutup();kkRefreshPanel();toast('Kartu dilepas dari HP ini')};
@@ -1848,7 +1847,7 @@ function kkAdmin(body){const w=el('div','kk-admin');w.append(el('b',null,'👑 K
       const res=await kkApi('reset-jatah',{target:t},true);out.textContent=res.ok?`Jatah ganti @${res.u} sudah penuh lagi`:(res.error||'Gagal')}),out);body.append(w)}
 async function kkTerimaLink(tok){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(!/^[A-Za-z0-9_-]{20,64}$/.test(tok))return;kkSet({t:tok,u:''});const res=await kkApi('saya',null,true);
-  if(!res.ok){kkSet(null);toast(res.error||'Link kartu tidak berlaku');return}kkSet({t:tok,u:res.kartu.u});kkRefreshPanel();const body=kkModal();kkTampil(body,res.kartu,true)}
+  if(!res.ok){kkSet(null);toast(res.error||'Link kartu tidak berlaku');return}kkSet({t:tok,u:res.kartu.u});{const i=kkResIdx(res.kartu.u);if(i>=0){select({kind:'r',i},{instant:true});scrollMap()}else kkRefreshPanel()}const body=kkModal();kkTampil(body,res.kartu,true)}
 function kkRefreshPanel(){if(sel&&sel.kind==='r')showResult(sel)}
 /* versi rumah pilihan warga (dipasang di peta saat halaman dibuka) */
 fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;if(j.aktif&&!KK_ON){KK_ON=true}

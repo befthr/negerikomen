@@ -17,6 +17,7 @@
 //        (minta-warna lama tetap jalan = minta-ubah jenis warna)
 //   POST batal-ubah {jenis} (Bearer) → batalkan pesanan jenis itu
 //   POST pajang {ids} (Bearer) → pilih maks 3 item koleksi yang tampil di pekarangan
+//   POST cari-kode {kode} (Bearer kartu @negerikomen) → cari pesanan lewat kode, termasuk yang dibatalkan/diganti warga
 //   POST antre-ubah / konfirmasi-ubah {kode,ok} (Bearer kartu @negerikomen) → cek & setujui pesanan
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
@@ -75,6 +76,10 @@ const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga:
 const KATALOG = { sepeda: 1, motor: 2, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2 };
 const MAKS_PAJANG = 3;
 const okTeks = t => /^[\p{L}\p{N} .,'!&\-]{1,20}$/u.test(t);
+async function simpanStatus(jenis, kode, status) {
+  const v = jparse(await kv(['GET', jenis + ':req:' + kode]));
+  if (v && v.status === 'menunggu') await kv(['SET', jenis + ':req:' + kode, JSON.stringify({ ...v, status, ubah: Date.now() }), 'EX', 14 * 864e2]);
+}
 async function koleksi(u) { const v = jparse(await kv(['HGET', 'itemplus', u])); return v && Array.isArray(v.own) ? v : { own: [], pajang: [] } }
 const hariIni = () => { const w = new Date(Date.now() + 7 * 3600e3); return Math.round((Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - Date.UTC(2026, 9, 18)) / 864e5) };
 
@@ -279,7 +284,7 @@ export default async function handler(req, res) {
         if (ids.includes('papan')) { teks = String(body.teks || '').replace(/\s+/g, ' ').trim(); if (!okTeks(teks)) return res.status(400).json({ error: 'Tulisan papan nama 1–20 huruf/angka.' }) }
         isi = { items: ids, teks, harga: ids.reduce((t, id) => t + KATALOG[id], 0) };
       }
-      const lama = await kv(['GET', jenis + ':user:' + s.u]); if (lama) await kvMany([['DEL', jenis + ':req:' + lama], ['SREM', jenis + ':antre', lama]]);
+      const lama = await kv(['GET', jenis + ':user:' + s.u]); if (lama) { await simpanStatus(jenis, lama, 'diganti'); await kv(['SREM', jenis + ':antre', lama]) }
       const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = JENIS[jenis].awal + '-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];
       await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ u: s.u, jenis, ...isi, at: Date.now(), status: 'menunggu' }), 'EX', 14 * 864e2],
         ['SET', jenis + ':user:' + s.u, kode, 'EX', 14 * 864e2], ['SADD', jenis + ':antre', kode]]);
@@ -289,7 +294,7 @@ export default async function handler(req, res) {
       const jenis = aksi === 'batal-warna' ? 'warna' : String(body.jenis || '');
       if (!JENIS[jenis]) return res.status(400).json({ error: 'Pilihan tidak dikenal' });
       const kode = await kv(['GET', jenis + ':user:' + s.u]);
-      if (kode) await kvMany([['DEL', jenis + ':req:' + kode, jenis + ':user:' + s.u], ['SREM', jenis + ':antre', kode]]);
+      if (kode) { await simpanStatus(jenis, kode, 'dibatalkan'); await kvMany([['DEL', jenis + ':user:' + s.u], ['SREM', jenis + ':antre', kode]]) }
       return res.status(200).json({ kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'pajang') {
@@ -312,11 +317,18 @@ export default async function handler(req, res) {
       out.sort((a, b) => a.at - b.at);
       return res.status(200).json({ antre: out });
     }
+    if (aksi === 'cari-kode') {
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const kode = String(body.kode || '').trim().toUpperCase(), jenis = Object.keys(JENIS).find(j => kode.startsWith(JENIS[j].awal + '-'));
+      const v = jenis && jparse(await kv(['GET', jenis + ':req:' + kode]));
+      if (!v) return res.status(404).json({ error: 'Kode ' + kode + ' tidak ditemukan (salah ketik, atau sudah lebih dari 14 hari).' });
+      return res.status(200).json({ pesanan: { kode, jenis, ...v } });
+    }
     if (aksi === 'konfirmasi-warna' || aksi === 'konfirmasi-ubah') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const kode = String(body.kode || '').toUpperCase(), jenis = Object.keys(JENIS).find(j => kode.startsWith(JENIS[j].awal + '-'));
       const v = jenis && jparse(await kv(['GET', jenis + ':req:' + kode]));
-      if (!v || v.status !== 'menunggu') return res.status(404).json({ error: 'Pesanan ' + kode + ' tidak ditemukan atau sudah diproses' });
+      if (!v || !['menunggu', 'dibatalkan', 'diganti'].includes(v.status)) return res.status(404).json({ error: 'Pesanan ' + kode + ' tidak ditemukan atau sudah diproses' });
       if (body.ok) {
         const day = hariIni();
         if (jenis === 'warna') {
@@ -338,7 +350,8 @@ export default async function handler(req, res) {
         }
       }
       await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ ...v, status: body.ok ? 'disetujui' : 'ditolak' }), 'EX', 7 * 864e2],
-        ['DEL', jenis + ':user:' + v.u], ['SREM', jenis + ':antre', kode]]);
+        ['SREM', jenis + ':antre', kode]]);
+      if (await kv(['GET', jenis + ':user:' + v.u]) === kode) await kv(['DEL', jenis + ':user:' + v.u]);
       return res.status(200).json({ ok: true, u: v.u, jenis, status: body.ok ? 'disetujui' : 'ditolak' });
     }
     if (aksi === 'reset-jatah') {

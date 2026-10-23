@@ -1177,7 +1177,8 @@ const SHEET=D.toko&&typeof D.toko.csv==='string'&&/^https:\/\/docs\.google\.com\
 if(SHEET)fetch(SHEET,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{if(!t)return;const rows=parseCSV(t);const h=(rows.shift()||[]).map(x=>x.trim().toLowerCase());
   const col=k=>h.indexOf(k);let changed=false;
   rows.forEach(c=>{const g=k=>(c[col(k)]||'').trim();const user=g('user').replace(/^@+/,'').replace(/\s+/g,''),name=g('nama').slice(0,40);
-    if(!user||!name)return;const shop={name,desc:g('desc').slice(0,140),url:g('link'),img:g('img'),start:g('start'),until:g('until')};
+    if(!user||!name)return;const im=g('img').split(/[,\s]+/)[0],did=(im.match(/drive\.google\.com\/.*(?:id=|\/d\/)([\w-]{20,})/)||[])[1];
+    const shop={name,desc:g('desc').slice(0,140),url:g('link'),img:did?'https://drive.google.com/thumbnail?id='+did+'&sz=w600':im,start:g('start'),until:g('until')};
     if(!/^\d{4}-\d{2}-\d{2}$/.test(shop.until))return;
     if(!/^https?:\/\//.test(shop.url)&&/^[\w.]+$/.test(shop.url.replace(/^@/,'')))shop.url='https://www.instagram.com/'+shop.url.replace(/^@/,'')+'/';
     if(/^http:\/\//.test(shop.url))shop.url=shop.url.replace(/^http:/,'https:');

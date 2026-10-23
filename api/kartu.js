@@ -321,6 +321,7 @@ export default async function handler(req, res) {
         isi = { wall, roof, harga: 20 };
       } else if (jenis === 'tingkat') {
         const lantai = Math.floor(+body.lantai), kini = info.tingkat || 1;
+        if (r.style) return res.status(400).json({ error: 'Rumahmu rumah spesial hadiah kontes, bentuknya eksklusif dan tidak bisa ditingkat.' });
         if (![2, 3].includes(lantai)) return res.status(400).json({ error: 'Pilih rumah tingkat 2 atau 3.' });
         if (lantai <= kini) return res.status(400).json({ error: 'Rumahmu sudah tingkat ' + kini + '.' });
         isi = { lantai, harga: HARGA_TINGKAT(lantai, kini) };

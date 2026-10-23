@@ -2462,7 +2462,7 @@ function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));bod
     const tunggu=j=>P[j]?'⏳ Menunggu kades':'';
     tile('🎨','Ubah warna',P.warna?'':'1 Receh',tunggu('warna'),()=>kkWarna(body,c,i));
     tile('🚩','Bendera emas',c.emas||P.emas?'':'2 Receh',c.emas?'✓ Kamu sudah punya':tunggu('emas'),c.emas?null:()=>kkEmas(body,c,i));
-    {const tk=c.tingkat||1;tile('🏢','Rumah tingkat',tk>=3||P.tingkat?'':(tk===2?'4 Receh':'10 Receh'),tk>=3?'✓ Sudah tingkat 3':tunggu('tingkat'),tk>=3?null:()=>kkTingkat(body,c,i))}
+    {const tk=c.tingkat||1,sp=!!r.style;tile('🏢','Rumah tingkat',sp||tk>=3||P.tingkat?'':(tk===2?'4 Receh':'10 Receh'),sp?'✨ Rumah spesialmu eksklusif':tk>=3?'✓ Sudah tingkat 3':tunggu('tingkat'),sp||tk>=3?null:()=>kkTingkat(body,c,i))}
     const rk=NK.shopOn(r,TODAY);tile('🏪','Jadi ruko',rk||P.ruko?'':'20 Receh',rk?'✓ Aktif · '+(r.shop.until||''):tunggu('ruko'),rk?null:()=>kkRuko(body,c,i));
     tile('📸','Rumah dari foto','', 'Segera hadir',null);
     const ket=[];if(c.emas)ket.push('🚩 Kamu sudah punya bendera emas. Benderanya sudah berkibar di rumahmu, dan namamu ada di daftar Pendukung kampung.');if(rk)ket.push(`🏪 Rumahmu sedang jadi ruko sampai ${r.shop.until}.`);

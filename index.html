@@ -816,14 +816,14 @@ function kucingGento(s,P){const KF=[[0,0],[4,0],[5,1],[8,1],[9,2],[12,2],[13,1],
     if(pa===pb)return {x:A[0],y:A[1],z:A[2],lomp:0,arah:0,diam:true,f};const e=f<.5?2*f*f:1-2*(1-f)*(1-f);
     return {x:A[0]+(B[0]-A[0])*e,y:A[1]+(B[1]-A[1])*e+Math.sin(f*Math.PI)*1.4,z:A[2]+(B[2]-A[2])*e,lomp:Math.sin(f*Math.PI),arah:Math.sign(B[0]-A[0]),diam:false,f}}}
   const A=P[0];return {x:A[0],y:A[1],z:A[2],lomp:0,arah:0,diam:true,f:0}}
-function drawRobot2D(t,sd){const c=ctx,E=(x,y,a,b,f,r2)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,r2||0,0,7);c.fill()},RR=(x,y,w,h,r2,f,st)=>{c.fillStyle=f;c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r2):c.rect(x,y,w,h);c.fill();if(st){c.strokeStyle='#1C2520';c.lineWidth=1.2;c.stroke()}};
+function drawRobot2D(t,sd,lf){lf=lf||0;const c=ctx,E=(x,y,a,b,f,r2)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,r2||0,0,7);c.fill()},RR=(x,y,w,h,r2,f,st)=>{c.fillStyle=f;c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r2):c.rect(x,y,w,h);c.fill();if(st){c.strokeStyle='#1C2520';c.lineWidth=1.2;c.stroke()}};
   const IV='#F4F6F8',TL='#1F2F5C',OR='#D62E2E',GR='#2A2F3A',GD='#AEB7C2';
   const sw=Math.sin(t*.5+sd)*.06;
   // bayangan panjang = robotnya tinggi sekali
   c.save();c.fillStyle='rgba(20,28,24,.28)';c.beginPath();c.moveTo(-15,6);c.lineTo(15,6);c.lineTo(74,62);c.lineTo(48,76);c.closePath();c.fill();E(62,69,16,9,'rgba(20,28,24,.28)',.8);c.restore();
   c.rotate(sw);
   // sayap genteng tampak atas: bilah berlapis mengembang di kiri-kanan punggung
-  {const buka=.55+.45*Math.max(0,Math.sin(t*.35+sd))**2;[-1,1].forEach(k=>{for(let i=4;i>=0;i--){const a=k*(.35+i*.28*buka),L=46-i*5;c.save();c.translate(k*6,8);c.rotate(a+Math.PI/2*k);
+  {const buka=Math.max(lf,.55+.45*Math.max(0,Math.sin(t*.35+sd))**2),kp=Math.sin(t*(lf>0?14:3.2)+sd)*(lf>0?.22:.14);[-1,1].forEach(k=>{for(let i=4;i>=0;i--){const a=k*(.35+i*.3*buka+kp*(1+i*.15)),L=(46-i*5)*(1+.12*lf);c.save();c.translate(k*6,8);c.rotate(a+Math.PI/2*k);
       c.fillStyle=i%2?'#152142':TL;c.beginPath();c.moveTo(0,-4);c.lineTo(L,-3);c.lineTo(L+4,0);c.lineTo(L,3);c.lineTo(0,4);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
       c.fillStyle=GD;c.fillRect(L-5,-3.2,5,6.4);c.fillStyle='rgba(158,216,255,.95)';c.fillRect(4,k>0?2:-3,L-8,1.2);c.restore()}})}
   // ransel pendorong (api menyala dari atas terlihat sebagai cahaya)
@@ -1352,7 +1352,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
     tiang(px-vw-6,py-hhw-12,false);tiang(px+vw+6,py+hhw+12,false);tiang(px+vw+12,py-hhw-6,true);tiang(px-vw-12,py+hhw+6,true)});
   // robot raksasa: digambar paling atas (lebih tinggi dari semua rumah)
   {const SV=window.__SETIR;if(SV&&SV.id==='robot'&&!ROBOT_POS.some(o=>o.u===SV.u))ROBOT_POS.push({x:SV.x,y:SV.y,s:1,sd:0,u:SV.u})}
-  ROBOT_POS.forEach(o=>{ctx.save();const SV=window.__SETIR,jl=SV&&SV.id==='robot'&&SV.u===o.u;if(jl){const lf=SV.lift||0;if(lf>0){ctx.fillStyle=`rgba(20,28,24,${.22*lf})`;ctx.beginPath();ctx.ellipse(SV.x+30*lf,SV.y+34*lf,28,16,0,0,7);ctx.fill()}ctx.translate(SV.x-6*lf,SV.y-14*lf);ctx.rotate(SV.ang+Math.PI/2);const lk=lf>0?0:Math.sin((t||0)*9)*.04,sc=1.3*(1+.3*lf);ctx.scale(sc*(1+lk),sc*(1-lk));if(lf>0){[-6,6].forEach(x=>{const f=.7+.3*Math.sin((t||0)*30+x);ctx.fillStyle='rgba(79,184,255,.55)';ctx.beginPath();ctx.ellipse(x,22,4,10*f+6,0,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.ellipse(x,18,2,5*f+2,0,0,7);ctx.fill()})}}else{ctx.translate(o.x,o.y);ctx.scale(o.s*1.3,o.s*1.3)}drawRobot2D(t||0,o.sd);
+  ROBOT_POS.forEach(o=>{ctx.save();const SV=window.__SETIR,jl=SV&&SV.id==='robot'&&SV.u===o.u;if(jl){const lf=SV.lift||0;if(lf>0){ctx.fillStyle=`rgba(20,28,24,${.22*lf})`;ctx.beginPath();ctx.ellipse(SV.x+30*lf,SV.y+34*lf,28,16,0,0,7);ctx.fill()}ctx.translate(SV.x-6*lf,SV.y-14*lf);ctx.rotate(SV.ang+Math.PI/2);const lk=lf>0?0:Math.sin((t||0)*9)*.04,sc=1.3*(1+.3*lf);ctx.scale(sc*(1+lk),sc*(1-lk));o.lf=lf;if(lf>0){[-6,6].forEach(x=>{const f=.7+.3*Math.sin((t||0)*30+x);ctx.fillStyle='rgba(79,184,255,.55)';ctx.beginPath();ctx.ellipse(x,22,4,10*f+6,0,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.ellipse(x,18,2,5*f+2,0,0,7);ctx.fill()})}}else{ctx.translate(o.x,o.y);ctx.scale(o.s*1.3,o.s*1.3)}drawRobot2D(t||0,o.sd,o.lf||0);
     // mercon di peta (tampak atas): roket meluncur lalu DUAR jadi lingkaran percikan warna-warni
     const M2=(window.MERCON||{})[o.u];if(M2){const u=(performance.now()-M2)/1000;
       if(u<.8){const k=u/.8;ctx.fillStyle='#FFE38A';ctx.beginPath();ctx.arc(24+k*40,-20-k*30,2.5+k*2,0,7);ctx.fill();ctx.fillStyle='rgba(255,176,58,.35)';ctx.beginPath();ctx.arc(24+k*40,-20-k*30,6+k*3,0,7);ctx.fill()}
@@ -2088,8 +2088,8 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
       if(d.buyar){const k=u-.6;if(d.flash){d.flash.scale.setScalar(1+k*4);d.flash.material.opacity=Math.max(0,.9-k*4);if(k>.25){R.remove(d.flash);d.flash=null}}d.buyar.forEach(({m,v,c0})=>{m.position.set(c0.x+v.x*k,c0.y+v.y*k-2.2*k*k,c0.z+v.z*k);m.material.opacity=Math.max(0,1-k/1.6)});
         if(k>1.7){d.buyar.forEach(({m})=>R.remove(m));d.buyar=[];d.selesai=true;if(d.flash)R.remove(d.flash)}}});
     for(let i=DOR.length-1;i>=0;i--)if(DOR[i].selesai)DOR.splice(i,1);
-    {const buka=.55+.45*Math.max(0,Math.sin(s*.35))**2,kepak=Math.sin(s*1.6)*.08+(dt<1.2?.25*Math.sin(dt*12):0);
-      sayap.forEach(({W,bil,sd})=>{W.rotation.y=sd*(.15+kepak);bil.forEach(P=>{const k=P.userData.k;P.rotation.z=-sd*(.35+k*.33*(.35+.65*(dt<2?1:buka)));P.rotation.x=-.2})})}
+    {const buka=.55+.45*Math.max(0,Math.sin(s*.35))**2,kepak=Math.sin(s*2.4)*.14+(dt<1.2?.25*Math.sin(dt*12):0);
+      sayap.forEach(({W,bil,sd})=>{W.rotation.y=sd*(.15+kepak);bil.forEach(P=>{const k=P.userData.k;P.rotation.z=-sd*(.35+k*.33*(.35+.65*(dt<2?1:buka))+Math.sin(s*2.4-k*.35)*.1);P.rotation.x=-.2+Math.sin(s*2.4-k*.3)*.08})})}
     head.rotation.y=dt<2.6?.5:Math.sin(s*.45)*.5;
     ant.material.emissiveIntensity=Math.sin(s*5)>.3?1.4:.1;core.material.emissiveIntensity=.7+.5*Math.sin(s*3);
     api.forEach((f,k)=>{const q=.85+.25*Math.sin(s*18+k*2);f.scale.set(q,q*1.1,q)});

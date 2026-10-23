@@ -32,6 +32,7 @@ window.NK_DATA = {
   "fUser": "entry.1202939403",
   "fKode": "entry.1738076910"
  },
+ "dusun": ["", "", "", ""],
  "residents": [
   { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 2, "sup": true, "custom": { "title": "Traktir 2 Genteng (1 + 1) → dapat bendera emas", "day": 3 } },
   { "name": "idri_s5982", "x": 44, "y": 47, "day": 1, "nick": "Idris", "wall": "biru" },

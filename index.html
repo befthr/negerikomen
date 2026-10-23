@@ -558,6 +558,14 @@ const JALAN_RANK={kosong:0,rumput:1,tanah:2,gang:3,aspal:4,besar:5};
 // di antaranya jalan lingkungan: gang semen di dekat pusat, makin ke pinggir jadi jalan tanah, paling luar jalan rumput.
 function jenisJalan(hz,q,sg){if(q===0)return 'besar';if(q%2===0)return 'aspal';const ring=Math.max(Math.abs(sg+.5),Math.abs(q));return ring<=2.5?'gang':ring<=4.5?'tanah':'rumput'}
 const TEMA=['kebun','kebun','sawah','empang','lapangan','taman','pisang','bunga','kebun','sawah','empang','pisang'];
+// plang dusun: 4 dusun dibelah dua jalan besar; papan besar di tiap dusun (nama dari data.js "dusun", kosong = belum ada nama)
+let DUSUN=[];
+function drawPlang(cx,cy,nama){const c=ctx,w=T*2.9,h=T*1.5;c.fillStyle='rgba(0,0,0,.22)';c.fillRect(cx-w/2+6,cy-h/2+7,w,h);
+  c.fillStyle='#5A3A1E';c.fillRect(cx-w*.36-4,cy+h/2-4,8,T*.7);c.fillRect(cx+w*.36-4,cy+h/2-4,8,T*.7);
+  c.fillStyle='#2F6B4F';c.fillRect(cx-w/2,cy-h/2,w,h);c.fillStyle='#F4EFE3';c.fillRect(cx-w/2+4,cy-h/2+4,w-8,h-8);c.strokeStyle='#1C2520';c.lineWidth=3;c.strokeRect(cx-w/2,cy-h/2,w,h);
+  c.fillStyle='#2F6B4F';c.fillRect(cx-w/2+4,cy-h/2+4,w-8,T*.22);
+  if(nama){c.fillStyle='#1C2520';c.textAlign='center';c.textBaseline='middle';let fs=T*.5;do{c.font=`800 ${fs}px sans-serif`;fs-=1}while(c.measureText(nama).width>w-16&&fs>8);c.fillText(nama,cx,cy+T*.1)}}
+const PLANG=[[-2,-2,1,1],[1,-2,0,1],[-2,1,1,0],[1,1,0,0]]; // [bx,by, pojok x (1=kanan), pojok y (1=bawah)] → pojok dalam blok yang menghadap pusat
 function temaBlok(bx,by){if(bx>=-1&&bx<=0&&by>=-1&&by<=0)return 'kebun';return TEMA[Math.floor(ih(bx*7+3,by*11+5,140)*TEMA.length)]}
 function drawTema(tm,x,y,s,bx,by,t){const c=ctx,R=(a,b,w,h,f)=>{c.fillStyle=f;c.fillRect(a,b,w,h)},E=(a,b,rx,ry,f,rot)=>{c.fillStyle=f;c.beginPath();c.ellipse(a,b,rx,ry,rot||0,0,7);c.fill()};
   const cx=x+s/2,cy=y+s/2;
@@ -1091,9 +1099,10 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(!act.has(bx+','+by))continue;const ix=C+bx*S+2,iy=C+by*S+2;let bebas=true;
     for(let i=0;i<3&&bebas;i++)for(let j=0;j<3;j++){const k=key(ix+i,iy+j);if(used.has(k)||occ.has(k)||RESERVED.has(k)){bebas=false;break}}
     if(!bebas)continue;const tm=temaBlok(bx,by);temaOf.set(bx+','+by,tm);if(tm!=='kebun')drawTema(tm,wx(ix)-T/2,wx(iy)-T/2,3*T,bx,by,t||0)}
+  {const DD=(window.NK_DATA&&Array.isArray(window.NK_DATA.dusun))?window.NK_DATA.dusun:DUSUN;PLANG.forEach(([bx,by,px,py],k)=>{if(!act.has(bx+','+by))return;const ix=C+bx*S+2,iy=C+by*S+2;drawPlang(wx(ix)-T/2+1.5*T,wx(iy)-T/2+1.35*T,String(DD[k]||'').trim())})}
   for(let x=tx0;x<=tx1;x++)for(let y=ty0;y<=ty1;y++){
     if(isRoad(x,y))continue;const [bx,by]=blockOf(x,y);if(!act.has(bx+','+by))continue;
-    {const lx0=mod(x-C,S),ly0=mod(y-C,S);if(lx0>1&&lx0<5&&ly0>1&&ly0<5&&(temaOf.get(bx+','+by)||'kebun')!=='kebun')continue}
+    {const lx0=mod(x-C,S),ly0=mod(y-C,S);if(lx0>1&&lx0<5&&ly0>1&&ly0<5&&((temaOf.get(bx+','+by)||'kebun')!=='kebun'||PLANG.some(([pbx,pby])=>pbx===bx&&pby===by)))continue}
     const k=key(x,y);if(RESERVED.has(k)||occ.has(k)||used.has(k))continue;
     const lx=mod(x-C,S),ly=mod(y-C,S),inner=lx>1&&lx<5&&ly>1&&ly<5,r=ih(x,y,11);
     if(inner?r<0.55:r<0.16)drawTree(wx(x)+(ih(x,y,12)-.5)*14,wx(y)+(ih(x,y,13)-.5)*14,T*(inner?0.42:0.3)*(0.8+ih(x,y,14)*0.4),ih(x,y,15));

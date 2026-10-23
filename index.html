@@ -1726,8 +1726,8 @@ function histBox(r,onPick){const V=histOf(r);if(V.length<2)return null;let n=V.l
   const w=el('div','rhist'),top=el('div','rh-top'),pv=el('button','rh-b','‹'),nx=el('button','rh-b','›'),lab=el('span','rh-l'),desc=el('small','rh-d');
   [pv,nx].forEach(b=>b.type='button');pv.setAttribute('aria-label','Versi sebelumnya');nx.setAttribute('aria-label','Versi berikutnya');
   top.append(el('span','rh-t','📜 Riwayat'),pv,lab,nx);w.append(top,desc);
-  const show=pick=>{const v=V[n],now=n===V.length-1;lab.textContent=`Versi ${n+1}/${V.length} · ${resmi(v.day)}`;
-    desc.textContent=(now?'Sekarang · ':'')+v.lines.join(' · ');desc.title=desc.textContent;pv.disabled=n===0;nx.disabled=now;if(pick)onPick(v.look)};
+  const show=pick=>{const v=V[n],now=n===V.length-1;lab.textContent=`Versi ${n+1}/${V.length} · `+(now?'Sekarang':resmi(v.day));
+    desc.textContent=(now?`Sejak ${resmi(v.day)} · `:'')+v.lines.join(' · ');desc.title=desc.textContent;pv.disabled=n===0;nx.disabled=now;if(pick)onPick(v.look)};
   const go=d=>e=>{e.stopPropagation();const m=n+d;if(m<0||m>=V.length)return;n=m;show(true);try{SND.play('pop',.5)}catch(_){}};
   pv.onclick=go(-1);nx.onclick=go(1);show(false);return w}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}

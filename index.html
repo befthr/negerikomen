@@ -151,6 +151,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .kk-gico{width:20px;height:20px;vertical-align:-4px;margin:0 4px 0 2px;border-radius:5px}
 .kk-vpick{margin:8px 0 4px}.kk-vpick b{font-size:14px}.kk-vrow{display:flex;gap:8px;margin-top:6px;overflow-x:auto}.kk-vb{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font:inherit;font-size:12px;font-weight:700}.kk-vb svg{width:52px;height:52px}.kk-vb.on{border-color:#1C2520;background:#FFF6D6}
 .kk-wait{margin-top:14px;padding:12px 14px;border-radius:12px;background:#FFF6D6}.kk-kode{font-family:var(--f-display);font-weight:800;font-size:24px;margin:6px 0;letter-spacing:.06em;cursor:pointer}.kk-pv{display:flex;align-items:center;gap:14px;margin:10px 0;padding:12px;border-radius:14px;background:#EEF2E6}.kk-pvsvg{width:84px;height:84px;flex:none}.kk-pv span{font-weight:700;font-size:14px}.kk-pal{margin:10px 0}.kk-pal b{font-size:14px}.kk-sw{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:6px 0}.kk-sw button{aspect-ratio:1;border-radius:50%;border:2px solid rgba(0,0,0,.18);cursor:pointer;padding:0}.kk-sw button.on{outline:3px solid #1C2520;outline-offset:2px}.kk-pal input{width:100%;padding:7px 10px;border-radius:10px;border:1.5px solid var(--line);font:inherit;font-size:13px}.kk-req{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1.5px dashed #E2C978}.kk-req svg{width:52px;height:52px;flex:none}.kk-req b{display:block;font-size:13.5px}.kk-req span{font-size:12.5px;color:var(--muted)}.kk-req .kk-row{margin:6px 0 0}
+.kk-x.back{right:auto;left:10px;font-size:19px}.kk-box.kkback .kk-body>h3:first-child{margin:0 0 8px 48px;min-height:36px;display:flex;align-items:center}
 .kk-aksi{display:flex;gap:8px;margin-top:12px}.kk-aksi .btn{flex:1;min-width:0;font-size:13.5px!important;justify-content:center;padding-left:8px;padding-right:8px;white-space:nowrap}.btn.kk-gratis{background:#fff;border:2px solid #1C2520;color:#1C2520}.kk-ubah .kk-gico{margin:0 6px 0 0}.kk-tabs{display:flex;gap:6px;margin:6px 0 10px;background:#F1EEE6;padding:4px;border-radius:12px}.kk-tabs button{flex:1;border:0;background:none;border-radius:9px;padding:8px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;color:var(--muted)}.kk-tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.15)}.kk-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kk-tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px;border-radius:14px;border:2px solid #1C2520;background:#FFFBEF;font:inherit;text-align:left;cursor:pointer;box-shadow:0 2px 0 #1C2520}.kk-tile i{font-style:normal;font-size:26px;line-height:1}.kk-tile b{font-size:14.5px}.kk-tile span{font-size:12.5px;font-weight:700;color:var(--muted)}.kk-tile.off{border-color:var(--line);background:#F6F4EE;box-shadow:none;cursor:default;opacity:.8}.kk-items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}.kk-it{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;border:2px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.kk-it svg{width:48px;height:48px}.kk-it small{font-size:11.5px;color:var(--muted)}.kk-it.on{border-color:#1C2520;background:#FFF6D6;box-shadow:0 2px 0 #1C2520}.kk-it.own{opacity:.55;cursor:default}.kk-total{position:sticky;bottom:-18px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px -18px 0;padding:10px 18px;background:#fff;border-top:1.5px solid var(--line);font-size:13px;font-weight:700}.kk-kol{margin-top:14px;padding:12px;border-radius:12px;background:#F6F4EE}.kk-kol b{font-size:14.5px}.kk-body>input{width:100%;margin:4px 0;padding:8px 10px;border-radius:10px;border:1.5px solid #1C2520;font:inherit;font-size:14px}
 .kk-links{display:flex;justify-content:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted)}.kk-links button{border:0;background:none;padding:2px;font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer}
 .rh-j{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:12.5px;color:var(--muted)}.rh-j b{color:var(--ink);font-size:12.5px!important;font-weight:800}.rh-j small{flex-basis:100%;font-size:11.5px}.rh-bar{display:inline-flex;gap:3px}.rh-bar i{width:22px;height:8px;border-radius:99px;background:#E4E0D6}.rh-bar i.on{background:#F2C230;box-shadow:inset 0 0 0 1px #8A6A10}
@@ -1854,6 +1855,10 @@ function kkTutup(){const m=$('kk');if(m)m.remove()}
 function kkModal(){kkTutup();const m=el('div','kk');m.id='kk';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
   const box=el('div','kk-box'),x=el('button','kk-x','✕');x.type='button';x.setAttribute('aria-label','Tutup');x.onclick=kkTutup;
   m.onclick=e=>{if(e.target===m)kkTutup()};const body=el('div','kk-body');box.append(x,body);m.append(box);document.body.append(m);return body}
+// layar lanjutan di popup kartu: tombol pojok jadi ← (kembali), bukan ✕
+function kkBack(body,fn){const box=body.parentNode,x=box&&box.querySelector('.kk-x');if(!x)return;x.textContent=fn?'←':'✕';x.classList.toggle('back',!!fn);box.classList.toggle('kkback',!!fn);
+  x.setAttribute('aria-label',fn?'Kembali':'Tutup');x.onclick=fn?(e=>{e.stopPropagation();fn()}):kkTutup}
+const kkKeKartu=body=>async()=>{const res=await kkApi('saya',null,true);if(res.ok)kkTampil(body,res.kartu);else kkTutup()};
 function kkBtn(t,cls,fn){const b=el('button','btn '+(cls||''),t);b.type='button';b.onclick=fn;return b}
 // rumah mini di kartu: warna dinding & atap persis seperti di peta (ikut versi yang dipakai)
 function kkRumahMini(r){const ns='http://www.w3.org/2000/svg',sv=document.createElementNS(ns,'svg');sv.setAttribute('viewBox','0 0 64 64');sv.setAttribute('class','kk-mini');sv.setAttribute('aria-hidden','true');
@@ -1892,7 +1897,7 @@ function kkKunci(body,u,res){body.innerHTML='';
     if(!r2.ok){msg.textContent=r2.error||'Belum ketemu';msg.className='kk-msg err';return}
     kkSet({t:r2.token,u});try{SND.play('ting',.7)}catch(_){}kkTampil(body,r2.kartu,true);kkRefreshPanel()});
   body.append(cek,msg)}
-function kkTampil(body,c,baru){body.innerHTML='';
+function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
   if(i>=0&&c.versi>1){body.append(el('p','kk-sub',`🏠 Rumahmu punya ${c.versi} versi · sedang pakai versi ${c.dipakai+1}`),
@@ -1921,7 +1926,7 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
   const gl=r.style==='globe',sr=r.style==='serigala';
   let W=r.wall||(gl?'biru':sr?'abu-abu':'putih'),R=r.roof||(gl?'hijau':sr?'abu-abu':'merah');body.innerHTML='';
   const LB=gl?['Laut','Pulau']:sr?['Bulu','Telinga']:['Dinding','Atap'];
-  body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-note','📌 Rumah yang sudah ada nggak hilang. Semua versi rumahmu tetap tercatat milikmu, dan bisa kamu pakai lagi kapan saja lewat Lihat 3D.'));
+  kkBack(body,()=>kkUbah(body,c,i,'rumah'));body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-note','📌 Rumah yang sudah ada nggak hilang. Semua versi rumahmu tetap tercatat milikmu, dan bisa kamu pakai lagi kapan saja lewat Lihat 3D.'));
   if(V.length>1){const pk=el('div','kk-vpick');pk.append(el('b',null,'1. Pilih rumah yang mau diwarnai'));const g=el('div','kk-vrow');
     V.forEach((v,k)=>{const b=el('button','kk-vb'+(k===n?' on':''));b.type='button';const rv={...r0};LOOK.forEach(q=>{const x=v.look[q];if(x==null)delete rv[q];else rv[q]=x});
       b.append(kkRumahMini(rv),el('span',null,'Versi '+(k+1)));b.onclick=()=>kkWarna(body,c,i,k);g.append(b)});pk.append(g);body.append(pk)}
@@ -1937,8 +1942,7 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
   body.append(bw,br);bw._upd();br._upd();
   const msg=el('p','kk-msg'),row=el('div','kk-row');
   row.append(kkGBtn('Lanjut: traktir ','1 Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R,n},true);bt.disabled=false;
-      if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,{jenis:'warna',harga:1,...res})}),
-    kkBtn('Kembali','',()=>kkUbah(body,c,i,'rumah')));
+      if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,{jenis:'warna',harga:1,...res})}));
   body.append(msg,row)}
 async function kkAntre(box){box.innerHTML='';box.append(el('p','kk-muted','Memuat antrean…'));const res=await kkApi('antre-ubah',{},true);box.innerHTML='';
   if(!res.ok){box.append(el('p','kk-muted',res.error||'Gagal memuat'));return}
@@ -2019,9 +2023,8 @@ function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...i
     g.append(b)});w.append(g,msg);body.append(w)}
 function kkItemLokal(u,list){const i=kkResIdx(u);if(i<0)return;RES[i].items=list;dirty=true}
 // popup Ubah rumah: tab Rumah & tab Item
-function kkUbah(body,c,i,tab){body.innerHTML='';body.append(el('h3',null,'🏠 Ubah rumah'));
+function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));body.append(el('h3',null,'🏠 Ubah rumah'));
   const tb=el('div','kk-tabs');[['rumah','🏠 Rumah'],['item','🎁 Item']].forEach(([k,t])=>{const b=el('button',k===tab?'on':'',t);b.type='button';b.onclick=()=>kkUbah(body,c,i,k);tb.append(b)});body.append(tb);
-  const back=()=>kkBtn('Kembali ke kartu','',async()=>{const res=await kkApi('saya',null,true);if(res.ok)kkTampil(body,res.kartu)});
   if(tab==='rumah'){const r=RES[i],g=el('div','kk-tiles'),P=c.pesan||{};
     const tile=(ic,nm,harga,state,fn)=>{const b=el('button','kk-tile'+(fn?'':' off'));b.type='button';b.append(el('i',null,ic),el('b',null,nm));
       const h=el('span');if(harga){const im=el('img','kk-gico');im.src='genteng.png';im.alt='';h.append(im,harga)}if(state)h.textContent=state;b.append(h);if(fn)b.onclick=fn;else b.disabled=true;g.append(b)};
@@ -2030,7 +2033,7 @@ function kkUbah(body,c,i,tab){body.innerHTML='';body.append(el('h3',null,'🏠 U
     tile('🚩','Bendera emas',c.emas||P.emas?'':'2 Genteng',c.emas?'✓ Sudah punya':tunggu('emas'),c.emas?null:()=>kkEmas(body,c,i));
     const rk=NK.shopOn(r,TODAY);tile('🏪','Jadi ruko',rk||P.ruko?'':'20 Genteng',rk?'✓ Aktif · '+(r.shop.until||''):tunggu('ruko'),rk?null:()=>kkRuko(body,c,i));
     tile('📸','Rumah dari foto','', 'Segera hadir',null);
-    body.append(g,el('p','kk-muted','Semua yang kamu dapat tetap tercatat milikmu. Rumah lama nggak hilang.'),back());return}
+    body.append(g,el('p','kk-muted','Semua yang kamu dapat tetap tercatat milikmu. Rumah lama nggak hilang.'));return}
   // tab item
   const own=(c.items&&c.items.own||[]).map(o=>o.id),pick=new Set();let teks='';const kats=['Kendaraan','Hewan','Hiasan','Papan nama'];
   if(c.pesan&&c.pesan.item)body.append(el('p','kk-note',`⏳ Pesanan item ${c.pesan.item.kode} masih menunggu kades. Pesanan baru akan menggantikannya.`));
@@ -2048,15 +2051,15 @@ function kkUbah(body,c,i,tab){body.innerHTML='';body.append(el('h3',null,'🏠 U
   function upd(){const t=[...pick].reduce((s,id)=>s+KK_ITEM[id].h,0);lanjut.lastChild.textContent=t+' Genteng';lanjut.disabled=!t||(pick.has('papan')&&!teks.trim());
     foot.firstChild.textContent=pick.size?`${pick.size} item dipilih`:'Belum ada item dipilih';
     const pp=body.querySelector('.kk-it[data-id="papan"] svg');if(pp)pp.replaceWith(kkItemSVG('papan',teks.trim()||null))}
-  foot.append(el('span'),lanjut);body.append(msg,foot,back());upd()}
-function kkEmas(body,c,i){const r=RES[i];body.innerHTML='';body.append(el('h3',null,'🚩 Bendera emas'));
+  foot.append(el('span'),lanjut);body.append(msg,foot);upd()}
+function kkEmas(body,c,i){const r=RES[i];body.innerHTML='';kkBack(body,()=>kkUbah(body,c,i,'rumah'));body.append(el('h3',null,'🚩 Bendera emas'));
   const pv=el('div','kk-pv'),sv=kkRumahMini(r);sv.setAttribute('class','kk-pvsvg');const ns='http://www.w3.org/2000/svg';
   [['rect',{x:50,y:2,width:2.5,height:30,fill:'#5A4A3A'}],['polygon',{points:'52.5,3 63,7 52.5,11',fill:'#F2C230',stroke:'#8A6A10','stroke-width':.8}]].forEach(([t,o])=>{const e=document.createElementNS(ns,t);for(const k in o)e.setAttribute(k,o[k]);sv.append(e)});
   pv.append(sv,el('span',null,'Bendera emas berkibar di rumahmu, dan namamu masuk daftar Pendukung kampung.'));body.append(pv);
   const msg=el('p','kk-msg'),row=el('div','kk-row');
   row.append(kkGBtn('Lanjut: traktir ','2 Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-ubah',{jenis:'emas'},true);bt.disabled=false;
-    if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,res)}),kkBtn('Kembali','',()=>kkUbah(body,c,i,'rumah')));body.append(msg,row)}
-function kkRuko(body,c,i){body.innerHTML='';let W='krem',R='biru';
+    if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,res)}));body.append(msg,row)}
+function kkRuko(body,c,i){body.innerHTML='';kkBack(body,()=>kkUbah(body,c,i,'rumah'));let W='krem',R='biru';
   body.append(el('h3',null,'🏪 Jadi ruko'),el('p','kk-muted','Rumahmu jadi ruko 2 lantai dengan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga. Pilih warnanya dulu.'));
   const pv=el('div','kk-pv');body.append(pv);const draw=()=>{pv.innerHTML='';const sv=kkRukoMini(W,R);sv.setAttribute('class','kk-pvsvg');pv.append(sv,el('span',null,`Dinding ${kkNamaWarna(W)} · atap ${kkNamaWarna(R)}`))};
   const baris=(judul,get,set,fn)=>{const w=el('div','kk-pal');w.append(el('b',null,judul));const g=el('div','kk-sw');
@@ -2067,9 +2070,9 @@ function kkRuko(body,c,i){body.innerHTML='';let W='krem',R='biru';
   body.append(el('p','kk-note','📝 Nama toko, deskripsi, link, dan foto diisi lewat formulir toko setelah ini.'));
   const msg=el('p','kk-msg'),row=el('div','kk-row');
   row.append(kkGBtn('Lanjut: traktir ','20 Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-ubah',{jenis:'ruko',wall:W,roof:R},true);bt.disabled=false;
-    if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,res)}),kkBtn('Kembali','',()=>kkUbah(body,c,i,'rumah')));body.append(msg,row)}
+    if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,res)}));body.append(msg,row)}
 // layar kode pesanan (semua jenis)
-function kkKode(body,res){const j=res.jenis||'warna',h=res.harga||1;body.innerHTML='';
+function kkKode(body,res){const j=res.jenis||'warna',h=res.harga||1;body.innerHTML='';kkBack(body,()=>kkTampil(body,res.kartu));
   body.append(el('h3',null,'Satu langkah lagi!'),el('p',null,`Traktir ${h} Genteng di Trakteer, lalu tulis kode pesanan ini di pesan traktiranmu:`));
   const k=el('div','kk-frasa',res.kode);k.onclick=()=>kkSalin(res.kode);body.append(k);
   const hasil={warna:'rumahmu langsung ganti warna',emas:'bendera emas langsung berkibar di rumahmu',ruko:'rumahmu langsung jadi ruko',item:'item langsung muncul di pekarangan rumahmu'}[j];
@@ -2078,7 +2081,7 @@ function kkKode(body,res){const j=res.jenis||'warna',h=res.harga||1;body.innerHT
   const ol=el('ol','kk-steps');st.forEach(t=>ol.append(el('li',null,t)));body.append(ol);
   const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkLinkJenis(j);a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(res.kode)));
   if(j==='ruko'){const f=kkFormUrl(res.kartu.u,res.kode);if(f){const b=el('a','btn','📝 Isi formulir toko');b.href=f;b.target='_blank';b.rel='noopener';row.append(b)}else body.append(el('p','kk-muted','Link formulir toko menyusul dari kepala desa.'))}
-  row.append(kkBtn('Kembali ke kartu','',()=>kkTampil(body,res.kartu)));body.append(row)}
+  body.append(row)}
 async function kkTerimaLink(tok){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(!/^[A-Za-z0-9_-]{20,64}$/.test(tok))return;kkSet({t:tok,u:''});const res=await kkApi('saya',null,true);
   if(!res.ok){kkSet(null);toast(res.error||'Link kartu tidak berlaku');return}kkSet({t:tok,u:res.kartu.u});{const i=kkResIdx(res.kartu.u);if(i>=0){select({kind:'r',i},{instant:true});scrollMap()}else kkRefreshPanel()}const body=kkModal();kkTampil(body,res.kartu,true)}

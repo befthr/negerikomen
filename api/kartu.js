@@ -8,7 +8,7 @@
 //   POST kunci   {u}          → buat kunci baru (berlaku 30 menit)
 //   POST cek     {u}          → cari komentar kunci; kalau cocok → {token}
 //   GET  saya    (Bearer)     → info kartu: jatah ganti minggu ini, versi dipakai, admin?
-//   POST pilih   {n} (Bearer) → pakai versi rumah ke-n (jatah 2x per minggu, reset Senin 00.00 WIB)
+//   POST pilih   {n} (Bearer) → pakai versi rumah ke-n (jatah 3x per minggu, reset Senin 00.00 WIB)
 //   POST keluar-lain (Bearer) → keluarkan semua HP lain
 //   POST keluar  (Bearer)     → keluarkan HP ini
 //   POST aktifkan {target} (Bearer kartu @negerikomen) → token aktivasi manual (jalur cadangan lewat DM)
@@ -21,7 +21,7 @@ const IG_TOKEN = String(process.env.IG_TOKEN || '').trim().replace(/^["']|["']$/
 const OWNER = 'negerikomen';
 const KUNCI_DETIK = 30 * 60;
 const SESI_DETIK = 400 * 24 * 3600;
-const JATAH = 2;
+const JATAH = 3;
 
 const BENDA = ['genteng', 'ayam', 'sawah', 'kentongan', 'bakso', 'tugu', 'sepeda', 'layangan', 'kerupuk', 'payung',
   'bebek', 'kelinci', 'sapi', 'pohon', 'sumur', 'gerobak', 'bambu', 'bendera', 'kelereng', 'jagung', 'pisang', 'kucing', 'perahu', 'gasing'];

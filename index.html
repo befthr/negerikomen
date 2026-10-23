@@ -566,6 +566,11 @@ function drawPlang(cx,cy,nama){const c=ctx,w=T*2.9,h=T*1.5;c.fillStyle='rgba(0,0
   if(nama){c.fillStyle='#1C2520';c.textAlign='center';c.textBaseline='middle';let fs=T*.5;do{c.font=`800 ${fs}px sans-serif`;fs-=1}while(c.measureText(nama).width>w-16&&fs>8);c.fillText(nama,cx,cy+T*.1)}}
 const PLANG=[[-2,-2,1,1],[1,-2,0,1],[-2,1,1,0],[1,1,0,0]]; // [bx,by, pojok x (1=kanan), pojok y (1=bawah)] → pojok dalam blok yang menghadap pusat
 // isi tengah blok: sebagian besar LAHAN KOSONG (calon fasilitas dari voting warga); 1 lapangan bola, 2 empang, sawah di pinggiran
+// lampu merah: di simpang jalan besar × jalan aspal/besar. Siklus 16 dtk: arah mendatar hijau 0–7, kuning 7–8, lalu arah tegak hijau 8–15, kuning 15–16.
+const adaLampu=(k,q)=>k%2===0&&q%2===0&&(k===0||q===0);
+function lampu(k,q,t,horiz){const c=((t+ih(k+40,q+40,300)*16)%16+16)%16,m=horiz?c:(c+8)%16;return m<7?'h':m<8?'k':'m'}
+let LAMPU_POS=[];
+const VS=new Map(); // posisi kendaraan (berhenti saat lampu merah / antre)
 const TEMA_KHUSUS={'2,2':'lapangan','-3,-2':'empang','3,-3':'empang'};
 function temaBlok(bx,by){if(bx>=-1&&bx<=0&&by>=-1&&by<=0)return 'kebun';const k=TEMA_KHUSUS[bx+','+by];if(k)return k;
   const r=ih(bx*7+3,by*11+5,140),ring=Math.max(Math.abs(bx+.5),Math.abs(by+.5));
@@ -1101,7 +1106,20 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       [1,-1].forEach(sd=>{const vx=-uy*sd,vy=ux*sd,P=(a,b)=>[px+ux*a+vx*b,py+uy*a+vy*b];
         // isi segi empat r×r di sudut mulut jalan, lalu "potong" seperempat lingkaran dengan warna tanah blok
         const q1=P(bh,w/2),q2=P(bh,w/2+r),q3=P(bh+r,w/2+r),q4=P(bh+r,w/2);ctx.fillStyle=COL[o.j];ctx.beginPath();ctx.moveTo(...q1);ctx.lineTo(...q2);ctx.lineTo(...q3);ctx.lineTo(...q4);ctx.closePath();ctx.fill();
-        const c=P(bh+r,w/2+r);ctx.fillStyle='#93BE62';ctx.beginPath();ctx.arc(c[0],c[1],r,0,7);ctx.fill()})})})}
+        const c=P(bh+r,w/2+r);ctx.fillStyle='#93BE62';ctx.beginPath();ctx.arc(c[0],c[1],r,0,7);ctx.fill()});
+      // rambu di mulut jalan: STOP (gang/tanah masuk jalan besar/aspal), dilarang masuk (sebagian jalan rumput)
+      const rr=ih(x*31+o.q,y*17+o.sg,320);if(rr<.55){const sp=P0=>P0;const sx=px+ux*(bh+T*.35)+(-uy)*(w/2+T*.32),sy=py+uy*(bh+T*.35)+ux*(w/2+T*.32);
+        ctx.fillStyle='#6B6B6B';ctx.fillRect(sx-1,sy-1,2.4,7);ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.arc(sx+1.5,sy-2,5.5,0,7);ctx.fill();
+        if(o.j==='rumput'){ctx.fillStyle='#C4402F';ctx.beginPath();ctx.arc(sx,sy-3,5.5,0,7);ctx.fill();ctx.fillStyle='#FFFFFF';ctx.fillRect(sx-3.6,sy-4,7.2,2.2)}
+        else{ctx.fillStyle='#C4402F';ctx.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;ctx.lineTo(sx+Math.cos(a)*5.8,sy-3+Math.sin(a)*5.8)}ctx.closePath();ctx.fill();
+          ctx.fillStyle='#FFFFFF';ctx.font='800 3.4px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('STOP',sx,sy-2.8)}}})})}
+  // lampu merah, garis stop & zebra cross di simpang jalan besar
+  LAMPU_POS=[];{const SL=S*T,ks=new Set();blocks.forEach(([bx,by])=>{for(const k of [bx,bx+1])for(const q of [by,by+1])ks.add(k+','+q)});
+    ks.forEach(kq=>{const [k,q]=kq.split(',').map(Number);if(!adaLampu(k,q))return;const px=k*SL,py=q*SL,hw=T*.56,vw=k===0?T*.56:T*.4,hhw=q===0?T*.56:T*.4;
+      ctx.fillStyle='rgba(255,255,255,.9)';for(let i=-3;i<=3;i++){ctx.fillRect(px+i*7-2.5,py-hhw-T*.42,5,T*.34);ctx.fillRect(px+i*7-2.5,py+hhw+T*.08,5,T*.34);ctx.fillRect(px-vw-T*.42,py+i*7-2.5,T*.34,5);ctx.fillRect(px+vw+T*.08,py+i*7-2.5,T*.34,5)}
+      const tiang=(x,y,hz)=>{const s=lampu(k,q,t||0,hz);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x-4+2,y-10+2,9,21);ctx.fillStyle='#1C2520';ctx.fillRect(x-4.5,y-10.5,9,21);
+        [['m','#E8492E',-6.5],['k','#F2C230',0],['h','#3CC46A',6.5]].forEach(([n,cl,o])=>{ctx.fillStyle=s===n?cl:'#3A3F3B';ctx.beginPath();ctx.arc(x,y+o,2.7,0,7);ctx.fill();if(s===n){ctx.fillStyle=cl+'55';ctx.beginPath();ctx.arc(x,y+o,5.5,0,7);ctx.fill()}})};
+      LAMPU_POS.push([k,q,px,py,vw,hhw])})}
   ctx.fillStyle='rgba(255,255,255,.7)';for(let i=-2;i<=2;i++){ctx.fillRect(i*7-2,-T/2-12,4,10);ctx.fillRect(i*7-2,T/2+2,4,10)}
   const temaOf=new Map();
   for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(!act.has(bx+','+by))continue;const ix=C+bx*S+2,iy=C+by*S+2;let bebas=true;
@@ -1126,10 +1144,17 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       [bx,bx+1].forEach(q=>{const r=Vr.get(q)||[by,by];Vr.set(q,[Math.min(r[0],by),Math.max(r[1],by)])});
     });
     const run=(q,[a,b],horiz)=>{const x0=a*S*T-T/2,x1=(b+1)*S*T+T/2,len=x1-x0,hz=horiz?1:2;
-      const n=1+(ih(q,hz,31)<0.6?1:0)+(len>S*T*3?1:0);
-      for(let v=0;v<n;v++){const k=ih(q,v,40+hz),dir=ih(q,v,47+hz)<0.5?1:-1;
-        const sp=k<0.3?70:k<0.6?95:k<0.85?60:22;
-        const p=x0+mod(t*sp*dir+ih(q,v,53+hz)*len,len),lane=dir>0?T*.2:-T*.2;
+      const n=q===0?5:1+(ih(q,hz,31)<0.6?1:0)+(len>S*T*3?1:0),SL=S*T,stopD=(q===0?T*.55:T*.75)+T*.45;
+      const cars=[];for(let v=0;v<n;v++){const k=ih(q,v,40+hz),dir=ih(q,v,47+hz)<0.5?1:-1,sp=k<0.3?70:k<0.6?95:k<0.85?60:22,id=(horiz?'h':'v')+q+':'+v;
+        let st=VS.get(id);if(!st||Math.abs(t-st.t)>2){st={p:x0+mod(t*sp*dir+ih(q,v,53+hz)*len,len),t};VS.set(id,st)}cars.push({v,k,dir,sp,st})}
+      cars.forEach(c=>{const dt=Math.max(0,t-c.st.t);c.st.t=t;let p=c.st.p;
+        // berhenti di garis stop kalau lampu di simpang depan merah/kuning
+        const kn=c.dir>0?Math.floor((p+stopD)/SL)+1:Math.ceil((p-stopD)/SL)-1,stopAt=kn*SL-c.dir*stopD,jarak=(stopAt-p)*c.dir;
+        let maju=c.sp*dt;if(adaLampu(horiz?kn:q,horiz?q:kn)&&lampu(horiz?kn:q,horiz?q:kn,t,horiz)!=='h'&&jarak>=-1&&jarak<maju+T*.6)maju=Math.max(0,Math.min(maju,jarak));
+        // antre di belakang kendaraan depan
+        cars.forEach(o=>{if(o===c||o.dir!==c.dir)return;const g=(o.st.p-p)*c.dir;if(g>0&&g<T*1.05)maju=Math.min(maju,Math.max(0,g-T*.95))});
+        p+=maju*c.dir;if(p>x1)p=x0+(p-x1);if(p<x0)p=x1-(x0-p);c.st.p=p});
+      for(const c of cars){const {v,k,dir}=c,p=c.st.p,lane=dir>0?T*.2:-T*.2;
         const ax=horiz?p:q*S*T-lane,ay=horiz?q*S*T+lane:p;
         {const jj=jenisJalan(horiz?1:0,q,Math.floor(p/(S*T)));if(!(jj==='besar'||jj==='aspal'||(k>=0.85&&jj!=='rumput')))continue}
         if(k<0.3)drawVehicle(ax,ay,horiz,dir,ih(q,v,59)*0.59);
@@ -1182,6 +1207,10 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       ctx.restore()});
   }
   res.forEach((r,i)=>{const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
+  // tiang lampu merah digambar di atas bangunan supaya selalu terlihat
+  LAMPU_POS.forEach(([k,q,px,py,vw,hhw])=>{const tiang=(x,y,hz)=>{const st=lampu(k,q,t||0,hz);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x-4+2,y-10+2,9,21);ctx.fillStyle='#1C2520';ctx.fillRect(x-4.5,y-10.5,9,21);
+      [['m','#E8492E',-6.5],['k','#F2C230',0],['h','#3CC46A',6.5]].forEach(([n,cl,o])=>{ctx.fillStyle=st===n?cl:'#3A3F3B';ctx.beginPath();ctx.arc(x,y+o,2.7,0,7);ctx.fill();if(st===n){ctx.fillStyle=cl+'55';ctx.beginPath();ctx.arc(x,y+o,5.5,0,7);ctx.fill()}})};
+    tiang(px-vw-6,py-hhw-12,false);tiang(px+vw+6,py+hhw+12,false);tiang(px+vw+12,py-hhw-6,true);tiang(px-vw-12,py+hhw+6,true)});
   if(life){
     let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;blocks.forEach(([bx,by])=>{mnx=Math.min(mnx,bx);mny=Math.min(mny,by);mxx=Math.max(mxx,bx);mxy=Math.max(mxy,by)});
     kite(mnx*S*T-T*1.3,mny*S*T+T*1.6,t,'#C4502F','#F2C230',0.2);

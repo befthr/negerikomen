@@ -12,6 +12,7 @@
 //   POST keluar-lain (Bearer) → keluarkan semua HP lain
 //   POST keluar  (Bearer)     → keluarkan HP ini
 //   POST aktifkan {target} (Bearer kartu @negerikomen) → token aktivasi manual (jalur cadangan lewat DM)
+//   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
 
 const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
@@ -196,6 +197,13 @@ export default async function handler(req, res) {
       const t = cleanU(body.target);
       if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
       return res.status(200).json({ token: await buatSesi(t), u: t });
+    }
+    if (aksi === 'reset-jatah') {
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const t = cleanU(body.target);
+      if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
+      await kv(['DEL', 'ganti:' + t]);
+      return res.status(200).json({ ok: true, u: t });
     }
     return res.status(400).json({ error: 'Aksi tidak dikenal' });
   } catch (e) {

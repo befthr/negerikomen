@@ -1813,11 +1813,13 @@ function kkTampil(body,c,baru){body.innerHTML='';
   a1.onclick=async()=>{const r=await kkApi('keluar-lain',{},true);toast(r.ok?(r.dikeluarkan?`${r.dikeluarkan} HP lain dikeluarkan`:'Tidak ada HP lain'):(r.error||'Gagal'))};
   a2.onclick=async()=>{await kkApi('keluar',{},true);kkSet(null);kkTutup();kkRefreshPanel();toast('Kartu dilepas dari HP ini')};
   lk.append(a1,el('span',null,'·'),a2);body.append(lk)}
-function kkAdmin(body){const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: aktifkan kartu manual'),el('p','kk-muted','Untuk warga yang kuncinya tidak terdeteksi (kirim lewat DM). Link ini memberi akses kartu, kirim hanya ke pemiliknya.'));
+function kkAdmin(body){const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga'),el('p','kk-muted','Link aktivasi: untuk warga yang kuncinya tidak terdeteksi (kirim lewat DM, hanya ke pemiliknya). Reset jatah: untuk warga yang salah pencet.'));
   const inp=el('input');inp.placeholder='username warga, mis. simson__01';inp.autocapitalize='off';inp.autocomplete='off';inp.spellcheck=false;const out=el('div','kk-out');
   w.append(inp,kkBtn('Buat link aktivasi','dark',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase();if(!t){out.textContent='Isi username warga dulu';return}
     if(t==='negerikomen'){out.textContent='Itu akun kades sendiri, kartunya sudah aktif di HP ini';return}const res=await kkApi('aktifkan',{target:inp.value},true);if(!res.ok){out.textContent=res.error;return}
-    const link=location.origin+location.pathname+'#kartu='+res.token;out.innerHTML='';const a=el('code',null,link);out.append(a,kkBtn('Salin link','sm',()=>kkSalin(link)))}),out);body.append(w)}
+    const link=location.origin+location.pathname+'#kartu='+res.token;out.innerHTML='';const a=el('code',null,link);out.append(a,kkBtn('Salin link','sm',()=>kkSalin(link)))}),
+    kkBtn('Reset jatah ganti','',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase();if(!t){out.textContent='Isi username warga dulu';return}
+      const res=await kkApi('reset-jatah',{target:t},true);out.textContent=res.ok?`Jatah @${res.u} kembali 2 dari 2`:(res.error||'Gagal')}),out);body.append(w)}
 async function kkTerimaLink(tok){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(!/^[A-Za-z0-9_-]{20,64}$/.test(tok))return;kkSet({t:tok,u:''});const res=await kkApi('saya',null,true);
   if(!res.ok){kkSet(null);toast(res.error||'Link kartu tidak berlaku');return}kkSet({t:tok,u:res.kartu.u});kkRefreshPanel();const body=kkModal();kkTampil(body,res.kartu,true)}

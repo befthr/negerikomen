@@ -552,6 +552,10 @@ function drawSawah(x0,y0,w,h,bx,by){
   ctx.stroke();
 }
 // isi tengah blok yang belum ada bangunannya: macam-macam supaya peta tidak monoton
+// jenis jalan per ruas (antara dua persimpangan): jalan besar di sumbu kampung, sisanya campur aspal, gang, tanah, jalan rumput
+const JALAN_RANK={kosong:0,rumput:1,tanah:2,gang:3,aspal:4,besar:5};
+function jenisJalan(hz,q,seg){if(q===0)return 'besar';const r=ih(q*13+(hz?5:9),seg*7+3,150);
+  return r<.42?'aspal':r<.64?'gang':r<.82?'tanah':r<.94?'rumput':'kosong'}
 const TEMA=['kebun','kebun','sawah','empang','lapangan','taman','pisang','bunga','kebun','sawah','empang','pisang'];
 function temaBlok(bx,by){if(bx>=-1&&bx<=0&&by>=-1&&by<=0)return 'kebun';return TEMA[Math.floor(ih(bx*7+3,by*11+5,140)*TEMA.length)]}
 function drawTema(tm,x,y,s,bx,by,t){const c=ctx,R=(a,b,w,h,f)=>{c.fillStyle=f;c.fillRect(a,b,w,h)},E=(a,b,rx,ry,f,rot)=>{c.fillStyle=f;c.beginPath();c.ellipse(a,b,rx,ry,rot||0,0,7);c.fill()};
@@ -1052,20 +1056,26 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const bx0=Math.floor((tx0-C)/S)-1,bx1=Math.ceil((tx1-C)/S)+1,by0=Math.floor((ty0-C)/S)-1,by1=Math.ceil((ty1-C)/S)+1;
   for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){
     const x0=bx*S*T+T/2,y0=by*S*T+T/2,s=(S-1)*T;
-    if(act.has(bx+','+by)){ctx.fillStyle='#93BE62';ctx.fillRect(x0-T/2,y0-T/2,s+T,s+T);ctx.fillStyle='#89B65A';ctx.fillRect(x0+T*1.1,y0+T*1.1,s-T*2.2,s-T*2.2)}
+    if(act.has(bx+','+by)){ctx.fillStyle='#93BE62';ctx.fillRect(x0-T/2,y0-T/2,s+T,s+T);const rd=T*(.3+ih(bx,by,160)*1.1);ctx.fillStyle='#89B65A';ctx.beginPath();ctx.roundRect(x0+T*1.1,y0+T*1.1,s-T*2.2,s-T*2.2,rd);ctx.fill()}
     else drawSawah(x0-T*.15,y0-T*.15,s+T*.3,s+T*.3,bx,by);
   }
   ctx.fillStyle='#CDB07D';
   for(let q=Math.floor((ty0-C)/S);q<=Math.ceil((ty1-C)/S);q++)ctx.fillRect(vx0,q*S*T-T*.18,vx1-vx0,T*.36);
   for(let q=Math.floor((tx0-C)/S);q<=Math.ceil((tx1-C)/S);q++)ctx.fillRect(q*S*T-T*.18,vy0,T*.36,vy1-vy0);
   const blocks=[...act].map(k=>k.split(',').map(Number));
-  ctx.fillStyle='#6E7378';
-  blocks.forEach(([bx,by])=>{const xa=bx*S*T-T/2,xb=(bx+1)*S*T+T/2,ya=by*S*T-T/2,yb=(by+1)*S*T+T/2;
-    ctx.fillRect(xa,by*S*T-T/2,xb-xa,T);ctx.fillRect(xa,(by+1)*S*T-T/2,xb-xa,T);
-    ctx.fillRect(bx*S*T-T/2,ya,T,yb-ya);ctx.fillRect((bx+1)*S*T-T/2,ya,T,yb-ya)});
-  ctx.fillStyle='#7C8186';
-  blocks.forEach(([bx,by])=>{const gx=bx*S*T+T/2,gy=by*S*T+T/2,gs=(S-1)*T;
-    ctx.fillRect(gx-3,gy-3,gs+6,3);ctx.fillRect(gx-3,gy+gs,gs+6,3);ctx.fillRect(gx-3,gy,3,gs);ctx.fillRect(gx+gs,gy,3,gs)});
+  // ruas jalan (unik), digambar dari yang paling sederhana ke jalan besar supaya persimpangan ikut jenis terbaik
+  {const seg=new Map();blocks.forEach(([bx,by])=>{[[1,by,bx],[1,by+1,bx],[0,bx,by],[0,bx+1,by]].forEach(([hz,q,sg])=>{const k=hz+','+q+','+sg;if(!seg.has(k))seg.set(k,{hz,q,sg,j:jenisJalan(hz,q,sg)})})});
+    const L=[...seg.values()].sort((a,b)=>JALAN_RANK[a.j]-JALAN_RANK[b.j]),SL=S*T;
+    const W={besar:T*1.12,aspal:T*.8,gang:T*.46,tanah:T*.62,rumput:T*.5,kosong:0};
+    L.forEach(({hz,q,sg,j})=>{if(j==='kosong')return;const w=W[j],ext=w/2,a0=sg*SL-ext,a1=(sg+1)*SL+ext,c0=q*SL;
+      const rect=(off,ww,f)=>{ctx.fillStyle=f;if(hz)ctx.fillRect(a0,c0+off-ww/2,a1-a0,ww);else ctx.fillRect(c0+off-ww/2,a0,ww,a1-a0)};
+      const dash=(f,dl,gap,ww,off)=>{ctx.fillStyle=f;for(let p=sg*SL+gap/2;p<(sg+1)*SL;p+=dl+gap){if(hz)ctx.fillRect(p,c0+(off||0)-ww/2,dl,ww);else ctx.fillRect(c0+(off||0)-ww/2,p,ww,dl)}};
+      if(j==='besar'){rect(0,w+6,'#C9C2B0');rect(0,w,'#5E6368');dash('#F2C230',10,8,2.2,-1.6);dash('#F2C230',10,8,2.2,1.6)}
+      else if(j==='aspal'){rect(0,w+3,'#9AA0A6');rect(0,w,'#6E7378');dash('rgba(255,255,255,.6)',8,10,1.6)}
+      else if(j==='gang'){rect(0,w,'#BDB6A6');dash('rgba(0,0,0,.08)',1.2,9,w)}
+      else if(j==='tanah'){rect(0,w,'#B48A5A');rect(-w*.22,2.2,'rgba(90,60,30,.35)');rect(w*.22,2.2,'rgba(90,60,30,.35)');
+        ctx.fillStyle='rgba(120,160,70,.55)';for(let p=sg*SL+5;p<(sg+1)*SL;p+=11){const o=(ih(p,q,170)-.5)*w*.8;if(hz)ctx.fillRect(p,c0+o,3,2);else ctx.fillRect(c0+o,p,2,3)}}
+      else if(j==='rumput'){rect(0,w,'#A8CC72');rect(-w*.2,2.6,'#C7B07A');rect(w*.2,2.6,'#C7B07A')}})}
   ctx.fillStyle='rgba(255,255,255,.7)';for(let i=-2;i<=2;i++){ctx.fillRect(i*7-2,-T/2-12,4,10);ctx.fillRect(i*7-2,T/2+2,4,10)}
   const temaOf=new Map();
   for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(!act.has(bx+','+by))continue;const ix=C+bx*S+2,iy=C+by*S+2;let bebas=true;
@@ -1094,6 +1104,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
         const sp=k<0.3?70:k<0.6?95:k<0.85?60:22;
         const p=x0+mod(t*sp*dir+ih(q,v,53+hz)*len,len),lane=dir>0?T*.2:-T*.2;
         const ax=horiz?p:q*S*T-lane,ay=horiz?q*S*T+lane:p;
+        {const jj=jenisJalan(horiz?1:0,q,Math.floor(p/(S*T)));if(!(jj==='besar'||jj==='aspal'||(k>=0.85&&(jj==='tanah'||jj==='gang'))))continue}
         if(k<0.3)drawVehicle(ax,ay,horiz,dir,ih(q,v,59)*0.59);
         else if(k<0.6)drawVehicle(ax,ay,horiz,dir,0.62+ih(q,v,61)*0.36);
         else if(k<0.85)drawAngkot(ax,ay,horiz,dir,['#2E9C6A','#2F74B5','#E2B23A'][Math.floor(ih(q,v,67)*3)]);

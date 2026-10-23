@@ -1533,7 +1533,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     if(b.type==='tokokampung'||b.type==='dealer'){const pr=el('div','promo-toko');const dl=b.type==='dealer';
       pr.append(el('b',null,dl?'🛵 Motor & sepeda, pilih warnanya sendiri!':'🛍️ Ubah rumah & isi pekaranganmu!'),
-        el('p',null,dl?'Motor (5 Genteng) dan sepeda (3 Genteng) dengan 9 pilihan warna. Kamu bisa keliling kampung, lengkap dengan namamu di atasnya!':'Ubah warna, bendera emas, ruko, sampai motor, ayam, kucing, kolam ikan, dan papan nama dengan namamu.'),
+        el('p',null,dl?'Motor (4 Genteng) dan sepeda (2 Genteng) dengan 9 pilihan warna. Kamu bisa keliling kampung, lengkap dengan namamu di atasnya!':'Ubah warna, bendera emas, ruko, sampai motor, ayam, kucing, kolam ikan, dan papan nama dengan namamu.'),
         el('small',null,KK_ON?'Belinya lewat Kartu Komen-mu → Ubah rumah.':'Dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!'));
       const go=el('button','btn gold3',KK_ON?'🔑 Beli lewat Kartu Komen':'⏳ Segera dibuka');go.type='button';go.onclick=()=>kkBelanja(dl?'item':'rumah');pr.append(go);left.append(pr)}
     else if(b.type!=='tugu'){sf.append(kp);left.append(sf)}
@@ -2093,7 +2093,7 @@ const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga
     kkBtn('Reset jatah ganti','',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase();if(!t){out.textContent='Isi username warga dulu';return}
       const res=await kkApi('reset-jatah',{target:t},true);out.textContent=res.ok?`Jatah ganti @${res.u} sudah penuh lagi`:(res.error||'Gagal')}),out);body.append(w)}
 /* ---- Ubah rumah & item pekarangan (traktir Genteng, dikonfirmasi kades) ---- */
-const KK_ITEM={sepeda:{n:'Sepeda',h:3,k:'Kendaraan'},motor:{n:'Motor',h:5,k:'Kendaraan'},ayam:{n:'Ayam',h:1,k:'Hewan'},kucing:{n:'Kucing',h:2,k:'Hewan'},kambing:{n:'Kambing',h:2,k:'Hewan'},
+const KK_ITEM={sepeda:{n:'Sepeda',h:2,k:'Kendaraan'},motor:{n:'Motor',h:4,k:'Kendaraan'},ayam:{n:'Ayam',h:1,k:'Hewan'},kucing:{n:'Kucing',h:2,k:'Hewan'},kambing:{n:'Kambing',h:2,k:'Hewan'},
   lampu:{n:'Lampu taman',h:1,k:'Hiasan'},mangga:{n:'Pohon mangga',h:1,k:'Hiasan'},kolam:{n:'Kolam ikan',h:2,k:'Hiasan'},ayunan:{n:'Ayunan',h:2,k:'Hiasan'},papan:{n:'Papan nama',h:2,k:'Papan nama'}};
 const KK_VW={merah:'#C4402F',biru:'#2F74B5',hijau:'#2F9E6A',kuning:'#F2C230',hitam:'#2B2B2B',putih:'#F4EFE3',pink:'#E58AA6',ungu:'#8E5AA8',oranye:'#E07A3E'};
 const KK_JENIS={warna:{ic:'🎨',n:'Ubah warna'},emas:{ic:'🚩',n:'Bendera emas'},ruko:{ic:'🏪',n:'Jadi ruko'},item:{ic:'🎁',n:'Item pekarangan'}};

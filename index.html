@@ -155,7 +155,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .kk-req.lunas{background:#E8F4DF;border-radius:10px;padding:8px}.kk-cf{margin-top:8px;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #E2C978}.kk-cf p{margin:0!important;font-size:13.5px!important}
 .trak-how{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#fff;border:1.5px dashed #E2C978;font-size:14px;line-height:1.45}
 .kk-stat p{margin:4px 0!important;font-size:13px!important}
-.etalase{margin-top:12px}.eta-lede{margin:0 0 8px;font-size:13.5px;color:var(--ink)}.eta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.etalase{margin-top:12px}.trak-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 0;padding-top:10px;border-top:1.5px dashed #E2C978;font-size:13px;color:var(--muted)}.trak-foot a{font-weight:700;color:var(--genteng)}.eta-lede{margin:0 0 8px;font-size:13.5px;color:var(--ink)}.eta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .eta{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;border:1.5px solid #E2C978;background:#fff;font:inherit;font-size:11.5px;font-weight:800;line-height:1.15;text-align:center;cursor:pointer;min-width:0}
 .eta svg{width:44px;height:44px;animation:etaB 2.4s ease-in-out infinite}.eta small{font-size:11px;color:var(--muted)}.eta:hover{border-color:#1C2520}
 @keyframes etaB{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px) rotate(-2deg)}}@media (prefers-reduced-motion:reduce){.eta svg{animation:none}}
@@ -403,15 +403,15 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="card trak" id="trak" hidden>
         <div class="trak-row">
           <img src="genteng.png" alt="" width="56" height="56">
-          <div><h3>Traktir kampung</h3><p class="trak-lede">Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p></div>
+          <div><h3 data-nokk>Traktir kampung</h3><h3 data-kk hidden>🛍️ Toko Kampung</h3><p class="trak-lede" data-nokk>Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p><p class="trak-lede" data-kk hidden>Ubah rumahmu dan ramaikan pekaranganmu pakai <b>Genteng</b>.</p></div>
         </div>
-        <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener">Traktir Genteng di Trakteer</a>
+        <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener" data-nokk>Traktir Genteng di Trakteer</a>
         <div class="etalase" id="etalase"></div>
-        <p class="trak-how" data-kk hidden>🔑 <b>Sudah punya rumah?</b> Buka <b>Kartu Komen</b> → <b>Ubah rumah</b>, pilih yang kamu mau, lalu tulis <b>kode pesanan</b> di pesan traktiran. Lunas = langsung berubah.</p>
-        <ul class="trak-tiers">
+        <ul class="trak-tiers" data-nokk>
           <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
           <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
+        <p class="trak-foot" data-kk hidden><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button><span>Cuma mau traktir kepala desa? <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
       </div>
 
       <div class="card voucher" id="voucher" hidden>
@@ -1152,7 +1152,7 @@ fetch('/api/followers',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
 if(D.updated){const d=new Date(D.updated+'T12:00:00');if(!isNaN(d))$('updated').textContent='Diperbarui '+d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}
 if(D.trakteer&&typeof D.trakteer.url==='string'&&/^https:\/\/(www\.)?trakteer\.id\//.test(D.trakteer.url.trim())){
   const u=D.trakteer.unit||'Genteng';$('trak').hidden=false;$('tLink').href=D.trakteer.url.trim();
-  $('tLink').textContent=`Traktir ${u} di Trakteer`;$('tUnit').textContent=u;
+  $('tLink').textContent=`Traktir ${u} di Trakteer`;$('tLink2').href=D.trakteer.url.trim();$('tLink2').textContent=`Traktir ${u} ↗`;$('tUnit').textContent=u;
   const ig=document.createElement('a');ig.className='ig trakig';ig.href=D.trakteer.url.trim();ig.target='_blank';ig.rel='noopener';ig.textContent='Traktir '+u;
   document.querySelector('.top-acts').prepend(ig);
 }

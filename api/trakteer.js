@@ -8,7 +8,7 @@ import { terapkan, bolehOtomatis } from './_terapkan.js';
 const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
 const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || '');
 const TOKEN = String(process.env.TRAKTEER_WEBHOOK_TOKEN || '').trim();
-const AWAL = { WARNA: 'warna', EMAS: 'emas', RUKO: 'ruko', ITEM: 'item' };
+const AWAL = { WARNA: 'warna', EMAS: 'emas', RUKO: 'ruko', ITEM: 'item', TINGKAT: 'tingkat' };
 
 async function kvMany(cmds) {
   const r = await fetch(KV_URL + '/pipeline', { method: 'POST', headers: { Authorization: 'Bearer ' + KV_TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     const pesan = String(b.supporter_message || b.message || b.support_message || '').slice(0, 300);
     const masuk = { id, nama, qty, pesan, at: Date.now() };
     await kv(['INCRBY', 'goal:genteng', qty]); // progres goal kampung (semua traktiran)
-    const kodes = [...new Set((teksSemua(b).toUpperCase().match(/\b(WARNA|EMAS|RUKO|ITEM)-[A-Z0-9]{4}\b/g) || []))];
+    const kodes = [...new Set((teksSemua(b).toUpperCase().match(/\b(WARNA|EMAS|RUKO|ITEM|TINGKAT)-[A-Z0-9]{4}\b/g) || []))];
     const hasil = [];
     for (const kode of kodes.slice(0, 3)) {
       const jenis = AWAL[kode.split('-')[0]], key = jenis + ':req:' + kode, v = jparse(await kv(['GET', key]));

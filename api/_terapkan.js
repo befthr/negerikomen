@@ -13,6 +13,8 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
     } else if (jenis === 'emas') {
       await kv(['HSET', 'emasplus', v.u, JSON.stringify({ day, kode })]);
+    } else if (jenis === 'tingkat') {
+      await kv(['HSET', 'tingkatplus', v.u, JSON.stringify({ lantai: v.lantai, day, kode })]);
     } else if (jenis === 'ruko') {
       await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
     } else {

@@ -78,7 +78,9 @@ async function wargaPlus(D, u, extra) {
 const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','kuning','oranye','ungu','ungu muda','coklat','hitam','abu-abu','putih','emas','tosca','navy','krem','marun','terakota'];
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
 // pesanan ubah rumah & item (harga dalam Genteng)
-const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 } };
+const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };
+const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 10 : (kini >= 2 ? 4 : 14); // tingkat 2: 10 Receh · tingkat 3: 14 Receh (naik dari tingkat 2: 4 Receh)
+const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
 const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2 };
 const MAKS_PAJANG = 3;
 const VWARNA = ['merah', 'biru', 'hijau', 'kuning', 'hitam', 'putih', 'pink', 'ungu', 'oranye']; // warna motor & sepeda
@@ -135,8 +137,8 @@ async function buatSesi(u) {
 }
 async function infoKartu(D, u) {
   const J = Object.keys(JENIS);
-  const got = await kvMany([['HGET', 'pilihan', u], ['GET', 'ganti:' + u], ['HGET', 'warnaplus', u], ['HGET', 'emasplus', u], ['HGET', 'itemplus', u], ['HGET', 'rukoplus', u], ...J.map(j => ['GET', j + ':user:' + u])]);
-  const [p, g, ex, em, it, rk] = got, kodes = got.slice(6);
+  const got = await kvMany([['HGET', 'pilihan', u], ['GET', 'ganti:' + u], ['HGET', 'warnaplus', u], ['HGET', 'emasplus', u], ['HGET', 'itemplus', u], ['HGET', 'rukoplus', u], ['HGET', 'tingkatplus', u], ...J.map(j => ['GET', j + ':user:' + u])]);
+  const [p, g, ex, em, it, rk, tk] = got, kodes = got.slice(7);
   const w0 = awalMinggu(), dipakai = (jparse(g) || []).filter(t => t >= w0).length;
   const r = await wargaPlus(D, u, jparse(ex) || []), V = r ? histOf(r) : [];
   const reqs = await kvMany(J.map((j, k) => kodes[k] ? ['GET', j + ':req:' + kodes[k]] : ['GET', 'kosong:']));
@@ -150,7 +152,7 @@ async function infoKartu(D, u) {
   return { u, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
-    emas: !!(r && r.sup) || !!em, ruko: jparse(rk), items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
+    emas: !!(r && r.sup) || !!em, ruko: jparse(rk), tingkat: Math.max(+(r && r.tingkat) || 1, +((jparse(tk) || {}).lantai) || 1), items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
     minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, dompet: dompet || null, saldoBaru: masuk.length ? { n: masuk.reduce((t, x) => t + x.n, 0), ket: masuk.map(x => x.ket), at: masuk[0].at } : null };
 }
 
@@ -221,7 +223,8 @@ export default async function handler(req, res) {
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
       for (let i = 0; i + 1 < rx.length; i += 2) { const e = jparse(rx[i + 1]); if (e && e.length) extra[rx[i]] = e }
-      const [re, rr, ri, rd, rj, gg] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng']]);
+      const [re, rr, ri, rd, rj, gg, rt] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus']]);
+      const tingkat = {}; for (let i = 0; rt && i + 1 < rt.length; i += 2) { const v = jparse(rt[i + 1]); if (v && v.lantai > 1) tingkat[rt[i]] = v.lantai }
       const jalan = {}; for (let i = 0; rj && i + 1 < rj.length; i += 2) { const v = jparse(rj[i + 1]); if (v && Date.now() - v.at < 120000) jalan[rj[i]] = v }
       const donasi = {}; for (let i = 0; rd && i + 1 < rd.length; i += 2) donasi[rd[i]] = +rd[i + 1] || 0;
       const ruko = {}, item = {};
@@ -229,7 +232,7 @@ export default async function handler(req, res) {
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (req.method !== 'POST' && aksi !== 'saya') return res.status(405).json({ error: 'Metode tidak didukung' });
     const D = await dataKampung(req);
@@ -316,6 +319,11 @@ export default async function handler(req, res) {
         const wall = String(body.wall || ''), roof = String(body.roof || '');
         if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna ruko dulu.' });
         isi = { wall, roof, harga: 20 };
+      } else if (jenis === 'tingkat') {
+        const lantai = Math.floor(+body.lantai), kini = info.tingkat || 1;
+        if (![2, 3].includes(lantai)) return res.status(400).json({ error: 'Pilih rumah tingkat 2 atau 3.' });
+        if (lantai <= kini) return res.status(400).json({ error: 'Rumahmu sudah tingkat ' + kini + '.' });
+        isi = { lantai, harga: HARGA_TINGKAT(lantai, kini) };
       } else {
         const ids = [...new Set((Array.isArray(body.items) ? body.items : []).map(String))].filter(id => KATALOG[id]);
         if (!ids.length) return res.status(400).json({ error: 'Pilih minimal satu item.' });
@@ -375,6 +383,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, ke, hadiah });
     }
     if (aksi === 'saldo-lihat') { await kv(['SET', 'saldo:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
+    if (aksi === 'gaji') { // kades: gaji mingguan karyawan fasilitas (sekali per pekan)
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const minggu = awalMinggu(), staf = [...new Set((D.buildings || []).flatMap(b => Array.isArray(b.staff) ? b.staff : []).map(x => cleanU(x && x.user)).filter(u => okU(u) && warga(D, u)))];
+      const sudah = await kv(['GET', 'gaji:' + minggu]);
+      if (!body.kirim) return res.status(200).json({ staf, per: GAJI, total: staf.length * GAJI, sudah: !!sudah });
+      if (!staf.length) return res.status(400).json({ error: 'Belum ada karyawan di data kampung.' });
+      if (!(await kv(['SET', 'gaji:' + minggu, String(Date.now()), 'NX', 'EX', 40 * 864e2]))) return res.status(400).json({ error: 'Gaji pekan ini sudah dikirim.' });
+      const at = Date.now();
+      await kvMany(staf.flatMap(u => [['HINCRBY', 'saldo', u, GAJI], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at, n: GAJI, ket: 'gaji' })], ['LTRIM', 'saldo:log:' + u, 0, 49]]));
+      return res.status(200).json({ ok: true, staf, per: GAJI, total: staf.length * GAJI });
+    }
     if (aksi === 'tambah-saldo') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const t = cleanU(body.target), n = Math.floor(+body.n);

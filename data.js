@@ -28,7 +28,9 @@ window.NK_DATA = {
  },
  "toko": {
   "csv": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKo0SdR8Jn7nL4NZaD9ZbX35jJen2RTB-IEGK9BHIE7H-eWgPTOJONPZLWt95V45un5PB7fbXz4-8C/pub?gid=189929632&single=true&output=csv",
-  "form": "https://docs.google.com/forms/d/e/1FAIpQLSdwyeZnY9qG5T4xLPxchrrzfYRgJCvduBWlV7v5H_gBhqeiww/viewform"
+  "form": "https://docs.google.com/forms/d/e/1FAIpQLSdwyeZnY9qG5T4xLPxchrrzfYRgJCvduBWlV7v5H_gBhqeiww/viewform",
+  "fUser": "entry.1202939403",
+  "fKode": "entry.1738076910"
  },
  "residents": [
   { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 2, "sup": true, "custom": { "title": "Traktir 2 Genteng (1 + 1) → dapat bendera emas", "day": 3 } },

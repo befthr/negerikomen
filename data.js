@@ -1447,7 +1447,8 @@ window.NK_DATA = {
   { "name": "indrianiiee_", "x": 77, "y": 46, "day": 5, "nick": "Gian", "roof": "putih", "wall": "merah muda" },
   { "name": "ilham_dreams", "x": 14, "y": 38, "day": 5, "nick": "Ilham", "roof": "hitam", "wall": "putih" },
   { "name": "s4tvrneiizx_", "x": 74, "y": 56, "day": 5, "nick": "Putri" },
-  { "name": "rafytta24", "x": 72, "y": 28, "day": 5, "nick": "Rafa", "roof": "merah", "wall": "putih" }
+  { "name": "rafytta24", "x": 72, "y": 28, "day": 5, "nick": "Rafa", "roof": "merah", "wall": "putih" },
+  { "name": "dapxy.zz", "x": 41, "y": 76, "day": 5, "nick": "Dapxy" }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },

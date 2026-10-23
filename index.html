@@ -1939,8 +1939,11 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
     mg.firstChild.append(el('b',null,'🎮 Mini game terakhir'),el('span','kk-soon','Segera'));body.append(mg)}
   if(c.admin){kkStatus(body);kkAdmin(body)}
   const lk=el('div','kk-links'),a1=el('button',null,'Keluarkan perangkat lain'),a2=el('button',null,'Keluar dari perangkat ini');a1.type=a2.type='button';
-  a1.onclick=async()=>{const r=await kkApi('keluar-lain',{},true);toast(r.ok?(r.dikeluarkan?`${r.dikeluarkan} perangkat lain dikeluarkan`:'Tidak ada perangkat lain'):(r.error||'Gagal'))};
-  a2.onclick=async()=>{await kkApi('keluar',{},true);kkSet(null);kkTutup();kkRefreshPanel();toast('Kartu dilepas dari perangkat ini')};
+  // konfirmasi dulu sebelum keluar
+  const tanya=(teks,ya,fn)=>{const old=body.querySelector('.kk-cf.out');if(old)old.remove();const cf=el('div','kk-cf out');cf.append(el('p',null,teks));
+    const r=el('div','kk-row');r.append(kkBtn(ya,'sm dark',async e=>{e.target.disabled=true;await fn();cf.remove()}),kkBtn('Batal','sm',()=>cf.remove()));cf.append(r);lk.after(cf);cf.scrollIntoView({block:'nearest',behavior:'smooth'})};
+  a1.onclick=()=>tanya('Keluarkan semua perangkat lain? Kartumu di perangkat lain akan lepas. Perangkat ini tetap memegang kartu.','Ya, keluarkan',async()=>{const r=await kkApi('keluar-lain',{},true);toast(r.ok?(r.dikeluarkan?`${r.dikeluarkan} perangkat lain dikeluarkan`:'Tidak ada perangkat lain'):(r.error||'Gagal'))});
+  a2.onclick=()=>tanya('Keluar dari perangkat ini? Untuk memakai kartu lagi di sini, kamu harus ambil kunci dan komen lagi.','Ya, keluar',async()=>{await kkApi('keluar',{},true);kkSet(null);kkTutup();kkRefreshPanel();toast('Kartu dilepas dari perangkat ini')});
   lk.append(a1,el('span',null,'·'),a2);body.append(lk)}
 /* ---- Ganti warna rumah (traktir 1 Genteng, dikonfirmasi kades) ---- */
 const KK_WARNA=['merah','merah muda','oranye','terakota','kuning','emas','hijau','hijau muda','tosca','biru muda','biru','navy','ungu','ungu muda','marun','coklat','krem','putih','abu-abu','hitam'];

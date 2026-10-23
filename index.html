@@ -1953,7 +1953,8 @@ async function kkAntre(box){box.innerHTML='';box.append(el('p','kk-muted','Memua
     const sv=j==='warna'?kkRumahMini({...r,style:a.style===undefined?r.style:a.style,wall:a.wall,roof:a.roof}):j==='ruko'?kkRukoMini(a.wall,a.roof):j==='item'?kkItemSVG(a.items[0],a.teks):kkRumahMini(r);
     const tx=el('div');tx.append(el('b',null,`${KK_JENIS[j].ic} ${a.kode} · @${a.u} · ${a.harga||1} Genteng`),el('span',null,`${kkPesanTeks({jenis:j,...a})} · ${new Date(a.at).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`));
     if(j==='ruko')tx.append(el('span',null,' · cek isian formulir toko di Sheet, lalu centang "Tayang"'));
-    const act=el('div','kk-row');act.append(kkBtn('✅ Konfirmasi','sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-ubah',{kode:a.kode,ok:true},true);toast(r2.ok?`Pesanan @${a.u} disetujui`:(r2.error||'Gagal'));kkAntre(box)}),
+    const H=a.harga||1,B=+a.bayar||0;if(H>1)tx.append(el('span',null,` · 💰 sudah masuk ${B}/${H} Genteng`));
+    const act=el('div','kk-row');if(H>1&&B<H)act.append(kkBtn('+1 Genteng masuk','sm',async e=>{e.target.disabled=true;const r2=await kkApi('cicil',{kode:a.kode,n:1},true);toast(r2.ok?(r2.lunas?`Lunas ${r2.bayar}/${r2.harga}! Tinggal konfirmasi.`:`Tercatat ${r2.bayar}/${r2.harga} Genteng`):(r2.error||'Gagal'));kkAntre(box)}));act.append(kkBtn('✅ Konfirmasi','sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-ubah',{kode:a.kode,ok:true},true);toast(r2.ok?`Pesanan @${a.u} disetujui`:(r2.error||'Gagal'));kkAntre(box)}),
       kkBtn('Tolak','sm',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-ubah',{kode:a.kode,ok:false},true);toast(r2.ok?'Pesanan ditolak':(r2.error||'Gagal'));kkAntre(box)}));
     tx.append(act);row.append(sv,tx);box.append(row)})}
 function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'🧾 Antrean pesanan warga'),el('p','kk-muted','Cocokkan kode pesanan dan jumlah Genteng dengan pesan traktiran di dashboard Trakteer, lalu konfirmasi.'));
@@ -2013,7 +2014,7 @@ function kkLinkJenis(j){return j==='emas'?kkUrl('emas'):j==='ruko'?kkUrl('usaha'
 // bagian di kartu: pesanan menunggu + tombol Ubah rumah + koleksi item
 function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',...c.minta,harga:1}:null};
   Object.keys(KK_JENIS).forEach(j=>{const p=P[j];if(!p)return;const w=el('div','kk-wait');
-    w.append(el('b',null,`⏳ ${KK_JENIS[j].ic} ${KK_JENIS[j].n} menunggu kepala desa`),el('div','kk-kode',p.kode),el('p','kk-muted',`${kkPesanTeks({jenis:j,...p})}. Traktir ${p.harga||1} Genteng dan tulis kode pesanan ini di pesan traktiran.`));
+    w.append(el('b',null,`⏳ ${KK_JENIS[j].ic} ${KK_JENIS[j].n} menunggu kepala desa`),el('div','kk-kode',p.kode),el('p','kk-muted',`${kkPesanTeks({jenis:j,...p})}. Traktir ${p.harga||1} Genteng dan tulis kode pesanan ini di pesan traktiran.`+((p.harga||1)>1?` Boleh dicicil dengan kode yang sama dalam 14 hari${p.bayar?` (sudah masuk ${p.bayar}/${p.harga} Genteng)`:''}.`:'')));
     w.querySelector('.kk-kode').onclick=()=>kkSalin(p.kode);
     const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkLinkJenis(j);a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(p.kode)));
     if(j==='ruko'){const f=kkFormUrl(c.u,p.kode);if(f){const b=el('a','btn','📝 Isi formulir toko');b.href=f;b.target='_blank';b.rel='noopener';row.append(b)}}

@@ -2570,7 +2570,7 @@ const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga
       const res=await kkApi('reset-jatah',{target:t},true);out.textContent=res.ok?`Jatah ganti @${res.u} sudah penuh lagi`:(res.error||'Gagal')}),out);body.append(w)}
 /* ---- Ubah rumah & item pekarangan (traktir Genteng, dikonfirmasi kades) ---- */
 const KK_ITEM={sepeda:{n:'Sepeda',h:2,k:'Kendaraan'},motor:{n:'Motor',h:4,k:'Kendaraan'},ayam:{n:'Ayam',h:1,k:'Hewan'},kucing:{n:'Kucing',h:2,k:'Hewan'},kambing:{n:'Kambing',h:2,k:'Hewan'},
-  lampu:{n:'Lampu taman',h:1,k:'Hiasan'},mangga:{n:'Pohon mangga',h:1,k:'Hiasan'},kolam:{n:'Kolam ikan',h:2,k:'Hiasan'},ayunan:{n:'Ayunan',h:2,k:'Hiasan'},papan:{n:'Papan nama',h:2,k:'Papan nama'},robot:{n:'GENTO',h:30,k:'Eksklusif'}};
+  lampu:{n:'Lampu taman',h:1,k:'Hiasan'},mangga:{n:'Pohon mangga',h:1,k:'Hiasan'},kolam:{n:'Kolam ikan',h:2,k:'Hiasan'},ayunan:{n:'Ayunan',h:2,k:'Hiasan'},papan:{n:'Papan nama',h:2,k:'Papan nama'},robot:{n:'GENTO',h:22,k:'Eksklusif'}};
 const KK_VW={merah:'#C4402F',biru:'#2F74B5',hijau:'#2F9E6A',kuning:'#F2C230',hitam:'#2B2B2B',putih:'#F4EFE3',pink:'#E58AA6',ungu:'#8E5AA8',oranye:'#E07A3E'};
 const KK_JENIS={warna:{ic:'🎨',n:'Ubah warna'},emas:{ic:'🚩',n:'Bendera emas'},ruko:{ic:'🏪',n:'Jadi ruko'},item:{ic:'🎁',n:'Item pekarangan'},tingkat:{ic:'🏢',n:'Rumah tingkat'}};
 // gambar item (tanpa wajah: hewan cukup bentuk & warna)
@@ -2822,7 +2822,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
-  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='gento'?'Robot eksklusif · cuma 1 di kampung · 30 Receh · coba tekan Tembak mercon!':r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='gento'?'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!':r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();

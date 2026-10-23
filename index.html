@@ -177,6 +177,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .eta{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;border:1.5px solid #E2C978;background:#fff;font:inherit;font-size:11.5px;font-weight:800;line-height:1.15;text-align:center;cursor:pointer;min-width:0}
 .eta svg{width:44px;height:44px;animation:etaB 2.4s ease-in-out infinite}.eta small{font-size:11px;color:var(--muted)}
 .eks-tag{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:#1C2520;background:linear-gradient(90deg,#F2C230,#FFE68A,#F2C230);border:1.5px solid #1C2520;border-radius:999px;padding:1px 7px}
+.eks-ket{font-size:10px;color:#8A6A10;font-weight:700}
 .kk-it.eks,.eta.eks{border-color:#C99A12;background:linear-gradient(#FFF8DC,#fff);box-shadow:0 0 0 2px rgba(242,194,48,.35)}.eta:hover{border-color:#1C2520}
 @keyframes etaB{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px) rotate(-2deg)}}@media (prefers-reduced-motion:reduce){.eta svg{animation:none}}
 .eta-cta{margin-top:10px}.promo-toko{margin-top:10px;padding:12px;border-radius:14px;background:#FFF6D6;border:1.5px solid #E2C978}.promo-toko p{margin:4px 0}.promo-toko small{display:block;color:var(--muted);margin-bottom:8px}
@@ -2590,13 +2591,14 @@ function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));bod
       b.onclick=()=>{wk[id]=nm;const t=body.querySelector(`.kk-it[data-id="${id}"] svg`);if(t)t.replaceWith(kkItemSVG(id,null,nm));vpal()};g.append(b)});w.append(g);vbox.append(w)})};
   kats.forEach(k=>{body.append(el('p','kk-sub',k));const g=el('div','kk-items');Object.entries(KK_ITEM).filter(([,v])=>v.k===k).forEach(([id,v])=>{
     const punya=own.includes(id)&&!ULANG.includes(id),b=el('button','kk-it'+(punya?' own':''));b.type='button';b.dataset.id=id;
-    const h=el('small');if(punya)h.textContent='✓ Punya';else{const im=el('img','kk-gico');im.src='receh.svg';im.alt='';h.append(im,v.h+'')}if(v.k==='Eksklusif'){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF · CUMA 1'));const ow=window.ROBOT_OWNER;if(id==='robot'&&ow&&ow!==String(c.u||'').toLowerCase()&&!own.includes('robot')){h.textContent='Milik @'+ow;b.disabled=true;b.classList.add('own');b._kunci=true}}
+    const h=el('small');if(punya)h.textContent='✓ Punya';else{const im=el('img','kk-gico');im.src='receh.svg';im.alt='';h.append(im,v.h+'')}if(v.k==='Eksklusif'){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF · CUMA 1'));const ow=window.ROBOT_OWNER;if(id==='robot'&&ow&&ow!==String(c.u||'').toLowerCase()&&!own.includes('robot')){h.textContent='Milik @'+ow;b.disabled=true;b.classList.add('own');b._kunci=true}else if(id==='robot'&&!own.includes('robot'))b.append(el('small','eks-ket','Bayar pakai Recehan, langsung jadi'))}
     b.append(id==='papan'?kkItemSVG(id,teks||null):kkItemSVG(id,null,wk[id]),el('span',null,own.includes(id)&&ULANG.includes(id)?(id==='papan'?'Ganti papan':'Ganti warna '+v.n.toLowerCase()):v.n),h);
     if(punya||b._kunci)b.disabled=true;else b.onclick=()=>{pick.has(id)?pick.delete(id):pick.add(id);b.classList.toggle('on',pick.has(id));inp.hidden=!pick.has('papan');if(!inp.hidden){inp.focus();setTimeout(()=>inp.scrollIntoView({block:'center',behavior:'smooth'}),350)}vpal();upd()};g.append(b)});
     body.append(g);if(k==='Kendaraan')body.append(vbox);if(k==='Papan nama')body.append(inp)});
   const lanjut=kkGBtn('Lanjut · ','0 Receh','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-ubah',{jenis:'item',items:[...pick],teks,warna:{motor:wk.motor,sepeda:wk.sepeda}},true);bt.disabled=false;
-    if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,res)});
-  function upd(){const t=[...pick].reduce((s,id)=>s+KK_ITEM[id].h,0);lanjut.lastChild.textContent=t+' Receh';lanjut.disabled=!t||(pick.has('papan')&&!teks.trim());
+    if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}
+    if(res.langsung){try{SND.play('ting',.9)}catch(_){}toast('🤖 GENTO resmi jadi milikmu! Cek pekaranganmu 🎉');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1600);return}kkKode(body,res)});
+  function upd(){const t=[...pick].reduce((s,id)=>s+KK_ITEM[id].h,0);lanjut.lastChild.textContent=t+' Receh';{const tn=[...lanjut.childNodes].find(n=>n.nodeType===3&&/·/.test(n.nodeValue));if(tn)tn.nodeValue=pick.has('robot')?'Beli langsung · ':'Lanjut · '}lanjut.disabled=!t||(pick.has('papan')&&!teks.trim());
     foot.firstChild.textContent=pick.size?`${pick.size} item dipilih`:'Belum ada item dipilih';
     const pp=body.querySelector('.kk-it[data-id="papan"] svg');if(pp)pp.replaceWith(kkItemSVG('papan',teks.trim()||null))}
   foot.append(el('span'),lanjut);body.append(msg,foot);upd()}

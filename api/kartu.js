@@ -76,7 +76,7 @@ const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
 // pesanan ubah rumah & item (harga dalam Genteng)
 const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 } };
-const KATALOG = { sepeda: 1, motor: 2, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2 };
+const KATALOG = { sepeda: 3, motor: 5, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2 };
 const MAKS_PAJANG = 3;
 const VWARNA = ['merah', 'biru', 'hijau', 'kuning', 'hitam', 'putih', 'pink', 'ungu', 'oranye']; // warna motor & sepeda
 const ULANG = ['papan', 'motor', 'sepeda']; // boleh dibeli lagi untuk ganti tulisan/warna

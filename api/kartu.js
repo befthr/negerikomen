@@ -156,24 +156,49 @@ async function kartuAktif() {
   } catch (e) { if (AKTIF === null) return false }
   return AKTIF;
 }
-// cari komentar kunci di postingan Kartu Komen (caption memuat "kartu komen") + video terbaru
-async function cariKomen(u, frasa) {
-  const g = async url => { const r = await fetch(url); const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error('ig: ' + ((j.error && j.error.message) || r.status)); return j };
-  const media = (await g('https://graph.instagram.com/v21.0/me/media?fields=id,caption,timestamp&limit=15&access_token=' + encodeURIComponent(IG_TOKEN))).data || [];
-  const target = media.filter((m, i) => i === 0 || adaPenanda(m.caption)).slice(0, 3);
-  const f = norm(frasa), f2 = f.replace(/^kunci /, '');
-  for (const m of target) {
-    let url = 'https://graph.instagram.com/v21.0/' + m.id + '/comments?fields=text,timestamp,hidden,from{username}&limit=50&access_token=' + encodeURIComponent(IG_TOKEN);
-    for (let page = 0; url && page < 10; page++) {
-      const j = await g(url);
-      for (const c of j.data || []) {
-        const by = cleanU(c.from && c.from.username), tx = ' ' + norm(c.text) + ' ';
-        if (tx.includes(' ' + f2 + ' ')) return { by, cocok: by === u };
-      }
-      url = j.paging && j.paging.next;
-    }
+// cari komentar kunci di postingan Kartu Komen (#kartukomen) + video terbaru.
+// Supaya kuat saat ramai: daftar komentar dibaca dari Instagram paling sering tiap ±20 detik untuk SEMUA warga
+// (salinan disimpan di database), lalu setiap pengecekan cukup mencari di salinan itu.
+const IGC_MAKS = 5000;
+const igGet = async url => { const r = await fetch(url); const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error('ig: ' + ((j.error && j.error.message) || r.status)); return j };
+const igUrl = (id, after) => 'https://graph.instagram.com/v21.0/' + id + '/comments?fields=text,from{username}&limit=50' + (after ? '&after=' + encodeURIComponent(after) : '') + '&access_token=' + encodeURIComponent(IG_TOKEN);
+async function segarkanKomen() {
+  if (!(await kv(['SET', 'igc:lock', '1', 'NX', 'EX', 20]))) return false;
+  let media = jparse(await kv(['GET', 'igc:media']));
+  if (!media) {
+    const all = (await igGet('https://graph.instagram.com/v21.0/me/media?fields=id,caption&limit=15&access_token=' + encodeURIComponent(IG_TOKEN))).data || [];
+    media = all.filter((m, i) => i === 0 || adaPenanda(m.caption)).slice(0, 3).map(m => m.id);
+    await kv(['SET', 'igc:media', JSON.stringify(media), 'EX', 60]);
   }
-  return null;
+  const list = jparse(await kv(['GET', 'igc:list'])) || [], ada = new Set(list.map(c => c.id));
+  const tambah = j => (j.data || []).forEach(c => { if (!c.id || ada.has(c.id)) return; ada.add(c.id);
+    const tx = norm(c.text); if (/\d/.test(tx)) list.push({ id: c.id, by: cleanU(c.from && c.from.username), tx }) });
+  const cur = jparse(await kv(['GET', 'igc:cur'])) || {};
+  for (const id of media) {
+    // 2 halaman pertama (kalau Instagram mengurutkan terbaru dulu) …
+    let j = await igGet(igUrl(id)); tambah(j);
+    if (j.paging && j.paging.next && j.paging.cursors) { j = await igGet(igUrl(id, j.paging.cursors.after)); tambah(j) }
+    // … lalu lanjut dari posisi terakhir (kalau urutannya terlama dulu), maks 6 halaman per penyegaran
+    let after = cur[id] || null;
+    for (let p = 0; after && p < 6; p++) {
+      const k = await igGet(igUrl(id, after)); tambah(k);
+      const nx = k.paging && k.paging.next && k.paging.cursors && k.paging.cursors.after;
+      if (!nx) break; after = nx;
+    }
+    cur[id] = after || (j.paging && j.paging.cursors && j.paging.cursors.after) || null;
+  }
+  const simpan = list.slice(-IGC_MAKS);
+  await kvMany([['SET', 'igc:list', JSON.stringify(simpan), 'EX', 3 * 864e2], ['SET', 'igc:cur', JSON.stringify(cur), 'EX', 3 * 864e2], ['SET', 'igc:at', String(Date.now()), 'EX', 3 * 864e2]]);
+  return true;
+}
+async function cariKomen(u, frasa) {
+  const f2 = norm(frasa).replace(/^kunci /, '');
+  const cari = async () => { const list = jparse(await kv(['GET', 'igc:list'])) || [];
+    for (let i = list.length - 1; i >= 0; i--) { const c = list[i]; if ((' ' + c.tx + ' ').includes(' ' + f2 + ' ')) return { by: c.by, cocok: c.by === u } } return null };
+  let h = await cari(); if (h) return h;
+  const at = +(await kv(['GET', 'igc:at'])) || 0;
+  if (Date.now() - at > 5000 && await segarkanKomen()) h = await cari();
+  return h;
 }
 
 export default async function handler(req, res) {
@@ -331,6 +356,15 @@ export default async function handler(req, res) {
       const n = Math.max(1, Math.min(50, Math.floor(+body.n || 1))); v.bayar = (+v.bayar || 0) + n;
       await kv(['SET', jenis + ':req:' + kode, JSON.stringify(v), ...EXP(jenis)]);
       return res.status(200).json({ ok: true, bayar: v.bayar, harga: v.harga || 1, lunas: v.bayar >= (v.harga || 1) });
+    }
+    if (aksi === 'status') {
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      let ig = { ok: false };
+      try { const j = await igGet('https://graph.instagram.com/v21.0/me?fields=username,followers_count&access_token=' + encodeURIComponent(IG_TOKEN)); ig = { ok: true, username: j.username, followers: j.followers_count } }
+      catch (e) { ig = { ok: false, error: String(e.message || e).slice(0, 140) } }
+      const [at, n, log] = await kvMany([['GET', 'igc:at'], ['GET', 'igc:list'], ['LRANGE', 'trk:log', 0, 0]]);
+      const terakhir = jparse((log || [])[0]);
+      return res.status(200).json({ ig, komen: { at: +at || null, jumlah: (jparse(n) || []).length }, trakteer: terakhir ? { at: terakhir.at, nama: terakhir.nama, qty: terakhir.qty } : null, aktif: await kartuAktif() });
     }
     if (aksi === 'tanpa-kode') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

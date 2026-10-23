@@ -776,7 +776,10 @@ function drawHouse(r,s,a){
 // item tampak atas (±10 px), tanpa wajah
 // jadwal motor/sepeda ala GTA jadul: parkir di pekarangan → keluar ke jalan, keliling kampung lewat persimpangan acak → pulang lewat jalan yang sama → parkir.
 // Motor lebih cepat & sesekali ngegas; sepeda santai. Mengembalikan null kalau sedang parkir, atau {x,y,ang,gas}.
-function rideOf(r,o,oi,t){if(o.id!=='motor'&&o.id!=='sepeda')return null;{const SV=window.__SETIR;if(SV&&SV.u===r.name&&SV.id===o.id)return SV.on?{x:SV.x,y:SV.y,ang:SV.ang,gas:SV.gas}:null}const mt=o.id==='motor',R=mt?40:56,PK=45,CY=R+PK,now=Date.now()/1000; // jam dunia: semua penonton melihat posisi yang sama
+function rideOf(r,o,oi,t){if(o.id!=='motor'&&o.id!=='sepeda')return null;{const SV=window.__SETIR;if(SV&&SV.u===r.name){if(SV.id!==o.id)return null;return SV.on?{x:SV.x,y:SV.y,ang:SV.ang,gas:SV.gas}:null}}
+  // satu warga cuma bisa naik satu kendaraan: kalau kendaraan lain miliknya sedang dipakai, yang ini parkir di rumah
+  if(r.jalan&&r.jalan.id!==o.id&&(Date.now()-r.jalan.at)/1000<(r.jalan.id==='motor'?40:56))return null;
+  if(!(r.jalan&&r.jalan.id===o.id)){const its=r.items||[];for(let q=0;q<Math.min(oi,its.length);q++){const p=its[q];if(p&&(p.id==='motor'||p.id==='sepeda')&&p.id!==o.id&&rideOf(r,p,q,t))return null}}const mt=o.id==='motor',R=mt?40:56,PK=45,CY=R+PK,now=Date.now()/1000; // jam dunia: semua penonton melihat posisi yang sama
   let cyc,tc;const jf=r.jalan&&r.jalan.id===o.id?(now-r.jalan.at/1000):-1;
   if(jf>=0&&jf<R){tc=jf;cyc=Math.floor(r.jalan.at/1000)}else{const ph=ih(r.x,r.y,90+oi)*CY,tt=now+ph;cyc=Math.floor(tt/CY);tc=tt-cyc*CY;if(jf>=R&&jf<R+PK)return null}
   if(tc>=R)return null;

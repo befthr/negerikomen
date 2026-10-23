@@ -806,6 +806,12 @@ function rideOf(r,o,oi,t){if(o.id!=='motor'&&o.id!=='sepeda')return null;{const 
   const w=Math.floor(u/6),f=(u-w*6)/1.1;
   return {x:A[0]+(B[0]-A[0])*p-nx*lane,y:A[1]+(B[1]-A[1])*p-ny*lane,ang,gas:mt&&f<1?f:-1}}
 const VCOL={merah:'#C4402F',biru:'#2F74B5',hijau:'#2F9E6A',kuning:'#F2C230',hitam:'#2B2B2B',putih:'#F4EFE3',pink:'#E58AA6',ungu:'#8E5AA8',oranye:'#E07A3E'};
+// kucing GENTO aktif: pindah-pindah antara pundak kiri, helm, dan pundak kanan sambil melompat
+function kucingGento(s,P){const KF=[[0,0],[4,0],[5,1],[8,1],[9,2],[12,2],[13,1],[16,1],[17,0],[20,0]],u=((s%20)+20)%20;
+  for(let i=0;i<KF.length-1;i++){const [a,pa]=KF[i],[b,pb]=KF[i+1];if(u>=a&&u<b){const f=(u-a)/(b-a),A=P[pa],B=P[pb];
+    if(pa===pb)return {x:A[0],y:A[1],z:A[2],lomp:0,arah:0,diam:true,f};const e=f<.5?2*f*f:1-2*(1-f)*(1-f);
+    return {x:A[0]+(B[0]-A[0])*e,y:A[1]+(B[1]-A[1])*e+Math.sin(f*Math.PI)*1.4,z:A[2]+(B[2]-A[2])*e,lomp:Math.sin(f*Math.PI),arah:Math.sign(B[0]-A[0]),diam:false,f}}}
+  const A=P[0];return {x:A[0],y:A[1],z:A[2],lomp:0,arah:0,diam:true,f:0}}
 function drawRobot2D(t,sd){const c=ctx,E=(x,y,a,b,f,r2)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,r2||0,0,7);c.fill()},RR=(x,y,w,h,r2,f,st)=>{c.fillStyle=f;c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r2):c.rect(x,y,w,h);c.fill();if(st){c.strokeStyle='#1C2520';c.lineWidth=1.2;c.stroke()}};
   const IV='#F1ECE0',TL='#1E8C8A',OR='#F07A2A',GR='#3A4148',GD='#E9B53C';
   const sw=Math.sin(t*.5+sd)*.12;
@@ -831,8 +837,9 @@ function drawRobot2D(t,sd){const c=ctx,E=(x,y,a,b,f,r2)=>{c.fillStyle=f;c.beginP
   RR(-8,-25,16,13,4,IV,1);RR(-8.5,-25.5,17,4,2,TL);c.fillStyle=OR;c.beginPath();c.moveTo(-6,-19);c.lineTo(0,-24);c.lineTo(6,-19);c.closePath();c.fill();
   c.strokeStyle=GD;c.lineWidth=1.6;c.beginPath();c.moveTo(-8,-22);c.lineTo(-12,-29);c.moveTo(8,-22);c.lineTo(12,-29);c.stroke();
   const bl=Math.sin(t*5+sd)>.3;E(0,-27,2.4,2.4,bl?'#FF5A4E':'#7A2A24');if(bl)E(0,-27,5,5,'rgba(255,90,78,.28)');
-  // kucing di pundak kiri (tanpa wajah)
-  c.save();c.translate(-22,-11);E(0,0,4.6,3.6,'#E07A3E');E(0,-3.6,3,2.8,'#E07A3E');c.fillStyle='#C4602A';c.beginPath();c.moveTo(-2.4,-5.4);c.lineTo(-1.6,-8);c.lineTo(-.4,-5.6);c.moveTo(.4,-5.6);c.lineTo(1.6,-8);c.lineTo(2.4,-5.4);c.fill();
+  // kucing aktif (tanpa wajah): pindah pundak ↔ helm, lompat terlihat membesar karena makin dekat ke atas
+  {const k=kucingGento(t*.9+sd,[[-22,-11,0],[0,-20,0],[22,-11,0]]),sc=1+k.lomp*.35;c.save();c.translate(k.x,k.y-k.lomp*4);c.scale(sc,sc);if(k.arah)c.rotate(k.arah*Math.PI/2);if(k.lomp>0){E(0,4+k.lomp*6,4,2,'rgba(0,0,0,.18)')}}
+  E(0,0,4.6,3.6,'#E07A3E');E(0,-3.6,3,2.8,'#E07A3E');c.fillStyle='#C4602A';c.beginPath();c.moveTo(-2.4,-5.4);c.lineTo(-1.6,-8);c.lineTo(-.4,-5.6);c.moveTo(.4,-5.6);c.lineTo(1.6,-8);c.lineTo(2.4,-5.4);c.fill();
   const tw=Math.sin(t*2.4+sd)*2.2;c.strokeStyle='#E07A3E';c.lineWidth=1.6;c.lineCap='round';c.beginPath();c.moveTo(-3.6,1);c.quadraticCurveTo(-8,3+tw,-7,7+tw);c.stroke();c.restore()}
 function drawItem2D(id,t,sd,teks,warna){t=t||0;sd=sd||0;const VC=VCOL[warna];const c=ctx,E=(x,y,a,b,f,rot)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,rot||0,0,7);c.fill()},R=(x,y,w,h,f)=>{c.fillStyle=f;c.fillRect(x,y,w,h)};
   // hewan & kendaraan bergerak pelan di pekarangan (jalan bolak-balik, menghadap arah jalan)
@@ -1364,7 +1371,7 @@ function tag(x,y,name,sub,fs,strong,own){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf};
+  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf,kucingGento};
 })();
 
 </script>
@@ -2010,15 +2017,20 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   [-1,1].forEach(sd=>{const at=mk(Cy(.05,.08,1.4,8),GD,sd*1.05,.9,-.2,null,head);at.rotation.z=-sd*.35});
   const ant=mk(Sp(.2),'#FF5A4E',0,1.75,0,{emissive:'#FF3B2F',emissiveIntensity:1},head);
   // ===== kucing di pundak kiri (tanpa wajah) =====
-  const cat=new T.Group();cat.position.set(-3.1,14.75,.2);R.add(cat);
-  const cb=mk(Sp(.42),'#E07A3E',0,0,0,{metalness:0,roughness:.9},cat);cb.scale.set(1,.85,1.25);mk(Sp(.3),'#E07A3E',0,.5,.3,{metalness:0,roughness:.9},cat);
-  [-.13,.13].forEach(x=>mk(new T.ConeGeometry(.09,.22,4),'#C4602A',x,.82,.3,{metalness:0},cat));
+  const cat=new T.Group();cat.position.set(-3.1,14.75,.2);R.add(cat);const KP=[[-3.1,14.75,.2],[0,17.1,-.55],[3.1,14.75,.2]];
+  const cb=mk(Sp(.42),'#E07A3E',0,0,0,{metalness:0,roughness:.9},cat);cb.scale.set(1,.85,1.25);const kp=new T.Group();kp.position.set(0,.5,.3);cat.add(kp);mk(Sp(.3),'#E07A3E',0,0,0,{metalness:0,roughness:.9},kp);
+  const telinga=[-.13,.13].map(x=>mk(new T.ConeGeometry(.09,.22,4),'#C4602A',x,.32,0,{metalness:0},kp));
+  const kakiK=[[-.2,.3],[.2,.3],[-.2,-.3],[.2,-.3]].map(([x,z])=>mk(Cy(.06,.06,.3,8),'#C4602A',x,-.35,z,{metalness:0},cat));
   const tail=new T.Group();tail.position.set(0,0,-.45);cat.add(tail);mk(Cy(.06,.06,.8,8),'#E07A3E',0,.35,0,{metalness:0},tail).rotation.x=-.5;
   A.push(t=>{const s=t*.001,w=Math.max(0,Math.sin(s*.8))**2;head.rotation.y=Math.sin(s*.45)*.5;
     ka.sh.rotation.z=w*1.9;ka.el.rotation.z=w*.9;ka.up.rotation.x=-w*.2;
     ant.material.emissiveIntensity=Math.sin(s*5)>.3?1.4:.1;core.material.emissiveIntensity=.6+.5*Math.sin(s*3);
     api.forEach((f,k)=>{const q=.85+.25*Math.sin(s*18+k*2);f.scale.set(q,q*1.1,q)});
-    tail.rotation.z=Math.sin(s*2.4)*.5;cat.rotation.y=Math.sin(s*.7)*.25})}
+    {const k=NK.kucingGento(s*.9,KP);cat.position.set(k.x,k.y,k.z);
+      if(k.diam){cat.rotation.y=Math.sin(s*.9)*.6;cat.rotation.x=0;kp.rotation.x=Math.sin(s*2.2)*.25;kp.rotation.y=Math.sin(s*1.3)*.5;cb.scale.set(1,.85+.04*Math.sin(s*3),1.25);kakiK.forEach(l=>l.scale.y=.6)}
+      else{cat.rotation.y=k.arah>0?Math.PI/2:-Math.PI/2;cat.rotation.x=(k.f-.5)*-.8;kp.rotation.x=-.2;cb.scale.set(1,.8,1.45);kakiK.forEach(l=>l.scale.y=1.3)}
+      telinga.forEach((e,i)=>e.rotation.z=Math.sin(s*7+i*3)>.85?(i?-.5:.5):0);
+      tail.rotation.z=Math.sin(s*(k.diam?2.6:9))*.7;tail.rotation.x=k.diam?0:.6}})}
 function items3D(g,r){if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8},o||{}));
   const SLOT=[[-2.5,1.3,.5],[2.6,-.2,-.6],[-2.4,-.4,1.2]];

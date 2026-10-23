@@ -145,7 +145,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .award .blist button>span:last-child:not(.badges){margin-top:4px}
 .award .ico{background:#F2C230!important;border-color:#1C2520!important}
 .badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.badges i{font-style:normal;font-size:11.5px;font-weight:700;background:#1C2520;color:#F2C230;border-radius:999px;padding:2px 8px}
-.rhist{margin-top:10px;padding-top:8px;border-top:1.5px dashed var(--line);max-width:440px}.rh-top{display:flex;align-items:center;gap:6px}.rh-t{font-weight:700;font-size:14px;color:var(--ink);margin-right:auto}.rh-top b{font-size:12.5px;font-variant-numeric:tabular-nums;min-width:84px;text-align:center;color:var(--ink)}.rh-b{width:30px;height:30px;flex:none;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:18px;line-height:1;cursor:pointer;padding:0}.rh-b:disabled{opacity:.3;cursor:default}.rhist small{display:block;color:var(--muted);font-size:12.5px;margin-top:4px}.rhist ul{margin:4px 0 0;padding:0 0 0 18px;font-size:13.5px;color:var(--ink)}.rhist li{margin:2px 0}.rhist .rh-h{color:#8a6a10;font-weight:700}
+.rhist{margin-top:6px;max-width:440px}.rhist [hidden]{display:none!important}.rh-open{border:0;background:none;padding:2px 0;font:inherit;font-size:13px;font-weight:700;color:#8a6a10;cursor:pointer}.rh-top{display:flex;align-items:center;gap:6px;margin-top:2px}.rh-top b{font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}.rh-b{width:26px;height:26px;flex:none;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:16px;line-height:1;cursor:pointer;padding:0}.rh-b:disabled{opacity:.3;cursor:default}.rh-x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:12px;cursor:pointer;padding:2px 4px}.rhist .rh-d{display:block;margin-top:2px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .okb{background:#FFF8E6;border-color:#EBD58A}
 .okb .ico{background:#F2C230!important;border-color:#1C2520!important}
 .supnote{margin:12px 0 0;padding-top:10px;border-top:1.5px dashed #C9D1C6;font-size:13.5px;color:var(--muted)}
@@ -1727,13 +1727,14 @@ function applyLook(i,look){if(HV&&HV.i!==i)restoreLook();if(!HV){HV={i,orig:{}};
   const r=RES[i];LOOK.forEach(k=>{if(look[k]==null)delete r[k];else r[k]=look[k]});dirty=true}
 function restoreLook(){if(!HV)return;const r=RES[HV.i];LOOK.forEach(k=>{if(HV.orig[k]===undefined)delete r[k];else r[k]=HV.orig[k]});HV=null;dirty=true}
 function histBox(r,i){const V=histOf(r);if(V.length<2)return null;let n=V.length-1;
-  const w=el('div','rhist'),top=el('div','rh-top'),pv=el('button','rh-b','‹'),nx=el('button','rh-b','›'),lab=el('b'),when=el('small'),ul=el('ul'),hint=el('small','rh-h');
-  pv.type=nx.type='button';pv.setAttribute('aria-label','Versi sebelumnya');nx.setAttribute('aria-label','Versi berikutnya');
-  top.append(el('span','rh-t','📜 Riwayat rumah'),pv,lab,nx);w.append(top,when,ul,hint);
-  const show=()=>{const v=V[n],now=n===V.length-1;lab.textContent=`Versi ${n+1} dari ${V.length}`;
-    when.textContent=`Hari ke-${v.day} · ${resmi(v.day)}`+(now?' · rumahnya sekarang':'');ul.innerHTML='';v.lines.forEach(t=>ul.append(el('li',null,t)));
-    pv.disabled=n===0;nx.disabled=now;if(now)restoreLook();else applyLook(i,v.look);
-    hint.textContent=now?'':'👀 Rumah di peta sedang menampilkan versi lama';hint.hidden=now};
+  const w=el('div','rhist'),open=el('button','rh-open',`📜 Rumah versi lama (${V.length-1}) ›`),top=el('div','rh-top'),
+    pv=el('button','rh-b','‹'),nx=el('button','rh-b','›'),lab=el('b'),cl=el('button','rh-x','Tutup'),desc=el('small','rh-d');
+  [open,pv,nx,cl].forEach(b=>b.type='button');pv.setAttribute('aria-label','Versi sebelumnya');nx.setAttribute('aria-label','Versi berikutnya');
+  top.append(pv,lab,nx,cl);top.hidden=desc.hidden=true;w.append(open,top,desc);
+  const show=()=>{const v=V[n],now=n===V.length-1;lab.textContent=`Versi ${n+1}/${V.length} · Hari ke-${v.day}`+(now?' (sekarang)':'');
+    desc.textContent=v.lines.join(' · ');desc.title=desc.textContent;pv.disabled=n===0;nx.disabled=now;if(now)restoreLook();else applyLook(i,v.look)};
+  const tog=on=>e=>{e.stopPropagation();open.hidden=on;top.hidden=desc.hidden=!on;n=on?Math.max(0,V.length-2):V.length-1;show()};
+  open.onclick=tog(true);cl.onclick=tog(false);
   const go=d=>e=>{e.stopPropagation();const m=n+d;if(m<0||m>=V.length)return;n=m;show();try{SND.play('pop',.5)}catch(_){}};
   pv.onclick=go(-1);nx.onclick=go(1);show();return w}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}

@@ -1997,7 +1997,7 @@ function kkUrl(k){const t=D.trakteer||{},u=t[k]||t.url;return u&&/^https:\/\/(ww
 // formulir toko (Google Form): D.toko.form = link formulir, D.toko.fUser / D.toko.fKode = entry.XXXX untuk isi otomatis
 function kkFormUrl(u,kode){const f=D.toko||{};if(!f.form||!/^https:\/\/(docs\.google\.com\/forms|forms\.gle)\//.test(f.form))return null;
   const q=[];if(f.fUser)q.push(f.fUser+'='+encodeURIComponent('@'+u));if(f.fKode)q.push(f.fKode+'='+encodeURIComponent(kode));
-  return f.form+(q.length?(f.form.includes('?')?'&':'?')+(f.form.includes('viewform')?'':'usp=pp_url&')+q.join('&'):'')}
+  return f.form+(q.length?(f.form.includes('?')?'&':'?')+'usp=pp_url&'+q.join('&'):'')}
 function kkPesanTeks(p){if(p.jenis==='warna')return `Dinding ${kkNamaWarna(p.wall)} · atap ${kkNamaWarna(p.roof)}`;if(p.jenis==='emas')return 'Bendera emas di rumahmu';
   if(p.jenis==='ruko')return `Ruko · dinding ${kkNamaWarna(p.wall)} · atap ${kkNamaWarna(p.roof)}`;return (p.items||[]).map(id=>KK_ITEM[id]?KK_ITEM[id].n+(id==='papan'&&p.teks?` "${p.teks}"`:''):id).join(', ')}
 function kkLinkJenis(j){return j==='emas'?kkUrl('emas'):j==='ruko'?kkUrl('usaha'):kkTrakteerUrl()}

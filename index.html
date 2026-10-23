@@ -1704,26 +1704,25 @@ function perksOf(r){const L=[];
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
   if(NK.shopOn(r,TODAY))L.push('🏪 '+r.shop.name);
   return L}
-/* riwayat per rumah: versi rumah dari hari ke hari. Disusun dari data yang ada
-   (hari pindah, rumah impian, traktiran, juragan, bos bangunan) + r.base (warna awal) + r.history [{day,note,roof,wall,style,sup}] */
-var HV=null;const LOOK=['roof','wall','style','sup','juragan'];
-function dayOf(t){const m=String(t||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?Math.round((Date.UTC(+m[1],+m[2]-1,+m[3])-Date.UTC(2026,9,18))/864e5):0}
-function jamOf(t){const m=String(t||'').match(/ (\d{2})[.:](\d{2})$/);return m?` (${m[1]}.${m[2]})`:''}
+/* riwayat per rumah: tampilan rumah (warna & bentuk) dari hari ke hari, supaya warga bisa lihat/minta balik ke tampilan lama.
+   Bendera emas, mahkota juragan & badge tidak ikut berubah. Sumber: r.base (tampilan awal), rumah impian (style),
+   traktiran yang memberi warna pilihan, dan r.history [{day,note,roof,wall,style}] untuk ganti tampilan berikutnya. */
+var HV=null;const LOOK=['roof','wall','style'];
+const sameLook=(a,b)=>LOOK.every(k=>(a[k]==null?null:a[k])===(b[k]==null?null:b[k]));
 function histOf(r){const d0=+r.day||1,ev=[],B=r.base||{};
   if(r.style)ev.push({day:+r.styleDay||3,txt:'🏆 Menang lomba rumah impian, rumahnya dibangun ulang',set:{style:r.style,roof:r.roof,wall:r.wall}});
-  if(r.custom&&r.custom.title)ev.push({day:+r.custom.day||d0,txt:'🚩 '+String(r.custom.title).slice(0,100),set:{sup:!!r.sup,roof:r.roof,wall:r.wall}});
-  (D.juraganHistory||[]).forEach((h,k,H)=>{if(!h||h.u!==r.name)return;
-    ev.push({day:dayOf(h.from)||d0,txt:'👑 Jadi Juragan Genteng'+jamOf(h.from),set:{juragan:true}});
-    if(h.to){const nx=H[k+1];ev.push({day:dayOf(h.to)||d0,txt:'Gelar Juragan pindah'+(nx&&nx.u?' ke @'+nx.u:'')+jamOf(h.to),set:{juragan:false}})}});
-  BLD.forEach(b=>{if(bossOf(b)===r.name)ev.push({day:+b.day||d0,txt:(WAKAF(b)?'🤲 Mewakafkan ':'👑 Jadi Bos ')+(b.name||'bangunan'),set:{}})});
-  (Array.isArray(r.history)?r.history:[]).forEach(h=>{if(!h)return;const set={};['roof','wall','style','sup'].forEach(k=>{if(k in h)set[k]=h[k]});
-    ev.push({day:+h.day||d0,txt:String(h.note||'🎨 Rumah diperbarui').slice(0,100),set})});
+  if(r.custom&&r.custom.title)ev.push({day:+r.custom.day||d0,txt:'🎨 '+String(r.custom.title).slice(0,100),set:{roof:r.roof,wall:r.wall}});
+  (Array.isArray(r.history)?r.history:[]).forEach(h=>{if(!h)return;const set={};LOOK.forEach(k=>{if(k in h)set[k]=h[k]});
+    ev.push({day:+h.day||d0,txt:String(h.note||'🎨 Tampilan rumah diganti').slice(0,100),set})});
   ev.forEach((e,k)=>e.k=k);ev.sort((a,b)=>a.day-b.day||a.k-b.k);
-  let look={roof:'roof' in B?B.roof:r.roof,wall:'wall' in B?B.wall:r.wall,style:B.style,sup:false,juragan:false};
+  let look={roof:'roof' in B?B.roof:r.roof,wall:'wall' in B?B.wall:r.wall,style:'style' in B?B.style:null};
   const V=[{day:d0,lines:['🏠 Pindah ke kampung, dapat rumah standar'],look:{...look}}];
   ev.forEach(e=>{look=Object.assign({},look,e.set);const day=Math.max(e.day,d0),last=V[V.length-1];
+    if(sameLook(look,last.look))return; // tampilan tidak berubah: bukan versi baru
     if(V.length>1&&last.day===day){last.lines.push(e.txt);last.look={...look}}else V.push({day,lines:[e.txt],look:{...look}})});
-  const cur={};LOOK.forEach(k=>cur[k]=r[k]);V[V.length-1].look=cur;return V}
+  const cur={};LOOK.forEach(k=>cur[k]=r[k]);V[V.length-1].look=cur;
+  for(let k=V.length-1;k>0;k--)if(sameLook(V[k].look,V[k-1].look))V.splice(k,1);
+  return V}
 function applyLook(i,look){if(HV&&HV.i!==i)restoreLook();if(!HV){HV={i,orig:{}};LOOK.forEach(k=>HV.orig[k]=RES[i][k])}
   const r=RES[i];LOOK.forEach(k=>{if(look[k]==null)delete r[k];else r[k]=look[k]});dirty=true}
 function restoreLook(){if(!HV)return;const r=RES[HV.i];LOOK.forEach(k=>{if(HV.orig[k]===undefined)delete r[k];else r[k]=HV.orig[k]});HV=null;dirty=true}

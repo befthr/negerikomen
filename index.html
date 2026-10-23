@@ -1463,28 +1463,29 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   syarat:['Bisa bawa 10 piring sekaligus tanpa jatuh','Hafal bedanya rendang, kalio, dan dendeng','Nggak pelit kuah','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','Rumahmu jadi rumah karyawan RM Padang selama 30 hari (bisa diperpanjang)','Lencana Karyawan RM Padang saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''},
- {id:'warung',dm:'#LokerJagaWarung',until:'2026-10-23',icon:'🏪',title:'Penjaga Warung Kades',sub:'Gantiin kepala desa jaga warung',
+ {id:'warung',dm:'#LokerJagaWarung',until:'2026-10-24',jam:'07:00',icon:'🏪',title:'Penjaga Warung Kades',sub:'Gantiin kepala desa jaga warung',
   desc:'Dari hari pertama kepala desa jaga warung sendirian. Sekarang sibuk ngurus ratusan warga, warungnya butuh penjaga.',
   syarat:['Jujur, nggak ngutang ke warung sendiri','Hafal harga kerupuk tanpa lihat catatan','Bisa nolak warga yang mau ngutang dengan sopan','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','Rumahmu jadi rumah penjaga warung selama 30 hari (bisa diperpanjang)','Lencana Penjaga Warung Kades saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''},
- {id:'satpam',dm:'#LokerJadiSatpam',until:'2026-10-23',icon:'🔦',title:'Satpam Kampung',sub:'Jaga Pos Ronda tiap malam',
+ {id:'satpam',dm:'#LokerJadiSatpam',until:'2026-10-24',jam:'07:00',icon:'🔦',title:'Satpam Kampung',sub:'Jaga Pos Ronda tiap malam',
   desc:'Dulu kepala desa ronda sendirian. Kampung makin ramai, Pos Ronda butuh satpam yang siaga.',
   syarat:['Kuat begadang tanpa ketiduran di pos ronda','Bisa mukul kentongan dengan irama yang benar','Berani ngecek suara aneh di sawah malam-malam','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','Rumahmu jadi rumah satpam selama 30 hari (bisa diperpanjang)','Lencana Satpam Kampung saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''}]);
 {const G=D.gaji||{};JOBS.forEach(j=>{if(Array.isArray(j.benefit))j.benefit=j.benefit.map(t=>t.replace(/^💰 Gaji \d+ Receh/,'💰 Gaji '+(+(G[j.id]??G.default??2))+' Receh'))})}
-{const st=j=>{const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());const closed=j.until&&TODAY>j.until;return closed?2:(ok||j.dm)?0:1};
+const jobTutup=j=>{if(!j.until)return false;const jamNow=new Date(Date.now()+252e5).toISOString().slice(11,16);return TODAY>j.until||(TODAY===j.until&&!!j.jam&&jamNow>=j.jam)};
+{const st=j=>{const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());const closed=jobTutup(j);return closed?2:(ok||j.dm)?0:1};
   JOBS.sort((a,b)=>st(a)-st(b))}
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());
-  const closed=j.until&&TODAY>j.until;const dm=!!j.dm&&!closed;const tgl=j.until?new Date(j.until+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'}):'';
+  const closed=jobTutup(j);const dm=!!j.dm&&!closed;const tgl=j.until?new Date(j.until+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'}):'';
   const sm=document.createElement('summary');const ic=el('span','jico',j.icon==='helm'?'':(j.icon||'🔨'));if(j.icon==='helm')ic.append(helm());const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+j.title),el('span',null,j.sub||''));
-  sm.append(ic,tt,el('span','jst'+(ok||dm?' open':''),closed?'Ditutup':ok||dm?(j.until?'s/d '+new Date(j.until+'T12:00:00').getDate()+' Okt':'Dibuka'):'Segera'),el('span','chev','▾'));d.append(sm);
+  sm.append(ic,tt,el('span','jst'+(ok||dm?' open':''),closed?'Ditutup':ok||dm?(j.until?'s/d '+new Date(j.until+'T12:00:00').getDate()+' Okt'+(j.jam?' '+j.jam.replace(':','.'):''):'Dibuka'):'Segera'),el('span','chev','▾'));d.append(sm);
   const bd=el('div','jbody');if(j.desc)bd.append(el('p',null,j.desc));
   [['Syarat',j.syarat],['Yang kamu dapat',j.benefit]].forEach(([h,L])=>{if(!L||!L.length)return;bd.append(el('h4',null,h));const ul=document.createElement('ul');L.forEach(t=>ul.append(el('li',null,t)));bd.append(ul)});
   if(closed){bd.append(el('p','jnote','Pendaftaran sudah ditutup. Pantau episode berikutnya untuk pengumuman!'))}
-  else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', 23.59 WIB. Pengumuman di episode hari Sabtu.'));
+  else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', '+(j.jam?j.jam.replace(':','.'):'23.59')+' WIB'+(j.jam?' (diperpanjang!)':'')+'. Pengumuman di episode hari Sabtu.'));
     const a=el('a','btn dark','Lamar via DM Instagram');a.href='https://ig.me/m/negerikomen';a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else if(ok){const a=el('a','btn dark','Lamar sekarang');a.href=j.url.trim();a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran lewat DM dibuka sebentar lagi.'))}

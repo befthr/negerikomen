@@ -1779,7 +1779,7 @@ function histBox(r,onPick,opts={}){const V=histOf(r);if(V.length<2)return null;l
 
 /* ============ Kartu Komen ============
    Bukti "ini rumahku": warga komen kunci (mis. "kunci genteng merah 27") di postingan Kartu Komen yang di-pin,
-   server mengecek komentar lewat Instagram, lalu kartu tersimpan di HP ini (localStorage).
+   server mengecek komentar lewat Instagram, lalu kartu tersimpan di perangkat ini (localStorage).
    Menyala otomatis setelah postingan Kartu Komen (caption memuat #kartukomen) diunggah; sebelum itu hanya lewat ?kartu=1 (uji). */
 let KK_ON=/[?&]kartu=1\b/.test(location.search);
 const KK_IG='https://www.instagram.com/negerikomen/';
@@ -1823,7 +1823,7 @@ function kkKartuEl(c){const r=RES[kkResIdx(c.u)]||{},jur=JUR>=0&&RES[JUR]&&RES[J
   const bd=el('div','badges');(r.name?perksOf(r):[]).slice(0,3).forEach(t=>bd.append(el('i',null,String(t))));if(bd.childNodes.length)k.append(bd);return k}
 async function kkBuka(u){const body=kkModal();const k=kkGet();u=String(u||(k&&k.u)||'').toLowerCase();
   if(k&&k.u===u){body.append(el('p','kk-muted','Memuat kartu…'));const res=await kkApi('saya',null,true);if(!res.ok){body.innerHTML='';kkIntro(body,u,res.error);return}kkTampil(body,res.kartu);return}
-  kkIntro(body,u,k&&k.u!==u?`HP ini sedang memegang kartu @${k.u}. Kalau kamu ambil kartu @${u}, kartu itu diganti.`:null)}
+  kkIntro(body,u,k&&k.u!==u?`Perangkat ini sedang memegang kartu @${k.u}. Kalau kamu ambil kartu @${u}, kartu itu diganti.`:null)}
 function kkIntro(body,u,note){body.innerHTML='';
   body.append(el('h3',null,'🔑 Kartu Komen @'+u),el('p',null,'Kartu Komen membuktikan rumah ini milikmu. Dengan kartu, kamu bisa ganti rumah ke versi lamanya dan ikut ranking mini game.'));
   if(note)body.append(el('p','kk-note',note));
@@ -1851,14 +1851,14 @@ function kkTampil(body,c,baru){body.innerHTML='';
     mg.append(el('div','kk-gh'),el('p','kk-muted','Skor dan peringkatmu di mini game Negeri Komen akan muncul di sini.'));
     mg.firstChild.append(el('b',null,'🎮 Mini game terakhir'),el('span','kk-soon','Segera'));body.append(mg)}
   if(c.admin)kkAdmin(body);
-  const lk=el('div','kk-links'),a1=el('button',null,'Keluarkan HP lain'),a2=el('button',null,'Keluar dari HP ini');a1.type=a2.type='button';
-  a1.onclick=async()=>{const r=await kkApi('keluar-lain',{},true);toast(r.ok?(r.dikeluarkan?`${r.dikeluarkan} HP lain dikeluarkan`:'Tidak ada HP lain'):(r.error||'Gagal'))};
-  a2.onclick=async()=>{await kkApi('keluar',{},true);kkSet(null);kkTutup();kkRefreshPanel();toast('Kartu dilepas dari HP ini')};
+  const lk=el('div','kk-links'),a1=el('button',null,'Keluarkan perangkat lain'),a2=el('button',null,'Keluar dari perangkat ini');a1.type=a2.type='button';
+  a1.onclick=async()=>{const r=await kkApi('keluar-lain',{},true);toast(r.ok?(r.dikeluarkan?`${r.dikeluarkan} perangkat lain dikeluarkan`:'Tidak ada perangkat lain'):(r.error||'Gagal'))};
+  a2.onclick=async()=>{await kkApi('keluar',{},true);kkSet(null);kkTutup();kkRefreshPanel();toast('Kartu dilepas dari perangkat ini')};
   lk.append(a1,el('span',null,'·'),a2);body.append(lk)}
 function kkAdmin(body){const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga'),el('p','kk-muted','Link aktivasi: untuk warga yang kuncinya tidak terdeteksi (kirim lewat DM, hanya ke pemiliknya). Reset jatah: untuk warga yang salah pencet.'));
   const inp=el('input');inp.placeholder='username warga, mis. simson__01';inp.autocapitalize='off';inp.autocomplete='off';inp.spellcheck=false;const out=el('div','kk-out');
   w.append(inp,kkBtn('Buat link aktivasi','dark',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase();if(!t){out.textContent='Isi username warga dulu';return}
-    if(t==='negerikomen'){out.textContent='Itu akun kades sendiri, kartunya sudah aktif di HP ini';return}const res=await kkApi('aktifkan',{target:inp.value},true);if(!res.ok){out.textContent=res.error;return}
+    if(t==='negerikomen'){out.textContent='Itu akun kades sendiri, kartunya sudah aktif di perangkat ini';return}const res=await kkApi('aktifkan',{target:inp.value},true);if(!res.ok){out.textContent=res.error;return}
     const link=location.origin+location.pathname+'#kartu='+res.token;out.innerHTML='';const a=el('code',null,link);out.append(a,kkBtn('Salin link','sm',()=>kkSalin(link)))}),
     kkBtn('Reset jatah ganti','',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase();if(!t){out.textContent='Isi username warga dulu';return}
       const res=await kkApi('reset-jatah',{target:t},true);out.textContent=res.ok?`Jatah ganti @${res.u} sudah penuh lagi`:(res.error||'Gagal')}),out);body.append(w)}

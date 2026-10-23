@@ -1,6 +1,6 @@
 // Kartu Komen: bukti "ini rumahku" untuk tiap warga.
 // Alur: web minta kunci (mis. "kunci genteng merah 27") → warga komen kunci itu di postingan Kartu Komen (di-pin)
-// atau video terbaru → server cek komentar lewat Instagram API → kartu (token sesi) tersimpan di HP warga.
+// atau video terbaru → server cek komentar lewat Instagram API → kartu (token sesi) tersimpan di perangkat warga.
 // Database: Upstash Redis lewat env KV_REST_API_URL + KV_REST_API_TOKEN (dipasang otomatis oleh Vercel).
 //
 // Aksi (?aksi=...):
@@ -9,8 +9,8 @@
 //   POST cek     {u}          → cari komentar kunci; kalau cocok → {token}
 //   GET  saya    (Bearer)     → info kartu: jatah ganti minggu ini, versi dipakai, admin?
 //   POST pilih   {n} (Bearer) → pakai versi rumah ke-n (jatah 3x per minggu, reset Senin 00.00 WIB)
-//   POST keluar-lain (Bearer) → keluarkan semua HP lain
-//   POST keluar  (Bearer)     → keluarkan HP ini
+//   POST keluar-lain (Bearer) → keluarkan semua perangkat lain
+//   POST keluar  (Bearer)     → keluarkan perangkat ini
 //   POST aktifkan {target} (Bearer kartu @negerikomen) → token aktivasi manual (jalur cadangan lewat DM)
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';

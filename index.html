@@ -219,6 +219,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .v3share{position:absolute;right:12px;top:calc(min(46vh,420px) - 54px);z-index:2;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:2px solid var(--ink);background:#F2C230;color:var(--ink);font:800 14px var(--f-body);box-shadow:0 3px 0 var(--ink);cursor:pointer}.v3share:disabled{opacity:.6}
 .v3scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .v3box canvas{display:block;flex:none;width:100%;height:min(46vh,420px);touch-action:none;cursor:grab}
+.v3x.back{right:auto;left:10px;font-size:20px}
 .v3x{position:absolute;right:10px;top:10px;z-index:2;width:40px;height:40px;border-radius:12px;border:2px solid var(--ink);background:#fff;font:700 16px var(--f-body);cursor:pointer}
 .v3load{position:absolute;left:0;right:0;top:40%;text-align:center;font-weight:700;color:var(--muted)}
 .v3info{padding:12px 16px 4px;background:#fff;border-top:1px solid var(--line)}.v3info b{display:block;font-family:var(--f-display);font-size:20px}.v3info span{font-size:13.5px;color:var(--muted)}
@@ -1895,7 +1896,7 @@ function kkTampil(body,c,baru){body.innerHTML='';
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
   if(i>=0&&c.versi>1){body.append(el('p','kk-sub',`🏠 Rumahmu punya ${c.versi} versi · sedang pakai versi ${c.dipakai+1}`),
-      kkBtn('🏠 Ganti di 3D','kk-gratis',()=>{kkTutup();select({kind:'r',i},{instant:true});open3D(RES[i],i)}))}
+      kkBtn('🏠 Ganti di 3D','kk-gratis',()=>{kkTutup();select({kind:'r',i},{instant:true});V3BACK=()=>kkBuka(c.u);open3D(RES[i],i)}))}
   else if(i>=0)body.append(el('p','kk-muted','Rumahmu baru punya 1 versi. Versi baru muncul kalau rumahmu menang lomba, dapat hadiah quest, atau ganti warna lewat traktir.'));
   if(i>=0&&!c.admin)kkBagianUbah(body,c,i);
   if(!c.admin){const mg=el('div','kk-game');mg.setAttribute('aria-disabled','true');
@@ -2107,6 +2108,7 @@ function bossTxt(b,u){return WAKAF(b)?'🤲 Diwakafkan @'+u:'👑 Bos @'+u}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
 function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
+  {const x=$('v3x');x.textContent=V3BACK?'←':'✕';x.classList.toggle('back',!!V3BACK);x.setAttribute('aria-label',V3BACK?'Kembali ke kartu':'Tutup')}
   const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';
   if(bd0&&bd0.type==='tugu'){$('v3demo').append(el('p',null,'🏆 Ranking penyumbang Genteng:'));const ol=el('ol','rank');rankList(ol,5);$('v3demo').append(ol);if((D.juraganHistory||[]).length){const dh=el('div','jhist');dh.append(el('p',null,'📜 Riwayat Juragan Genteng (dari awal):'));const o2=el('ol');jhFill(o2);dh.append(o2);$('v3demo').append(dh)}}
   if(bd0&&bd0.type==='layartancap'&&TT_ITEMS.length){{const p=el('p',null,'🎬 Tontonan malam ini, kiriman tetangga ');TT_AKUN.forEach((a,k)=>{if(k)p.append(' & ');p.append(ttMention(a))});p.append(':');$('v3demo').append(p)};const g=el('div','tgrid tmini');tancapCards(g,2);$('v3demo').append(g)}
@@ -2199,7 +2201,8 @@ function showCard(blob,r){const f=new File([blob],'rumah-'+r.name.replace(/[^\w.
   sh.onclick=async()=>{try{await navigator.share({files:[f],title:'Rumahku di Negeri Komen',text:'Ini rumahku di Negeri Komen 🏡 Mau punya juga? Follow & komen di @negerikomen'})}catch(e){}};
   SND.play('ting',.5)}
 $('v3pvx').onclick=()=>{$('v3pv').hidden=true};$('v3pv').addEventListener('click',e=>{if(e.target===$('v3pv'))$('v3pv').hidden=true});
-function close3D(){$('v3').hidden=true;if(v3s){v3s.stop();v3s=null}}
+let V3BACK=null; // 3D dibuka dari Kartu Komen → tombol kembali ke kartu
+function close3D(){$('v3').hidden=true;if(v3s){v3s.stop();v3s=null}const f=V3BACK;V3BACK=null;if(f)f()}
 $('v3x').onclick=close3D;$('v3').addEventListener('click',e=>{if(e.target===$('v3'))close3D()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('v3').hidden)close3D()});
 
 

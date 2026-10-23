@@ -12,9 +12,12 @@
 //   POST keluar-lain (Bearer) → keluarkan semua perangkat lain
 //   POST keluar  (Bearer)     → keluarkan perangkat ini
 //   POST aktifkan {target} (Bearer kartu @negerikomen) → token aktivasi manual (jalur cadangan lewat DM)
-//   POST minta-warna {wall,roof} (Bearer) → kode WARNA-XXXX; warga traktir 1 Genteng dengan kode itu
-//   POST batal-warna (Bearer)  → batalkan permintaan ganti warna
-//   POST antre-warna / konfirmasi-warna {kode,ok} (Bearer kartu @negerikomen) → cek & setujui ganti warna
+//   POST minta-ubah {jenis,...} (Bearer) → kode pesanan; warga traktir Genteng dengan kode itu di pesan traktiran
+//        jenis: warna {wall,roof,n} 1 Genteng · emas 2 Genteng · ruko {wall,roof} 20 Genteng · item {items:[id],teks} sesuai katalog
+//        (minta-warna lama tetap jalan = minta-ubah jenis warna)
+//   POST batal-ubah {jenis} (Bearer) → batalkan pesanan jenis itu
+//   POST pajang {ids} (Bearer) → pilih maks 3 item koleksi yang tampil di pekarangan
+//   POST antre-ubah / konfirmasi-ubah {kode,ok} (Bearer kartu @negerikomen) → cek & setujui pesanan
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
 
@@ -67,6 +70,12 @@ async function wargaPlus(D, u, extra) {
 }
 const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','kuning','oranye','ungu','ungu muda','coklat','hitam','abu-abu','putih','emas','tosca','navy','krem','marun','terakota'];
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
+// pesanan ubah rumah & item (harga dalam Genteng)
+const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 } };
+const KATALOG = { sepeda: 1, motor: 2, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2 };
+const MAKS_PAJANG = 3;
+const okTeks = t => /^[\p{L}\p{N} .,'!&\-]{1,20}$/u.test(t);
+async function koleksi(u) { const v = jparse(await kv(['HGET', 'itemplus', u])); return v && Array.isArray(v.own) ? v : { own: [], pajang: [] } }
 const hariIni = () => { const w = new Date(Date.now() + 7 * 3600e3); return Math.round((Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - Date.UTC(2026, 9, 18)) / 864e5) };
 
 // SAMA dengan histOf() di index.html: versi tampilan rumah (warna & bentuk) dari hari ke hari
@@ -110,15 +119,20 @@ async function buatSesi(u) {
   return t;
 }
 async function infoKartu(D, u) {
-  const [p, g, kode, ex] = await kvMany([['HGET', 'pilihan', u], ['GET', 'ganti:' + u], ['GET', 'warna:user:' + u], ['HGET', 'warnaplus', u]]);
+  const J = Object.keys(JENIS);
+  const got = await kvMany([['HGET', 'pilihan', u], ['GET', 'ganti:' + u], ['HGET', 'warnaplus', u], ['HGET', 'emasplus', u], ['HGET', 'itemplus', u], ['HGET', 'rukoplus', u], ...J.map(j => ['GET', j + ':user:' + u])]);
+  const [p, g, ex, em, it, rk] = got, kodes = got.slice(6);
   const w0 = awalMinggu(), dipakai = (jparse(g) || []).filter(t => t >= w0).length;
   const r = await wargaPlus(D, u, jparse(ex) || []), V = r ? histOf(r) : [];
-  const minta = kode ? jparse(await kv(['GET', 'warna:req:' + kode])) : null;
+  const reqs = await kvMany(J.map((j, k) => kodes[k] ? ['GET', j + ':req:' + kodes[k]] : ['GET', 'kosong:']));
+  const pesan = {}; J.forEach((j, k) => { const v = jparse(reqs[k]); pesan[j] = kodes[k] && v && v.status === 'menunggu' ? { kode: kodes[k], ...v } : null });
   let pil = jparse(p); if (pil && pil.nv !== V.length) pil = null; // kades bikin versi baru → versi baru yang tampil
+  const kol = jparse(it); const m = pesan.warna;
   return { u, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
-    minta: minta && minta.status === 'menunggu' ? { kode, wall: minta.wall, roof: minta.roof, style: minta.style, at: minta.at } : null };
+    emas: !!(r && r.sup) || !!em, ruko: jparse(rk), items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
+    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null };
 }
 
 const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
@@ -163,8 +177,13 @@ export default async function handler(req, res) {
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
       for (let i = 0; i + 1 < rx.length; i += 2) { const e = jparse(rx[i + 1]); if (e && e.length) extra[rx[i]] = e }
+      const [re, rr, ri] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus']]);
+      const ruko = {}, item = {};
+      for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
+      for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
+        item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? (o.teks ? { id, teks: o.teks } : { id }) : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, aktif: await kartuAktif() });
+      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, aktif: await kartuAktif() });
     }
     if (req.method !== 'POST' && aksi !== 'saya') return res.status(405).json({ error: 'Metode tidak didukung' });
     const D = await dataKampung(req);
@@ -230,48 +249,97 @@ export default async function handler(req, res) {
       if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
       return res.status(200).json({ token: await buatSesi(t), u: t });
     }
-    if (aksi === 'minta-warna') {
+    if (aksi === 'minta-warna' || aksi === 'minta-ubah') {
+      const jenis = aksi === 'minta-warna' ? 'warna' : String(body.jenis || '');
+      if (!JENIS[jenis]) return res.status(400).json({ error: 'Pilihan tidak dikenal' });
       const r = await wargaPlus(D, s.u); if (!r) return res.status(404).json({ error: 'Rumahmu tidak ditemukan' });
-      const wall = String(body.wall || ''), roof = String(body.roof || '');
-      if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna dinding dan atap dulu.' });
-      const V = histOf(r), n = body.n == null ? V.length - 1 : Math.floor(+body.n);
-      if (!(n >= 0 && n < V.length)) return res.status(400).json({ error: 'Versi rumah tidak ada' });
-      const style = V[n].look.style || null;
-      { const now = V[n].look; if ((now.wall || null) === wall && (now.roof || null) === roof) return res.status(400).json({ error: 'Warnanya sama dengan rumah versi itu.' }); }
-      const lama = await kv(['GET', 'warna:user:' + s.u]); if (lama) await kvMany([['DEL', 'warna:req:' + lama], ['SREM', 'warna:antre', lama]]);
-      const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = 'WARNA-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];
-      await kvMany([['SET', 'warna:req:' + kode, JSON.stringify({ u: s.u, wall, roof, style, at: Date.now(), status: 'menunggu' }), 'EX', 14 * 864e2],
-        ['SET', 'warna:user:' + s.u, kode, 'EX', 14 * 864e2], ['SADD', 'warna:antre', kode]]);
-      return res.status(200).json({ kode, kartu: await infoKartu(D, s.u) });
+      const info = await infoKartu(D, s.u);
+      let isi;
+      if (jenis === 'warna') {
+        const wall = String(body.wall || ''), roof = String(body.roof || '');
+        if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna dinding dan atap dulu.' });
+        const V = histOf(r), n = body.n == null ? V.length - 1 : Math.floor(+body.n);
+        if (!(n >= 0 && n < V.length)) return res.status(400).json({ error: 'Versi rumah tidak ada' });
+        const style = V[n].look.style || null, now = V[n].look;
+        if ((now.wall || null) === wall && (now.roof || null) === roof) return res.status(400).json({ error: 'Warnanya sama dengan rumah versi itu.' });
+        isi = { wall, roof, style, harga: 1 };
+      } else if (jenis === 'emas') {
+        if (info.emas) return res.status(400).json({ error: 'Rumahmu sudah punya bendera emas.' });
+        isi = { harga: 2 };
+      } else if (jenis === 'ruko') {
+        const wall = String(body.wall || ''), roof = String(body.roof || '');
+        if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna ruko dulu.' });
+        isi = { wall, roof, harga: 20 };
+      } else {
+        const ids = [...new Set((Array.isArray(body.items) ? body.items : []).map(String))].filter(id => KATALOG[id]);
+        if (!ids.length) return res.status(400).json({ error: 'Pilih minimal satu item.' });
+        const punya = info.items.own.map(o => o.id), dobel = ids.filter(id => id !== 'papan' && punya.includes(id));
+        if (dobel.length) return res.status(400).json({ error: 'Kamu sudah punya: ' + dobel.join(', ') });
+        let teks = null;
+        if (ids.includes('papan')) { teks = String(body.teks || '').replace(/\s+/g, ' ').trim(); if (!okTeks(teks)) return res.status(400).json({ error: 'Tulisan papan nama 1–20 huruf/angka.' }) }
+        isi = { items: ids, teks, harga: ids.reduce((t, id) => t + KATALOG[id], 0) };
+      }
+      const lama = await kv(['GET', jenis + ':user:' + s.u]); if (lama) await kvMany([['DEL', jenis + ':req:' + lama], ['SREM', jenis + ':antre', lama]]);
+      const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = JENIS[jenis].awal + '-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];
+      await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ u: s.u, jenis, ...isi, at: Date.now(), status: 'menunggu' }), 'EX', 14 * 864e2],
+        ['SET', jenis + ':user:' + s.u, kode, 'EX', 14 * 864e2], ['SADD', jenis + ':antre', kode]]);
+      return res.status(200).json({ kode, jenis, harga: isi.harga, kartu: await infoKartu(D, s.u) });
     }
-    if (aksi === 'batal-warna') {
-      const kode = await kv(['GET', 'warna:user:' + s.u]);
-      if (kode) await kvMany([['DEL', 'warna:req:' + kode, 'warna:user:' + s.u], ['SREM', 'warna:antre', kode]]);
+    if (aksi === 'batal-warna' || aksi === 'batal-ubah') {
+      const jenis = aksi === 'batal-warna' ? 'warna' : String(body.jenis || '');
+      if (!JENIS[jenis]) return res.status(400).json({ error: 'Pilihan tidak dikenal' });
+      const kode = await kv(['GET', jenis + ':user:' + s.u]);
+      if (kode) await kvMany([['DEL', jenis + ':req:' + kode, jenis + ':user:' + s.u], ['SREM', jenis + ':antre', kode]]);
       return res.status(200).json({ kartu: await infoKartu(D, s.u) });
     }
-    if (aksi === 'antre-warna') {
+    if (aksi === 'pajang') {
+      const kol = await koleksi(s.u), punya = kol.own.map(o => o.id);
+      const ids = [...new Set((Array.isArray(body.ids) ? body.ids : []).map(String))].filter(id => punya.includes(id));
+      if (ids.length > MAKS_PAJANG) return res.status(400).json({ error: `Maksimal ${MAKS_PAJANG} item dipajang.` });
+      kol.pajang = ids; await kv(['HSET', 'itemplus', s.u, JSON.stringify(kol)]);
+      return res.status(200).json({ kartu: await infoKartu(D, s.u) });
+    }
+    if (aksi === 'antre-warna' || aksi === 'antre-ubah') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
-      const kodes = await kv(['SMEMBERS', 'warna:antre']) || [], out = [];
-      if (kodes.length) {
-        const vals = await kvMany(kodes.map(k => ['GET', 'warna:req:' + k]));
-        kodes.forEach((k, i) => { const v = jparse(vals[i]); if (v && v.status === 'menunggu') out.push({ kode: k, ...v }); });
-        const basi = kodes.filter((k, i) => !jparse(vals[i])); if (basi.length) await kv(['SREM', 'warna:antre', ...basi]);
+      const out = [];
+      for (const j of Object.keys(JENIS)) {
+        const kodes = await kv(['SMEMBERS', j + ':antre']) || [];
+        if (!kodes.length) continue;
+        const vals = await kvMany(kodes.map(k => ['GET', j + ':req:' + k]));
+        kodes.forEach((k, i) => { const v = jparse(vals[i]); if (v && v.status === 'menunggu') out.push({ kode: k, jenis: j, ...v }); });
+        const basi = kodes.filter((k, i) => !jparse(vals[i])); if (basi.length) await kv(['SREM', j + ':antre', ...basi]);
       }
       out.sort((a, b) => a.at - b.at);
       return res.status(200).json({ antre: out });
     }
-    if (aksi === 'konfirmasi-warna') {
+    if (aksi === 'konfirmasi-warna' || aksi === 'konfirmasi-ubah') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
-      const kode = String(body.kode || '').toUpperCase(), v = jparse(await kv(['GET', 'warna:req:' + kode]));
-      if (!v || v.status !== 'menunggu') return res.status(404).json({ error: 'Permintaan ' + kode + ' tidak ditemukan atau sudah diproses' });
+      const kode = String(body.kode || '').toUpperCase(), jenis = Object.keys(JENIS).find(j => kode.startsWith(JENIS[j].awal + '-'));
+      const v = jenis && jparse(await kv(['GET', jenis + ':req:' + kode]));
+      if (!v || v.status !== 'menunggu') return res.status(404).json({ error: 'Pesanan ' + kode + ' tidak ditemukan atau sudah diproses' });
       if (body.ok) {
-        const ex = jparse(await kv(['HGET', 'warnaplus', v.u])) || [];
-        ex.push({ day: hariIni(), note: '🎨 Ganti warna (traktir 1 Genteng)', wall: v.wall, roof: v.roof, style: v.style === undefined ? undefined : v.style });
-        await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
+        const day = hariIni();
+        if (jenis === 'warna') {
+          const ex = jparse(await kv(['HGET', 'warnaplus', v.u])) || [];
+          ex.push({ day, note: '🎨 Ganti warna (traktir 1 Genteng)', wall: v.wall, roof: v.roof, style: v.style === undefined ? undefined : v.style });
+          await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
+        } else if (jenis === 'emas') {
+          await kv(['HSET', 'emasplus', v.u, JSON.stringify({ day, kode })]);
+        } else if (jenis === 'ruko') {
+          await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
+        } else {
+          const kol = await koleksi(v.u);
+          v.items.forEach(id => {
+            const o = { id, day, ...(id === 'papan' ? { teks: v.teks } : {}) }, i = kol.own.findIndex(x => x.id === id);
+            if (i >= 0) kol.own[i] = o; else kol.own.push(o);
+            if (!kol.pajang.includes(id) && kol.pajang.length < MAKS_PAJANG) kol.pajang.push(id);
+          });
+          await kv(['HSET', 'itemplus', v.u, JSON.stringify(kol)]);
+        }
       }
-      await kvMany([['SET', 'warna:req:' + kode, JSON.stringify({ ...v, status: body.ok ? 'disetujui' : 'ditolak' }), 'EX', 7 * 864e2],
-        ['DEL', 'warna:user:' + v.u], ['SREM', 'warna:antre', kode]]);
-      return res.status(200).json({ ok: true, u: v.u, status: body.ok ? 'disetujui' : 'ditolak' });
+      await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ ...v, status: body.ok ? 'disetujui' : 'ditolak' }), 'EX', 7 * 864e2],
+        ['DEL', jenis + ':user:' + v.u], ['SREM', jenis + ':antre', kode]]);
+      return res.status(200).json({ ok: true, u: v.u, jenis, status: body.ok ? 'disetujui' : 'ditolak' });
     }
     if (aksi === 'reset-jatah') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

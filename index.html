@@ -2415,7 +2415,7 @@ function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...i
   const jl=el('div','kk-row');['motor','sepeda'].forEach(id=>{if(!it.own.some(o=>o.id===id))return;
     jl.append(kkBtn(id==='motor'?'🛵 Keliling naik motor':'🚲 Keliling naik sepeda','sm gold3',async e=>{if(!paj.includes(id)){msg.textContent=`Pajang dulu ${id}-mu (ketuk kotaknya di bawah).`;msg.className='kk-msg err';return}
       e.target.disabled=true;const r=await kkApi('jalan',{id},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
-      const k=kkResIdx(c.u);if(k>=0){RES[k].jalan={id,at:r.at};kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.6);mulaiSetir(k,id);scrollMap()}toast(id==='motor'?'Brumm! Motormu berangkat keliling kampung 🛵':'Kring kring! Sepedamu berangkat keliling kampung 🚲')}))});
+      const k=kkResIdx(c.u);if(k>=0){RES[k].jalan={id,at:r.at};kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.6);if(window.NK_DATA&&window.NK_DATA.setir)mulaiSetir(k,id);else IKUT={i:k,id,sampai:Date.now()+(id==='motor'?40:56)*1000};scrollMap()}toast(id==='motor'?'Brumm! Motormu berangkat keliling kampung 🛵':'Kring kring! Sepedamu berangkat keliling kampung 🚲')}))});
   if(jl.childNodes.length)w.append(jl);
   it.own.forEach(o=>{const b=el('button','kk-it'+(paj.includes(o.id)?' on':''));b.type='button';b.append(kkItemSVG(o.id,o.teks,o.warna),el('span',null,KK_ITEM[o.id]?KK_ITEM[o.id].n+(o.warna?' '+o.warna:''):o.id));
     b.onclick=async()=>{const nx=paj.includes(o.id)?paj.filter(x=>x!==o.id):[...paj,o.id];if(nx.length>3){msg.textContent='Maksimal 3 item dipajang. Lepas satu dulu.';msg.className='kk-msg err';return}

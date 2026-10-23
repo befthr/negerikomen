@@ -118,7 +118,7 @@ async function infoKartu(D, u) {
   return { u, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
-    minta: minta && minta.status === 'menunggu' ? { kode, wall: minta.wall, roof: minta.roof, at: minta.at } : null };
+    minta: minta && minta.status === 'menunggu' ? { kode, wall: minta.wall, roof: minta.roof, style: minta.style, at: minta.at } : null };
 }
 
 const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
@@ -234,10 +234,13 @@ export default async function handler(req, res) {
       const r = await wargaPlus(D, s.u); if (!r) return res.status(404).json({ error: 'Rumahmu tidak ditemukan' });
       const wall = String(body.wall || ''), roof = String(body.roof || '');
       if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna dinding dan atap dulu.' });
-      { const now = histOf(r).slice(-1)[0].look; if ((now.wall || null) === wall && (now.roof || null) === roof) return res.status(400).json({ error: 'Warnanya sama dengan rumahmu sekarang.' }); }
+      const V = histOf(r), n = body.n == null ? V.length - 1 : Math.floor(+body.n);
+      if (!(n >= 0 && n < V.length)) return res.status(400).json({ error: 'Versi rumah tidak ada' });
+      const style = V[n].look.style || null;
+      { const now = V[n].look; if ((now.wall || null) === wall && (now.roof || null) === roof) return res.status(400).json({ error: 'Warnanya sama dengan rumah versi itu.' }); }
       const lama = await kv(['GET', 'warna:user:' + s.u]); if (lama) await kvMany([['DEL', 'warna:req:' + lama], ['SREM', 'warna:antre', lama]]);
       const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = 'WARNA-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];
-      await kvMany([['SET', 'warna:req:' + kode, JSON.stringify({ u: s.u, wall, roof, at: Date.now(), status: 'menunggu' }), 'EX', 14 * 864e2],
+      await kvMany([['SET', 'warna:req:' + kode, JSON.stringify({ u: s.u, wall, roof, style, at: Date.now(), status: 'menunggu' }), 'EX', 14 * 864e2],
         ['SET', 'warna:user:' + s.u, kode, 'EX', 14 * 864e2], ['SADD', 'warna:antre', kode]]);
       return res.status(200).json({ kode, kartu: await infoKartu(D, s.u) });
     }
@@ -263,7 +266,7 @@ export default async function handler(req, res) {
       if (!v || v.status !== 'menunggu') return res.status(404).json({ error: 'Permintaan ' + kode + ' tidak ditemukan atau sudah diproses' });
       if (body.ok) {
         const ex = jparse(await kv(['HGET', 'warnaplus', v.u])) || [];
-        ex.push({ day: hariIni(), note: '🎨 Ganti warna (traktir 1 Genteng)', wall: v.wall, roof: v.roof });
+        ex.push({ day: hariIni(), note: '🎨 Ganti warna (traktir 1 Genteng)', wall: v.wall, roof: v.roof, style: v.style === undefined ? undefined : v.style });
         await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
       }
       await kvMany([['SET', 'warna:req:' + kode, JSON.stringify({ ...v, status: body.ok ? 'disetujui' : 'ditolak' }), 'EX', 7 * 864e2],

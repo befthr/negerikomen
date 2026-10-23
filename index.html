@@ -149,6 +149,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .rh-cf{margin-top:8px;padding:10px;border-radius:12px;background:#FFF6D6;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}.rh-cf span{flex:1 1 100%}.rh-ya,.rh-no{border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;border:1.5px solid #1C2520}.rh-ya{background:#1C2520;color:#F2C230}.rh-no{background:#fff;color:#1C2520}
 .kk-game{margin-top:14px;padding:12px 14px;border-radius:12px;border:1.5px dashed var(--line);background:#F6F4EE;opacity:.75;cursor:default}.kk-gh{display:flex;align-items:center;justify-content:space-between;gap:8px}.kk-gh b{font-size:14.5px}.kk-soon{font-size:11.5px;font-weight:800;background:#1C2520;color:#F2C230;border-radius:999px;padding:2px 10px}.kk-game p{margin:4px 0 0!important}
 .kk-gico{width:20px;height:20px;vertical-align:-4px;margin:0 4px 0 2px;border-radius:5px}
+.kk-vpick{margin:8px 0 4px}.kk-vpick b{font-size:14px}.kk-vrow{display:flex;gap:8px;margin-top:6px;overflow-x:auto}.kk-vb{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font:inherit;font-size:12px;font-weight:700}.kk-vb svg{width:52px;height:52px}.kk-vb.on{border-color:#1C2520;background:#FFF6D6}
 .kk-wait{margin-top:14px;padding:12px 14px;border-radius:12px;background:#FFF6D6}.kk-kode{font-family:var(--f-display);font-weight:800;font-size:24px;margin:6px 0;letter-spacing:.06em;cursor:pointer}.kk-pv{display:flex;align-items:center;gap:14px;margin:10px 0;padding:12px;border-radius:14px;background:#EEF2E6}.kk-pvsvg{width:84px;height:84px;flex:none}.kk-pv span{font-weight:700;font-size:14px}.kk-pal{margin:10px 0}.kk-pal b{font-size:14px}.kk-sw{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:6px 0}.kk-sw button{aspect-ratio:1;border-radius:50%;border:2px solid rgba(0,0,0,.18);cursor:pointer;padding:0}.kk-sw button.on{outline:3px solid #1C2520;outline-offset:2px}.kk-pal input{width:100%;padding:7px 10px;border-radius:10px;border:1.5px solid var(--line);font:inherit;font-size:13px}.kk-req{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1.5px dashed #E2C978}.kk-req svg{width:52px;height:52px;flex:none}.kk-req b{display:block;font-size:13.5px}.kk-req span{font-size:12.5px;color:var(--muted)}.kk-req .kk-row{margin:6px 0 0}
 .kk-links{display:flex;justify-content:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted)}.kk-links button{border:0;background:none;padding:2px;font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer}
 .rh-pk{margin-top:6px;border:1.5px solid #1C2520;background:#F2C230;color:#1C2520;border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
@@ -1880,21 +1881,28 @@ function kkBagianWarna(body,c,i){const r=RES[i];
   body.append(kkGBtn('🎨 Ganti warna · ','1 Genteng','',()=>kkWarna(body,c,i)))}
 // tombol dengan ikon genteng (genteng.png) di depan harga
 function kkGBtn(depan,harga,cls,fn){const b=kkBtn('',cls,fn);const im=el('img','kk-gico');im.src='genteng.png';im.alt='';b.append(document.createTextNode(depan),im,document.createTextNode(harga));return b}
-function kkWarna(body,c,i){const r=RES[i],gl=r.style==='globe',sr=r.style==='serigala';
+function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r0);
+  // rumah yang diwarnai = versi pilihan (bentuk & warna versi itu)
+  const r={...r0};LOOK.forEach(k=>{const v=V[n].look[k];if(v==null)delete r[k];else r[k]=v});
+  const gl=r.style==='globe',sr=r.style==='serigala';
   let W=r.wall||(gl?'biru':sr?'abu-abu':'putih'),R=r.roof||(gl?'hijau':sr?'abu-abu':'merah');body.innerHTML='';
-  const LB=r.style==='globe'?['Laut','Pulau']:r.style==='serigala'?['Bulu','Telinga']:['Dinding','Atap'];
-  body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-muted',`Pilih warna ${LB[0].toLowerCase()} dan ${LB[1].toLowerCase()}. Warna baru jadi versi baru di riwayat rumahmu (tidak memakai jatah ganti), jadi warna lama tetap bisa dipakai lagi.`));
+  const LB=gl?['Laut','Pulau']:sr?['Bulu','Telinga']:['Dinding','Atap'];
+  body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-note','📌 Rumah yang sudah ada nggak hilang. Semua versi rumahmu tetap tercatat milikmu, dan bisa kamu pakai lagi kapan saja lewat Lihat 3D.'));
+  if(V.length>1){const pk=el('div','kk-vpick');pk.append(el('b',null,'1. Pilih rumah yang mau diwarnai'));const g=el('div','kk-vrow');
+    V.forEach((v,k)=>{const b=el('button','kk-vb'+(k===n?' on':''));b.type='button';const rv={...r0};LOOK.forEach(q=>{const x=v.look[q];if(x==null)delete rv[q];else rv[q]=x});
+      b.append(kkRumahMini(rv),el('span',null,'Versi '+(k+1)));b.onclick=()=>kkWarna(body,c,i,k);g.append(b)});pk.append(g);body.append(pk)}
+  body.append(el('p','kk-muted',`${V.length>1?'2. ':''}Pilih warna ${LB[0].toLowerCase()} dan ${LB[1].toLowerCase()}. Hasilnya jadi versi baru di riwayat rumahmu, tanpa memakai jatah ganti.`));
   const pv=el('div','kk-pv');body.append(pv);
   const draw=()=>{pv.innerHTML='';const sv=kkRumahMini({...r,wall:W,roof:R});sv.setAttribute('class','kk-pvsvg');pv.append(sv,el('span',null,`${LB[0]} ${kkNamaWarna(W)} · ${LB[1].toLowerCase()} ${kkNamaWarna(R)}`))};
   const baris=(judul,get,set,warnaFn)=>{const w=el('div','kk-pal');w.append(el('b',null,judul));const g=el('div','kk-sw');
-    KK_WARNA.forEach(n=>{const b=el('button');b.type='button';b.title=n;b.setAttribute('aria-label',judul+' '+n);b.style.background=warnaFn(n);b.onclick=()=>{set(n);upd()};g.append(b)});
+    KK_WARNA.forEach(nm=>{const b=el('button');b.type='button';b.title=nm;b.setAttribute('aria-label',judul+' '+nm);b.style.background=warnaFn(nm);b.onclick=()=>{set(nm);upd()};g.append(b)});
     const inp=el('input');inp.placeholder='atau kode warna, mis. #622599';inp.maxLength=7;inp.autocapitalize='off';
     inp.oninput=()=>{const v=inp.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v)){set(v.toUpperCase());upd()}};
     const upd=()=>{[...g.children].forEach(b=>b.classList.toggle('on',b.title===get()));draw()};w.append(g,inp);w._upd=upd;return w};
-  const bw=baris(LB[0],()=>W,v=>W=v,n=>r.style==='globe'||r.style==='serigala'?NK.roofHex({roof:n,x:0,y:0}):NK.wallHex({wall:n,x:0,y:0})),br=baris(LB[1],()=>R,v=>R=v,n=>NK.roofHex({roof:n,x:0,y:0}));
+  const bw=baris(LB[0],()=>W,v=>W=v,nm=>gl||sr?NK.roofHex({roof:nm,x:0,y:0}):NK.wallHex({wall:nm,x:0,y:0})),br=baris(LB[1],()=>R,v=>R=v,nm=>NK.roofHex({roof:nm,x:0,y:0}));
   body.append(bw,br);bw._upd();br._upd();
   const msg=el('p','kk-msg'),row=el('div','kk-row');
-  row.append(kkGBtn('Lanjut: traktir ','1 Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R},true);bt.disabled=false;
+  row.append(kkGBtn('Lanjut: traktir ','1 Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R,n},true);bt.disabled=false;
       if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkWarnaKode(body,res)}),
     kkBtn('Kembali','',async()=>{const res=await kkApi('saya',null,true);if(res.ok)kkTampil(body,res.kartu)}));
   body.append(msg,row)}
@@ -1906,7 +1914,7 @@ function kkWarnaKode(body,res){body.innerHTML='';body.append(el('h3',null,'Satu 
 async function kkAntre(box){box.innerHTML='';box.append(el('p','kk-muted','Memuat antrean…'));const res=await kkApi('antre-warna',{},true);box.innerHTML='';
   if(!res.ok){box.append(el('p','kk-muted',res.error||'Gagal memuat'));return}
   if(!res.antre.length){box.append(el('p','kk-muted','Belum ada permintaan ganti warna.'));return}
-  res.antre.forEach(a=>{const row=el('div','kk-req'),i=kkResIdx(a.u),r=i>=0?RES[i]:{x:0,y:0};const sv=kkRumahMini({...r,wall:a.wall,roof:a.roof});
+  res.antre.forEach(a=>{const row=el('div','kk-req'),i=kkResIdx(a.u),r=i>=0?RES[i]:{x:0,y:0};const sv=kkRumahMini({...r,style:a.style===undefined?r.style:a.style,wall:a.wall,roof:a.roof});
     const tx=el('div');tx.append(el('b',null,a.kode+' · @'+a.u),el('span',null,`Dinding ${kkNamaWarna(a.wall)} · atap ${kkNamaWarna(a.roof)} · ${new Date(a.at).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`));
     const act=el('div','kk-row');act.append(kkBtn('✅ Konfirmasi','sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-warna',{kode:a.kode,ok:true},true);toast(r2.ok?`Rumah @${a.u} ganti warna`:(r2.error||'Gagal'));kkAntre(box)}),
       kkBtn('Tolak','sm',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-warna',{kode:a.kode,ok:false},true);toast(r2.ok?'Permintaan ditolak':(r2.error||'Gagal'));kkAntre(box)}));

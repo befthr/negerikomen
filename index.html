@@ -404,7 +404,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="card trak" id="trak" hidden>
         <div class="trak-row">
           <img src="genteng.png" alt="" width="56" height="56">
-          <div><h3 data-nokk>Traktir kampung</h3><h3 data-kk hidden>🛍️ Toko Kampung</h3><p class="trak-lede" data-nokk>Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p><p class="trak-lede" data-kk hidden>Ubah rumahmu dan ramaikan pekaranganmu pakai <b>Genteng</b>.</p></div>
+          <div><h3 data-nokk>Traktir kampung</h3><h3 data-kk hidden>🛍️ Toko Pak Kades</h3><p class="trak-lede" data-nokk>Satu <b id="tUnit">Genteng</b> bantu kepala desa terus membangun Negeri Komen tiap hari.</p><p class="trak-lede" data-kk hidden>Ubah rumahmu dan ramaikan pekaranganmu pakai <b>Genteng</b>.</p></div>
         </div>
         <a class="btn gold" id="tLink" href="#" target="_blank" rel="noopener" data-nokk>Traktir Genteng di Trakteer</a>
         <div class="etalase" id="etalase"></div>
@@ -485,7 +485,7 @@ const BTYPES={
   warung:{label:'Warung'},warkop:{label:'Warung kopi'},masjid:{label:'Masjid'},lapangan:{label:'Lapangan'},
   sekolah:{label:'Sekolah'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Rumah sakit'},
   umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'},
-  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'},layartancap:{label:'Layar tancap'},tugu:{label:'Tugu pendukung'},penginapan:{label:'Penginapan'},coffeeshop:{label:'Coffee shop'},tokokampung:{label:'Toko kampung'},dealer:{label:'Dealer motor & sepeda'}
+  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'},layartancap:{label:'Layar tancap'},tugu:{label:'Tugu pendukung'},penginapan:{label:'Penginapan'},coffeeshop:{label:'Coffee shop'},tokokampung:{label:'Toko Pak Kades'},dealer:{label:'Dealer motor & sepeda'}
 };
 const STARTER=[
   {type:'posronda',name:'Pos Ronda',by:'negerikomen',day:1,x:C-1,y:C+1,w:1},
@@ -762,7 +762,7 @@ function drawBuilding(b,s,a){
     box(X+14,Y+14,92,40,'#FFF4D6','#D9C9A0');ctx.fillStyle='#F2C230';ctx.fillRect(X+10,Y+8,100,12);ctx.fillStyle='#D9A520';ctx.fillRect(X+10,Y+17,100,3);
     awning(X+12,Y+48,96,14,'#C4502F','#FFFFFF',8);
     const it=(id,x,y,sc,teks,w,diam)=>{ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ITEM_DIAM=!!diam;ITEM_HZ=true;drawItem2D(id,ITEM_T,x*.07,teks,w);ITEM_DIAM=false;ctx.restore()};
-    it('papan',X+60,Y+74,1.6,'TOKO KAMPUNG',null,true);it('ayam',X+30,Y+92,1.5);it('kucing',X+92,Y+96,1.5);it('lampu',X+16,Y+108,1.4,null,null,true);it('kolam',X+60,Y+102,1.4,null,null,true);it('lampu',X+104,Y+108,1.4,null,null,true);
+    it('papan',X+60,Y+74,1.6,'TOKO PAK KADES',null,true);it('ayam',X+30,Y+92,1.5);it('kucing',X+92,Y+96,1.5);it('lampu',X+16,Y+108,1.4,null,null,true);it('kolam',X+60,Y+102,1.4,null,null,true);it('lampu',X+104,Y+108,1.4,null,null,true);
   }else if(t==='dealer'){ // dealer: showroom kaca + motor & sepeda warna-warni terparkir
     ctx.fillStyle='#C9CDD1';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     box(X+14,Y+12,92,38,'#BFE3F2','#1C2520');ctx.fillStyle='#1C2520';ctx.fillRect(X+10,Y+8,100,8);ctx.fillStyle='#C4502F';ctx.fillRect(X+10,Y+15,100,3);
@@ -1839,7 +1839,7 @@ function build3DB(b){const T=THREE,g=new T.Group();
   }else if(ty==='tokokampung'){
     box(1.2,.04,1.4,'#C9B48A',0,.02,2.4);box(3.2,1.9,2.4,'#FFF4D6',0,.95,0);box(3.4,.2,2.6,'#F2C230',0,1.98,0);box(3.4,.08,2.6,'#D9A520',0,1.84,0);
     stripes(8,3.2,.8,1.55,1.5,'#C4502F','#FFFFFF',.35);box(2.4,.95,.06,'#9FD3E6',0,.75,1.21,{metalness:.2,roughness:.2});
-    [['#C4402F',-.8],['#F2C230',0],['#2F9E6A',.8]].forEach(([c,x])=>box(.35,.35,.35,c,x,.5,1.05));sign(b.name||'TOKO KAMPUNG','#C4502F','#FFFFFF',2.6,.5,0,2.4,1.25);
+    [['#C4402F',-.8],['#F2C230',0],['#2F9E6A',.8]].forEach(([c,x])=>box(.35,.35,.35,c,x,.5,1.05));sign(b.name||'TOKO PAK KADES','#C4502F','#FFFFFF',2.6,.5,0,2.4,1.25);
     items3D(g,{items:[{id:'ayam'},{id:'kucing'},{id:'lampu'}]});
   }else if(ty==='dealer'){
     box(3.6,.04,1.6,'#9AA0A6',0,.02,2.2);box(3.3,2,2.4,'#BFE3F2',0,1,0,{metalness:.2,roughness:.15});box(3.5,.25,2.6,'#1C2520',0,2.1,0);box(3.5,.08,2.6,'#C4502F',0,1.94,0);
@@ -2136,7 +2136,7 @@ function kkBayarSaldo(body,c,p){const sisa=Math.max(0,(p.harga||1)-(+p.bayar||0)
   return kkGBtn('💰 Bayar pakai saldo · ',sisa+' Genteng','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('bayar-saldo',{kode:p.kode},true);bt.disabled=false;
     if(!res.ok){toast(res.error||'Gagal');return}try{SND.play('ting',.7)}catch(_){}toast(res.otomatis?'Lunas! Rumahmu langsung berubah 🎉':'Lunas! Tinggal dicek kepala desa.');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1500)})}
 function kkIsiSaldo(body,c){body.innerHTML='';kkBack(body,()=>kkTampil(body,c));
-  body.append(el('h3',null,'💰 Isi Saldo Genteng'),el('p',null,'Traktir Genteng berapa saja di Trakteer. Genteng-nya masuk jadi saldo, bisa kamu pakai belanja kapan saja di Toko Kampung.'));
+  body.append(el('h3',null,'💰 Isi Saldo Genteng'),el('p',null,'Traktir Genteng berapa saja di Trakteer. Genteng-nya masuk jadi saldo, bisa kamu pakai belanja kapan saja di Toko Pak Kades.'));
   const ol=el('ol','kk-steps');['Buka Trakteer @negerikomen, pilih jumlah Genteng','Di kolom pesan, tulis username-mu atau kode dompetmu (salah satu)','Saldo langsung bertambah begitu traktiran masuk'].forEach(t=>ol.append(el('li',null,t)));body.append(ol);
   const k1=el('div','kk-frasa','@'+c.u);k1.onclick=()=>kkSalin('@'+c.u);body.append(k1);if(c.dompet){body.append(el('p','kk-muted','atau kode dompet:'));const k2=el('div','kk-kode',c.dompet);k2.onclick=()=>kkSalin(c.dompet);body.append(k2)}
   const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin @'+c.u,'',()=>kkSalin('@'+c.u)));body.append(row,
@@ -2241,7 +2241,7 @@ function kkKode(body,res){const j=res.jenis||'warna',h=res.harga||1;body.innerHT
   if(j==='ruko'){const f=kkFormUrl(res.kartu.u,res.kode);if(f){const b=el('a','btn','📝 Isi formulir toko');b.href=f;b.target='_blank';b.rel='noopener';row.append(b)}else body.append(el('p','kk-muted','Link formulir toko menyusul dari kepala desa.'))}
   body.append(row)}
 // pintu belanja: dari etalase / toko di peta → Kartu Komen → Ubah rumah
-async function kkBelanja(tab){if(!KK_ON){toast('Toko Kampung dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!');return}
+async function kkBelanja(tab){if(!KK_ON){toast('Toko Pak Kades dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!');return}
   const k=kkGet();if(!k||!k.u){toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}return}
   const body=kkModal();body.append(el('p','kk-muted','Memuat kartu…'));const res=await kkApi('saya',null,true);if(!res.ok){body.innerHTML='';kkIntro(body,k.u,res.error);return}
   const i=kkResIdx(res.kartu.u);if(i<0||res.kartu.admin){kkTampil(body,res.kartu);return}kkUbah(body,res.kartu,i,tab||'rumah')}

@@ -1365,7 +1365,7 @@ window.NK_DATA = {
   { "type": "masjid", "name": "Masjid Al-Jabbar", "by": "dhafageka", "day": 3, "x": 41, "y": 35, "w": 3 },
   { "type": "sekolah", "name": "SMA Negeri 2 Negeri Komen", "by": "edenjfwy_", "day": 4, "x": 47, "y": 35, "w": 3, "staff": [] },
   { "type": "puskesmas", "name": "Rumah Sakit Negeri Komen", "by": "faiturr_", "day": 4, "x": 53, "y": 41, "w": 3, "staff": [] },
-  { "type": "tokokampung", "name": "Toko Kampung", "by": "negerikomen", "day": 5, "x": 41, "y": 53, "w": 3, "staff": [] },
+  { "type": "tokokampung", "name": "Toko Pak Kades", "by": "negerikomen", "day": 5, "x": 41, "y": 53, "w": 3, "staff": [] },
   { "type": "dealer", "name": "Dealer Motor & Sepeda", "by": "negerikomen", "day": 5, "x": 47, "y": 53, "w": 3, "staff": [] }
  ],
  "awards": [

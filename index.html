@@ -2067,6 +2067,10 @@ function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'🧾 
       const row=el('div','kk-req'),tx=el('div');tx.append(el('b',null,`${KK_JENIS[a.jenis].ic} ${a.kode} · @${a.u} · ${a.harga||1} Genteng`),el('span',null,`${kkPesanTeks(a)} · status: ${st}`));
       if(['menunggu','dibatalkan','diganti'].includes(a.status)){const act=el('div','kk-row');act.append(kkBtn('✅ Konfirmasi','sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('konfirmasi-ubah',{kode:a.kode,ok:true},true);toast(r2.ok?`Pesanan @${a.u} disetujui`:(r2.error||'Gagal'));co.innerHTML='';kkAntre(box)}));tx.append(act)}
       row.append(tx);co.append(row)}),co);
+    const sa=el('div');w.append(el('p','kk-sub','🎁 Saldo untuk pendukung lama'),sa);(async()=>{const r=await kkApi('saldo-awal',{},true);if(!r.ok){sa.append(el('p','kk-muted',r.error||'Gagal'));return}
+      if(r.sudah>=r.daftar.length){sa.append(el('p','kk-muted',`✅ Sudah dikirim ke ${r.sudah} pendukung lama.`));return}
+      sa.append(el('p','kk-muted',`${r.daftar.length} pendukung lama · total ${r.total} Genteng: `+r.daftar.map(x=>'@'+x.u+' '+x.n).join(', ')));
+      sa.append(kkBtn(`🎁 Kirim ${r.total} Genteng ke saldo mereka`,'sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('saldo-awal',{kirim:true},true);toast(r2.ok?`Terkirim ${r2.total} Genteng ke ${r2.dikirim.length} warga`:(r2.error||'Gagal'));sa.innerHTML='';sa.append(el('p','kk-muted',r2.ok?`✅ Sudah dikirim ke ${r2.dikirim.length} pendukung lama.`:'Gagal'))}))})();
     const tw=el('div');w.append(el('p','kk-sub','💸 Traktiran tanpa kode'),el('p','kk-muted','Traktiran tanpa kode pesanan, tanpa @username warga, dan tanpa kode dompet. Kalau tahu siapa orangnya, masukkan ke saldonya.'),tw);kkTanpaKode(tw);
     body.append(w);kkAntre(box)}
 async function kkTanpaKode(tw){tw.innerHTML='';const res=await kkApi('tanpa-kode',{},true);if(!res.ok){tw.append(el('p','kk-muted',res.error||'Gagal memuat'));return}

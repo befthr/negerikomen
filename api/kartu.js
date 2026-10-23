@@ -350,6 +350,14 @@ export default async function handler(req, res) {
       let otomatis = false; if (bolehOtomatis(jenis, v)) { await terapkan(kv, kvMany, jenis, kode, v, true, 'saldo'); otomatis = true }
       return res.status(200).json({ ok: true, otomatis, kartu: await infoKartu(D, s.u) });
     }
+    if (aksi === 'saldo-awal') { // sekali saja: pendukung lama (donor di data kampung) dapat Saldo Genteng sebesar traktirannya
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const L = (D.residents || []).filter(r => +r.donor > 0).map(r => ({ u: String(r.name).toLowerCase(), n: Math.floor(+r.donor) }));
+      if (!body.kirim) return res.status(200).json({ daftar: L, total: L.reduce((t, x) => t + x.n, 0), sudah: await kv(['HLEN', 'saldo:awal']) || 0 });
+      const out = [];
+      for (const x of L) { if (await kv(['HSETNX', 'saldo:awal', x.u, String(x.n)])) { await kvMany([['HINCRBY', 'saldo', x.u, x.n], ['LPUSH', 'saldo:log:' + x.u, JSON.stringify({ at: Date.now(), n: x.n, ket: 'hadiah pendukung lama' })]]); out.push(x) } }
+      return res.status(200).json({ ok: true, dikirim: out, total: out.reduce((t, x) => t + x.n, 0) });
+    }
     if (aksi === 'tambah-saldo') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const t = cleanU(body.target), n = Math.floor(+body.n);

@@ -143,14 +143,15 @@ async function infoKartu(D, u) {
   const pesan = {}; J.forEach((j, k) => { const v = jparse(reqs[k]); pesan[j] = kodes[k] && v && v.status === 'menunggu' ? { kode: kodes[k], ...v } : null });
   let pil = jparse(p); if (pil && pil.nv !== V.length) pil = null; // kades bikin versi baru → versi baru yang tampil
   const kol = jparse(it); const m = pesan.warna;
-  let [saldo, dompet] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u]]);
+  let [saldo, dompet, slog, seen] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u], ['LRANGE', 'saldo:log:' + u, 0, 9], ['GET', 'saldo:seen:' + u]]);
+  const masuk = (slog || []).map(jparse).filter(x => x && x.n > 0 && x.at > (+seen || 0));
   if (!dompet && r) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (let t = 0; t < 5 && !dompet; t++) { let c = 'DOMPET-'; for (let i = 0; i < 4; i++) c += A[crypto.randomInt(A.length)];
       if (await kv(['SET', 'dompet:k:' + c, u, 'NX'])) { await kv(['SET', 'dompet:u:' + u, c]); dompet = c } } }
   return { u, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
     emas: !!(r && r.sup) || !!em, ruko: jparse(rk), items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
-    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, dompet: dompet || null };
+    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, dompet: dompet || null, saldoBaru: masuk.length ? { n: masuk.reduce((t, x) => t + x.n, 0), ket: masuk.map(x => x.ket), at: masuk[0].at } : null };
 }
 
 const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
@@ -360,6 +361,7 @@ export default async function handler(req, res) {
       for (const x of L) { if (await kv(['HSETNX', 'saldo:awal', x.u, String(x.n)])) { await kvMany([['HINCRBY', 'saldo', x.u, x.n], ['LPUSH', 'saldo:log:' + x.u, JSON.stringify({ at: Date.now(), n: x.n, ket: 'hadiah pendukung lama' })]]); out.push(x) } }
       return res.status(200).json({ ok: true, dikirim: out, total: out.reduce((t, x) => t + x.n, 0) });
     }
+    if (aksi === 'saldo-lihat') { await kv(['SET', 'saldo:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'tambah-saldo') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const t = cleanU(body.target), n = Math.floor(+body.n);

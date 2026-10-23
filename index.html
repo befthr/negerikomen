@@ -1880,7 +1880,8 @@ function kkBagianWarna(body,c,i){const r=RES[i];
   body.append(kkGBtn('🎨 Ganti warna · ','1 Genteng','',()=>kkWarna(body,c,i)))}
 // tombol dengan ikon genteng (genteng.png) di depan harga
 function kkGBtn(depan,harga,cls,fn){const b=kkBtn('',cls,fn);const im=el('img','kk-gico');im.src='genteng.png';im.alt='';b.append(document.createTextNode(depan),im,document.createTextNode(harga));return b}
-function kkWarna(body,c,i){const r=RES[i];let W=r.wall||'putih',R=r.roof||'merah';body.innerHTML='';
+function kkWarna(body,c,i){const r=RES[i],gl=r.style==='globe',sr=r.style==='serigala';
+  let W=r.wall||(gl?'biru':sr?'abu-abu':'putih'),R=r.roof||(gl?'hijau':sr?'abu-abu':'merah');body.innerHTML='';
   const LB=r.style==='globe'?['Laut','Pulau']:r.style==='serigala'?['Bulu','Telinga']:['Dinding','Atap'];
   body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-muted',`Pilih warna ${LB[0].toLowerCase()} dan ${LB[1].toLowerCase()}. Warna baru jadi versi baru di riwayat rumahmu (tidak memakai jatah ganti), jadi warna lama tetap bisa dipakai lagi.`));
   const pv=el('div','kk-pv');body.append(pv);

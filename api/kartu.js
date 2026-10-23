@@ -18,6 +18,7 @@
 //   POST batal-ubah {jenis} (Bearer) → batalkan pesanan jenis itu
 //   POST pajang {ids} (Bearer) → pilih maks 3 item koleksi yang tampil di pekarangan
 //   POST cicil {kode,n} (Bearer kartu @negerikomen) → catat Genteng cicilan yang sudah masuk untuk pesanan itu
+//   POST tanpa-kode {hapus?} (Bearer kartu @negerikomen) → traktiran dari webhook Trakteer yang tidak memuat kode pesanan
 //   POST cari-kode {kode} (Bearer kartu @negerikomen) → cari pesanan lewat kode, termasuk yang dibatalkan/diganti warga
 //   POST antre-ubah / konfirmasi-ubah {kode,ok} (Bearer kartu @negerikomen) → cek & setujui pesanan
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
@@ -328,6 +329,12 @@ export default async function handler(req, res) {
       const n = Math.max(1, Math.min(50, Math.floor(+body.n || 1))); v.bayar = (+v.bayar || 0) + n;
       await kv(['SET', jenis + ':req:' + kode, JSON.stringify(v), ...EXP(jenis)]);
       return res.status(200).json({ ok: true, bayar: v.bayar, harga: v.harga || 1, lunas: v.bayar >= (v.harga || 1) });
+    }
+    if (aksi === 'tanpa-kode') {
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      if (body.hapus) await kv(['LREM', 'trk:tanpakode', 1, String(body.hapus)]);
+      const [L, last] = await kvMany([['LRANGE', 'trk:tanpakode', 0, 49], ['GET', 'trk:terakhir']]);
+      return res.status(200).json({ list: (L || []).map(x => ({ raw: x, ...(jparse(x) || {}) })), terakhir: jparse(last) });
     }
     if (aksi === 'cari-kode') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

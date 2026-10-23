@@ -2084,28 +2084,32 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   const tail=new T.Group();tail.position.set(0,0,-.45);cat.add(tail);mk(Cy(.06,.06,.8,8),'#E07A3E',0,.35,0,{metalness:0},tail).rotation.x=-.5;
   // ===== tembak mercon dari tangan kanan =====
   // gaya foto: siaga, pahlawan, kuda-kuda, bidik, terbang, dadah
-  const GAYA=[{n:'Siaga'},{n:'Pahlawan',lsz:.4,lez:.3,rsz:2.9,rez:.2,lk:-.08,rk:.08,hy:-.2},{n:'Kuda-kuda',lsz:-1.3,lez:-1.4,rsz:1.3,rez:1.4,lk:-.32,rk:.32,ry:-.25,turun:.7},
-    {n:'Bidik',rsz:1.55,rez:0,rux:-1.4,lsz:-.5,lez:-1.2,hy:.0,ry:.5},{n:'Terbang',lsz:-.7,lez:-.2,rsz:.7,rez:.2,lkx:.6,rkx:-.2,naik:1,sayap:1},{n:'Dadah',rsz:2.6,rez:.6,lsz:-.15,lez:-.1,hy:.35,dadah:1},
-    {n:'Duduk di rumah',sit:-1.35,lsz:-.25,lez:-.9,rsz:.25,rez:.9,ux:1.2,uz:-.4,uy:-4.35,hy:.25},
-    {n:'Tidur terlentang',rx:-1.5,ux:1.7,uz:5.6,uy:1.35,lsz:-.5,rsz:.5,lez:-.3,rez:.3,lkx:.05,tidur:1}];
-  let gi=0;const P0={lsz:0,lez:0,rsz:0,rez:0,rux:0,lk:0,rk:0,lkx:0,rkx:0,hy:0,ry:0,naik:0,turun:0,sayap:0,dadah:0,sit:0,rx:0,ux:0,uy:0,uz:0,tidur:0},X0=R.position.x,Z0=R.position.z,PC={...P0},Y0=R.rotation.y;
+  // semua pose dibuat garang: kepalan siap, kaki kokoh, kepala sedikit menunduk menatap lawan
+  const GAYA=[{n:'Siaga',lsz:-.3,rsz:.3,lux:-.45,rux:-.45,lex:-.9,rex:-.9,lk:-.14,rk:.14,hx:.12,sayap:.4},
+    {n:'Pahlawan',rsz:2.9,rez:.15,lsz:-.75,lez:1.7,lux:.15,lk:-.16,rk:.16,hx:-.12,hy:-.2,sayap:.6},
+    {n:'Kuda-kuda',lsz:-1.15,lez:-1.2,rsz:1.15,rez:1.2,lux:-.6,rux:-.6,lk:-.34,rk:.34,ry:-.25,turun:.7,hx:.18,sayap:.6},
+    {n:'Bidik',rsz:1.55,rez:0,rux:-1.4,lsz:-.5,lez:-1.2,lux:-.4,ry:.5,hx:.1},
+    {n:'Siap tempur',rsz:.15,rux:-1.55,rex:-.1,lsz:-.35,lux:-1.25,lex:-1.7,lk:-.2,rk:.25,lkx:-.25,rkx:.2,ry:.35,rx:.06,turun:.25,hx:.16,sayap:1},
+    {n:'Terbang',rsz:.15,rux:-2.9,rez:0,lsz:-.25,lux:.35,lex:-.4,lkx:.5,rkx:-.15,naik:1,sayap:1,hx:-.2},
+    {n:'Duduk di rumah',sit:-1.35,lux:-.95,lex:-.8,lsz:-.35,rux:-1.15,rex:-.25,rsz:.3,rx:.12,ux:1.2,uz:-.4,uy:-4.35,hx:.18,hy:.15,sayap:.5},
+    {n:'Tidur terlentang',rx:-1.5,ux:1.7,uz:5.6,uy:1.35,lsz:-2.5,lez:-2.2,rsz:2.5,rez:2.2,lkx:.05,tidur:1}];
+  let gi=0;const P0={lsz:0,lez:0,rsz:0,rez:0,rux:0,lux:0,lex:0,rex:0,hx:0,lk:0,rk:0,lkx:0,rkx:0,hy:0,ry:0,naik:0,turun:0,sayap:0,dadah:0,sit:0,rx:0,ux:0,uy:0,uz:0,tidur:0},X0=R.position.x,Z0=R.position.z,PC={...P0},Y0=R.rotation.y;
   g.userData.gaya=()=>{gi=(gi+1)%GAYA.length;return GAYA[gi].n};
   const DOR=[];let tembakAt=-1e9;const Sp2=new T.SphereGeometry(.2,10,8);
   const WARNA=['#FF4D4D','#FFD24D','#4DD2FF','#FF6BD6','#7CFF6B','#FFFFFF'];
   g.userData.tembak=()=>{tembakAt=performance.now();try{MERCON_SND()}catch(e){}};
   A.push(t=>{const s=t*.001,now=performance.now(),dt=(now-tembakAt)/1000;
-    // lengan kanan: melambai biasa, atau mengacung ke langit saat menembak
-    let w=Math.max(0,Math.sin(s*.8))**2;const bidik=dt<2.6;if(bidik)w=Math.min(1,dt/.2)*(dt<2.2?1:Math.max(0,(2.6-dt)/.4));
+    // lengan kanan mengikuti pose; saat menembak meriam diacungkan ke langit
+    let w=0;const bidik=dt<2.6;if(bidik)w=Math.min(1,dt/.2)*(dt<2.2?1:Math.max(0,(2.6-dt)/.4));
     {const G=Object.assign({},P0,GAYA[gi]);for(const k in P0)PC[k]+=(G[k]-PC[k])*.12;}
-    const pose=gi>0;
-    if(pose&&!bidik){ka.sh.rotation.z=PC.rsz+(PC.dadah?Math.sin(s*7)*.25:0);ka.el.rotation.z=PC.rez;ka.up.rotation.x=PC.rux}
-    else{ka.sh.rotation.z=w*(bidik?2.2:1.9)*(pose?1:1)+(1-w)*PC.rsz;ka.el.rotation.z=bidik?w*.35:w*.9;ka.up.rotation.x=-w*.2}
-    kl.sh.rotation.z=PC.lsz;kl.el.rotation.z=PC.lez;
+    if(!bidik){ka.sh.rotation.z=PC.rsz;ka.el.rotation.z=PC.rez;ka.up.rotation.x=PC.rux;ka.el.rotation.x=PC.rex}
+    else{ka.sh.rotation.z=w*2.2+(1-w)*PC.rsz;ka.el.rotation.z=w*.35+(1-w)*PC.rez;ka.up.rotation.x=(1-w)*PC.rux-w*.2;ka.el.rotation.x=(1-w)*PC.rex}
+    kl.sh.rotation.z=PC.lsz;kl.el.rotation.z=PC.lez;kl.up.rotation.x=PC.lux;kl.el.rotation.x=PC.lex;head.rotation.x=PC.hx;
     kk[0].rotation.z=PC.lk;kk[1].rotation.z=PC.rk;
     // kaki berputar di pinggul (duduk / terbang)
     [[kk[0],PC.lkx+PC.sit],[kk[1],PC.rkx+PC.sit]].forEach(([L,a])=>{L.rotation.x=a;L.position.y=8-8*Math.cos(a);L.position.z=-8*Math.sin(a)});
     const napas=PC.tidur*Math.sin(s*1.2)*.12;
-    R.position.set(X0+PC.ux,PC.naik+Math.sin(s*2)*.15*PC.sayap-PC.turun*.5+PC.uy+napas,Z0+PC.uz);R.rotation.y=Y0+PC.ry*(1-PC.tidur);R.rotation.x=PC.rx;
+    R.position.set(X0+PC.ux,PC.naik+Math.sin(s*2)*.15*PC.naik-PC.turun*.5+PC.uy+napas,Z0+PC.uz);R.rotation.y=Y0+PC.ry*(1-PC.tidur);R.rotation.x=PC.rx;
     if(dt>=.3&&dt<2&&!DOR.some(d=>d.t0===tembakAt)){const p=new T.Vector3();(ka.meriam||ka.hd).localToWorld(p.set(0,-1.5,0));R.worldToLocal(p);
       const roket=mk(Sp(.3),'#FFE38A',p.x,p.y,p.z,{emissive:'#FFB03A',emissiveIntensity:2});const ekor=mk(new T.ConeGeometry(.22,1.2,10),'#FF8A1E',p.x,p.y,p.z,{emissive:'#FF6A00',emissiveIntensity:2,transparent:true,opacity:.8});
       const tuju=new T.Vector3(p.x+2.6,p.y+1.2,p.z+3.4);DOR.push({t0:tembakAt,roket,ekor,p0:p.clone(),tuju,buyar:null})}
@@ -2119,7 +2123,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
     for(let i=DOR.length-1;i>=0;i--)if(DOR[i].selesai)DOR.splice(i,1);
     {const buka=.55+.45*Math.max(0,Math.sin(s*.35))**2,kepak=Math.sin(s*2.4)*.14+(dt<1.2?.25*Math.sin(dt*12):0);
       sayap.forEach(({W,bil,sd})=>{W.rotation.y=sd*(.15+kepak);bil.forEach(P=>{const k=P.userData.k;P.rotation.z=-sd*(.35+k*.33*(.35+.65*(dt<2||PC.sayap>.5?1:buka))+Math.sin(s*2.4-k*.35)*.1);P.rotation.x=-.2+Math.sin(s*2.4-k*.3)*.08})})}
-    head.rotation.y=dt<2.6?.5:(gi>0?PC.hy:Math.sin(s*.45)*.5);
+    head.rotation.y=dt<2.6?.5:(gi>0?PC.hy:Math.sin(s*.3)*.35);
     ant.material.emissiveIntensity=Math.sin(s*5)>.3?1.4:.1;core.material.emissiveIntensity=.7+.5*Math.sin(s*3);
     api.forEach((f,k)=>{const q=.85+.25*Math.sin(s*18+k*2);f.scale.set(q,q*1.1,q)});
     {const k=NK.kucingGento(s*.9,KP);cat.position.set(k.x,k.y,k.z);

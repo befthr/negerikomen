@@ -1873,7 +1873,7 @@ function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
   const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';
   if(bd0&&bd0.type==='tugu'){$('v3demo').append(el('p',null,'🏆 Ranking penyumbang Genteng:'));const ol=el('ol','rank');rankList(ol,5);$('v3demo').append(ol);if((D.juraganHistory||[]).length){const dh=el('div','jhist');dh.append(el('p',null,'📜 Riwayat Juragan Genteng (dari awal):'));const o2=el('ol');jhFill(o2);dh.append(o2);$('v3demo').append(dh)}}
-  if(bd0&&bd0.type==='layartancap'&&TT_ITEMS.length){$('v3demo').append(el('p',null,'🎬 Tontonan malam ini:'));const g=el('div','tgrid tmini');tancapCards(g,2);$('v3demo').append(g)}
+  if(bd0&&bd0.type==='layartancap'&&TT_ITEMS.length){{const p=el('p',null,'🎬 Tontonan malam ini, kiriman tetangga ');TT_AKUN.forEach((a,k)=>{if(k)p.append(' & ');p.append(ttMention(a))});p.append(':');$('v3demo').append(p)};const g=el('div','tgrid tmini');tancapCards(g,2);$('v3demo').append(g)}
   if(r&&r.demo){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
     tx.append(el('b',null,'🏪 Toko Kamu'),moreText(null,'Keripik pedas bikinan sendiri, level 1–5. Pedasnya nampol tapi bikin nagih! Dibuat tiap hari dari singkong pilihan, tanpa pengawet. Tersedia ukuran 100 gr dan 250 gr. Bisa COD sekitar kampung atau kirim ke seluruh Indonesia. Order lewat link di bawah ya!',2));
     const a=el('a','btn dark','Kunjungi toko ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link Shopee/IG/WA tokomu')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}
@@ -1971,11 +1971,14 @@ $('v3x').onclick=close3D;$('v3').addEventListener('click',e=>{if(e.target===$('v
 const TT=D.tontonan&&Array.isArray(D.tontonan.items)?D.tontonan:null;
 const TT_ITEMS=TT?TT.items.filter(o=>o&&o.title&&safeUrl(o.url)).slice(0,6):[];
 const TT_AKUN=TT?[].concat(TT.akun||[]).concat(TT_ITEMS.map(o=>o.akun).filter(Boolean)).map(a=>String(a).replace(/^@/,'')).filter((a,i,L)=>/^[\w.]+$/.test(a)&&L.indexOf(a)===i):[];
+// mention akun tetangga: kalau sudah jadi warga → ke rumahnya di peta, kalau belum → ke Instagram
+function ttMention(a){const i=RES.findIndex(r=>String(r.name).toLowerCase()===String(a).toLowerCase()),m=el('a','ttm','@'+a);m.style.cssText='color:#2F6B4F;font-weight:800';
+  if(i>=0){m.href='#'+encodeURIComponent(RES[i].name);m.onclick=e=>{e.preventDefault();if(!$('v3').hidden)close3D();select({kind:'r',i});scrollMap()}}else{m.href='https://www.instagram.com/'+encodeURIComponent(a)+'/';m.target='_blank';m.rel='noopener'}return m}
 function tancapMore(){const w=el('div','tmorew');TT_AKUN.forEach(a=>{const m=el('a','tmore',`Tonton semua di @${a} →`);m.href='https://www.instagram.com/'+encodeURIComponent(a)+'/';m.target='_blank';m.rel='noopener';w.append(m)});return w}
 function tancapCards(box,max){box.innerHTML='';TT_ITEMS.slice(0,max||6).forEach(o=>{const a=el('a','tcard');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';
   const th=el('div','tth',o.img?'':o.title);if(o.img&&safeImg(o.img))th.style.backgroundImage=`url("${safeImg(o.img)}")`;a.append(th,el('b',null,o.title));if(o.akun)a.append(el('small',null,'@'+String(o.akun).replace(/^@/,'')));box.append(a)})}
 if(TT_ITEMS.length){$('tancap').hidden=false;
-  $('tancapLede').textContent='Tontonan warga malam ini, kiriman tetangga '+TT_AKUN.map(a=>'@'+a).join(' & ')+'.';tancapCards($('tancapList'));$('tancapMore').remove();
+  {const ld=$('tancapLede');ld.textContent='Tontonan warga malam ini, kiriman tetangga ';TT_AKUN.forEach((a,k)=>{if(k)ld.append(' & ');ld.append(ttMention(a))});ld.append('.')}tancapCards($('tancapList'));$('tancapMore').remove();
   const bi=BLD.findIndex(b=>b.type==='layartancap');if(bi>=0){const go=el('button','demoSm','📍 Lihat di peta');go.type='button';go.style.marginTop='12px';go.onclick=()=>{select({kind:'b',i:bi});scrollMap()};$('tancap').append(go)}}
 /* juragan genteng: pita di atas */
 {const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0)RES[j].juragan=true}

@@ -252,6 +252,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
 .v3{position:fixed;inset:0;z-index:60;background:rgba(16,22,18,.72);display:grid;place-items:center;padding:16px}
 .v3box{position:relative;width:min(560px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:linear-gradient(180deg,#DDEBF2,#F5F7F1 70%);border-radius:22px;border:2px solid var(--ink);box-shadow:0 6px 0 var(--ink);overflow:hidden}
+.v3gaya{position:absolute;left:12px;top:calc(min(46vh,420px) - 104px);z-index:2;padding:8px 14px;border-radius:999px;border:2px solid var(--ink);background:#1F2F5C;color:#fff;font:inherit;font-weight:800;font-size:13px;box-shadow:0 3px 0 var(--ink);cursor:pointer}
 .v3fire{position:absolute;left:12px;top:calc(min(46vh,420px) - 54px);z-index:2;padding:9px 16px;border-radius:999px;border:2px solid var(--ink);background:#D62E2E;color:#fff;font:inherit;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--ink);cursor:pointer}.v3fire:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .v3share{position:absolute;right:12px;top:calc(min(46vh,420px) - 54px);z-index:2;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:2px solid var(--ink);background:#F2C230;color:var(--ink);font:800 14px var(--f-body);box-shadow:0 3px 0 var(--ink);cursor:pointer}.v3share:disabled{opacity:.6}
 .v3scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -464,6 +465,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <canvas id="v3c"></canvas>
     <button type="button" class="v3share" id="v3save">📸 Bagikan</button>
     <button type="button" class="v3fire" id="v3fire" hidden>💥 Tembak mercon!</button>
+    <button type="button" class="v3gaya" id="v3gaya" hidden>🕺 Ganti gaya</button>
     <div class="v3load" id="v3load">Membangun rumah 3D…</div>
     <div class="v3scroll"><div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div><div id="v3demo"></div></div>
     <div class="v3act"><span class="v3hint">Geser untuk memutar · cubit/scroll untuk zoom</span></div></div>
@@ -1706,6 +1708,7 @@ function stepSetir(now){const s=SETIR;if(!s)return;const dt=Math.min(.05,Math.ma
   while(rem>1e-6&&g++<6){const hz=s.dx!==0,pos=hz?s.x:s.y,dir=hz?s.dx:s.dy,nx=dir>0?Math.floor(pos/L+1e-6)*L+L:Math.ceil(pos/L-1e-6)*L-L,dist=Math.abs(nx-pos);
     if(rem<dist){if(hz)s.x+=dir*rem;else s.y+=dir*rem;rem=0;break}
     if(hz)s.x=nx;else s.y=nx;rem-=dist;let nd=[s.dx,s.dy];if(s.want){nd=s.want;s.want=null}
+    else if(s.rb&&Math.random()<.55){const op=[[s.dy,-s.dx],[-s.dy,s.dx]].filter(d=>ok(s.x+d[0]*L,s.y+d[1]*L));if(op.length)nd=op[Math.floor(Math.random()*op.length)]} // GENTO jalan acak di persimpangan
     const okd=d=>ok(s.x+d[0]*L,s.y+d[1]*L);if(!okd(nd)){nd=[[s.dy,-s.dx],[-s.dy,s.dx],[s.dx,s.dy],[-s.dx,-s.dy]].find(okd)||[-s.dx,-s.dy]}s.dx=nd[0];s.dy=nd[1]}
   const ang=Math.atan2(s.dy,s.dx),lane=T*.22;{const lf=s.fly>0?Math.min(1,s.fly/.4,(3-s.fly)/.4+0):0;Object.assign(window.__SETIR,{x:s.x+Math.sin(ang)*lane,y:s.y-Math.cos(ang)*lane,ang,gas:s.mt&&s.boost>0?(now/120)%1:-1,lift:s.rb?Math.max(0,Math.min(1,s.fly>0?Math.min(s.fly/.4,(3-s.fly)/.4):0)):0})}dirty=true;
   const u=$('setir');if(u){u.querySelector('#stT').textContent=Math.ceil(s.dur-el);u.querySelector('.st-bar i').style.width=(100*(1-el/s.dur))+'%';
@@ -2030,8 +2033,8 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
     mk(RB(1.4,3.5,1.5,.45),PT,0,2.95,0,null,L);mk(RB(1.5,1.4,.4,.18),NV,0,3.3,.65,null,L);mk(RB(.42,1.6,.32,.14),MR,sd*.58,2.7,-.72,null,L);
     mk(Sp(.65),GR,0,4.9,0,null,L);mk(RB(1.15,1,.6,.25),MR,0,5,.5,null,L);
     mk(RB(1.3,2.8,1.35,.45),PT,0,6.5,0,null,L);mk(RB(.42,1.8,1.4,.18),NV,sd*.55,6.6,0,null,L);
-    mk(Sp(.62),GR,0,8,0,null,L)};
-  kaki(-1);kaki(1);
+    mk(Sp(.62),GR,0,8,0,null,L);return L};
+  const kk=[kaki(-1),kaki(1)];
   // ===== pinggul + rok zirah =====
   mk(RB(3.3,1.3,2.1,.4),GR,0,8.5,0);[-1,1].forEach(sd=>{const sk=mk(RB(1.35,1.6,.35,.15),PT,sd*.85,8.05,1.05);sk.rotation.x=-.18;mk(RB(.35,1.6,1.7,.15),NV,sd*1.75,8.05,0)});mk(RB(.9,1,.4,.18),MR,0,8.35,1.1);
   // ===== badan =====
@@ -2056,7 +2059,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
     const hd=new T.Group();hd.position.set(0,-2.75,0);el.add(hd);mk(Sp(.5),GR,0,0,0,null,hd);for(let k=0;k<4;k++)mk(Cy(.09,.09,.55,10),GR,-.3+k*.2,-.5,.3,null,hd);
     let meriam=null;if(sd>0){meriam=new T.Group();meriam.position.set(.75,-1.4,0);el.add(meriam);mk(Cy(.32,.32,2.2),MR,0,-.2,0,null,meriam);mk(Cy(.38,.38,.3),PT,0,-1.3,0,null,meriam);mk(Cy(.36,.36,.25),NV,0,.9,0,null,meriam);mk(Cy(.2,.2,.1),DK,0,-1.46,0,null,meriam)}
     return {sh,up,el,hd,meriam}};
-  lengan(-1);const ka=lengan(1);
+  const kl=lengan(-1),ka=lengan(1);
   // ===== kepala polos tanpa wajah, jambul genteng merah, antena perak =====
   mk(Cy(.5,.6,.7),GR,0,14.2,0);const head=new T.Group();head.position.set(0,15.3,0);R.add(head);
   mk(RB(1.95,1.6,1.95,.6),PT,0,0,0,null,head);mk(RB(2.05,.5,2.05,.22),NV,0,.55,0,null,head);mk(RB(1.4,.5,.35,.15),DK,0,-.15,.92,{metalness:.6,roughness:.15},head);
@@ -2070,13 +2073,24 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   const kakiK=[[-.2,.3],[.2,.3],[-.2,-.3],[.2,-.3]].map(([x,z])=>mk(Cy(.06,.06,.3,8),'#C4602A',x,-.35,z,{metalness:0},cat));
   const tail=new T.Group();tail.position.set(0,0,-.45);cat.add(tail);mk(Cy(.06,.06,.8,8),'#E07A3E',0,.35,0,{metalness:0},tail).rotation.x=-.5;
   // ===== tembak mercon dari tangan kanan =====
+  // gaya foto: siaga, pahlawan, kuda-kuda, bidik, terbang, dadah
+  const GAYA=[{n:'Siaga'},{n:'Pahlawan',lsz:.4,lez:.3,rsz:2.9,rez:.2,lk:-.08,rk:.08,hy:-.2},{n:'Kuda-kuda',lsz:-1.3,lez:-1.4,rsz:1.3,rez:1.4,lk:-.32,rk:.32,ry:-.25,turun:.7},
+    {n:'Bidik',rsz:1.55,rez:0,rux:-1.4,lsz:-.5,lez:-1.2,hy:.0,ry:.5},{n:'Terbang',lsz:-.7,lez:-.2,rsz:.7,rez:.2,lkx:.6,rkx:-.2,naik:1,sayap:1},{n:'Dadah',rsz:2.6,rez:.6,lsz:-.15,lez:-.1,hy:.35,dadah:1}];
+  let gi=0;const P0={lsz:0,lez:0,rsz:0,rez:0,rux:0,lk:0,rk:0,lkx:0,rkx:0,hy:0,ry:0,naik:0,turun:0,sayap:0,dadah:0},PC={...P0},Y0=R.rotation.y;
+  g.userData.gaya=()=>{gi=(gi+1)%GAYA.length;return GAYA[gi].n};
   const DOR=[];let tembakAt=-1e9;const Sp2=new T.SphereGeometry(.2,10,8);
   const WARNA=['#FF4D4D','#FFD24D','#4DD2FF','#FF6BD6','#7CFF6B','#FFFFFF'];
   g.userData.tembak=()=>{tembakAt=performance.now();try{MERCON_SND()}catch(e){}};
   A.push(t=>{const s=t*.001,now=performance.now(),dt=(now-tembakAt)/1000;
     // lengan kanan: melambai biasa, atau mengacung ke langit saat menembak
     let w=Math.max(0,Math.sin(s*.8))**2;const bidik=dt<2.6;if(bidik)w=Math.min(1,dt/.2)*(dt<2.2?1:Math.max(0,(2.6-dt)/.4));
-    ka.sh.rotation.z=w*(bidik?2.2:1.9);ka.el.rotation.z=bidik?w*.35:w*.9;ka.up.rotation.x=-w*.2;
+    {const G=Object.assign({},P0,GAYA[gi]);for(const k in P0)PC[k]+=(G[k]-PC[k])*.12;}
+    const pose=gi>0;
+    if(pose&&!bidik){ka.sh.rotation.z=PC.rsz+(PC.dadah?Math.sin(s*7)*.25:0);ka.el.rotation.z=PC.rez;ka.up.rotation.x=PC.rux}
+    else{ka.sh.rotation.z=w*(bidik?2.2:1.9)*(pose?1:1)+(1-w)*PC.rsz;ka.el.rotation.z=bidik?w*.35:w*.9;ka.up.rotation.x=-w*.2}
+    kl.sh.rotation.z=PC.lsz;kl.el.rotation.z=PC.lez;
+    kk[0].rotation.z=PC.lk;kk[1].rotation.z=PC.rk;kk[0].rotation.x=PC.lkx;kk[1].rotation.x=PC.rkx;
+    R.position.y=PC.naik+Math.sin(s*2)*.15*PC.sayap-PC.turun*.5;R.rotation.y=Y0+PC.ry;
     if(dt>=.3&&dt<2&&!DOR.some(d=>d.t0===tembakAt)){const p=new T.Vector3();(ka.meriam||ka.hd).localToWorld(p.set(0,-1.5,0));R.worldToLocal(p);
       const roket=mk(Sp(.3),'#FFE38A',p.x,p.y,p.z,{emissive:'#FFB03A',emissiveIntensity:2});const ekor=mk(new T.ConeGeometry(.22,1.2,10),'#FF8A1E',p.x,p.y,p.z,{emissive:'#FF6A00',emissiveIntensity:2,transparent:true,opacity:.8});
       const tuju=new T.Vector3(p.x+2.6,p.y+1.2,p.z+3.4);DOR.push({t0:tembakAt,roket,ekor,p0:p.clone(),tuju,buyar:null})}
@@ -2089,8 +2103,8 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
         if(k>1.7){d.buyar.forEach(({m})=>R.remove(m));d.buyar=[];d.selesai=true;if(d.flash)R.remove(d.flash)}}});
     for(let i=DOR.length-1;i>=0;i--)if(DOR[i].selesai)DOR.splice(i,1);
     {const buka=.55+.45*Math.max(0,Math.sin(s*.35))**2,kepak=Math.sin(s*2.4)*.14+(dt<1.2?.25*Math.sin(dt*12):0);
-      sayap.forEach(({W,bil,sd})=>{W.rotation.y=sd*(.15+kepak);bil.forEach(P=>{const k=P.userData.k;P.rotation.z=-sd*(.35+k*.33*(.35+.65*(dt<2?1:buka))+Math.sin(s*2.4-k*.35)*.1);P.rotation.x=-.2+Math.sin(s*2.4-k*.3)*.08})})}
-    head.rotation.y=dt<2.6?.5:Math.sin(s*.45)*.5;
+      sayap.forEach(({W,bil,sd})=>{W.rotation.y=sd*(.15+kepak);bil.forEach(P=>{const k=P.userData.k;P.rotation.z=-sd*(.35+k*.33*(.35+.65*(dt<2||PC.sayap>.5?1:buka))+Math.sin(s*2.4-k*.35)*.1);P.rotation.x=-.2+Math.sin(s*2.4-k*.3)*.08})})}
+    head.rotation.y=dt<2.6?.5:(gi>0?PC.hy:Math.sin(s*.45)*.5);
     ant.material.emissiveIntensity=Math.sin(s*5)>.3?1.4:.1;core.material.emissiveIntensity=.7+.5*Math.sin(s*3);
     api.forEach((f,k)=>{const q=.85+.25*Math.sin(s*18+k*2);f.scale.set(q,q*1.1,q)});
     {const k=NK.kucingGento(s*.9,KP);cat.position.set(k.x,k.y,k.z);
@@ -2809,6 +2823,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   scn.add(new T.HemisphereLight('#FFFFFF','#6E8F4A',.5));const sun=new T.DirectionalLight('#FFF2D6',.75);sun.position.set(5,9,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
   Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6});scn.add(sun);
   let {g,flag}=bd0?build3DB(bd0):build3D(r);scn.add(g);
+  {const gb=$('v3gaya');gb.hidden=!g.userData.gaya;gb.onclick=()=>{if(!g.userData.gaya)return;const n=g.userData.gaya();gb.textContent='🕺 Gaya: '+n;auto=false}}
   {const fb=$('v3fire');fb.hidden=!g.userData.tembak;let cd=0;fb.onclick=()=>{if(!g.userData.tembak||Date.now()<cd)return;cd=Date.now()+2700;g.userData.tembak();fb.disabled=true;setTimeout(()=>fb.disabled=false,2700)}}
   let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;
   // kamera menyesuaikan tinggi rumah/bangunan supaya atap & menara tidak terpotong (juga di gambar Bagikan)

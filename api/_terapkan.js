@@ -18,7 +18,7 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
     } else {
       const raw = jparse(await kv(['HGET', 'itemplus', v.u])), kol = raw && Array.isArray(raw.own) ? raw : { own: [], pajang: [] };
       v.items.forEach(id => {
-        const o = { id, day, ...(id === 'papan' ? { teks: v.teks } : {}) }, i = kol.own.findIndex(x => x.id === id);
+        const o = { id, day, ...(id === 'papan' ? { teks: v.teks } : {}), ...(v.warna && v.warna[id] ? { warna: v.warna[id] } : {}) }, i = kol.own.findIndex(x => x.id === id);
         if (i >= 0) kol.own[i] = o; else kol.own.push(o);
         if (!kol.pajang.includes(id) && kol.pajang.length < MAKS_PAJANG) kol.pajang.push(id);
       });

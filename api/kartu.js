@@ -78,6 +78,8 @@ const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w |
 const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 } };
 const KATALOG = { sepeda: 1, motor: 2, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2 };
 const MAKS_PAJANG = 3;
+const VWARNA = ['merah', 'biru', 'hijau', 'kuning', 'hitam', 'putih', 'pink', 'ungu', 'oranye']; // warna motor & sepeda
+const ULANG = ['papan', 'motor', 'sepeda']; // boleh dibeli lagi untuk ganti tulisan/warna
 const okTeks = t => /^[\p{L}\p{N} .,'!&\-]{1,20}$/u.test(t);
 // masa simpan pesanan (termasuk cicilan bendera emas): 14 hari
 const EXP = j => ['EX', 14 * 864e2];
@@ -217,7 +219,7 @@ export default async function handler(req, res) {
       const ruko = {}, item = {};
       for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
-        item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? (o.teks ? { id, teks: o.teks } : { id }) : null }).filter(Boolean) }
+        item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
       return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, donasi, aktif: await kartuAktif() });
     }
@@ -309,11 +311,12 @@ export default async function handler(req, res) {
       } else {
         const ids = [...new Set((Array.isArray(body.items) ? body.items : []).map(String))].filter(id => KATALOG[id]);
         if (!ids.length) return res.status(400).json({ error: 'Pilih minimal satu item.' });
-        const punya = info.items.own.map(o => o.id), dobel = ids.filter(id => id !== 'papan' && punya.includes(id));
+        const punya = info.items.own.map(o => o.id), dobel = ids.filter(id => !ULANG.includes(id) && punya.includes(id));
         if (dobel.length) return res.status(400).json({ error: 'Kamu sudah punya: ' + dobel.join(', ') });
         let teks = null;
         if (ids.includes('papan')) { teks = String(body.teks || '').replace(/\s+/g, ' ').trim(); if (!okTeks(teks)) return res.status(400).json({ error: 'Tulisan papan nama 1–20 huruf/angka.' }) }
-        isi = { items: ids, teks, harga: ids.reduce((t, id) => t + KATALOG[id], 0) };
+        const warna = {}; for (const id of ['motor', 'sepeda']) if (ids.includes(id)) { const w = String((body.warna || {})[id] || 'merah'); if (!VWARNA.includes(w)) return res.status(400).json({ error: 'Warna ' + id + ' tidak tersedia.' }); warna[id] = w }
+        isi = { items: ids, teks, warna, harga: ids.reduce((t, id) => t + KATALOG[id], 0) };
       }
       const lama = await kv(['GET', jenis + ':user:' + s.u]); if (lama) { await simpanStatus(jenis, lama, 'diganti'); await kv(['SREM', jenis + ':antre', lama]) }
       const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = JENIS[jenis].awal + '-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];

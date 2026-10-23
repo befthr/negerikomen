@@ -17,12 +17,12 @@ export default async function handler(req, res) {
     const list = media.j.data || [];
     const out = [];
     for (const m of list.slice(0, 3)) {
-      const c = await g(m.id + '/comments?fields=id,text,username,timestamp,hidden&limit=50');
+      const c = await g(m.id + '/comments?fields=id,text,timestamp,hidden,from{id,username}&limit=50');
       out.push({
         media_type: m.media_type, timestamp: m.timestamp, comments_count: m.comments_count,
         bisa_baca: c.ok, error: c.ok ? undefined : (c.j.error && c.j.error.message),
         dibaca: c.ok ? (c.j.data || []).length : 0,
-        ada_username: c.ok ? (c.j.data || []).some(x => x.username) : null,
+        ada_username: c.ok ? (c.j.data || []).some(x => x.from && x.from.username) : null,
         ada_field_hidden: c.ok ? (c.j.data || []).some(x => 'hidden' in x) : null,
         tersembunyi: c.ok ? (c.j.data || []).filter(x => x.hidden).length : null,
         ada_halaman_lanjut: c.ok ? !!(c.j.paging && c.j.paging.next) : null,

@@ -1418,7 +1418,8 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   else if(s.kind==='s'){const r=EXTRA[s.j],sh=r.shop,src=safeImg(sh.img);if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.referrerPolicy='no-referrer';im.onerror=()=>im.remove();left.append(im)}
     left.append(el('h2',null,'🏪 '+sh.name),el('p',null,'@'+r.name+' · '+(daysLeft(r)===1?'hari terakhir':`tinggal ${daysLeft(r)} hari`)+' · rumahnya dibangun di episode berikutnya'));
     if(sh.desc)left.append(moreText('promo',sh.desc,3));const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Kunjungi toko');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
-  else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'))}
+  else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'));
+    if(KK_ON){const mine=(kkGet()||{}).u==='negerikomen';const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kades':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka('negerikomen');acts.append(kb)}}
   else{const b=BLD[s.i],bo=bossOf(b),st=staffOf(b);left.append(el('h2',null,b.name||'Bangunan'),
       el('p',null,[(NK.BTYPES[b.type]||{}).label,'📅 Diresmikan '+resmi(b.day)+' (hari ke-'+(b.day||1)+')'].filter(Boolean).join(' · ')));
     const sf=el('div','staff');sf.append(el('p',null,''));const goRes=u=>{const a=el('a','who',(u==='negerikomen'?'Kepala desa ':'')+'@'+u);a.href='#'+encodeURIComponent(u);a.onclick=e=>{e.preventDefault();if(u==='negerikomen'){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===u);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')};return a};

@@ -35,6 +35,7 @@ window.NK_DATA = {
  "quest": { "name": "UFO Nyasar", "tanggal": "2026-10-24", "start": "19:30", "end": "20:00", "code": "UFO NYASAR 24" },
  "goalKampung": { "judul": "Bantu Kepala Desa Bangun Negeri Komen", "target": 100, "awal": 0 },
  "setir": true,
+ "gaji": { "default": 2, "warung": 2, "satpam": 2, "bakso": 2, "padang": 2, "marbot": 2, "proyek": 2 },
  "dusun": ["", "", "", ""],
  "residents": [
   { "name": "mroqibh_gntz", "x": 46, "y": 47, "day": 1, "nick": "Maharaja Cyno", "roof": "biru", "donor": 2, "sup": true, "custom": { "title": "Traktir 2 Genteng (1 + 1) → dapat bendera emas", "day": 3 } },

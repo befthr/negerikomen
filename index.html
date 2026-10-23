@@ -1473,6 +1473,7 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   syarat:['Kuat begadang tanpa ketiduran di pos ronda','Bisa mukul kentongan dengan irama yang benar','Berani ngecek suara aneh di sawah malam-malam','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','Rumahmu jadi rumah satpam selama 30 hari (bisa diperpanjang)','Lencana Satpam Kampung saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''}]);
+{const G=D.gaji||{};JOBS.forEach(j=>{if(Array.isArray(j.benefit))j.benefit=j.benefit.map(t=>t.replace(/^💰 Gaji \d+ Receh/,'💰 Gaji '+(+(G[j.id]??G.default??2))+' Receh'))})}
 {const st=j=>{const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());const closed=j.until&&TODAY>j.until;return closed?2:(ok||j.dm)?0:1};
   JOBS.sort((a,b)=>st(a)-st(b))}
 JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job';d.id='job-'+(j.id||k);if(k===0&&JOBS.length===1)d.open=false;
@@ -2340,7 +2341,7 @@ function kkStatus(body){const w=el('div','kk-admin');w.append(el('b',null,'🩺 
     row(r.aktif,r.aktif?'Kartu Komen terbuka untuk umum (postingan #kartukomen terdeteksi)':'Kartu Komen belum terbuka untuk umum (belum ada postingan #kartukomen)');
     row(true,`Komen kunci tersalin: ${fmt(r.komen.jumlah)} · disegarkan ${lalu(r.komen.at)}`);
     row(!!r.trakteer,r.trakteer?`Webhook Trakteer terakhir: ${r.trakteer.nama||'tanpa nama'} · ${r.trakteer.qty} Genteng · ${lalu(r.trakteer.at)}`:'Belum ada traktiran masuk lewat webhook')};isi()}
-function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'💼 Gaji karyawan (2 Receh per pekan)'));const pg=el('p','kk-muted','Memuat…');w.append(pg);body.append(w);
+function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'💼 Gaji karyawan mingguan'));const pg=el('p','kk-muted','Memuat…');w.append(pg);body.append(w);
     kkApi('gaji',{},true).then(r=>{if(!r.ok){pg.textContent=r.error||'Gagal memuat';return}if(r.sudah){pg.textContent='✅ Gaji pekan ini sudah dikirim.';return}
       if(!r.staf.length){pg.textContent='Belum ada karyawan tercatat di fasilitas kampung.';return}pg.textContent=`⏰ Gaji pekan ini BELUM dikirim! ${r.staf.length} karyawan · total ${r.total} Receh.`;w.style.background='#FFF2C2';w.style.borderColor='#C99A12';
       w.append(kkBtn(`💼 Kirim gaji ${r.total} Receh`,'sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('gaji',{kirim:true},true);if(!r2.ok){e.target.disabled=false;toast(r2.error||'Gagal');return}

@@ -390,15 +390,20 @@ export default async function handler(req, res) {
     if (aksi === 'gaji') { // kades: gaji mingguan karyawan fasilitas (sekali per pekan)
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const minggu = awalMinggu(), hariIniStr = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
-      const tukang = (D.residents || []).filter(r => r.job && (!r.job.until || String(r.job.until) >= hariIniStr)).map(r => ({ user: r.name }));
-      const staf = [...new Set([...(D.buildings || []).flatMap(b => Array.isArray(b.staff) ? b.staff : []), ...tukang].map(x => cleanU(x && x.user)).filter(u => okU(u) && warga(D, u)))];
+      // gaji per pekerjaan bisa beda: data.js "gaji": { default, warung, satpam, bakso, padang, marbot, proyek }, atau "gaji" di entri staff
+      const G = D.gaji || {}, JOB = { warung: 'warung', posronda: 'satpam', bakso: 'bakso', padang: 'padang', masjid: 'marbot' };
+      const besar = (job, x) => Math.max(0, Math.min(50, Math.floor(+((x && x.gaji) ?? G[job] ?? G.default ?? GAJI)) || 0));
+      const bayar = new Map(), tambah = (u, n) => { u = cleanU(u); if (okU(u) && warga(D, u) && n > 0) bayar.set(u, (bayar.get(u) || 0) + n) };
+      (D.buildings || []).forEach(b => (Array.isArray(b.staff) ? b.staff : []).forEach(x => x && tambah(x.user, besar(JOB[b.type] || b.type, x))));
+      (D.residents || []).filter(r => r.job && (!r.job.until || String(r.job.until) >= hariIniStr)).forEach(r => tambah(r.name, besar('proyek', r.job)));
+      const staf = [...bayar.keys()], totalGaji = [...bayar.values()].reduce((a, b) => a + b, 0);
       const sudah = await kv(['GET', 'gaji:' + minggu]);
-      if (!body.kirim) return res.status(200).json({ staf, per: GAJI, total: staf.length * GAJI, sudah: !!sudah });
+      if (!body.kirim) return res.status(200).json({ staf, rincian: Object.fromEntries(bayar), total: totalGaji, sudah: !!sudah });
       if (!staf.length) return res.status(400).json({ error: 'Belum ada karyawan di data kampung.' });
       if (!(await kv(['SET', 'gaji:' + minggu, String(Date.now()), 'NX', 'EX', 40 * 864e2]))) return res.status(400).json({ error: 'Gaji pekan ini sudah dikirim.' });
       const at = Date.now();
-      await kvMany(staf.flatMap(u => [['HINCRBY', 'saldo', u, GAJI], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at, n: GAJI, ket: 'gaji' })], ['LTRIM', 'saldo:log:' + u, 0, 49]]));
-      return res.status(200).json({ ok: true, staf, per: GAJI, total: staf.length * GAJI });
+      await kvMany(staf.flatMap(u => [['HINCRBY', 'saldo', u, bayar.get(u)], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at, n: bayar.get(u), ket: 'gaji' })], ['LTRIM', 'saldo:log:' + u, 0, 49]]));
+      return res.status(200).json({ ok: true, staf, rincian: Object.fromEntries(bayar), total: totalGaji });
     }
     if (aksi === 'tambah-saldo') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

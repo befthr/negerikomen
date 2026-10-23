@@ -2030,10 +2030,11 @@ function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));bod
       const h=el('span');if(harga){const im=el('img','kk-gico');im.src='genteng.png';im.alt='';h.append(im,harga)}if(state)h.textContent=state;b.append(h);if(fn)b.onclick=fn;else b.disabled=true;g.append(b)};
     const tunggu=j=>P[j]?'⏳ Menunggu kades':'';
     tile('🎨','Ubah warna',P.warna?'':'1 Genteng',tunggu('warna'),()=>kkWarna(body,c,i));
-    tile('🚩','Bendera emas',c.emas||P.emas?'':'2 Genteng',c.emas?'✓ Sudah punya':tunggu('emas'),c.emas?null:()=>kkEmas(body,c,i));
+    tile('🚩','Bendera emas',c.emas||P.emas?'':'2 Genteng',c.emas?'✓ Kamu sudah punya':tunggu('emas'),c.emas?null:()=>kkEmas(body,c,i));
     const rk=NK.shopOn(r,TODAY);tile('🏪','Jadi ruko',rk||P.ruko?'':'20 Genteng',rk?'✓ Aktif · '+(r.shop.until||''):tunggu('ruko'),rk?null:()=>kkRuko(body,c,i));
     tile('📸','Rumah dari foto','', 'Segera hadir',null);
-    body.append(g,el('p','kk-muted','Semua yang kamu dapat tetap tercatat milikmu. Rumah lama nggak hilang.'));return}
+    const ket=[];if(c.emas)ket.push('🚩 Kamu sudah punya bendera emas. Benderanya sudah berkibar di rumahmu, dan namamu ada di daftar Pendukung kampung.');if(rk)ket.push(`🏪 Rumahmu sedang jadi ruko sampai ${r.shop.until}.`);
+    body.append(g,...ket.map(t=>el('p','kk-note',t)),el('p','kk-muted','Semua yang kamu dapat tetap tercatat milikmu. Rumah lama nggak hilang.'));return}
   // tab item
   const own=(c.items&&c.items.own||[]).map(o=>o.id),pick=new Set();let teks='';const kats=['Kendaraan','Hewan','Hiasan','Papan nama'];
   if(c.pesan&&c.pesan.item)body.append(el('p','kk-note',`⏳ Pesanan item ${c.pesan.item.kode} masih menunggu kades. Pesanan baru akan menggantikannya.`));

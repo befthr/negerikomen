@@ -89,6 +89,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .st-pad button:active,.st-pad button.q{background:#F2C230;transform:translateY(2px);box-shadow:0 2px 0 #1C2520}
 .st-pad [data-d="0,-1"]{grid-column:2;grid-row:1}.st-pad [data-d="-1,0"]{grid-column:1;grid-row:2}.st-pad [data-d="1,0"]{grid-column:3;grid-row:2}.st-pad [data-d="0,1"]{grid-column:2;grid-row:3}
 .st-boost{position:absolute;right:14px;bottom:18px;width:84px;height:84px;border-radius:50%;border:4px solid #1C2520;font-weight:800;font-size:14px;line-height:1.1;color:#1C2520;box-shadow:0 5px 0 #1C2520;background:conic-gradient(#F2C230 var(--p,100%),#D3CFC4 0)}
+.st-fly{position:absolute;right:20px;bottom:112px;width:72px;height:72px;border-radius:50%;border:4px solid #1C2520;font-weight:800;font-size:12px;line-height:1.1;color:#fff;box-shadow:0 5px 0 #1C2520;background:conic-gradient(#2F74B5 var(--p,100%),#8A97A8 0)}.st-fly.on{background:#4FB8FF;animation:stGas .2s infinite alternate}.st-fly:disabled{opacity:.85}
 .st-boost.on{background:#E2453C;color:#fff;animation:stGas .18s infinite alternate}.st-boost:disabled{opacity:.85}
 @keyframes stGas{to{transform:scale(1.06)}}
 .st-hint{position:absolute;left:50%;top:52px;transform:translateX(-50%);background:rgba(28,37,32,.88);color:#fff;font-size:12px;font-weight:700;border-radius:10px;padding:6px 12px;max-width:80%;text-align:center}
@@ -1351,7 +1352,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
     tiang(px-vw-6,py-hhw-12,false);tiang(px+vw+6,py+hhw+12,false);tiang(px+vw+12,py-hhw-6,true);tiang(px-vw-12,py+hhw+6,true)});
   // robot raksasa: digambar paling atas (lebih tinggi dari semua rumah)
   {const SV=window.__SETIR;if(SV&&SV.id==='robot'&&!ROBOT_POS.some(o=>o.u===SV.u))ROBOT_POS.push({x:SV.x,y:SV.y,s:1,sd:0,u:SV.u})}
-  ROBOT_POS.forEach(o=>{ctx.save();const SV=window.__SETIR,jl=SV&&SV.id==='robot'&&SV.u===o.u;if(jl){ctx.translate(SV.x,SV.y);ctx.rotate(SV.ang+Math.PI/2);const lk=Math.sin((t||0)*9)*.04;ctx.scale(1.3*(1+lk),1.3*(1-lk))}else{ctx.translate(o.x,o.y);ctx.scale(o.s*1.3,o.s*1.3)}drawRobot2D(t||0,o.sd);
+  ROBOT_POS.forEach(o=>{ctx.save();const SV=window.__SETIR,jl=SV&&SV.id==='robot'&&SV.u===o.u;if(jl){const lf=SV.lift||0;if(lf>0){ctx.fillStyle=`rgba(20,28,24,${.22*lf})`;ctx.beginPath();ctx.ellipse(SV.x+30*lf,SV.y+34*lf,28,16,0,0,7);ctx.fill()}ctx.translate(SV.x-6*lf,SV.y-14*lf);ctx.rotate(SV.ang+Math.PI/2);const lk=lf>0?0:Math.sin((t||0)*9)*.04,sc=1.3*(1+.3*lf);ctx.scale(sc*(1+lk),sc*(1-lk));if(lf>0){[-6,6].forEach(x=>{const f=.7+.3*Math.sin((t||0)*30+x);ctx.fillStyle='rgba(79,184,255,.55)';ctx.beginPath();ctx.ellipse(x,22,4,10*f+6,0,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.ellipse(x,18,2,5*f+2,0,0,7);ctx.fill()})}}else{ctx.translate(o.x,o.y);ctx.scale(o.s*1.3,o.s*1.3)}drawRobot2D(t||0,o.sd);
     // mercon di peta (tampak atas): roket meluncur lalu DUAR jadi lingkaran percikan warna-warni
     const M2=(window.MERCON||{})[o.u];if(M2){const u=(performance.now()-M2)/1000;
       if(u<.8){const k=u/.8;ctx.fillStyle='#FFE38A';ctx.beginPath();ctx.arc(24+k*40,-20-k*30,2.5+k*2,0,7);ctx.fill();ctx.fillStyle='rgba(255,176,58,.35)';ctx.beginPath();ctx.arc(24+k*40,-20-k*30,6+k*3,0,7);ctx.fill()}
@@ -1690,23 +1691,26 @@ let IKUT=null; // kamera mengikuti motor/sepeda warga setelah tombol Keliling di
 let SETIR=null;const ST_BOOST=2.5,ST_CD=8;
 function mulaiSetir(k,id){const r=RES[k],mt=id==='motor',L=S*T;const [bx,by]=NK.blockOf(r.x,r.y),lx=NK.mod(r.x-C,S),ly=NK.mod(r.y-C,S),X0=bx*L,Y0=by*L;let x,y,dx,dy;
   if(ly===1){x=X0+lx*T;y=Y0;dx=1;dy=0}else if(lx===5){x=X0+L;y=Y0+ly*T;dx=0;dy=1}else if(ly===5){x=X0+lx*T;y=Y0+L;dx=-1;dy=0}else{x=X0;y=Y0+ly*T;dx=0;dy=-1}
-  const rb=id==='robot',dur=rb?60:mt?40:56,now=performance.now();SETIR={k,id,mt,rb,x,y,dx,dy,want:null,t0:now,last:now,dur,boost:0,cd:0};
+  const rb=id==='robot',dur=rb?60:mt?40:56,now=performance.now();SETIR={k,id,mt,rb,x,y,dx,dy,want:null,t0:now,last:now,dur,boost:0,cd:0,fly:0,fcd:0};
   window.__SETIR={u:r.name,id,on:true,x,y,ang:Math.atan2(dy,dx),gas:-1};hideHint();IKUT={i:k,id,sampai:Date.now()+dur*1000};uiSetir();dirty=true}
 function ikutLagi(){const s=SETIR;if(s&&!IKUT)IKUT={i:s.k,id:s.id,sampai:Date.now()+(s.dur-(performance.now()-s.t0)/1000)*1000}}
 function belok(d){const s=SETIR;if(!s)return;ikutLagi();const [a,b]=d;if(a===s.dx&&b===s.dy){s.want=null;return}if(a===-s.dx&&b===-s.dy){s.dx=a;s.dy=b;s.want=null;SND.play('pop',.4);return}s.want=[a,b];SND.play('pop',.5)}
+function terbangSetir(){const s=SETIR;if(!s||!s.rb||s.fcd>0)return;ikutLagi();s.fly=3;s.fcd=9;try{SND.play('ting',.6)}catch(e){}}
 function tembakSetir(){const s=SETIR;if(!s||!s.rb||s.cd>0)return;ikutLagi();s.cd=2.8;(window.MERCON=window.MERCON||{})[RES[s.k].name]=performance.now();try{MERCON_SND()}catch(e){}dirty=true}
 function boostSetir(){const s=SETIR;if(s&&s.rb)return tembakSetir();if(!s||!s.mt||s.cd>0)return;ikutLagi();s.boost=ST_BOOST;s.cd=ST_CD;try{SND.play('ting',.6)}catch(e){}}
 function selesaiSetir(pesan){const s=SETIR;if(!s)return;SETIR=null;const r=RES[s.k];if(r)r.jalan=null;delete window.__SETIR;IKUT=null;const u=$('setir');if(u)u.remove();cv.parentElement.classList.remove('nyetir');dirty=true;toast(pesan||(s.rb?'GENTO sudah pulang jaga rumah lagi 🤖':s.mt?'Motormu sudah parkir lagi di rumah 🛵':'Sepedamu sudah parkir lagi di rumah 🚲'))}
 function stepSetir(now){const s=SETIR;if(!s)return;const dt=Math.min(.05,Math.max(0,(now-s.last)/1000));s.last=now;const el=(now-s.t0)/1000;if(el>=s.dur){selesaiSetir(s.rb?'Waktu jalan-jalan habis, GENTO pulang jaga rumah 🤖':'Waktu keliling habis, kendaraanmu pulang ke rumah 🏠');return}
   if(s.boost>0)s.boost=Math.max(0,s.boost-dt);if(s.cd>0)s.cd=Math.max(0,s.cd-dt);
-  const L=S*T,ok=(x,y)=>x>=BB.x0+T&&x<=BB.x1-T&&y>=BB.y0+T&&y<=BB.y1-T;let rem=(s.rb?55:s.mt?(s.boost>0?240:110):60)*dt,g=0;
+  const L=S*T,ok=(x,y)=>x>=BB.x0+T&&x<=BB.x1-T&&y>=BB.y0+T&&y<=BB.y1-T;if(s.fly>0)s.fly=Math.max(0,s.fly-dt);if(s.fcd>0)s.fcd=Math.max(0,s.fcd-dt);
+  let rem=(s.rb?(s.fly>0?280:55):s.mt?(s.boost>0?240:110):60)*dt,g=0;
   while(rem>1e-6&&g++<6){const hz=s.dx!==0,pos=hz?s.x:s.y,dir=hz?s.dx:s.dy,nx=dir>0?Math.floor(pos/L+1e-6)*L+L:Math.ceil(pos/L-1e-6)*L-L,dist=Math.abs(nx-pos);
     if(rem<dist){if(hz)s.x+=dir*rem;else s.y+=dir*rem;rem=0;break}
     if(hz)s.x=nx;else s.y=nx;rem-=dist;let nd=[s.dx,s.dy];if(s.want){nd=s.want;s.want=null}
     const okd=d=>ok(s.x+d[0]*L,s.y+d[1]*L);if(!okd(nd)){nd=[[s.dy,-s.dx],[-s.dy,s.dx],[s.dx,s.dy],[-s.dx,-s.dy]].find(okd)||[-s.dx,-s.dy]}s.dx=nd[0];s.dy=nd[1]}
-  const ang=Math.atan2(s.dy,s.dx),lane=T*.22;Object.assign(window.__SETIR,{x:s.x+Math.sin(ang)*lane,y:s.y-Math.cos(ang)*lane,ang,gas:s.mt&&s.boost>0?(now/120)%1:-1});dirty=true;
+  const ang=Math.atan2(s.dy,s.dx),lane=T*.22;{const lf=s.fly>0?Math.min(1,s.fly/.4,(3-s.fly)/.4+0):0;Object.assign(window.__SETIR,{x:s.x+Math.sin(ang)*lane,y:s.y-Math.cos(ang)*lane,ang,gas:s.mt&&s.boost>0?(now/120)%1:-1,lift:s.rb?Math.max(0,Math.min(1,s.fly>0?Math.min(s.fly/.4,(3-s.fly)/.4):0)):0})}dirty=true;
   const u=$('setir');if(u){u.querySelector('#stT').textContent=Math.ceil(s.dur-el);u.querySelector('.st-bar i').style.width=(100*(1-el/s.dur))+'%';
     u.querySelectorAll('.st-pad button').forEach(b=>b.classList.toggle('q',!!s.want&&b.dataset.d===s.want.join(',')));
+    const fy=u.querySelector('.st-fly');if(fy){fy.classList.toggle('on',s.fly>0);fy.disabled=s.fcd>0&&s.fly<=0;fy.style.setProperty('--p',(100*(1-s.fcd/9))+'%');fy.textContent=s.fly>0?'🚀 WUSH!':s.fcd>0?'⏳ '+Math.ceil(s.fcd):'🚀 TERBANG'}
     const bo=u.querySelector('.st-boost');if(bo){if(s.rb){bo.disabled=s.cd>0;bo.style.setProperty('--p',(100*(1-s.cd/2.8))+'%');bo.textContent=s.cd>0?'💥 DUAR!':'💥 TEMBAK';bo.classList.toggle('on',s.cd>2)}else{bo.classList.toggle('on',s.boost>0);bo.disabled=s.cd>0&&s.boost<=0;bo.style.setProperty('--p',(100*(1-s.cd/ST_CD))+'%');bo.textContent=s.boost>0?'🔥 NGEBUT!':s.cd>0?'⏳ '+Math.ceil(s.cd):'🚀 BOOST'}}}}
 function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('div','setir');u.id='setir';
   const top=el('div','st-top');const tt=el('span');tt.append(s.rb?'🤖 GENTO · ':s.mt?'🛵 Keliling · ':'🚲 Keliling · ',el('b',null,String(s.dur)),' dtk');tt.querySelector('b').id='stT';const bar=el('div','st-bar');bar.append(el('i'));
@@ -1715,9 +1719,10 @@ function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('
   const pad=el('div','st-pad');[['0,-1','▲','Belok atas'],['-1,0','◀','Belok kiri'],['1,0','▶','Belok kanan'],['0,1','▼','Belok bawah']].forEach(([d,t,lbl])=>{const b=el('button',null,t);b.type='button';b.dataset.d=d;b.setAttribute('aria-label',lbl);
     b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();belok(d.split(',').map(Number))});pad.append(b)});
   u.append(top,pad);if(s.mt||s.rb){const bo=el('button','st-boost',s.rb?'💥 TEMBAK':'🚀 BOOST');bo.type='button';bo.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();boostSetir()});u.append(bo)}
-  const h=el('div','st-hint',s.rb?'Jalan-jalan pakai GENTO! Panah buat belok, TEMBAK buat mercon 💥':s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
+  if(s.rb){const fy=el('button','st-fly','🚀 TERBANG');fy.type='button';fy.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();terbangSetir()});u.append(fy)}
+  const h=el('div','st-hint',s.rb?'Jalan-jalan pakai GENTO! Panah buat belok, TERBANG buat ngebut, TEMBAK buat mercon 💥':s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
   cv.parentElement.append(u);cv.parentElement.classList.add('nyetir')}
-document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '||e.key==='Shift'){e.preventDefault();boostSetir()}else if(e.key==='Escape')selesaiSetir()});
+document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '){e.preventDefault();boostSetir()}else if(e.key==='Shift'){e.preventDefault();SETIR&&SETIR.rb?terbangSetir():boostSetir()}else if(e.key==='Escape')selesaiSetir()});
 function frame(now){
   if(SETIR)stepSetir(now);
   if(IKUT){const r=RES[IKUT.i],o=r&&(r.items||[]).find(x=>x.id===IKUT.id),SVv=window.__SETIR,st=SVv&&SETIR&&SVv.u===(r&&r.name)?SVv:(o?NK.rideOf(r,o,r.items.indexOf(o),now/1000):null);

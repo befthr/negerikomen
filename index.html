@@ -2339,7 +2339,7 @@ function kkStatus(body){const w=el('div','kk-admin');w.append(el('b',null,'🩺 
     row(!!r.trakteer,r.trakteer?`Webhook Trakteer terakhir: ${r.trakteer.nama||'tanpa nama'} · ${r.trakteer.qty} Genteng · ${lalu(r.trakteer.at)}`:'Belum ada traktiran masuk lewat webhook')};isi()}
 function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'💼 Gaji karyawan (2 Receh per pekan)'));const pg=el('p','kk-muted','Memuat…');w.append(pg);body.append(w);
     kkApi('gaji',{},true).then(r=>{if(!r.ok){pg.textContent=r.error||'Gagal memuat';return}if(r.sudah){pg.textContent='✅ Gaji pekan ini sudah dikirim.';return}
-      if(!r.staf.length){pg.textContent='Belum ada karyawan tercatat di fasilitas kampung.';return}pg.textContent=`${r.staf.length} karyawan · total ${r.total} Receh. Kirim sekali tiap pekan.`;
+      if(!r.staf.length){pg.textContent='Belum ada karyawan tercatat di fasilitas kampung.';return}pg.textContent=`⏰ Gaji pekan ini BELUM dikirim! ${r.staf.length} karyawan · total ${r.total} Receh.`;w.style.background='#FFF2C2';w.style.borderColor='#C99A12';
       w.append(kkBtn(`💼 Kirim gaji ${r.total} Receh`,'sm gold3',async e=>{e.target.disabled=true;const r2=await kkApi('gaji',{kirim:true},true);if(!r2.ok){e.target.disabled=false;toast(r2.error||'Gagal');return}
         toast(`Gaji terkirim ke ${r2.staf.length} karyawan 🎉`);pg.textContent='✅ Gaji pekan ini sudah dikirim.';e.target.remove()}))})}
   {const w=el('div','kk-admin');w.append(el('b',null,'🧾 Antrean pesanan warga'),el('p','kk-muted','Traktiran yang lunas untuk ubah warna, bendera emas, dan item langsung diterapkan otomatis. Yang muncul di sini: ruko & papan nama (perlu dicek dulu), cicilan yang belum lunas, dan pesanan yang belum dibayar.'));

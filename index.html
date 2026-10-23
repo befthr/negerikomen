@@ -1696,7 +1696,7 @@ function mulaiSetir(k,id){const r=RES[k],mt=id==='motor',L=S*T;const [bx,by]=NK.
   const rb=id==='robot',dur=rb?60:mt?40:56,now=performance.now();SETIR={k,id,mt,rb,x,y,dx,dy,want:null,t0:now,last:now,dur,boost:0,cd:0,fly:0,fcd:0};
   window.__SETIR={u:r.name,id,on:true,x,y,ang:Math.atan2(dy,dx),gas:-1};hideHint();IKUT={i:k,id,sampai:Date.now()+dur*1000};uiSetir();dirty=true}
 function ikutLagi(){const s=SETIR;if(s&&!IKUT)IKUT={i:s.k,id:s.id,sampai:Date.now()+(s.dur-(performance.now()-s.t0)/1000)*1000}}
-function belok(d){const s=SETIR;if(!s)return;ikutLagi();const [a,b]=d;if(a===s.dx&&b===s.dy){s.want=null;return}if(a===-s.dx&&b===-s.dy){s.dx=a;s.dy=b;s.want=null;SND.play('pop',.4);return}s.want=[a,b];SND.play('pop',.5)}
+function belok(d){const s=SETIR;if(!s)return;ikutLagi();const [a,b]=d;if(s.rb){s.tdx=a;s.tdy=b;s.manual=performance.now()+3500;SND.play('pop',.5);return}if(a===s.dx&&b===s.dy){s.want=null;return}if(a===-s.dx&&b===-s.dy){s.dx=a;s.dy=b;s.want=null;SND.play('pop',.4);return}s.want=[a,b];SND.play('pop',.5)}
 function terbangSetir(){const s=SETIR;if(!s||!s.rb||s.fcd>0)return;ikutLagi();s.fly=3;s.fcd=9;try{SND.play('ting',.6)}catch(e){}}
 function tembakSetir(){const s=SETIR;if(!s||!s.rb||s.cd>0)return;ikutLagi();s.cd=2.8;(window.MERCON=window.MERCON||{})[RES[s.k].name]=performance.now();try{MERCON_SND()}catch(e){}dirty=true}
 function boostSetir(){const s=SETIR;if(s&&s.rb)return tembakSetir();if(!s||!s.mt||s.cd>0)return;ikutLagi();s.boost=ST_BOOST;s.cd=ST_CD;try{SND.play('ting',.6)}catch(e){}}
@@ -1705,12 +1705,19 @@ function stepSetir(now){const s=SETIR;if(!s)return;const dt=Math.min(.05,Math.ma
   if(s.boost>0)s.boost=Math.max(0,s.boost-dt);if(s.cd>0)s.cd=Math.max(0,s.cd-dt);
   const L=S*T,ok=(x,y)=>x>=BB.x0+T&&x<=BB.x1-T&&y>=BB.y0+T&&y<=BB.y1-T;if(s.fly>0)s.fly=Math.max(0,s.fly-dt);if(s.fcd>0)s.fcd=Math.max(0,s.fcd-dt);
   let rem=(s.rb?(s.fly>0?280:55):s.mt?(s.boost>0?240:110):60)*dt,g=0;
+  if(s.rb){ // GENTO raksasa: bebas melangkah, tidak harus ikut jalan — boleh lewat di atas rumah warga
+    if(now>(s.manual||0)&&now>(s.ganti||0)){s.ganti=now+1500+Math.random()*2500;const a0=Math.atan2(s.dy,s.dx)+(Math.random()-.5)*2.2;s.tdx=Math.cos(a0);s.tdy=Math.sin(a0)}
+    if(s.tdx!=null){const k=Math.min(1,dt*2.2);s.dx+=(s.tdx-s.dx)*k;s.dy+=(s.tdy-s.dy)*k;const n=Math.hypot(s.dx,s.dy)||1;s.dx/=n;s.dy/=n}
+    let nx=s.x+s.dx*rem,ny=s.y+s.dy*rem;
+    if(nx<BB.x0+T||nx>BB.x1-T){s.dx=-s.dx;if(s.tdx!=null)s.tdx=-s.tdx;nx=s.x}
+    if(ny<BB.y0+T||ny>BB.y1-T){s.dy=-s.dy;if(s.tdy!=null)s.tdy=-s.tdy;ny=s.y}
+    s.x=nx;s.y=ny;rem=0}
   while(rem>1e-6&&g++<6){const hz=s.dx!==0,pos=hz?s.x:s.y,dir=hz?s.dx:s.dy,nx=dir>0?Math.floor(pos/L+1e-6)*L+L:Math.ceil(pos/L-1e-6)*L-L,dist=Math.abs(nx-pos);
     if(rem<dist){if(hz)s.x+=dir*rem;else s.y+=dir*rem;rem=0;break}
     if(hz)s.x=nx;else s.y=nx;rem-=dist;let nd=[s.dx,s.dy];if(s.want){nd=s.want;s.want=null}
     else if(s.rb&&Math.random()<.55){const op=[[s.dy,-s.dx],[-s.dy,s.dx]].filter(d=>ok(s.x+d[0]*L,s.y+d[1]*L));if(op.length)nd=op[Math.floor(Math.random()*op.length)]} // GENTO jalan acak di persimpangan
     const okd=d=>ok(s.x+d[0]*L,s.y+d[1]*L);if(!okd(nd)){nd=[[s.dy,-s.dx],[-s.dy,s.dx],[s.dx,s.dy],[-s.dx,-s.dy]].find(okd)||[-s.dx,-s.dy]}s.dx=nd[0];s.dy=nd[1]}
-  const ang=Math.atan2(s.dy,s.dx),lane=T*.22;{const lf=s.fly>0?Math.min(1,s.fly/.4,(3-s.fly)/.4+0):0;Object.assign(window.__SETIR,{x:s.x+Math.sin(ang)*lane,y:s.y-Math.cos(ang)*lane,ang,gas:s.mt&&s.boost>0?(now/120)%1:-1,lift:s.rb?Math.max(0,Math.min(1,s.fly>0?Math.min(s.fly/.4,(3-s.fly)/.4):0)):0})}dirty=true;
+  const ang=Math.atan2(s.dy,s.dx),lane=s.rb?0:T*.22;{const lf=s.fly>0?Math.min(1,s.fly/.4,(3-s.fly)/.4+0):0;Object.assign(window.__SETIR,{x:s.x+Math.sin(ang)*lane,y:s.y-Math.cos(ang)*lane,ang,gas:s.mt&&s.boost>0?(now/120)%1:-1,lift:s.rb?Math.max(0,Math.min(1,s.fly>0?Math.min(s.fly/.4,(3-s.fly)/.4):0)):0})}dirty=true;
   const u=$('setir');if(u){u.querySelector('#stT').textContent=Math.ceil(s.dur-el);u.querySelector('.st-bar i').style.width=(100*(1-el/s.dur))+'%';
     u.querySelectorAll('.st-pad button').forEach(b=>b.classList.toggle('q',!!s.want&&b.dataset.d===s.want.join(',')));
     const fy=u.querySelector('.st-fly');if(fy){fy.classList.toggle('on',s.fly>0);fy.disabled=s.fcd>0&&s.fly<=0;fy.style.setProperty('--p',(100*(1-s.fcd/9))+'%');fy.textContent=s.fly>0?'🚀 WUSH!':s.fcd>0?'⏳ '+Math.ceil(s.fcd):'🚀 TERBANG'}
@@ -1723,7 +1730,7 @@ function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('
     b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();belok(d.split(',').map(Number))});pad.append(b)});
   u.append(top,pad);if(s.mt||s.rb){const bo=el('button','st-boost',s.rb?'💥 TEMBAK':'🚀 BOOST');bo.type='button';bo.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();boostSetir()});u.append(bo)}
   if(s.rb){const fy=el('button','st-fly','🚀 TERBANG');fy.type='button';fy.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();terbangSetir()});u.append(fy)}
-  const h=el('div','st-hint',s.rb?'Jalan-jalan pakai GENTO! Panah buat belok, TERBANG buat ngebut, TEMBAK buat mercon 💥':s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
+  const h=el('div','st-hint',s.rb?'Jalan-jalan pakai GENTO! Bebas lewat mana aja, panah buat arahin, TERBANG buat ngebut, TEMBAK buat mercon 💥':s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
   cv.parentElement.append(u);cv.parentElement.classList.add('nyetir')}
 document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '){e.preventDefault();boostSetir()}else if(e.key==='Shift'){e.preventDefault();SETIR&&SETIR.rb?terbangSetir():boostSetir()}else if(e.key==='Escape')selesaiSetir()});
 function frame(now){
@@ -2075,8 +2082,10 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   // ===== tembak mercon dari tangan kanan =====
   // gaya foto: siaga, pahlawan, kuda-kuda, bidik, terbang, dadah
   const GAYA=[{n:'Siaga'},{n:'Pahlawan',lsz:.4,lez:.3,rsz:2.9,rez:.2,lk:-.08,rk:.08,hy:-.2},{n:'Kuda-kuda',lsz:-1.3,lez:-1.4,rsz:1.3,rez:1.4,lk:-.32,rk:.32,ry:-.25,turun:.7},
-    {n:'Bidik',rsz:1.55,rez:0,rux:-1.4,lsz:-.5,lez:-1.2,hy:.0,ry:.5},{n:'Terbang',lsz:-.7,lez:-.2,rsz:.7,rez:.2,lkx:.6,rkx:-.2,naik:1,sayap:1},{n:'Dadah',rsz:2.6,rez:.6,lsz:-.15,lez:-.1,hy:.35,dadah:1}];
-  let gi=0;const P0={lsz:0,lez:0,rsz:0,rez:0,rux:0,lk:0,rk:0,lkx:0,rkx:0,hy:0,ry:0,naik:0,turun:0,sayap:0,dadah:0},PC={...P0},Y0=R.rotation.y;
+    {n:'Bidik',rsz:1.55,rez:0,rux:-1.4,lsz:-.5,lez:-1.2,hy:.0,ry:.5},{n:'Terbang',lsz:-.7,lez:-.2,rsz:.7,rez:.2,lkx:.6,rkx:-.2,naik:1,sayap:1},{n:'Dadah',rsz:2.6,rez:.6,lsz:-.15,lez:-.1,hy:.35,dadah:1},
+    {n:'Duduk di rumah',sit:-1.35,lsz:-.25,lez:-.9,rsz:.25,rez:.9,ux:1.2,uz:-.4,uy:-4.35,hy:.25},
+    {n:'Tidur terlentang',rx:-1.5,ux:1.7,uz:5.6,uy:1.35,lsz:-.5,rsz:.5,lez:-.3,rez:.3,lkx:.05,tidur:1}];
+  let gi=0;const P0={lsz:0,lez:0,rsz:0,rez:0,rux:0,lk:0,rk:0,lkx:0,rkx:0,hy:0,ry:0,naik:0,turun:0,sayap:0,dadah:0,sit:0,rx:0,ux:0,uy:0,uz:0,tidur:0},X0=R.position.x,Z0=R.position.z,PC={...P0},Y0=R.rotation.y;
   g.userData.gaya=()=>{gi=(gi+1)%GAYA.length;return GAYA[gi].n};
   const DOR=[];let tembakAt=-1e9;const Sp2=new T.SphereGeometry(.2,10,8);
   const WARNA=['#FF4D4D','#FFD24D','#4DD2FF','#FF6BD6','#7CFF6B','#FFFFFF'];
@@ -2089,8 +2098,11 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
     if(pose&&!bidik){ka.sh.rotation.z=PC.rsz+(PC.dadah?Math.sin(s*7)*.25:0);ka.el.rotation.z=PC.rez;ka.up.rotation.x=PC.rux}
     else{ka.sh.rotation.z=w*(bidik?2.2:1.9)*(pose?1:1)+(1-w)*PC.rsz;ka.el.rotation.z=bidik?w*.35:w*.9;ka.up.rotation.x=-w*.2}
     kl.sh.rotation.z=PC.lsz;kl.el.rotation.z=PC.lez;
-    kk[0].rotation.z=PC.lk;kk[1].rotation.z=PC.rk;kk[0].rotation.x=PC.lkx;kk[1].rotation.x=PC.rkx;
-    R.position.y=PC.naik+Math.sin(s*2)*.15*PC.sayap-PC.turun*.5;R.rotation.y=Y0+PC.ry;
+    kk[0].rotation.z=PC.lk;kk[1].rotation.z=PC.rk;
+    // kaki berputar di pinggul (duduk / terbang)
+    [[kk[0],PC.lkx+PC.sit],[kk[1],PC.rkx+PC.sit]].forEach(([L,a])=>{L.rotation.x=a;L.position.y=8-8*Math.cos(a);L.position.z=-8*Math.sin(a)});
+    const napas=PC.tidur*Math.sin(s*1.2)*.12;
+    R.position.set(X0+PC.ux,PC.naik+Math.sin(s*2)*.15*PC.sayap-PC.turun*.5+PC.uy+napas,Z0+PC.uz);R.rotation.y=Y0+PC.ry*(1-PC.tidur);R.rotation.x=PC.rx;
     if(dt>=.3&&dt<2&&!DOR.some(d=>d.t0===tembakAt)){const p=new T.Vector3();(ka.meriam||ka.hd).localToWorld(p.set(0,-1.5,0));R.worldToLocal(p);
       const roket=mk(Sp(.3),'#FFE38A',p.x,p.y,p.z,{emissive:'#FFB03A',emissiveIntensity:2});const ekor=mk(new T.ConeGeometry(.22,1.2,10),'#FF8A1E',p.x,p.y,p.z,{emissive:'#FF6A00',emissiveIntensity:2,transparent:true,opacity:.8});
       const tuju=new T.Vector3(p.x+2.6,p.y+1.2,p.z+3.4);DOR.push({t0:tembakAt,roket,ekor,p0:p.clone(),tuju,buyar:null})}

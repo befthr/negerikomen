@@ -11,10 +11,12 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       const ex = jparse(await kv(['HGET', 'warnaplus', v.u])) || [];
       ex.push({ day, note: '🎨 Ganti warna (traktir 1 Genteng)', wall: v.wall, roof: v.roof, style: v.style === undefined ? undefined : v.style });
       await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
+      if (Array.isArray(v.atas) && v.atas.length) { const tk = jparse(await kv(['HGET', 'tingkatplus', v.u])) || {}; await kv(['HSET', 'tingkatplus', v.u, JSON.stringify({ ...tk, lantai: tk.lantai || v.atas.length + 1, atas: v.atas })]) }
     } else if (jenis === 'emas') {
       await kv(['HSET', 'emasplus', v.u, JSON.stringify({ day, kode })]);
     } else if (jenis === 'tingkat') {
-      await kv(['HSET', 'tingkatplus', v.u, JSON.stringify({ lantai: v.lantai, day, kode })]);
+      const tk = jparse(await kv(['HGET', 'tingkatplus', v.u])) || {};
+      await kv(['HSET', 'tingkatplus', v.u, JSON.stringify({ ...tk, lantai: v.lantai, day, kode })]);
     } else if (jenis === 'ruko') {
       await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
     } else {

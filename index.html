@@ -696,7 +696,7 @@ function drawHouse(r,s,a){
   ctx.fillStyle=wallHex(r);ctx.fillRect(-w/2+dx*6,-h/2+dy*6,w,h);
   const roof=roofHex(r);
   const TK=(!r.style&&!shopOn(r)&&+r.tingkat>1)?(Math.min(3,+r.tingkat)-1)*6:0; // rumah tingkat: atap terangkat + fasad berjendela per lantai
-  if(TK){ctx.fillStyle='rgba(30,40,20,.2)';ctx.fillRect(-w/2+5+TK*.5,-h/2+6,w,h+TK*.4);ctx.fillStyle=shade(wallHex(r),-16);ctx.fillRect(-w/2,h/2-TK,w,TK);
+  if(TK){ctx.fillStyle='rgba(30,40,20,.2)';ctx.fillRect(-w/2+5+TK*.5,-h/2+6,w,h+TK*.4);{const nf=TK/6;for(let f=0;f<nf;f++){const a2=Array.isArray(r.atas)&&r.atas[nf-1-f];ctx.fillStyle=shade(a2?wallHex({wall:a2,x:r.x,y:r.y}):wallHex(r),-16);ctx.fillRect(-w/2,h/2-TK+f*6,w,6)}}
     ctx.fillStyle='#BFE3F2';for(let f=0;f<TK/6;f++){const yy=h/2-TK+f*6+1.6;for(let xx=-w/2+3;xx<w/2-4;xx+=6)ctx.fillRect(xx,yy,3.2,2.8)}
     ctx.strokeStyle='rgba(28,37,32,.45)';ctx.lineWidth=.8;for(let f=1;f<TK/6;f++){ctx.beginPath();ctx.moveTo(-w/2,h/2-TK+f*6);ctx.lineTo(w/2,h/2-TK+f*6);ctx.stroke()}ctx.translate(0,-TK)}
   if(r.style==='panggung'){ // rumah panggung: lantai kayu lebar + tiang + atap pelana
@@ -1898,7 +1898,8 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
     let flag=null;const p=new T.Mesh(new T.CylinderGeometry(.04,.04,2.4,8),M('#5A4A3A'));p.position.set(1.4,4.6,-.9);p.castShadow=true;g.add(p);
     const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.1,roughness:.5,emissive:'#8A6A00',emissiveIntensity:.55}));flag.position.set(1.85,5.5,-.9);g.add(flag);flag.userData.base=fg.attributes.position.array.slice();
     return {g,flag}}
-  const NL=Math.max(1,Math.min(3,+r.tingkat||1)),dH=(NL-1)*1.6;box(3.2,2+dH,2.6,wall,0,(2+dH)/2,0);
+  const NL=Math.max(1,Math.min(3,+r.tingkat||1)),dH=(NL-1)*1.6;box(3.2,2,2.6,wall,0,1,0);
+  for(let k=1;k<NL;k++){const a2=Array.isArray(r.atas)&&r.atas[k-1];box(3.2,1.6,2.6,a2?NK.wallHex({wall:a2,x:r.x,y:r.y}):wall,0,2+(k-1)*1.6+.8,0)}
   for(let k=1;k<NL;k++){const y=2+(k-1)*1.6;box(3.3,.1,2.7,'#F4EFE3',0,y,0);[-1.05,0,1.05].forEach(x=>{box(.7,.6,.06,'#BFE3F2',x,y+.75,1.31);box(.8,.08,.08,'#FFFFFF',x,y+.42,1.33)});box(.06,.6,.7,'#BFE3F2',1.61,y+.75,0);box(.06,.6,.7,'#BFE3F2',-1.61,y+.75,0)}
   // atap pelana
   const sh=new T.Shape();sh.moveTo(-1.95,0);sh.lineTo(1.95,0);sh.lineTo(0,1.35);sh.lineTo(-1.95,0);
@@ -2299,6 +2300,7 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
   const r={...r0};LOOK.forEach(k=>{const v=V[n].look[k];if(v==null)delete r[k];else r[k]=v});
   const gl=r.style==='globe',sr=r.style==='serigala';
   let W=r.wall||(gl?'biru':sr?'abu-abu':'putih'),R=r.roof||(gl?'hijau':sr?'abu-abu':'merah');body.innerHTML='';
+  const NL=r.style?1:Math.max(1,Math.min(3,+(c.tingkat||r0.tingkat)||1)),A=[];for(let k=1;k<NL;k++)A.push((Array.isArray(c.atas)&&c.atas[k-1])||(Array.isArray(r0.atas)&&r0.atas[k-1])||W);
   const LB=gl?['Laut','Pulau']:sr?['Bulu','Telinga']:['Dinding','Atap'];
   kkBack(body,()=>kkUbah(body,c,i,'rumah'));body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-note','📌 Rumah yang sudah ada nggak hilang. Semua versi rumahmu tetap tercatat milikmu, dan bisa kamu pakai lagi kapan saja lewat Lihat 3D.'));
   if(V.length>1){const pk=el('div','kk-vpick');pk.append(el('b',null,'1. Pilih rumah yang mau diwarnai'));const g=el('div','kk-vrow');
@@ -2306,16 +2308,17 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
       b.append(kkRumahMini(rv),el('span',null,'Versi '+(k+1)));b.onclick=()=>kkWarna(body,c,i,k);g.append(b)});pk.append(g);body.append(pk)}
   body.append(el('p','kk-muted',`${V.length>1?'2. ':''}Pilih warna ${LB[0].toLowerCase()} dan ${LB[1].toLowerCase()}. Hasilnya jadi versi baru di riwayat rumahmu, tanpa memakai jatah ganti.`));
   const pv=el('div','kk-pv');body.append(pv);
-  const draw=()=>{pv.innerHTML='';const sv=kkRumahMini({...r,wall:W,roof:R});sv.setAttribute('class','kk-pvsvg');pv.append(sv,el('span',null,`${LB[0]} ${kkNamaWarna(W)} · ${LB[1].toLowerCase()} ${kkNamaWarna(R)}`))};
+  const draw=()=>{pv.innerHTML='';const sv=NL>1?kkTingkatSVG({...r,wall:W,roof:R,atas:A},NL):kkRumahMini({...r,wall:W,roof:R});sv.setAttribute('class','kk-pvsvg');pv.append(sv,el('span',null,NL>1?`Lantai: ${[W,...A].map(kkNamaWarna).join(' / ')} · atap ${kkNamaWarna(R)}`:`${LB[0]} ${kkNamaWarna(W)} · ${LB[1].toLowerCase()} ${kkNamaWarna(R)}`))};
   const baris=(judul,get,set,warnaFn)=>{const w=el('div','kk-pal');w.append(el('b',null,judul));const g=el('div','kk-sw');
     KK_WARNA.forEach(nm=>{const b=el('button');b.type='button';b.title=nm;b.setAttribute('aria-label',judul+' '+nm);b.style.background=warnaFn(nm);b.onclick=()=>{set(nm);upd()};g.append(b)});
     const inp=el('input');inp.placeholder='atau kode warna, mis. #622599';inp.maxLength=7;inp.autocapitalize='off';
     inp.oninput=()=>{const v=inp.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v)){set(v.toUpperCase());upd()}};
     const upd=()=>{[...g.children].forEach(b=>b.classList.toggle('on',b.title===get()));draw()};w.append(g,inp);w._upd=upd;return w};
   const bw=baris(LB[0],()=>W,v=>W=v,nm=>gl||sr?NK.roofHex({roof:nm,x:0,y:0}):NK.wallHex({wall:nm,x:0,y:0})),br=baris(LB[1],()=>R,v=>R=v,nm=>NK.roofHex({roof:nm,x:0,y:0}));
-  body.append(bw,br);bw._upd();br._upd();
+  if(NL>1){bw.firstChild.textContent='Dinding lantai 1';const rows=A.map((_,k)=>baris('Dinding lantai '+(k+2),()=>A[k],v=>A[k]=v,nm=>NK.wallHex({wall:nm,x:0,y:0})));body.append(bw,...rows,br);bw._upd();rows.forEach(x=>x._upd());br._upd()}
+  else{body.append(bw,br);bw._upd();br._upd()}
   const msg=el('p','kk-msg'),row=el('div','kk-row');
-  row.append(kkGBtn('Lanjut · ','1 Receh','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R,n},true);bt.disabled=false;
+  row.append(kkGBtn('Lanjut · ','1 Receh','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R,n,...(NL>1?{atas:A}:{})},true);bt.disabled=false;
       if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,{jenis:'warna',harga:1,...res})}));
   body.append(msg,row)}
 async function kkAntre(box){box.innerHTML='';box.append(el('p','kk-muted','Memuat antrean…'));const res=await kkApi('antre-ubah',{},true);box.innerHTML='';
@@ -2501,7 +2504,7 @@ function kkEmas(body,c,i){const r=RES[i];body.innerHTML='';kkBack(body,()=>kkUba
 function kkTingkatSVG(r,n){const ns='http://www.w3.org/2000/svg',sv=document.createElementNS(ns,'svg');sv.setAttribute('viewBox','0 0 64 72');sv.setAttribute('class','kk-mini');sv.setAttribute('aria-hidden','true');
   const add=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);sv.append(e);return e};const W=NK.wallHex(r),Rf=NK.roofHex(r),fh=14,base=66,top=base-n*fh;
   add('rect',{x:6,y:base,width:52,height:4,fill:'#8DBE5A'});
-  for(let k=0;k<n;k++){const y=base-(k+1)*fh;add('rect',{x:12,y,width:40,height:fh,fill:W,stroke:'#1C2520','stroke-width':1.6});
+  for(let k=0;k<n;k++){const y=base-(k+1)*fh,a2=k>0&&Array.isArray(r.atas)&&r.atas[k-1];add('rect',{x:12,y,width:40,height:fh,fill:a2?NK.wallHex({wall:a2,x:0,y:0}):W,stroke:'#1C2520','stroke-width':1.6});
     [17,29,41].forEach((x,j)=>{if(k===0&&j===1)add('rect',{x:28,y:y+4,width:8,height:fh-4,fill:'#6B4527'});else add('rect',{x,y:y+3.5,width:6,height:6,fill:'#BFE3F2',stroke:'#1C2520','stroke-width':.8})})}
   add('polygon',{points:`7,${top} 32,${top-16} 57,${top}`,fill:Rf,stroke:'#1C2520','stroke-width':1.6,'stroke-linejoin':'round'});return sv}
 function kkTingkat(body,c,i){const r=RES[i],kini=c.tingkat||1;body.innerHTML='';kkBack(body,()=>kkUbah(body,c,i,'rumah'));
@@ -2574,6 +2577,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
+  Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);
   Object.entries(j.jalan||{}).forEach(([u,v])=>{const i=kkResIdx(u);if(i>=0)RES[i].jalan=v});

@@ -1347,7 +1347,8 @@ window.NK_DATA = {
   { "name": "vanodi_sbrni", "x": 17, "y": 32, "day": 5, "nick": "Vanodi", "roof": "merah", "wall": "putih" },
   { "name": "hubb_0412", "x": 48, "y": 76, "day": 5, "nick": "Hubb" },
   { "name": "razzz_z67", "x": 62, "y": 20, "day": 5, "nick": "Razzz" },
-  { "name": "alif.palembang15", "x": 24, "y": 68, "day": 5, "nick": "Fathir", "roof": "hitam", "wall": "putih" }
+  { "name": "alif.palembang15", "x": 24, "y": 68, "day": 5, "nick": "Fathir", "roof": "hitam", "wall": "putih" },
+  { "name": "lembarpeta", "x": 76, "y": 42, "day": 5, "nick": "Lembar Peta", "roof": "merah", "wall": "putih", "base": {"roof":"biru","wall":"krem"}, "history": [{"day":5,"note":"🎨 Ganti warna (uji Kartu Komen)","roof":"merah","wall":"putih"}] }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },

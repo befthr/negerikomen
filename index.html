@@ -574,10 +574,26 @@ const VS=new Map(); // posisi kendaraan (berhenti saat lampu merah / antre)
 const TEMA_KHUSUS={'2,2':'lapangan','-3,-2':'empang','3,-3':'empang'};
 function temaBlok(bx,by){if(bx>=-1&&bx<=0&&by>=-1&&by<=0)return 'kebun';const k=TEMA_KHUSUS[bx+','+by];if(k)return k;
   const r=ih(bx*7+3,by*11+5,140),ring=Math.max(Math.abs(bx+.5),Math.abs(by+.5));
-  if(ring>=4&&r<.35)return 'sawah';return r<.68?'kosong':r<.86?'kebun':r<.93?'pisang':'bunga'}
+  if(ring>=4&&r<.35)return 'sawah';if(r<.68&&ring<4&&ih(bx+9,by+9,400)<.2)return 'proyek';return r<.68?'kosong':r<.86?'kebun':r<.93?'pisang':'bunga'}
 function drawTema(tm,x,y,s,bx,by,t){const c=ctx,R=(a,b,w,h,f)=>{c.fillStyle=f;c.fillRect(a,b,w,h)},E=(a,b,rx,ry,f,rot)=>{c.fillStyle=f;c.beginPath();c.ellipse(a,b,rx,ry,rot||0,0,7);c.fill()};
   const cx=x+s/2,cy=y+s/2;
-  if(tm==='kosong'){ // lahan kosong: rumput liar + petak tanah + patok, siap dibangun
+  if(tm==='proyek'){ // lokasi proyek: pagar seng, galian, ekskavator, truk molen, dump truck, cone
+    R(x+5,y+5,s-10,s-10,'#C9A473');E(cx-s*.08,cy+s*.06,s*.24,s*.18,'#8A6440');E(cx-s*.08,cy+s*.04,s*.19,s*.13,'#6E4E30');
+    E(x+s*.78,y+s*.25,s*.12,s*.09,'#E2C58C');E(x+s*.8,y+s*.23,s*.07,s*.05,'#EED7A8');
+    c.strokeStyle='#E8702A';c.lineWidth=2.4;c.setLineDash([6,4]);c.strokeRect(x+6,y+6,s-12,s-12);c.setLineDash([]);
+    [[x+10,y+10],[x+s-10,y+10],[x+10,y+s-10],[x+s-10,y+s-10]].forEach(([a,b])=>{c.fillStyle='#E8702A';c.beginPath();c.moveTo(a,b-5);c.lineTo(a+4,b+3);c.lineTo(a-4,b+3);c.fill();R(a-2.5,b-.5,5,1.4,'#FFF')});
+    // ekskavator: badan berputar pelan, lengan menggali
+    const ex=cx+s*.17,ey=cy+s*.04,rot=Math.sin(t*.6+bx)*.9-.6,dig=(Math.sin(t*1.7+by)+1)/2;
+    R(ex-11,ey-8,22,4,'#3A3A3A');R(ex-11,ey+4,22,4,'#3A3A3A');c.save();c.translate(ex,ey);c.rotate(rot+Math.PI);
+    R(-8,-7,16,14,'#F2C230');R(-8,-7,6,14,'#D9A520');R(2,-5,5,6,'#BFE3F2');
+    c.strokeStyle='#F2C230';c.lineWidth=3.2;c.lineCap='round';const a1=-.25+dig*.25,L1=15,L2=11,jx=8+Math.cos(a1)*L1,jy=Math.sin(a1)*L1;c.beginPath();c.moveTo(8,0);c.lineTo(jx,jy);c.lineTo(jx+L2*(.6+dig*.4),jy+3);c.stroke();c.lineCap='butt';
+    R(jx+L2*(.6+dig*.4)-1,jy,6,6,'#3A3A3A');c.restore();
+    // truk molen: drum berputar
+    const mx=x+s*.25,my=y+s*.24;R(mx-14,my-5,10,10,'#2F74B5');R(mx-4,my-6,18,12,'#9AA0A6');c.save();c.beginPath();c.rect(mx-4,my-6,18,12);c.clip();
+    for(let k=0;k<6;k++){const o=((t*14+k*7)%42)-6;c.fillStyle='#C4502F';c.save();c.translate(mx+o,my);c.rotate(.6);c.fillRect(-1.2,-9,2.4,18);c.restore()}c.restore();
+    // dump truck mondar-mandir
+    const dp=(Math.sin(t*.5+bx*2)+1)/2,dx=x+s*.22+dp*s*.5,dy=y+s*.8;c.save();c.translate(dx,dy);c.scale(dp>.5?1:-1,1);R(-12,-6,8,12,'#C4402F');R(-4,-7,17,14,'#E8702A');R(-2,-5,13,10,'#B48A5A');c.restore()}
+  else if(tm==='kosong'){ // lahan kosong: rumput liar + petak tanah + patok, siap dibangun
     R(x+6,y+6,s-12,s-12,'#A3C46C');c.fillStyle='rgba(150,115,70,.35)';[[.25,.3,.18,.12],[.65,.6,.2,.13],[.4,.75,.12,.08]].forEach(([a,b,rx,ry])=>{c.beginPath();c.ellipse(x+a*s,y+b*s,rx*s,ry*s,ih(bx,by,a*9)*3,0,7);c.fill()});
     c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=1.4;c.setLineDash([5,4]);c.strokeRect(x+12,y+12,s-24,s-24);c.setLineDash([]);
     [[x+12,y+12],[x+s-12,y+12],[x+12,y+s-12],[x+s-12,y+s-12]].forEach(([a,b])=>{R(a-2,b-2,4,4,'#C4502F')});

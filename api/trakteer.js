@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       const jenis = AWAL[kode.split('-')[0]], key = jenis + ':req:' + kode, v = jparse(await kv(['GET', key]));
       if (!v || !['menunggu', 'dibatalkan', 'diganti'].includes(v.status)) { hasil.push({ kode, ada: false }); continue }
       if (v.status !== 'menunggu') v.status = 'menunggu'; // sudah dibayar → kembali ke antrean walau sempat dibatalkan/diganti
+      await kv(['HINCRBY', 'donasi', v.u, qty]); // otomatis masuk daftar Pendukung kampung
       v.bayar = (+v.bayar || 0) + qty; v.trk = [...(v.trk || []), { nama, qty, at: masuk.at }].slice(-10);
       await kvMany([['SET', key, JSON.stringify(v), 'KEEPTTL'], ['SADD', jenis + ':antre', kode]]);
       let auto = false;

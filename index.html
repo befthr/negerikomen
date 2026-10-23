@@ -348,7 +348,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <div><h3 id="tokoTitle" style="margin:0 0 2px">Toko Warga (0)</h3><p class="trak-lede">Usaha milik warga Negeri Komen. Klik untuk ke rumahnya.</p></div>
         </div>
         <ul class="tlist" id="tList"></ul>
-        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Pilih paket <b>Buka Usaha (20 Genteng)</b> di Trakteer.</p>
+        <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Buka <b>Kartu Komen → Ubah rumah → Jadi ruko</b> (20 Genteng).</p>
       </div>
 
       <div class="card goal" id="goal" hidden>
@@ -390,7 +390,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 
       <div class="card okb" id="okb" hidden>
         <h3 id="okbTitle">🏆 Orang Kaya Baru</h3>
-        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Warga yang total traktirannya 2 Genteng atau lebih: rumahnya tampil beda + bendera emas 🚩</p>
+        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Warga yang rumahnya berubah berkat traktiran Genteng 🧱</p>
         <ul class="blist" id="okbList"></ul>
       </div>
 
@@ -1178,7 +1178,7 @@ function renderShops(){
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
 if(HAS_TRAK){const a=document.createElement('a');a.href=(/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.usaha||''))?D.trakteer.usaha:D.trakteer.url).trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
-  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari lewat paket ',a,' (',b,') di Trakteer. ');const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}
+  const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';n.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari: buka Kartu Komen → Ubah rumah → Jadi ruko (',b,'), lalu traktir lewat paket ',a,'. ');const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}
 renderShops();
 /* toko dari Google Sheets (dicentang "Tayang") */
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let k=0;k<t.length;k++){const ch=t[k];
@@ -1906,7 +1906,7 @@ async function kkBuka(u){const body=kkModal();const k=kkGet();u=String(u||(k&&k.
   if(k&&k.u===u){body.append(el('p','kk-muted','Memuat kartu…'));const res=await kkApi('saya',null,true);if(!res.ok){body.innerHTML='';kkIntro(body,u,res.error);return}kkTampil(body,res.kartu);return}
   kkIntro(body,u,k&&k.u!==u?`Perangkat ini sedang memegang kartu @${k.u}. Kalau kamu ambil kartu @${u}, kartu itu diganti.`:null)}
 function kkIntro(body,u,note){body.innerHTML='';
-  body.append(el('h3',null,'🔑 Kartu Komen @'+u),el('p',null,'Kartu Komen membuktikan rumah ini milikmu. Dengan kartu, kamu bisa ganti rumah ke versi lamanya dan ikut ranking mini game.'));
+  body.append(el('h3',null,'🔑 Kartu Komen @'+u),el('p',null,'Kartu Komen membuktikan rumah ini milikmu. Dengan kartu, kamu bisa ganti rumah ke versi lamanya, ubah warna, pasang bendera emas atau item di pekarangan, dan ikut ranking mini game.'));
   if(note)body.append(el('p','kk-note',note));
   const ol=el('ol','kk-steps');['Tekan "Ambil kunci" di bawah','Komen kuncinya di postingan Kartu Komen (yang di-pin paling atas di profil @negerikomen)','Balik ke sini, tekan "Aku sudah komen"'].forEach(t=>ol.append(el('li',null,t)));
   body.append(ol,kkBtn('Ambil kunci','gold3',async e=>{e.target.disabled=true;const res=await kkApi('kunci',{u});e.target.disabled=false;if(!res.ok){toast(res.error);return}kkKunci(body,u,res)}))}
@@ -2135,7 +2135,8 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
-  if(j.emas&&j.emas.length)try{renderSups()}catch(e){}
+  Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
+  if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length)try{renderSups()}catch(e){}
   Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
   if(sel&&sel.kind==='r')showResult(sel)}).catch(()=>{});
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}

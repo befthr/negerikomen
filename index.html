@@ -321,7 +321,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <label for="q">Cari rumahmu</label>
         <div class="sbox">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#1C2520" stroke-width="2.6"/><path d="M15.5 15.5 21 21" stroke="#1C2520" stroke-width="2.6" stroke-linecap="round"/></svg>
-          <input id="q" type="search" placeholder="Cari nama atau @username" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="sug" aria-autocomplete="list">
+          <input id="q" type="search" placeholder="Cari nama, @username, atau bangunan" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="sug" aria-autocomplete="list">
           <button type="button" id="go">Cari</button>
         </div>
         <ul class="sug" id="sug" role="listbox" hidden></ul>
@@ -1767,9 +1767,10 @@ function norm(s){return String(s||'').toLowerCase().normalize('NFKD').replace(/[
 const IDX=RES.map((r,i)=>({i,u:norm(r.name),n:norm(r.nick),t:NK.shopOn(r,TODAY)?norm(r.shop.name):''}));
 function find(q){const k=norm(q);if(!k)return [];const out=[];
   if('negerikomen'.startsWith(k)||k==='kepaladesa')out.push({kind:'o',score:0});
+  BLD.forEach((b,i)=>{const nm=norm(b.name||''),sh=norm(b.short||''),lb=norm((NK.BTYPES[b.type]||{}).label||'');let s=9;if(nm===k||sh===k)s=0;else if(nm.startsWith(k)||sh.startsWith(k)||lb.startsWith(k))s=1;else if(nm.includes(k)||sh.includes(k)||lb.includes(k))s=2;if(s<9)out.push({kind:'b',i,score:s,bg:1})});
   IDX.forEach(o=>{let s=9;if(o.u===k||o.n===k)s=0;else if(o.u.startsWith(k)||o.n.startsWith(k))s=1;else if(o.u.includes(k)||o.n.includes(k))s=2;else if(o.t&&o.t.includes(k))s=1;
     if(s<9)out.push({kind:'r',i:o.i,score:s})});
-  return out.sort((a,b)=>a.score-b.score||(a.i||0)-(b.i||0)).slice(0,7)}
+  return out.sort((a,b)=>a.score-b.score||(b.bg||0)-(a.bg||0)||(a.i||0)-(b.i||0)).slice(0,7)}
 let sugItems=[],active=-1;
 function renderSug(){const ul=$('sug');ul.innerHTML='';
   if(!sugItems.length){ul.hidden=true;$('q').setAttribute('aria-expanded','false');return}
@@ -1777,6 +1778,7 @@ function renderSug(){const ul=$('sug');ul.innerHTML='';
     b.setAttribute('aria-selected',j===active?'true':'false');
     const nm=document.createElement('b'),meta=document.createElement('span');
     if(s.kind==='o'){nm.textContent='@negerikomen';meta.textContent='Kepala desa'}
+    else if(s.kind==='b'){const bd=BLD[s.i];nm.textContent=(ICON[bd.type]||'🏛️')+' '+(bd.name||'Bangunan');meta.textContent=((NK.BTYPES[bd.type]||{}).label||'Fasilitas')+(bd.by&&bd.by!=='negerikomen'?' · bos @'+bd.by:' · milik kepala desa')}
     else{const r=RES[s.i];nm.textContent='@'+r.name;meta.textContent=(r.nick?r.nick+' · ':'')+'hari ke-'+(r.day||1)}
     b.append(nm,meta);b.addEventListener('mousedown',ev=>ev.preventDefault());b.onclick=()=>choose(s);li.append(b);ul.append(li)});
   ul.hidden=false;$('q').setAttribute('aria-expanded','true');

@@ -77,15 +77,18 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,5.2vw,52px)
 .mapbox canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 .mapbox canvas:active{cursor:grabbing}
 .setir{position:absolute;inset:0;pointer-events:none;z-index:6}
+.mapbox.nyetir .zoom,.mapbox.nyetir .legend,.mapbox.nyetir .maptag,.mapbox.nyetir .hint{display:none!important}
+.st-top .st-snd{background:rgba(255,255,255,.15);color:#fff;padding:5px 8px;font-size:13px}
+.st-top .st-out{background:#E2453C;color:#fff;padding:7px 12px;font-size:13px}
 .setir button{pointer-events:auto;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
 .st-top{position:absolute;left:50%;top:10px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:#1C2520;color:#fff;border-radius:999px;padding:6px 6px 6px 14px;font-weight:800;font-size:13px;box-shadow:0 3px 0 rgba(0,0,0,.3);white-space:nowrap}
 .st-bar{width:90px;height:8px;border-radius:9px;background:rgba(255,255,255,.2);overflow:hidden}.st-bar i{display:block;height:100%;background:#F2C230;border-radius:9px}
 .st-top button{background:#F4EFE3;color:#1C2520;border:0;border-radius:999px;padding:5px 10px;font-weight:800;font-size:12px}
-.st-pad{position:absolute;left:12px;bottom:14px;display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:4px}
-.st-pad button{border:3px solid #1C2520;border-radius:14px;background:#F4EFE3;font-size:22px;font-weight:800;color:#1C2520;box-shadow:0 4px 0 #1C2520;padding:0}
+.st-pad{position:absolute;left:12px;bottom:14px;display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:3px}
+.st-pad button{border:3px solid #1C2520;border-radius:13px;background:#F4EFE3;font-size:19px;font-weight:800;color:#1C2520;box-shadow:0 4px 0 #1C2520;padding:0}
 .st-pad button:active,.st-pad button.q{background:#F2C230;transform:translateY(2px);box-shadow:0 2px 0 #1C2520}
 .st-pad [data-d="0,-1"]{grid-column:2;grid-row:1}.st-pad [data-d="-1,0"]{grid-column:1;grid-row:2}.st-pad [data-d="1,0"]{grid-column:3;grid-row:2}.st-pad [data-d="0,1"]{grid-column:2;grid-row:3}
-.st-boost{position:absolute;right:66px;bottom:16px;width:96px;height:96px;border-radius:50%;border:4px solid #1C2520;font-weight:800;font-size:14px;line-height:1.1;color:#1C2520;box-shadow:0 5px 0 #1C2520;background:conic-gradient(#F2C230 var(--p,100%),#D3CFC4 0)}
+.st-boost{position:absolute;right:14px;bottom:18px;width:84px;height:84px;border-radius:50%;border:4px solid #1C2520;font-weight:800;font-size:14px;line-height:1.1;color:#1C2520;box-shadow:0 5px 0 #1C2520;background:conic-gradient(#F2C230 var(--p,100%),#D3CFC4 0)}
 .st-boost.on{background:#E2453C;color:#fff;animation:stGas .18s infinite alternate}.st-boost:disabled{opacity:.85}
 @keyframes stGas{to{transform:scale(1.06)}}
 .st-hint{position:absolute;left:50%;top:52px;transform:translateX(-50%);background:rgba(28,37,32,.88);color:#fff;font-size:12px;font-weight:700;border-radius:10px;padding:6px 12px;max-width:80%;text-align:center}
@@ -1613,7 +1616,7 @@ function mulaiSetir(k,id){const r=RES[k],mt=id==='motor',L=S*T;const [bx,by]=NK.
 function ikutLagi(){const s=SETIR;if(s&&!IKUT)IKUT={i:s.k,id:s.id,sampai:Date.now()+(s.dur-(performance.now()-s.t0)/1000)*1000}}
 function belok(d){const s=SETIR;if(!s)return;ikutLagi();const [a,b]=d;if(a===s.dx&&b===s.dy){s.want=null;return}if(a===-s.dx&&b===-s.dy){s.dx=a;s.dy=b;s.want=null;SND.play('pop',.4);return}s.want=[a,b];SND.play('pop',.5)}
 function boostSetir(){const s=SETIR;if(!s||!s.mt||s.cd>0)return;ikutLagi();s.boost=ST_BOOST;s.cd=ST_CD;try{SND.play('ting',.6)}catch(e){}}
-function selesaiSetir(pesan){const s=SETIR;if(!s)return;SETIR=null;const r=RES[s.k];if(r)r.jalan=null;delete window.__SETIR;IKUT=null;const u=$('setir');if(u)u.remove();dirty=true;toast(pesan||(s.mt?'Motormu sudah parkir lagi di rumah 🛵':'Sepedamu sudah parkir lagi di rumah 🚲'))}
+function selesaiSetir(pesan){const s=SETIR;if(!s)return;SETIR=null;const r=RES[s.k];if(r)r.jalan=null;delete window.__SETIR;IKUT=null;const u=$('setir');if(u)u.remove();cv.parentElement.classList.remove('nyetir');dirty=true;toast(pesan||(s.mt?'Motormu sudah parkir lagi di rumah 🛵':'Sepedamu sudah parkir lagi di rumah 🚲'))}
 function stepSetir(now){const s=SETIR;if(!s)return;const dt=Math.min(.05,Math.max(0,(now-s.last)/1000));s.last=now;const el=(now-s.t0)/1000;if(el>=s.dur){selesaiSetir('Waktu keliling habis, kendaraanmu pulang ke rumah 🏠');return}
   if(s.boost>0)s.boost=Math.max(0,s.boost-dt);if(s.cd>0)s.cd=Math.max(0,s.cd-dt);
   const L=S*T,ok=(x,y)=>x>=BB.x0+T&&x<=BB.x1-T&&y>=BB.y0+T&&y<=BB.y1-T;let rem=(s.mt?(s.boost>0?240:110):60)*dt,g=0;
@@ -1627,12 +1630,13 @@ function stepSetir(now){const s=SETIR;if(!s)return;const dt=Math.min(.05,Math.ma
     const bo=u.querySelector('.st-boost');if(bo){bo.classList.toggle('on',s.boost>0);bo.disabled=s.cd>0&&s.boost<=0;bo.style.setProperty('--p',(100*(1-s.cd/ST_CD))+'%');bo.textContent=s.boost>0?'🔥 NGEBUT!':s.cd>0?'⏳ '+Math.ceil(s.cd):'🚀 BOOST'}}}
 function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('div','setir');u.id='setir';
   const top=el('div','st-top');const tt=el('span');tt.append(s.mt?'🛵 Keliling · ':'🚲 Keliling · ',el('b',null,String(s.dur)),' dtk');tt.querySelector('b').id='stT';const bar=el('div','st-bar');bar.append(el('i'));
-  const x=el('button',null,'Selesai');x.type='button';x.onclick=()=>selesaiSetir();top.append(tt,bar,x);
+  const sn=el('button','st-snd',$('snd').textContent);sn.type='button';sn.setAttribute('aria-label','Suara');sn.onclick=()=>{$('snd').click();sn.textContent=$('snd').textContent};
+  const x=el('button','st-out','🛑 Turun');x.type='button';x.setAttribute('aria-label','Keluar dari kendaraan');x.onclick=()=>selesaiSetir();top.append(tt,bar,sn,x);
   const pad=el('div','st-pad');[['0,-1','▲','Belok atas'],['-1,0','◀','Belok kiri'],['1,0','▶','Belok kanan'],['0,1','▼','Belok bawah']].forEach(([d,t,lbl])=>{const b=el('button',null,t);b.type='button';b.dataset.d=d;b.setAttribute('aria-label',lbl);
     b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();belok(d.split(',').map(Number))});pad.append(b)});
   u.append(top,pad);if(s.mt){const bo=el('button','st-boost','🚀 BOOST');bo.type='button';bo.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();boostSetir()});u.append(bo)}
   const h=el('div','st-hint',s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
-  cv.parentElement.append(u)}
+  cv.parentElement.append(u);cv.parentElement.classList.add('nyetir')}
 document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '||e.key==='Shift'){e.preventDefault();boostSetir()}else if(e.key==='Escape')selesaiSetir()});
 function frame(now){
   if(SETIR)stepSetir(now);

@@ -1651,7 +1651,7 @@ const DSN_COL=['#E2574C','#3E8FC9','#E2A21B','#2E9C6A','#C2569A'];
 const DSN_NO=['1','2','3-A','4','3-B'],DSN_BELAH=25; // Dusun 3 dibelah di jalan: luas wilayah hampir sama (3-A ±720, 3-B ±780 px), 3-A lebih padat
 const dsnOf=(x,y)=>{const k=(x<C?0:1)+(y<C?0:2);return k===2&&x<DSN_BELAH?4:k};
 const DSN_Q=[0,1,2,3].map(k=>{const e=k%2,s2=k>1;const x0=e?0:BB.x0,x1=e?BB.x1:0,y0=s2?0:BB.y0,y1=s2?BB.y1:0;return {x0,x1,y0,y1,cx:(x0+x1)/2,cy:(y0+y1)/2}});
-{const bx=(DSN_BELAH-C)*T-T/2,a=DSN_Q[2];a.x0=bx;a.cx=(a.x0+a.x1)/2;DSN_Q.push({x0:BB.x0,x1:bx,y0:0,y1:BB.y1,cx:(BB.x0+bx)/2,cy:BB.y1/2})}
+{const bx=(DSN_BELAH-C)*T-T/2,a=DSN_Q[2];a.x0=bx;a.cx=(a.x0+a.x1)/2;const xs=RES.filter(r=>dsnOf(r.x,r.y)===4).map(r=>NK.wx(r.x)),x0b=xs.length?Math.max(BB.x0,Math.min(...xs)-T):BB.x0;DSN_Q.push({x0:x0b,x1:bx,y0:0,y1:BB.y1,cx:(x0b+bx)/2,cy:BB.y1/2})}
 const dsnNama=k=>{const A=(window.NK_DATA&&Array.isArray(window.NK_DATA.dusun))?window.NK_DATA.dusun:[];const D=A[k];const o=D&&typeof D==='object';return {nama:String((o?D.nama:D)||'').trim(),oleh:o&&D.oleh?String(D.oleh).replace(/^@/,''):''}};
 const dsnLabel=k=>dsnNama(k).nama||('Dusun '+DSN_NO[k]);
 const PLANG_POS=[[-2,-2],[1,-2],[-2,1],[1,1],[-5,1]].map(([bx,by])=>{const ix=C+bx*S+2,iy=C+by*S+2;return {x:NK.wx(ix)-T/2+1.5*T,y:NK.wx(iy)-T/2+1.35*T}});

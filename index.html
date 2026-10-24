@@ -3045,9 +3045,13 @@ function bukaLiga(qa){muatLiga().then(()=>window.LIGA.open({qa,tim:LIGA_TIM()}))
 let STQA=/^#(stadion|desa)-qa$/.test(location.hash);const STD={x:0,y:0,w:T*11,h:T*7};
 /* ---- QA desa baru (konsep): pegunungan utara, hutan barat, desa baru di timur dengan waduk, sungai, air terjun, sawah terasering, gerbang ---- */
 let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,kh=K.y1-K.y0,cy=(K.y0+K.y1)/2;let sd=9;const R=()=>(sd=(sd*16807)%2147483647)/2147483647;
-  const E={x0:K.x1+T*4,x1:K.x1+T*4+kw*.95,y0:K.y0-kh*.2,y1:K.y1+kh*.3};const M={x0:K.x0-kw*.45,x1:E.x1+T*4,y0:K.y0-kh*.62,y1:K.y0-T*3};const F={x0:K.x0-kw*.45,x1:K.x0-T*3,y0:K.y0-T*3,y1:K.y1+kh*.3};
+  const E={x0:K.x1+T*4,x1:K.x1+T*4+kw*.95,y0:K.y0-kh*.2,y1:K.y1+kh*.3};const M={x0:K.x0-kw*.5,x1:E.x1+T*10,y0:K.y0-kh*.95,y1:K.y0-T*3};const F={x0:K.x0-kw*.45,x1:K.x0-T*3,y0:K.y0-T*3,y1:K.y1+kh*.3};
   const ew=E.x1-E.x0,eh=E.y1-E.y0,jy=cy+T*.5;const wd={x:E.x0+ew*.72,y:jy+eh*.24,rx:ew*.2,ry:eh*.13};
-  const hills=[];for(let x=M.x0+T*6;x<M.x1;x+=T*(13+R()*6))hills.push({x,y:M.y0+(M.y1-M.y0)*(.45+R()*.3),r:T*(10+R()*5)});
+  // pegunungan berlapis: barisan belakang besar & tinggi, barisan depan lebih kecil; plus bukit di tepi timur & barat
+  const hills=[];for(let row=0;row<4;row++){const yy=M.y0+(M.y1-M.y0)*(.18+row*.24);for(let x=M.x0+T*(4+row*5);x<M.x1;x+=T*(9+R()*7))hills.push({x:x+R()*T*4,y:yy+R()*T*5,r:T*(row===0?15:row===1?12:row===2?10:7)*(.8+R()*.45),h:row===0?1:row===1?.85:row===2?.7:.5})}
+  for(let i=0;i<9;i++)hills.push({x:E.x1+T*(3+R()*6),y:E.y0+i*(eh/8),r:T*(7+R()*5),h:.6+R()*.3});
+  for(let i=0;i<6;i++)hills.push({x:F.x0+T*(2+R()*8),y:F.y0+T*6+i*((F.y1-F.y0)/6),r:T*(6+R()*4),h:.5+R()*.3});
+  hills.sort((a,b)=>a.y-b.y);
   const trees=[];const ok=(x,y)=>!(Math.hypot((x-wd.x)/(wd.rx+T),(y-wd.y)/(wd.ry+T))<1);
   for(let i=0;i<900;i++){const x=F.x0+R()*(F.x1-F.x0),y=F.y0+R()*(F.y1-F.y0);trees.push({x,y,s:1+R()*.6,k:R()<.5})}
   for(let i=0;i<500;i++){const x=M.x0+R()*(M.x1-M.x0),y=M.y1-T*4+R()*T*7;trees.push({x,y,s:1+R()*.5,k:R()<.7})}
@@ -3070,8 +3074,17 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   const blob=(x0,y0,x1,y1,col)=>{ctx.fillStyle=col;ctx.fillRect(x0,y0,x1-x0,y1-y0)};
   blob(E.x0-T*2,E.y0,E.x1+T*4,E.y1+T*8,'#9CC85E');blob(F.x0-T*4,F.y0,F.x1,F.y1+T*4,'#8DBE58');blob(M.x0-T*4,M.y0-T*4,M.x1+T*2,M.y1+T*2,'#7FAE4F');
   // pegunungan (kontur dari atas)
-  const L=['#3F6A31','#4F7F3E','#5E8F48','#77A35A','#9A9A8A','#C9C9BC','#F2F2EA'];
-  D.hills.forEach(h=>L.forEach((col,i)=>{const k=1-i/L.length;ctx.fillStyle=col;ctx.beginPath();for(let a=0;a<=6.3;a+=.25){const rr=h.r*k*(1+.12*Math.sin(a*3+h.x)+.08*Math.cos(a*5+h.y));const px=h.x+Math.cos(a)*rr,py=h.y+Math.sin(a)*rr*.8-i*h.r*.05;a?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill()}));
+  // tiap gunung: bayangan jatuh ke tanah (kanan bawah), lapisan kontur bergeser ke kiri-atas (cahaya dari barat laut), sisi gelap di tenggara, punggungan & salju di puncak
+  const LT=['#4E8040','#5E9049','#6FA054','#86B060','#A8AE8E','#C8C6B6','#ECECE2','#FFFFFF'],DK=['#2F5428','#3A6230','#456E37','#57793F','#7C7D6A','#9A9888','#C6C4B8','#E2E2DA'];
+  const kont=(h,i,k,dx,dy)=>{ctx.beginPath();for(let a=0;a<=6.3;a+=.2){const rr=h.r*k*(1+.13*Math.sin(a*3+h.x*.01)+.09*Math.cos(a*5+h.y*.01)+.05*Math.sin(a*7+i));const px=h.x+dx+Math.cos(a)*rr,py=h.y+dy+Math.sin(a)*rr*.82;a?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()};
+  D.hills.forEach(h=>{const n=h.h>.8?8:h.h>.65?7:6;
+    ctx.fillStyle='rgba(20,40,20,.28)';kont(h,0,1.04,h.r*.28,h.r*.22);ctx.fill();
+    for(let i=0;i<n;i++){const k=1-i/(n+.6),up=i*h.r*.07*h.h;
+      ctx.fillStyle=DK[i];kont(h,i,k,up*.25,-up*.7);ctx.fill();
+      ctx.fillStyle=LT[i];kont(h,i,k*.94,-k*h.r*.06,-up*.7-k*h.r*.05);ctx.fill();
+      ctx.strokeStyle='rgba(30,50,25,.18)';ctx.lineWidth=2;kont(h,i,k,up*.25,-up*.7);ctx.stroke()}
+    const tp=h.r*.07*h.h*(n-1)*.7,px=h.x-h.r*.05,py=h.y-tp-h.r*.08;ctx.strokeStyle='rgba(40,55,35,.35)';ctx.lineWidth=3;ctx.lineCap='round';
+    for(let j=0;j<4;j++){const a=.6+j*1.3;ctx.beginPath();ctx.moveTo(px,py);ctx.quadraticCurveTo(px+Math.cos(a)*h.r*.35,py+Math.sin(a)*h.r*.3,px+Math.cos(a+.3)*h.r*.75,py+Math.sin(a+.3)*h.r*.6);ctx.stroke()}});
   // sungai
   const sungai=(pts,w)=>{ctx.lineCap='round';ctx.lineJoin='round';[[w+T*.5,'#C9B98A'],[w,'#3E8FC9'],[w*.45,'#5FA9DB']].forEach(([lw,col])=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(...pts[0]);for(let i=1;i<pts.length-1;i++){const m=[(pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2];ctx.quadraticCurveTo(pts[i][0],pts[i][1],m[0],m[1])}ctx.lineTo(...pts[pts.length-1]);ctx.stroke()})};
   sungai(D.sungai1,T*1.1);sungai(D.sungai2,T*.9);sungai(D.sungai3,T*.9);

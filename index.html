@@ -1697,6 +1697,12 @@ function drawLabels(v,t){
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
   {name:D.quest.name||'UFO Nyasar',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||'',tanggal:D.quest.tanggal||''}:null;
 const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
+// jam WIB real time di pojok peta (+ pengingat UFO di hari quest)
+{const tg=document.querySelector('.maptag');if(tg){const sp=document.createElement('span');sp.id='tagJam';sp.style.background='#1F2F5C';tg.append(sp);
+  const upd=()=>{const d=new Date(Date.now()+7*3600e3),H=d.getUTCHours(),M=d.getUTCMinutes(),m=H*60+M,tgl=d.toISOString().slice(0,10);
+    let x='🕖 '+String(H).padStart(2,'0')+'.'+String(M).padStart(2,'0')+' WIB';
+    if(QUEST&&(!QUEST.tanggal||QUEST.tanggal===tgl)){const a=mins(QUEST.start),b=mins(QUEST.end);if(m<a&&a-m<=300)x+=' · 🛸 UFO '+QUEST.start.replace(':','.');else if(m>=a&&m<b)x+=' · 🛸 UFO DI LANGIT!'}
+    if(sp.textContent!==x)sp.textContent=x};upd();setInterval(upd,5000)}}
 const UFO_QA=location.hash==='#ufo-qa';
 function questOn(){if(UFO_QA&&QUEST)return true;if(!QUEST)return false;if(QUEST.tanggal&&new Date(Date.now()+252e5).toISOString().slice(0,10)!==QUEST.tanggal)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
   return a<=b?(w>=a&&w<b):(w>=a||w<b)}
@@ -2142,7 +2148,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
     return {sh,up,el,hd,meriam}};
   const kl=lengan(-1),ka=lengan(1);
   // ===== pedang genteng di kepalan kiri: bilah baja bergaris biru menyala =====
-  const pedang=new T.Group();pedang.position.set(0,-.55,.05);pedang.rotation.x=1.1;kl.hd.add(pedang);
+  const pedang=new T.Group();pedang.position.set(0,-.55,.05);pedang.rotation.x=1.1;pedang.rotation.y=-.5;kl.hd.add(pedang);
   {const gp=mk(Cy(.15,.15,1.3,12),DK,0,0,-.2,null,pedang);gp.rotation.x=Math.PI/2;mk(Sp(.22),MR,0,0,-.95,null,pedang);
    mk(RB(2,.42,.4,.1),MR,0,0,.62,null,pedang);mk(RB(.7,.55,.45,.1),NV,0,0,.62,null,pedang);
    mk(RB(.6,.14,5.2,.05),'#E8EEF4',0,0,3.45,{metalness:.85,roughness:.18},pedang);
@@ -2177,10 +2183,10 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   // gaya foto: siaga, pahlawan, kuda-kuda, bidik, terbang, dadah
   // semua pose dibuat garang: kepalan siap, kaki kokoh, kepala sedikit menunduk menatap lawan
   const GAYA=[{n:'Siaga',lsz:-.3,rsz:.3,lux:-.45,rux:-.45,lex:-.9,rex:-.9,lk:-.14,rk:.14,hx:.12,sayap:.4},
-    {n:'Pahlawan',rsz:2.9,rez:.15,lsz:-.75,lez:1.7,lux:.15,lk:-.16,rk:.16,hx:-.12,hy:-.2,sayap:.6},
+    {n:'Pahlawan',rsz:2.9,rez:.15,lsz:-.7,lez:-.35,lux:-.25,lk:-.16,rk:.16,hx:-.12,hy:-.2,sayap:.6},
     {n:'Kuda-kuda',lsz:-1.15,lez:-1.2,rsz:1.15,rez:1.2,lux:-.6,rux:-.6,lk:-.34,rk:.34,ry:-.25,turun:.7,hx:.18,sayap:.6},
     {n:'Bidik',rsz:.08,rez:0,rux:-1.55,rex:0,lsz:.45,lux:-1.35,lex:-.75,lez:.35,lk:-.18,rk:.2,lkx:-.3,rkx:.25,ry:.45,turun:.35,hx:.12,hy:-.1,sayap:.8},
-    {n:'Siap tempur',rsz:.15,rux:-1.55,rex:-.1,lsz:-.35,lux:-1.25,lex:-1.7,lk:-.2,rk:.25,lkx:-.25,rkx:.2,ry:.35,rx:.06,turun:.25,hx:.16,sayap:1},
+    {n:'Siap tempur',rsz:.15,rux:-1.55,rex:-.1,lsz:-.75,lux:-1.25,lex:-1.7,lk:-.2,rk:.25,lkx:-.25,rkx:.2,ry:.35,rx:.06,turun:.25,hx:.16,sayap:1},
     {n:'Terbang',rsz:.15,rux:-2.9,rez:0,lsz:-.25,lux:.35,lex:-.4,lkx:.5,rkx:-.15,naik:1,sayap:1,hx:-.2},
     {n:'Duduk di rumah',sit:-1.35,lux:-.95,lex:-.8,lsz:-.35,rux:-1.15,rex:-.25,rsz:.3,rx:.12,ux:1.2,uz:-.4,uy:-4.35,hx:.18,hy:.15,sayap:.5},
     {n:'Tidur terlentang',rx:-1.5,ux:1.7,uz:5.6,uy:1.35,lsz:-2.5,lez:-2.2,rsz:2.5,rez:2.2,lkx:.05,tidur:1}];

@@ -18,12 +18,12 @@ const css=`.kns{position:fixed;inset:0;z-index:200;background:rgba(10,14,12,.86)
 .kns-btns{display:flex;gap:12px}.kns-btns span{width:34px;height:34px;border-radius:50%;border:3px solid ${INK};display:inline-block}
 .kns-btns span:nth-child(1){background:${KUNING}}.kns-btns span:nth-child(2){background:${MERAH};margin-top:-18px}
 .kns-qa{position:absolute;left:50%;top:-14px;transform:translateX(-50%);background:${MERAH};color:#fff;font-weight:800;font-size:11px;padding:3px 10px;border-radius:999px;border:2px solid ${INK}}`;
-let st,cv,ctx,dpr,raf=0,last=0,game=null,menuHot=-1,ac=null,root=null;
+let OPT={},RANK=null,rankSel=0,st,cv,ctx,dpr,raf=0,last=0,game=null,menuHot=-1,ac=null,root=null;
 const lsGet=k=>{try{return +localStorage.getItem('kns_'+k)||0}catch(e){return 0}};
 const lsSet=(k,v)=>{try{localStorage.setItem('kns_'+k,String(v))}catch(e){}};
 // riwayat poin terakhir per game (5 terakhir, terbaru di depan)
 const hGet=k=>{try{const v=JSON.parse(localStorage.getItem('kns_h_'+k)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}};
-function catat(k,v){const h=hGet(k);h.unshift({v,at:Date.now()});try{localStorage.setItem('kns_h_'+k,JSON.stringify(h.slice(0,5)))}catch(e){};if(v>lsGet(k))lsSet(k,v)}
+function catat(k,v){const h=hGet(k);h.unshift({v,at:Date.now()});try{localStorage.setItem('kns_h_'+k,JSON.stringify(h.slice(0,5)))}catch(e){};if(v>lsGet(k))lsSet(k,v);if(OPT.kirim){try{Promise.resolve(OPT.kirim(k,v)).then(r=>{if(r&&r.rank&&game&&game.id===k)game.rankKu=r.rank;RANK=null}).catch(()=>{})}catch(e){}}}
 const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'barusan':d<3600?Math.round(d/60)+' mnt lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hr lalu'};
 // ---------- SFX (WebAudio, tanpa musik) ----------
 function au(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}return ac}
@@ -44,7 +44,7 @@ let BTN=[];const btn=(x,y,w,h,label,fn,col=KUNING,sz=17)=>{BTN.push({x,y,w,h,fn}
 // ---------- MENU ----------
 const GAMES=[{id:'penalti',n:'ADU PENALTI',ic:'⚽'},{id:'genteng',n:'TANGKAP GENTENG',ic:'🧱'},{id:'pancing',n:'PANCING IKAN',ic:'🎣'},{id:'bakso',n:'RACIK BAKSO',ic:'🍜'},
   {id:'ayam',n:'KEJAR AYAM',ic:'🐔'},{id:'karung',n:'BALAP KARUNG',ic:'🥔'},{id:'layang',n:'LAYANGAN',ic:'🪁'},{id:'memori',n:'MEMORI GENTENG',ic:'🃏'}];
-let menuSel=0;const ROW0=104,ROWH=40;
+let menuSel=0;const ROW0=98,ROWH=38;
 // menu gaya kaset "8 in 1": latar biru tua, bintang, daftar bernomor, bar sorot berkedip
 const Menu={draw(t){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0B1A4A');g.addColorStop(1,'#1B0B3A');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   for(let i=0;i<40;i++){const x=(i*97)%W,y=(i*53+t*12*(1+i%3))%H;ctx.fillStyle=`rgba(255,255,255,${.3+.5*((i*7)%10)/10})`;ctx.fillRect(x,y,2,2)}
@@ -55,8 +55,20 @@ const Menu={draw(t){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'
     if(on){ctx.globalAlpha=.75+.25*Math.sin(t*8);rr(16,y,W-32,ROWH-4,6,'#F2C230');ctx.globalAlpha=1}
     txt(String(i+1).padStart(2,'0')+'.',30,y+18,15,on?INK:'#7FD8FF','left',800,null);ctx.font='18px "Noto Color Emoji",sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(gm.ic,64,y+18);
     txt(gm.n,94,y+18,15,on?INK:'#fff','left',800,null);const h=hGet(gm.id);if(h.length)txt('🏆'+lsGet(gm.id),W-28,y+18,11,on?INK:KUNING,'right',700,null)});
-  const sel=GAMES[menuSel],h=hGet(sel.id);txt(h.length?`Terakhir: ${h[0].v} · Rekor: ${lsGet(sel.id)}`:'Belum pernah dimainkan',W/2,ROW0+8*ROWH+10,11,'#B9C7FF','center',600,null);
-  txt('Ketuk sekali pilih · ketuk lagi MULAI',W/2,H-16,11,'#FF9EC0','center',700,null)}};
+  const sel=GAMES[menuSel],h=hGet(sel.id);txt(h.length?`Terakhir: ${h[0].v} · Rekor: ${lsGet(sel.id)}`:'Belum pernah dimainkan',W/2,ROW0+8*ROWH+8,11,'#B9C7FF','center',600,null);
+  btn(16,H-48,150,34,'🏆 RANKING',()=>{rankSel=menuSel;game=Rank();game.id='rank'},'#FF5E8A',14);txt('Ketuk 2x = MULAI',W-20,H-31,12,'#FF9EC0','right',700,null)}};
+// ---------- papan ranking pemilik playadalahmain ----------
+function Rank(){const G={t:0,hs:'rank'};if(!RANK&&OPT.rank){RANK='muat';Promise.resolve(OPT.rank()).then(j=>{RANK=(j&&j.rank)||{}}).catch(()=>{RANK={}})}
+  G.tap=(x,y)=>{if(y>H-60){if(x<W/2)rankSel=(rankSel+7)%8;else rankSel=(rankSel+1)%8;SFX.klik()}};G.update=dt=>{G.t+=dt};
+  G.draw=t=>{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0B1A4A');g.addColorStop(1,'#1B0B3A');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    txt('🏆 RANKING',W/2,30,22,KUNING,'center',800,'#1A2A6A');txt('Khusus pemilik playadalahmain 1.0',W/2,54,11,'#7FD8FF','center',700,null);
+    const gm=GAMES[rankSel];rr(20,70,W-40,36,8,'#F2C230');ctx.font='18px "Noto Color Emoji",sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(gm.ic,32,88);txt(gm.n,60,89,15,INK,'left',800,null);
+    if(RANK==='muat'||!OPT.rank)txt(OPT.rank?'Memuat…':'Ranking muncul setelah konsol dijual',W/2,240,14,'#B9C7FF','center',700,null);
+    else{const L=(RANK[gm.id]||[]);if(!L.length)txt('Belum ada skor. Jadi yang pertama! 💪',W/2,240,14,'#B9C7FF','center',700,null);
+      L.forEach((o,i)=>{const y=126+i*30,ku=OPT.me&&o.u.toLowerCase()===String(OPT.me).toLowerCase();if(ku)rr(20,y-13,W-40,26,6,'rgba(242,194,48,.35)');
+        txt(i<3?['🥇','🥈','🥉'][i]:String(i+1)+'.',40,y,i<3?16:13,'#fff','center',800,null);txt('@'+o.u,62,y,13,ku?KUNING:'#fff','left',700,null);txt(String(o.v),W-32,y,14,KUNING,'right',800,null)})}
+    rr(16,H-52,150,38,10,'rgba(255,255,255,.12)');txt('◀ Game sebelumnya',91,H-33,11,'#fff','center',700,null);rr(W-166,H-52,150,38,10,'rgba(255,255,255,.12)');txt('Game berikutnya ▶',W-91,H-33,11,'#fff','center',700,null)};
+  return G}
 // ---------- 1. ADU PENALTI ----------
 function Penalti(){const G={shot:0,gol:0,max:5,ph:'aim',t:0,ball:{x:W/2,y:400,r:12},tgt:null,kp:{x:W/2,dx:0},kpDir:0,msg:'',hs:'penalti',
   goal:{x:40,y:96,w:280,h:120}};
@@ -235,7 +247,7 @@ function Memori(){const COL=['#E2574C','#3E8FC9','#F2C230','#2E9C6A','#8E5AA8','
     if(G.ph==='end')endCard(`${G.skor} poin`,G.cocok===8?'Ingatan super! 🧠✨':'Hampir semua ketemu! 💪',lsGet(G.hs))};
   return G}
 // ---------- kartu akhir ----------
-function endCard(a,b,hs){ctx.fillStyle='rgba(14,21,18,.72)';ctx.fillRect(0,0,W,H);rr(40,92,280,330,22,KREM,INK);txt('SELESAI!',W/2,126,28,MERAH,'center',800,null);txt(a,W/2,166,22,INK,'center',800,null);txt(b,W/2,198,15,HIJAU,'center',700,null);txt('🏆 Rekor: '+hs,W/2,226,14,INK,'center',700,null);
+function endCard(a,b,hs){ctx.fillStyle='rgba(14,21,18,.72)';ctx.fillRect(0,0,W,H);rr(40,92,280,330,22,KREM,INK);txt('SELESAI!',W/2,126,28,MERAH,'center',800,null);txt(a,W/2,166,22,INK,'center',800,null);txt(b,W/2,198,15,HIJAU,'center',700,null);txt('🏆 Rekor: '+hs+(game&&game.rankKu?` · Ranking #${game.rankKu}`:''),W/2,226,14,INK,'center',700,null);
   rr(58,242,244,124,12,'#fff');txt('📜 Riwayat poin terakhir',W/2,258,12,INK,'center',800,null);hGet(game.id).forEach((o,i)=>{const y=280+i*17;txt((i?'':'▶ ')+o.v+' '+({penalti:'gol',genteng:'genteng',ayam:'ayam'}[game.id]||'poin'),72,y,12,i?INK:MERAH,'left',800,null);txt(lalu(o.at),288,y,11,'#777','right',600,null)});
   BTN=[];btn(60,374,110,36,'🔁 Main lagi',()=>start(game.id),KUNING,14);btn(190,374,110,36,'🎮 Menu',()=>{game=null;SFX.klik()},'#fff',14)}
 // ---------- loop ----------
@@ -247,7 +259,7 @@ function pos(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/
 function down(e){e.preventDefault();au();const [x,y]=pos(e);for(const b of BTN.slice().reverse())if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){b.fn();return}if(game&&game.tap)game.tap(x,y)}
 function move(e){const [x,y]=pos(e);if(!game)return;if(game.move)game.move(x,y)}
 function up(){if(game&&game.up)game.up()}
-function open(opt={}){if(root)return;if(!document.getElementById('kns-css')){const s=document.createElement('style');s.id='kns-css';s.textContent=css;document.head.append(s)}
+function open(opt={}){if(root)return;OPT=opt||{};RANK=null;if(!document.getElementById('kns-css')){const s=document.createElement('style');s.id='kns-css';s.textContent=css;document.head.append(s)}
   root=document.createElement('div');root.className='kns';root.innerHTML=`<div class="kns-body">${opt.qa?'<span class="kns-qa">MODE UJI (QA)</span>':''}<div class="kns-top"><span class="kns-logo"><span class="kns-led"></span>playadalah<b>main</b></span><button type="button" class="kns-x" aria-label="Tutup">✕</button></div>
    <div class="kns-scr"><canvas width="${W}" height="${H}"></canvas></div><div class="kns-pad"><div class="kns-dpad"><i></i><i></i></div><div class="kns-btns"><span></span><span></span></div></div></div>`;
   document.body.append(root);cv=root.querySelector('canvas');dpr=Math.min(3,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx=cv.getContext('2d');

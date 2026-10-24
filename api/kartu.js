@@ -81,6 +81,8 @@ const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w |
 const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };
 const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 10 : (kini >= 2 ? 4 : 14); // tingkat 2: 10 Receh · tingkat 3: 14 Receh (naik dari tingkat 2: 4 Receh)
 const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
+const KONSOL_G = ['penalti', 'genteng', 'pancing', 'bakso', 'ayam', 'karung', 'layang', 'memori'];
+const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 400, karung: 80, layang: 600, memori: 140 };
 const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22 };
 const MAKS_PAJANG = 3;
 const VWARNA = ['merah', 'biru', 'hijau', 'kuning', 'hitam', 'putih', 'pink', 'ungu', 'oranye']; // warna motor & sepeda
@@ -221,6 +223,13 @@ export default async function handler(req, res) {
   const aksi = String((req.query && req.query.aksi) || '');
   const body = (req.body && typeof req.body === 'object') ? req.body : jparse(req.body) || {};
   try {
+    // ranking konsol playadalahmain (publik): 10 besar tiap game. ?qa=1 = papan uji (terpisah dari papan asli)
+    if (aksi === 'konsol-rank' && req.method === 'GET') {
+      const pre = (req.query && req.query.qa) ? 'konsolqa:' : 'konsol:';
+      const r = await kvMany(KONSOL_G.map(g => ['ZREVRANGE', pre + g, 0, 9, 'WITHSCORES']));
+      const out = {}; KONSOL_G.forEach((g, i) => { const a = r[i] || [], l = []; for (let k = 0; k + 1 < a.length; k += 2) l.push({ u: a[k], v: +a[k + 1] }); out[g] = l });
+      return res.status(200).json({ rank: out });
+    }
     if (aksi === 'pilihan' && req.method === 'GET') {
       const raw = await kv(['HGETALL', 'pilihan']) || [], out = {};
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
@@ -270,6 +279,15 @@ export default async function handler(req, res) {
     if (!s) return res.status(401).json({ error: 'Kartu tidak dikenal. Ambil kartu lagi ya.' });
 
     if (aksi === 'saya') return res.status(200).json({ kartu: await infoKartu(D, s.u) });
+    if (aksi === 'konsol-skor') { // simpan skor pemilik konsol (skor tertinggi saja); QA hanya kades, ke papan uji
+      const g = String(body.g || ''), v = Math.floor(+body.v), qa = !!body.qa;
+      if (!KONSOL_G.includes(g) || !(v >= 0 && v <= KONSOL_MAX[g])) return res.status(400).json({ error: 'Skor tidak valid' });
+      if (qa) { if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' }) }
+      else { const info = await infoKartu(D, s.u); if (!info.items.own.some(o => o.id === 'konsol')) return res.status(403).json({ error: 'Khusus pemilik playadalahmain' }) }
+      const key = (qa ? 'konsolqa:' : 'konsol:') + g;
+      await kv(['ZADD', key, 'GT', String(v), s.u]); const rk = await kv(['ZREVRANK', key, s.u]);
+      return res.status(200).json({ ok: true, rank: rk == null ? null : +rk + 1 });
+    }
 
     if (aksi === 'pilih') {
       const r = await wargaPlus(D, s.u); if (!r) return res.status(404).json({ error: 'Rumahmu tidak ditemukan' });

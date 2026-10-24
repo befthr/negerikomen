@@ -2023,7 +2023,17 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
 let T3=null,v3s=null;
 function loadThree(){if(window.THREE)return Promise.resolve();if(T3)return T3;
   T3=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';sc.onload=ok;sc.onerror=no;document.head.append(sc)});return T3}
-function build3D(r){const o=build3DRumah(r);try{items3D(o.g,r)}catch(e){}if(r&&r.demo==='ufo')try{ufo3D(o.g)}catch(e){}return o}
+function build3D(r){const o=build3DRumah(r);try{items3D(o.g,r)}catch(e){}if(r&&r.demo==='ufo')try{ufo3D(o.g)}catch(e){}if(r&&r.demo==='gento')try{kandang3D(o.g)}catch(e){}return o}
+// kandang GENTO: rangka hanggar terbuka di belakang robot (dinding belakang, tiang, balok atas, papan nama) — warna sama dengan Rumah GENTO di peta
+function kandang3D(g){const T=THREE,K=new T.Group();K.position.set(-1.7,0,-3.2);K.rotation.y=.4;g.add(K);const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.7},o||{}));
+  const box=(w,h,d,c,x,y,z,o)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c,o));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;K.add(m);return m};
+  const W2=5.4,Hh=15.5,D=-3;box(W2*2,Hh,.3,'#2F74B5',0,Hh/2,D);box(W2*2,.5,.34,'#F2C230',0,Hh*.55,D+.02);
+  for(let i=-3;i<=3;i++)box(.12,Hh-.4,.32,'#285F95',i*1.2,Hh/2,D+.04);
+  [-W2,W2].forEach(x=>{box(.6,Hh,.6,'#F4EFE3',x,Hh/2,D+.3);box(.6,Hh,.6,'#F4EFE3',x,Hh/2,1.6);box(.3,.3,4.2,'#2F74B5',x,Hh-.15,-.5)});
+  box(W2*2+.6,.7,.7,'#2F74B5',0,Hh,1.6);box(W2*2+.6,.7,.7,'#2F74B5',0,Hh,D+.3);
+  const cv=document.createElement('canvas');cv.width=512;cv.height=96;const c=cv.getContext('2d');c.fillStyle='#1C2520';c.fillRect(0,0,512,96);c.fillStyle='#F2C230';c.font='800 52px Poppins,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('RUMAH GENTO',256,50);
+  const sg=new T.Mesh(new T.PlaneGeometry(4.6,.86),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv)}));sg.position.set(0,Hh+.05,1.97);K.add(sg);
+  const lantai=new T.Mesh(new T.BoxGeometry(W2*2+.6,.08,4.6),M('#9AA0A6'));lantai.position.set(0,.04,-.5);lantai.receiveShadow=true;K.add(lantai)}
 // UFO Nyasar 3D: piring terbang melayang di atas rumah, sorot cahaya hijau, lampu keliling berkedip (momen langka buat dibagikan)
 function ufo3D(g){const T=THREE,U=new T.Group();U.position.set(0,6.2,0);g.add(U);g.userData.raksasa=false;
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.45,metalness:.15},o||{}));
@@ -3038,7 +3048,7 @@ function GENTO_ON(){return !!(window.NK_DATA&&window.NK_DATA.gento)}
 function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]:null;
   open3D(me?Object.assign({},me,{demo:'ufo',nick:'UFO Nyasar di atas rumah @'+me.name}):{demo:'ufo',name:'ufonyasar',nick:'UFO Nyasar 🛸',x:0,y:0,wall:'krem',roof:'merah'},me?i:0);
   setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,window.UFO_KE?(window.UFO_KE===1?'🥇 Selamat, kamu penemu pertama! ':`🎉 Selamat, kamu penemu ke-${window.UFO_KE}! `)+'Bagikan momen langka ini 📸':'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
-function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Contoh GENTO',x:0,y:0,wall:'putih',roof:'merah',items:[{id:'robot'}]},0)}
+function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Rumah GENTO',x:0,y:0,wall:'putih',roof:'biru',tingkat:2,items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
 if(location.hash==='#gento-rahasia')setTimeout(openDemoGento,800); if(location.hash==='#ufo-rahasia')setTimeout(openUfo3D,800);if(UFO_QA)setTimeout(()=>{questTick();window.QA_IKUT=true;cam.zoom=Math.max(cam.zoom,.9);dirty=true;toast('Mode uji UFO 🛸 klik UFO-nya (klaim cuma simulasi)')},1200); // pratinjau rahasia untuk kades
@@ -3150,7 +3160,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   {const g=D.GM,{x,y,w,h}=g;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x+10,y+12,w,h);ctx.fillStyle='#D9CFB4';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#8A7A5A';ctx.lineWidth=4;ctx.setLineDash([10,6]);ctx.strokeRect(x+4,y+4,w-8,h-8);ctx.setLineDash([]);
    ctx.fillStyle='#3E7F3A';[[x+T*.8,y+T*.8],[x+w-T*.8,y+T*.8],[x+T*.8,y+h-T*.8],[x+w-T*.8,y+h-T*.8]].forEach(([a,b])=>{ctx.beginPath();ctx.arc(a,b,T*.6,0,7);ctx.fill()});
    const hx=x+T*1.5,hy=y+T*1.4,hw=T*6,hh=T*4.6;ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(hx+8,hy+10,hw,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(hx,hy+hh*.65,hw,hh*.35);ctx.fillStyle='#9AA3AD';for(let i=0;i<6;i++)ctx.fillRect(hx+T*.4+i*T*.92,hy+hh*.74,T*.5,hh*.16);
-   ctx.fillStyle='#2B2F5E';ctx.fillRect(hx,hy,hw,hh*.68);ctx.fillStyle='rgba(255,255,255,.12)';for(let i=0;i<hw;i+=T*.45)ctx.fillRect(hx+i,hy,3,hh*.68);ctx.fillStyle='#F2C230';ctx.fillRect(hx,hy+hh*.3,hw,T*.25);
+   ctx.fillStyle='#2F74B5';ctx.fillRect(hx,hy,hw,hh*.68);ctx.fillStyle='rgba(255,255,255,.12)';for(let i=0;i<hw;i+=T*.45)ctx.fillRect(hx+i,hy,3,hh*.68);ctx.fillStyle='#F2C230';ctx.fillRect(hx,hy+hh*.3,hw,T*.25);
    ctx.save();ctx.translate(x+w-T*2.6,y+h*.55);ctx.scale(T/18,T/18);try{window.__robot2D&&window.__robot2D(t,1)}catch(e){}ctx.restore();
    ctx.fillStyle='#1C2520';ctx.fillRect(x+w/2-T*3.6,y-T*1.9,T*7.2,T*1.5);ctx.fillStyle='#F2C230';ctx.font=`800 ${T*.62}px Poppins,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(window.ROBOT_OWNER?'🤖 Rumah GENTO · @'+window.ROBOT_OWNER:'🤖 RUMAH GENTO · BELUM DIMILIKI',x+w/2,y-T*1.15)}
   // label

@@ -372,7 +372,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Terima kasih sudah traktir Genteng 🧱</p>
         <ol class="rank" id="supList"></ol>
         <details class="jhist" id="jhist" hidden><summary>📜 Riwayat Juragan Genteng</summary><ol id="jhList"></ol></details>
-        <p class="supnote" id="supNote" hidden>Mau namamu ikut nongol di sini? Cukup traktir <b>1 Genteng</b> 🧱<br>✍️ <b>Wajib tulis @username IG-mu</b> di pesan traktiran, biar namamu tercatat di sini dan <b>1 Genteng jadi 1 Receh</b> masuk ke Recehan-mu 🪙<br><small>Lupa nulis? DM @negerikomen bukti traktirannya + username, nanti kepala desa masukin.</small> <a id="supLink" href="#" target="_blank" rel="noopener">Traktir Genteng →</a></p>
+        <p class="supnote" id="supNote" hidden>Mau namamu ikut nongol di sini? Cukup traktir <b>1 Genteng</b> 🧱<br>✍️ <b>Wajib tulis username IG-mu</b> di pesan traktiran (tanpa @, contoh: <b>namakamu</b>), biar namamu tercatat di sini dan <b>1 Genteng jadi 1 Receh</b> masuk ke Recehan-mu 🪙<br><small>Lupa nulis? DM @negerikomen bukti traktirannya + username, nanti kepala desa masukin.</small> <a id="supLink" href="#" target="_blank" rel="noopener">Traktir Genteng →</a></p>
       </div>
 
       <div class="card loker" id="loker">
@@ -456,7 +456,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
           <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
-        <p class="trak-foot" data-kk hidden><span><b>Wajib tulis @username IG-mu di pesan traktiran</b>, biar Pak Kades tahu Recehan-nya masuk ke siapa. Traktir <img class="kk-gico" src="genteng.png" alt="">1 Genteng = <img class="kk-gico" src="receh.svg" alt=""><b>1 Receh</b> masuk ke Recehan-mu, dan namamu tercatat sebagai pendukung kampung. Buat bayar pesanan, tulis <b>kode pesanan</b>-nya. Lupa? DM screenshot traktiranmu ke @negerikomen. <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
+        <p class="trak-foot" data-kk hidden><span><b>Wajib tulis username IG-mu di pesan traktiran</b> (tanpa @, Trakteer menolak tanda @), biar Pak Kades tahu Recehan-nya masuk ke siapa. Traktir <img class="kk-gico" src="genteng.png" alt="">1 Genteng = <img class="kk-gico" src="receh.svg" alt=""><b>1 Receh</b> masuk ke Recehan-mu, dan namamu tercatat sebagai pendukung kampung. Buat bayar pesanan, tulis <b>kode pesanan</b>-nya. Lupa? DM screenshot traktiranmu ke @negerikomen. <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
       </div>
 
       <div class="card voucher" id="voucher" hidden>
@@ -2873,10 +2873,10 @@ function kkBayarSaldo(body,c,p){const sisa=Math.max(0,(p.harga||1)-(+p.bayar||0)
     if(!res.ok){toast(res.error||'Gagal');return}try{SND.play('ting',.7)}catch(_){}toast(res.otomatis?'Lunas! Rumahmu langsung berubah 🎉':'Lunas! Tinggal dicek kepala desa.');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1500)})}
 function kkIsiSaldo(body,c){body.innerHTML='';kkBack(body,()=>kkTampil(body,c));
   body.append(el('h3',null,'🪙 Isi Recehan'),el('p',null,'Traktir Genteng berapa saja di Trakteer. Tiap 1 Genteng jadi 1 Receh di Recehan-mu, bisa kamu pakai belanja kapan saja di Toko Pak Kades. Namamu juga tercatat sebagai pendukung kampung!'));
-  const ol=el('ol','kk-steps');['Buka Trakteer @negerikomen, pilih jumlah Genteng','Di kolom pesan, tulis username-mu atau kode dompetmu (salah satu)','Recehan langsung bertambah begitu traktiran masuk. Buka web lagi, nanti muncul pemberitahuan 🎉'].forEach(t=>ol.append(el('li',null,t)));body.append(ol);
-  const k1=el('div','kk-frasa','@'+c.u);k1.onclick=()=>kkSalin('@'+c.u);body.append(k1);if(c.dompet){body.append(el('p','kk-muted','atau kode dompet:'));const k2=el('div','kk-kode',c.dompet);k2.onclick=()=>kkSalin(c.dompet);body.append(k2)}
-  const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin @'+c.u,'',()=>kkSalin('@'+c.u)));body.append(row,
-    el('p','kk-muted','Bisa juga mentraktir teman: tulis @username temanmu, Recehan-nya masuk ke dia.'))}
+  const ol=el('ol','kk-steps');['Buka Trakteer @negerikomen, pilih jumlah Genteng','Di kolom pesan, tulis username-mu TANPA @ (contoh: '+c.u+'). Trakteer menolak tanda @','Recehan langsung bertambah begitu traktiran masuk. Buka web lagi, nanti muncul pemberitahuan 🎉'].forEach(t=>ol.append(el('li',null,t)));body.append(ol);
+  const k1=el('div','kk-frasa',c.u);k1.onclick=()=>kkSalin(c.u);body.append(k1);
+  const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkTrakteerUrl();a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin '+c.u,'',()=>kkSalin(c.u)));body.append(row,
+    el('p','kk-muted','Bisa juga mentraktir teman: tulis username temanmu (tanpa @), Recehan-nya masuk ke dia.'))}
 // bagian di kartu: pesanan menunggu + tombol Ubah rumah + koleksi item
 function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',...c.minta,harga:1}:null};
   Object.keys(KK_JENIS).forEach(j=>{const p=P[j];if(!p)return;const w=el('div','kk-wait');

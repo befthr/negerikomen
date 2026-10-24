@@ -308,7 +308,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .staff a.who{font-weight:700;color:#2F6B4F;text-decoration:underline;text-underline-offset:2px}
 .staff p{margin:4px 0;font-size:14.5px}.staff a{font-weight:700}
 .v3pv{position:fixed;inset:0;z-index:70;background:rgba(16,22,18,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.v3pv img{max-height:68vh;max-width:100%;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);-webkit-touch-callout:default;user-select:auto}.v3pv .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.v3pv p{color:#fff;font-size:13.5px;text-align:center;margin:0;max-width:380px}.v3act{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px 14px;background:#fff;flex-wrap:wrap}.v3hint{font-size:12px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;padding:10px 16px;border-radius:999px;z-index:50;font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;padding:10px 16px;border-radius:999px;z-index:500;font-size:14px}
 :focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
@@ -2673,11 +2673,12 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
       const jam=t=>new Date(t).toLocaleString('id-ID',{weekday:'short',hour:'2-digit',minute:'2-digit'});
       if(sw)kb.append(el('p','kk-muted',`🎟️ Sewa aktif sampai ${jam(c.sewaKonsol)}. Skormu ikut 🏆 ranking. Mau main selamanya? Beli 4 Receh.`),kkBtn('🎮 Main sekarang','gold3',()=>{kkTutup();bukaKonsol(false)}),kkBtn('🛒 Beli selamanya · 4 Receh','',()=>kkUbah(body,c,i,'item')));
       else{kb.append(el('p','kk-muted','8 mini game seru! Sewa 1 hari 1 Receh, atau beli 4 Receh buat dimiliki selamanya. Skor terbaikmu ikut 🏆 ranking!'));
-        kb.append(kkBtn('🎟️ Sewa 1 hari · 1 Receh','gold3',async e=>{const bt=e.currentTarget;if((c.saldo||0)<1){toast('Recehan belum cukup. Isi Recehan dulu ya!');return}if(!await kkYakin('Sewa playadalahmain?','1 Receh untuk main 24 jam (8 mini game). Skor terbaikmu ikut ranking.','Ya, sewa'))return;bt.disabled=true;const r2=await kkApi('sewa-konsol',{},true);bt.disabled=false;if(!r2.ok){toast(r2.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast('🎮 Sewa aktif 24 jam. Selamat main!');kkTampil(body,r2.kartu)}),kkBtn('🛒 Beli selamanya · 4 Receh','',()=>kkUbah(body,c,i,'item')))}
-      const swl=body.querySelector('.kk-saldo');if(swl)swl.after(kb);else body.append(kb)}
+        if((c.saldo||0)<1){kb.append(el('p','kk-note','Recehan-mu 0. Sewa & beli playadalahmain cuma bisa pakai Recehan, isi dulu yuk!'),kkBtn('🪙 Isi Recehan dulu','gold3',()=>kkIsiSaldo(body,c)))}
+        else kb.append(kkBtn('🎟️ Sewa 1 hari · 1 Receh','gold3',async e=>{const bt=e.currentTarget;if(!await kkYakin('Sewa playadalahmain?','1 Receh untuk main 24 jam (8 mini game). Skor terbaikmu ikut ranking.','Ya, sewa'))return;bt.disabled=true;const r2=await kkApi('sewa-konsol',{},true);bt.disabled=false;if(!r2.ok){toast(r2.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast('🎮 Sewa aktif 24 jam. Selamat main!');kkTampil(body,r2.kartu)}),kkBtn('🛒 Beli selamanya · 4 Receh','',()=>kkUbah(body,c,i,'item')))}
+      body.append(kb)}
     if(punyaK){const kb=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));
       kb.append(gh,el('p','kk-muted','8 mini game di perangkatmu. Skor terbaikmu otomatis masuk 🏆 Ranking pemilik!'),kkBtn('🎮 Main sekarang','gold3',()=>{kkTutup();bukaKonsol(false)}));
-      const sw=body.querySelector('.kk-saldo');if(sw)sw.after(kb);else body.append(kb)}
+      body.append(kb)}
     // riwayat mini game (umum) tetap di bawah
     const NG={penalti:'⚽ Adu Penalti',genteng:'🧱 Tangkap Genteng',pancing:'🎣 Pancing Ikan',bakso:'🍜 Racik Bakso',ayam:'🐔 Kejar Ayam',karung:'🥔 Balap Karung',layang:'🪁 Layangan',memori:'🃏 Memori Genteng'};
     let H=[];if(punyaK||sw)for(const g in NG){try{(JSON.parse(localStorage.getItem('kns_h_'+g)||'[]')||[]).forEach(o=>H.push({g,...o}))}catch(e){}}H=H.filter(o=>o.at).sort((a,b)=>b.at-a.at).slice(0,5);
@@ -3045,7 +3046,7 @@ function cobaGento(){const k=Math.max(0,RES.findIndex(r=>r.name==='lembarpeta'))
 addEventListener('hashchange',()=>{if(location.hash==='#ufo-rahasia')openUfo3D();if(location.hash==='#gento-rahasia')openDemoGento();if(location.hash==='#gento-jalan')cobaGento()});
 if(location.hash==='#gento-jalan')setTimeout(cobaGento,1200);
 // QA konsol playadalahmain (belum dijual): #konsol-qa
-function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL&&window.KONSOL.open({qa,me,kirim:k?(g,v)=>kkApi('konsol-skor',{g,v,qa:!!qa},true):null,rank:()=>fetch('/api/kartu?aksi=konsol-rank'+(qa?'&qa=1':'')).then(r=>r.json()).catch(()=>({}))});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=10';s.onload=go;document.head.append(s)}
+function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL&&window.KONSOL.open({qa,me,kirim:k?(g,v)=>kkApi('konsol-skor',{g,v,qa:!!qa},true):null,rank:()=>fetch('/api/kartu?aksi=konsol-rank'+(qa?'&qa=1':'')).then(r=>r.json()).catch(()=>({}))});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=11';s.onload=go;document.head.append(s)}
 // QA Liga Dusun (desa baru, belum dibuka): #liga-qa — 5 tim dusun, pemain diambil acak dari warga dusunnya
 const LIGA_TIM=()=>{const COL=['#C4402F','#2F74B5','#E07A3E','#2F9E6A','#E58AA6'];return [0,1,2,3,4].map(k=>({nama:dsnLabel(k),col:COL[k],pemain:RES.filter(r=>dsnOf(r.x,r.y)===k).map(r=>String(r.name))}))};
 function muatLiga(){return new Promise(ok=>{if(window.LIGA)return ok();const s=document.createElement('script');s.src='/liga.js?v=7';s.onload=()=>{window.LIGA.setTim(LIGA_TIM());ok()};document.head.append(s)})}

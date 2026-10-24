@@ -283,9 +283,22 @@ function Memori(){const COL=['#E2574C','#3E8FC9','#F2C230','#2E9C6A','#8E5AA8','
     if(G.ph==='end')endCard(`${G.skor} poin`,G.cocok===8?'Ingatan super! 🧠✨':'Hampir semua ketemu! 💪',lsGet(G.hs))};
   return G}
 // ---------- kartu akhir ----------
-function endCard(a,b,hs){ctx.fillStyle='rgba(14,21,18,.72)';ctx.fillRect(0,0,W,H);rr(40,92,280,330,22,KREM,INK);txt('SELESAI!',W/2,126,28,MERAH,'center',800,null);txt(a,W/2,166,22,INK,'center',800,null);txt(b,W/2,198,15,HIJAU,'center',700,null);txt('🏆 Rekor: '+hs+(game&&game.rankKu?` · Ranking #${game.rankKu}`:''),W/2,226,14,INK,'center',700,null);
+function endCard(a,b,hs){ctx.fillStyle='rgba(14,21,18,.72)';ctx.fillRect(0,0,W,H);rr(40,92,280,374,22,KREM,INK);txt('SELESAI!',W/2,126,28,MERAH,'center',800,null);txt(a,W/2,166,22,INK,'center',800,null);txt(b,W/2,198,15,HIJAU,'center',700,null);txt('🏆 Rekor: '+hs+(game&&game.rankKu?` · Ranking #${game.rankKu}`:''),W/2,226,14,INK,'center',700,null);
   rr(58,242,244,124,12,'#fff');txt('📜 Riwayat poin terakhir',W/2,258,12,INK,'center',800,null);hGet(game.id).forEach((o,i)=>{const y=280+i*17;txt((i?'':'▶ ')+o.v+' '+({penalti:'gol',genteng:'genteng',ayam:'ayam'}[game.id]||'poin'),72,y,12,i?INK:MERAH,'left',800,null);txt(lalu(o.at),288,y,11,'#777','right',600,null)});
-  BTN=[];btn(60,374,110,36,'🔁 Main lagi',()=>start(game.id),KUNING,14);btn(190,374,110,36,'🎮 Menu',()=>{game=null;SFX.klik()},'#fff',14)}
+  BTN=[];btn(60,374,110,36,'🔁 Main lagi',()=>start(game.id),KUNING,14);btn(190,374,110,36,'🎮 Menu',()=>{game=null;SFX.klik()},'#fff',14);
+  btn(60,418,240,36,'📸 Bagikan skor',()=>bagikan(a,b,hs),'#FF5E8A',14)}
+// kartu skor 1080x1350 untuk story/feed (tanpa wajah, tanpa musik)
+function bagikan(a,b,hs){SFX.klik();const gm=GAMES.find(g=>g.id===game.id)||{n:'MINI GAME',ic:'🎮'},rk=game.rankKu;const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,1350);g.addColorStop(0,'#0B1A4A');g.addColorStop(1,'#1B0B3A');x.fillStyle=g;x.fillRect(0,0,1080,1350);
+  for(let i=0;i<90;i++){x.fillStyle=`rgba(255,255,255,${.2+((i*7)%10)/14})`;x.fillRect((i*197)%1080,(i*131)%1350,4,4)}
+  const T=(t,X,Y,sz,col,w=800,al='center')=>{x.font=`${w} ${sz}px Poppins,'Noto Color Emoji',sans-serif`;x.textAlign=al;x.textBaseline='middle';x.fillStyle=col;x.fillText(t,X,Y)};
+  T('★ playadalahmain 1.0 ★',540,120,46,'#FF5E8A');T(gm.ic,540,300,170,'#fff',400);T(gm.n,540,450,74,KUNING);
+  x.fillStyle=KREM;x.strokeStyle=INK;x.lineWidth=10;x.beginPath();x.roundRect(110,530,860,470,48);x.fill();x.stroke();
+  T('SKOR',540,600,44,'#5B6860');T(a,540,710,120,INK);T(b,540,820,46,'#2F9E6A',700);T('🏆 Rekor: '+hs+(rk?'  ·  Ranking #'+rk:''),540,920,44,INK,700);
+  if(OPT.me)T('@'+OPT.me,540,1090,56,'#fff');T('Bisa kalahin aku? 😎',540,1170,46,'#7FD8FF',700);T('negerikomen.vercel.app · @negerikomen',540,1270,36,'#ffffffaa',600);
+  c.toBlob(async bl=>{if(!bl)return;const f=new File([bl],'skor-'+game.id+'.png',{type:'image/png'});
+    try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Skor '+gm.n,text:`Skor ${gm.n} aku ${a}! Bisa kalahin? 🎮 negerikomen.vercel.app`});return}}catch(e){if(e&&e.name==='AbortError')return}
+    const u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download=f.name;document.body.append(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
 // ---------- loop ----------
 function start(id,diam){if(!diam)SFX.klik();const f={penalti:Penalti,genteng:Genteng,pancing:Pancing,bakso:Bakso,ayam:Ayam,karung:Karung,layang:Layang,memori:Memori}[id];game=f();game.id=id}
 function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(ts-(last||ts))/1000);last=ts;const t=ts/1000;

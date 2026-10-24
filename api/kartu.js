@@ -150,7 +150,7 @@ async function infoKartu(D, u) {
   const pesan = {}; J.forEach((j, k) => { const v = jparse(reqs[k]); pesan[j] = kodes[k] && v && v.status === 'menunggu' ? { kode: kodes[k], ...v } : null });
   let pil = jparse(p); if (pil && pil.nv !== V.length) pil = null; // kades bikin versi baru → versi baru yang tampil
   const kol = jparse(it); const m = pesan.warna;
-  let [saldo, dompet, slog, seen] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u], ['LRANGE', 'saldo:log:' + u, 0, 9], ['GET', 'saldo:seen:' + u]]);
+  let [saldo, dompet, slog, seen, sewaMs] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u], ['LRANGE', 'saldo:log:' + u, 0, 9], ['GET', 'saldo:seen:' + u], ['PTTL', 'sewa:konsol:' + u]]);
   const masuk = (slog || []).map(jparse).filter(x => x && x.n > 0 && x.at > (+seen || 0));
   if (!dompet && r) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (let t = 0; t < 5 && !dompet; t++) { let c = 'DOMPET-'; for (let i = 0; i < 4; i++) c += A[crypto.randomInt(A.length)];
       if (await kv(['SET', 'dompet:k:' + c, u, 'NX'])) { await kv(['SET', 'dompet:u:' + u, c]); dompet = c } } }
@@ -158,7 +158,7 @@ async function infoKartu(D, u) {
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
     emas: !!(r && r.sup) || !!em, ruko: jparse(rk), tingkat: Math.max(+(r && r.tingkat) || 1, +((jparse(tk) || {}).lantai) || 1), atas: (jparse(tk) || {}).atas || (r && r.atas) || null, items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
-    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, dompet: dompet || null, saldoBaru: masuk.length ? { n: masuk.reduce((t, x) => t + x.n, 0), ket: masuk.map(x => x.ket), at: masuk[0].at } : null };
+    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, sewaKonsol: +sewaMs > 0 ? Date.now() + +sewaMs : null, dompet: dompet || null, saldoBaru: masuk.length ? { n: masuk.reduce((t, x) => t + x.n, 0), ket: masuk.map(x => x.ket), at: masuk[0].at } : null };
 }
 
 const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
@@ -279,11 +279,21 @@ export default async function handler(req, res) {
     if (!s) return res.status(401).json({ error: 'Kartu tidak dikenal. Ambil kartu lagi ya.' });
 
     if (aksi === 'saya') return res.status(200).json({ kartu: await infoKartu(D, s.u) });
+    if (aksi === 'sewa-konsol') { // sewa playadalahmain 1 Receh / 24 jam (skor ikut ranking)
+      const info = await infoKartu(D, s.u);
+      if (info.items.own.some(o => o.id === 'konsol')) return res.status(400).json({ error: 'Kamu sudah punya playadalahmain, tinggal main!' });
+      if (info.sewaKonsol) return res.status(400).json({ error: 'Sewamu masih aktif.' });
+      const after = await kv(['HINCRBY', 'saldo', s.u, -1]);
+      if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, 1]); return res.status(400).json({ error: 'Recehan belum cukup. Sewa butuh 1 Receh.' }) }
+      if (!(await kv(['SET', 'sewa:konsol:' + s.u, String(Date.now()), 'NX', 'EX', 864e2]))) { await kv(['HINCRBY', 'saldo', s.u, 1]); return res.status(400).json({ error: 'Sewamu masih aktif.' }) }
+      await kvMany([['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -1, ket: 'sewa playadalahmain 1 hari' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
+      return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
+    }
     if (aksi === 'konsol-skor') { // simpan skor pemilik konsol (skor tertinggi saja); QA hanya kades, ke papan uji
       const g = String(body.g || ''), v = Math.floor(+body.v), qa = !!body.qa;
       if (!KONSOL_G.includes(g) || !(v >= 0 && v <= KONSOL_MAX[g])) return res.status(400).json({ error: 'Skor tidak valid' });
       if (qa) { if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' }) }
-      else { const info = await infoKartu(D, s.u); if (!info.items.own.some(o => o.id === 'konsol')) return res.status(403).json({ error: 'Khusus pemilik playadalahmain' }) }
+      else { const info = await infoKartu(D, s.u); if (!info.items.own.some(o => o.id === 'konsol')) { if (!info.sewaKonsol) return res.status(403).json({ error: 'Khusus pemilik / penyewa playadalahmain' }) } }
       const key = (qa ? 'konsolqa:' : 'konsol:') + g;
       await kv(['ZADD', key, 'GT', String(v), s.u]); const rk = await kv(['ZREVRANK', key, s.u]);
       return res.status(200).json({ ok: true, rank: rk == null ? null : +rk + 1 });

@@ -82,7 +82,7 @@ const Menu={draw(t){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'
 function Rank(){const G={t:0,hs:'rank'};if(!RANK&&OPT.rank){RANK='muat';Promise.resolve(OPT.rank()).then(j=>{RANK=(j&&j.rank)||{}}).catch(()=>{RANK={}})}
   G.tap=(x,y)=>{if(y>H-60){if(x<W/2)rankSel=(rankSel+7)%8;else rankSel=(rankSel+1)%8;SFX.klik()}};G.update=dt=>{G.t+=dt};
   G.draw=t=>{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0B1A4A');g.addColorStop(1,'#1B0B3A');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    txt('🏆 RANKING',W/2,30,22,KUNING,'center',800,'#1A2A6A');txt('Khusus pemilik playadalahmain 1.0',W/2,54,11,'#7FD8FF','center',700,null);
+    txt('🏆 RANKING',W/2,30,22,KUNING,'center',800,'#1A2A6A');txt('Khusus pemilik & penyewa playadalahmain 1.0',W/2,54,11,'#7FD8FF','center',700,null);
     const gm=GAMES[rankSel];rr(20,70,W-40,36,8,'#F2C230');ctx.font='18px "Noto Color Emoji",sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(gm.ic,32,88);txt(gm.n,60,89,15,INK,'left',800,null);
     if(RANK==='muat'||!OPT.rank)txt(OPT.rank?'Memuat…':'Ranking muncul setelah konsol dijual',W/2,240,14,'#B9C7FF','center',700,null);
     else{const L=(RANK[gm.id]||[]);if(!L.length)txt('Belum ada skor. Jadi yang pertama! 💪',W/2,240,14,'#B9C7FF','center',700,null);

@@ -47,6 +47,19 @@ const FX=24,FY=70,FW=W-48,FH=H-150; // lapangan (vertikal: tim A menyerang ke at
 function rr(x,y,w,h,r,f,s){ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(f){ctx.fillStyle=f;ctx.fill()}if(s){ctx.strokeStyle=s;ctx.lineWidth=2;ctx.stroke()}}
 function txt(t,x,y,sz,c,al='center',w=800){ctx.font=`${w} ${sz}px Poppins,system-ui,sans-serif`;ctx.textAlign=al;ctx.textBaseline='middle';ctx.fillStyle=c;ctx.fillText(t,x,y)}
 function orang(x,y,col,r=6){ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(x+1.5,y+3,r,r*.6,0,0,7);ctx.fill();ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#F1C9A0';ctx.beginPath();ctx.arc(x,y-1,r*.48,0,7);ctx.fill()}
+function pemain(c,x,y,col,no,nama,k,lari){const tg=col==='#eee'||col==='#F4EFE3'?INK:'#fff';const ay=Math.sin(lari)*2.2;
+  c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(x+1.5,y+10,8*k,3.5*k,0,0,7);c.fill();
+  // kaki & celana
+  c.fillStyle='#F1C9A0';c.fillRect(x-4*k,y+5*k+ay*k*.4,2.6*k,4.5*k);c.fillRect(x+1.4*k,y+5*k-ay*k*.4,2.6*k,4.5*k);c.fillStyle=INK;c.fillRect(x-4.6*k,y+9*k+ay*k*.4,3.4*k,1.8*k);c.fillRect(x+1.2*k,y+9*k-ay*k*.4,3.4*k,1.8*k);
+  c.fillStyle='#1C2520';c.beginPath();c.roundRect(x-5*k,y+2.5*k,10*k,4*k,1.5*k);c.fill();
+  // lengan & jersey
+  c.fillStyle=col;c.strokeStyle=INK;c.lineWidth=1.2;c.beginPath();c.roundRect(x-8*k,y-5*k-ay*k*.3,3.2*k,6*k,1.5*k);c.fill();c.stroke();c.beginPath();c.roundRect(x+4.8*k,y-5*k+ay*k*.3,3.2*k,6*k,1.5*k);c.fill();c.stroke();
+  c.beginPath();c.roundRect(x-5.5*k,y-6*k,11*k,10*k,3*k);c.fill();c.stroke();
+  c.fillStyle=tg;c.font=`800 ${6.5*k}px Poppins,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(no,x,y-.8*k);
+  // kepala tanpa wajah
+  c.fillStyle='#F1C9A0';c.beginPath();c.arc(x,y-9.5*k,3.8*k,0,7);c.fill();c.stroke();c.fillStyle='#3A2A1E';c.beginPath();c.arc(x,y-10.6*k,3.6*k,Math.PI,0);c.fill();
+  if(nama){const t=nama.length>11?nama.slice(0,10)+'…':nama;c.font=`700 ${5.6*k}px Poppins,sans-serif`;const w=c.measureText(t).width+5;c.fillStyle='rgba(28,37,32,.72)';c.beginPath();c.roundRect(x-w/2,y+12*k,w,8*k,3);c.fill();c.fillStyle='#fff';c.fillText(t,x,y+16.2*k)}}
+const NOMOR=[1,2,4,5,3,6,8,10,7,9,11];
 const FORM=[[.5,.95],[.15,.78],[.38,.8],[.62,.8],[.85,.78],[.2,.6],[.42,.62],[.58,.62],[.8,.6],[.38,.45],[.62,.45]];
 function bolaDi(L,m){const s=(k,a)=>Math.sin(m*a+L.ph[k]);let x=.5+.32*s(0,.21)+.1*s(1,.67),y=.5+.3*s(2,.17)+.1*s(3,.53);
   for(const g of L.gol){const dt=g.m-m;if(dt>=0&&dt<1.6){const u=1-dt/1.6;const gy=g.t===0?-.02:1.02;x=x+(.5-x)*u;y=y+(gy-y)*u*u}else if(dt<0&&dt>-1.2){return {x:.5,y:g.t===0?-.03:1.03,net:true}}else if(dt<=-1.2&&dt>-2){const u=(-dt-1.2)/.8;return {x:.5,y:(g.t===0?-.03:1.03)*(1-u)+.5*u}}}
@@ -64,7 +77,7 @@ function draw(t){const st=status(),malam=(((now()+252e5)%864e5)/36e5)>=18;
     // pemain mengikuti bola dari posisi formasi; yang terdekat mengejar
     [[L.A,0],[L.B,1]].forEach(([k,side])=>{const col=TIM[k].col;let best=-1,bd=9;const pos=FORM.map((f,i)=>{let hx=f[0],hy=side?1-f[1]:f[1];const w=i===0?.08:i<5?.25:i<9?.4:.35;
         let x=hx+(b.x-hx)*w+.02*Math.sin(m*1.7+i+side*3),y=hy+(b.y-hy)*w*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)y=side?Math.max(.9,y):Math.min(.1,y);const dd=Math.hypot(x-b.x,y-b.y);if(i&&dd<bd){bd=dd;best=i}return [x,y]});
-      if(best>0&&!b.net){pos[best]=[b.x+(side?.02:-.02),b.y+(side?-.03:.03)]}pos.forEach(([x,y],i)=>{const [px,py]=P(x,y);orang(px,py,i===0?(side?'#333':'#eee'):col)})});
+      if(best>0&&!b.net){pos[best]=[b.x+(side?.02:-.02),b.y+(side?-.03:.03)]}const nm=side?L.lb:L.la;pos.forEach(([x,y],i)=>{const [px,py]=P(x,y);pemain(ctx,px,py,i===0?(side?'#333':'#eee'):col,NOMOR[i],nm[i],.95,performance.now()/80+i*1.3)})});
     const [bx,by]=P(b.x,b.y);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(bx,by,4,0,7);ctx.fill();ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.stroke();
     const sa=L.gol.filter(g=>g.t===0&&g.m<=m).length,sb=L.gol.filter(g=>g.t===1&&g.m<=m).length;
     // kejadian: gol, peluit
@@ -103,7 +116,7 @@ function close(){cancelAnimationFrame(raf);if(root)root.remove();root=null}
 function liveAt(ms){const d=hariKe(ms),mnt=((ms+252e5)%864e5)/6e4;for(let s=0;s<8;s++){const m0=JAM[s]*60;if(mnt>=m0&&mnt<m0+DUR)return {main:true,L:laga(d,s),menit:(mnt-m0)/DUR*90}}const nx=JAM.findIndex(j=>j*60>mnt);return {main:false,next:nx>=0?{jam:JAM[nx],L:laga(d,nx)}:null}}
 function drawMini(c,x,y,w,h,ms){const st=liveAt(ms);if(!st.main)return st;const L=st.L,m=st.menit,b=bolaDi(L,m);const P=(u,v)=>[x+u*w,y+v*h];
   const o=(px,py,col,r)=>{c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(px+r*.3,py+r*.5,r,r*.6,0,0,7);c.fill();c.fillStyle=col;c.beginPath();c.arc(px,py,r,0,7);c.fill();c.fillStyle='#F1C9A0';c.beginPath();c.arc(px,py-r*.15,r*.45,0,7);c.fill()};
-  const r=Math.max(2.2,w*.022);[[L.A,0],[L.B,1]].forEach(([k,side])=>{FORM.forEach((f,i)=>{const hx=f[0],hy=side?1-f[1]:f[1],wt=i===0?.08:i<5?.25:i<9?.4:.35;let px=hx+(b.x-hx)*wt+.02*Math.sin(m*1.7+i+side*3),py=hy+(b.y-hy)*wt*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)py=side?Math.max(.9,py):Math.min(.1,py);const [X,Y]=P(px,py);o(X,Y,i===0?(side?'#333':'#eee'):TIM[k].col,r)})});
+  const r=Math.max(2.2,w*.022),kk=w/300;[[L.A,0],[L.B,1]].forEach(([k,side])=>{const nm=side?L.lb:L.la;FORM.forEach((f,i)=>{const hx=f[0],hy=side?1-f[1]:f[1],wt=i===0?.08:i<5?.25:i<9?.4:.35;let px=hx+(b.x-hx)*wt+.02*Math.sin(m*1.7+i+side*3),py=hy+(b.y-hy)*wt*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)py=side?Math.max(.9,py):Math.min(.1,py);const [X,Y]=P(px,py);c.save();c.translate(X,Y);c.rotate(-Math.PI/2);pemain(c,0,0,i===0?(side?'#333':'#eee'):TIM[k].col,NOMOR[i],nm[i],kk,performance.now()/80+i*1.3);c.restore()})});
   const [bx,by]=P(b.x,b.y);c.fillStyle='#fff';c.beginPath();c.arc(bx,by,r*.7,0,7);c.fill();
   st.sa=L.gol.filter(g=>g.t===0&&g.m<=m).length;st.sb=L.gol.filter(g=>g.t===1&&g.m<=m).length;st.gol=L.gol.find(g=>m-g.m>=0&&m-g.m<3.5);return st}
 window.LIGA={open,close,laga,klasemen,liveAt,drawMini,setTim:t=>{TIM=t},tim:()=>TIM};

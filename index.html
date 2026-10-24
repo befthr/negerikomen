@@ -1876,7 +1876,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(KK_ON&&k&&k.t){const b=el('button','btn gold3','🛸 Klaim pakai Kartu Komen');b.type='button';b.onclick=async()=>{b.disabled=true;const r=await kkApi('ufo',{},true);
         if(!r.ok){b.disabled=false;msg.textContent=r.error||'Gagal';msg.className='kk-msg err';return}try{SND.play('ting',.9)}catch(_){}
         msg.className='kk-msg';msg.textContent=(r.ke===1?'🥇 KAMU PENEMU PERTAMA!':`✅ Kamu penemu ke-${r.ke}!`)+(r.hadiah?` +${r.hadiah} Receh masuk ke Recehan-mu 🎉`:(r.sudah?'':' (hadiah Recehan untuk 20 penemu pertama sudah habis)'));b.remove()};acts.append(b)}
-    else{const c=q.code||'UFO NYASAR';left.append(el('p',null,`Belum punya Kartu Komen? Salin kode ini, lalu komen di video terbaru @negerikomen sebelum ${q.end} WIB:`));
+    else{const c=q.code||'UFO NYASAR';left.append(el('p',null,`Belum punya Kartu Komen? Salin kode ini, lalu komen di video episode malam ini (yang baru tayang jam 19.00, BUKAN video yang di-pin) sebelum ${q.end} WIB:`));
       const f=el('div','kk-frasa',c);f.onclick=()=>kkSalin(c);left.append(f);acts.append(kkBtn('📋 Salin kode','gold3',()=>kkSalin(c)));
       const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}}
   else if(s.kind==='s'){const r=EXTRA[s.j],sh=r.shop,src=safeImg(sh.img);if(src){const im=el('img','shopimg');im.src=src;im.alt='';im.referrerPolicy='no-referrer';im.onerror=()=>im.remove();left.append(im)}

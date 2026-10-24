@@ -1698,7 +1698,7 @@ function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(2,window.devic
 const clampZ=z=>Math.max(minZ,Math.min(maxZ,z));
 function zoomAt(px,py,f){const z2=clampZ(cam.zoom*f),wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom;
   cam.zoom=z2;cam.cx=wxp-(px-cw/2)/z2;cam.cy=wyp-(py-ch/2)/z2;clampPan();fly=null;dirty=true}
-function clampPan(){const m=T*4;cam.cx=Math.max(BB.x0-m,Math.min(BB.x1+m,cam.cx));cam.cy=Math.max(BB.y0-m,Math.min(BB.y1+m,cam.cy))}
+function clampPan(){const m=T*4;cam.cx=Math.max(BB.x0-m,Math.min(BB.x1+m+(typeof STQA!=='undefined'&&STQA?T*16:0),cam.cx));cam.cy=Math.max(BB.y0-m,Math.min(BB.y1+m,cam.cy))}
 function flyTo(to,ms){if(reduce||!ms){Object.assign(cam,to);dirty=true;return}fly={from:{...cam},to,t0:performance.now(),ms}}
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 
@@ -1840,6 +1840,7 @@ function frame(now){
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
     NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true});
+    try{drawStadion(v,reduce?0:t)}catch(e){}
     try{drawMalam(v,t)}catch(e){}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
@@ -1866,6 +1867,7 @@ cv.addEventListener('dblclick',e=>{const r=cv.getBoundingClientRect();zoomAt(e.c
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
   if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);window.QA_IKUT=false;showResult({kind:'q'});dirty=true;return}}
+  if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){SND.play('pop',.8);bukaLiga(true);return}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
@@ -3036,9 +3038,31 @@ if(location.hash==='#gento-jalan')setTimeout(cobaGento,1200);
 // QA konsol playadalahmain (belum dijual): #konsol-qa
 function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL&&window.KONSOL.open({qa,me,kirim:k?(g,v)=>kkApi('konsol-skor',{g,v,qa:!!qa},true):null,rank:()=>fetch('/api/kartu?aksi=konsol-rank'+(qa?'&qa=1':'')).then(r=>r.json()).catch(()=>({}))});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=9';s.onload=go;document.head.append(s)}
 // QA Liga Dusun (desa baru, belum dibuka): #liga-qa — 5 tim dusun, pemain diambil acak dari warga dusunnya
-function bukaLiga(qa){const COL=['#C4402F','#2F74B5','#E07A3E','#2F9E6A','#E58AA6'];
-  const tim=[0,1,2,3,4].map(k=>({nama:dsnLabel(k),col:COL[k],pemain:RES.filter(r=>dsnOf(r.x,r.y)===k).map(r=>String(r.name))}));
-  const go=()=>window.LIGA&&window.LIGA.open({qa,tim});if(window.LIGA)return go();const s=document.createElement('script');s.src='/liga.js?v=1';s.onload=go;document.head.append(s)}
+const LIGA_TIM=()=>{const COL=['#C4402F','#2F74B5','#E07A3E','#2F9E6A','#E58AA6'];return [0,1,2,3,4].map(k=>({nama:dsnLabel(k),col:COL[k],pemain:RES.filter(r=>dsnOf(r.x,r.y)===k).map(r=>String(r.name))}))};
+function muatLiga(){return new Promise(ok=>{if(window.LIGA)return ok();const s=document.createElement('script');s.src='/liga.js?v=2';s.onload=()=>{window.LIGA.setTim(LIGA_TIM());ok()};document.head.append(s)})}
+function bukaLiga(qa){muatLiga().then(()=>window.LIGA.open({qa,tim:LIGA_TIM()}))}
+// QA stadion di peta (#stadion-qa): lapangan di luar dusun (sebelah timur), ketuk = buka Liga Dusun
+let STQA=location.hash==='#stadion-qa';const STD={x:0,y:0,w:T*11,h:T*7};
+function stdPos(){STD.x=BB.x1+T*3;STD.y=(BB.y0+BB.y1)/2-STD.h/2}
+function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {x,y,w,h}=STD;
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x+8,y+10,w,h);ctx.fillStyle='#B9B2A2';ctx.fillRect(x,y,w,h);
+  for(let i=0;i<3;i++){ctx.fillStyle=i%2?'#A8A090':'#C9C2B0';ctx.fillRect(x+i*9,y+i*9,w-i*18,h-i*18)}
+  const px=x+30,py=y+30,pw=w-60,ph=h-60;for(let i=0;i<10;i++){ctx.fillStyle=i%2?'#5DAA55':'#54A04D';ctx.fillRect(px+i*pw/10,py,pw/10,ph)}
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.strokeRect(px+4,py+4,pw-8,ph-8);ctx.beginPath();ctx.moveTo(px+pw/2,py+4);ctx.lineTo(px+pw/2,py+ph-4);ctx.stroke();ctx.beginPath();ctx.arc(px+pw/2,py+ph/2,26,0,7);ctx.stroke();
+  ctx.strokeRect(px+4,py+ph/2-40,40,80);ctx.strokeRect(px+pw-44,py+ph/2-40,40,80);ctx.fillStyle='#fff';ctx.fillRect(px-3,py+ph/2-18,7,36);ctx.fillRect(px+pw-4,py+ph/2-18,7,36);
+  // penonton di tribun
+  for(let i=0;i<36;i++){const c=['#F2C230','#E58AA6','#8E5AA8','#F4EFE3','#2F9E6A','#E07A3E','#3E8FC9'][i%7],hop=Math.sin(t*6+i)>.92?2:0;ctx.fillStyle=c;ctx.beginPath();ctx.arc(x+20+i*(w-40)/35,y+14-hop,4,0,7);ctx.fill();ctx.beginPath();ctx.arc(x+20+i*(w-40)/35,y+h-14-hop,4,0,7);ctx.fill()}
+  let st=null;if(window.LIGA){ctx.save();ctx.translate(px+pw,py);ctx.rotate(Math.PI/2);st=window.LIGA.drawMini(ctx,0,0,ph,pw,Date.now());ctx.restore()}else muatLiga().then(()=>{dirty=true});
+  [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(([a,b])=>{ctx.fillStyle='#555';ctx.fillRect(a-6,b-6,12,12)});
+  // papan nama & skor
+  ctx.fillStyle='#1C2520';ctx.fillRect(x+w/2-150,y-58,300,46);ctx.fillStyle='#F2C230';ctx.font='800 17px Poppins,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  if(st&&st.main){const TM=window.LIGA.tim();ctx.fillText(`${TM[st.L.A].nama} ${st.sa}–${st.sb} ${TM[st.L.B].nama}`,x+w/2,y-41);ctx.fillStyle='#9effa0';ctx.font='700 11px Poppins,sans-serif';ctx.fillText(`🔴 LIVE ${Math.floor(st.menit)}' · ketuk buat nonton`,x+w/2,y-22)}
+  else{ctx.fillText('⚽ STADION DESA (QA)',x+w/2,y-41);ctx.fillStyle='#9effa0';ctx.font='700 11px Poppins,sans-serif';const n=st&&st.next;ctx.fillText(n?`Laga berikutnya ${n.jam}.00 · ketuk`:'Laga hari ini selesai · ketuk',x+w/2,y-22)}
+  if(st&&st.gol){ctx.fillStyle='#F2C230';ctx.strokeStyle='#1C2520';ctx.lineWidth=4;ctx.fillRect(x+w/2-90,y+h/2-22,180,44);ctx.strokeRect(x+w/2-90,y+h/2-22,180,44);ctx.fillStyle='#1C2520';ctx.font='800 22px Poppins,sans-serif';ctx.fillText('GOOOL!',x+w/2,y+h/2)}
+  ctx.setTransform(1,0,0,1,0,0);
+  if(window.__MALAM_N>0)dirty=true}
+function bukaStadion(){STQA=true;stdPos();muatLiga().then(()=>{dirty=true});flyTo({cx:STD.x+STD.w/2,cy:STD.y+STD.h/2,zoom:clampZ(Math.min(cw/(STD.w*1.5),ch/(STD.h*2)))},1000)}
+if(STQA)setTimeout(bukaStadion,900);addEventListener('hashchange',()=>{if(location.hash==='#stadion-qa')bukaStadion()});
 if(location.hash==='#liga-qa')setTimeout(()=>bukaLiga(true),900);addEventListener('hashchange',()=>{if(location.hash==='#liga-qa')bukaLiga(true)});
 // QA: #konsol-rumah = contoh rumah pemilik konsol di 3D + kotak "Main sekarang" seperti di Kartu Komen
 function openDemoKonsol(){open3D({demo:'konsol',name:'contohkonsol',nick:'Contoh rumah pemilik konsol',x:0,y:0,wall:'kuning',roof:'biru',items:[{id:'konsol'},{id:'ayam'},{id:'lampu'}]},0)}

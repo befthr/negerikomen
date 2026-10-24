@@ -32,6 +32,8 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       });
       await kv(['HSET', 'itemplus', v.u, JSON.stringify(kol)]);
     }
+    // riwayat belanja terbaru (ditampilkan di panel toko/dealer/TB)
+    await kvMany([['LPUSH', 'belanja:log', JSON.stringify({ u: v.u, j: jenis, it: v.items || [], l: v.lantai || 0, at: Date.now() })], ['LTRIM', 'belanja:log', 0, 59]]);
   }
   await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ ...v, status: ok ? 'disetujui' : 'ditolak', oleh: oleh || 'kades' }), 'EX', 7 * 864e2],
     ['SREM', jenis + ':antre', kode]]);

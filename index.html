@@ -183,7 +183,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .kk-it.eks .eks-tag,.eta.eks .eks-tag{grid-area:tag;justify-self:start;position:static}.kk-it.eks svg,.eta.eks svg{grid-area:svg;width:72px;height:72px}.kk-it.eks>span,.eta.eks>span{grid-area:nm;font-size:15px}.kk-it.eks .kk-ds,.eta.eks .kk-ds{grid-area:ds;font-size:12px}.kk-it.eks>small:not(.kk-ds):not(.eks-ket),.eta.eks>small:not(.kk-ds):not(.eks-ket){grid-area:hh;justify-self:start}.kk-it.eks .eks-ket,.eta.eks .eks-ket{grid-area:ket}
 .kk-it.eks,.eta.eks{border-color:#C99A12;background:linear-gradient(#FFF8DC,#fff);box-shadow:0 0 0 2px rgba(242,194,48,.35)}.eta:hover{border-color:#1C2520}
 @keyframes etaB{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px) rotate(-2deg)}}@media (prefers-reduced-motion:reduce){.eta svg{animation:none}}
-.eta-cta{margin-top:10px}.promo-toko{margin-top:10px;padding:12px;border-radius:14px;background:#FFF6D6;border:1.5px solid #E2C978}.promo-toko p{margin:4px 0}.promo-toko small{display:block;color:var(--muted);margin-bottom:8px}
+.eta-cta{margin-top:10px}.baru-beli{margin-top:10px;padding:10px 12px;border-radius:14px;background:#fff;border:1.5px dashed #E2C978}.baru-beli b{display:block;font-size:13.5px;margin-bottom:4px}.baru-beli p{margin:3px 0;font-size:13.5px;line-height:1.35}.baru-beli small{color:var(--muted)}.promo-toko{margin-top:10px;padding:12px;border-radius:14px;background:#FFF6D6;border:1.5px solid #E2C978}.promo-toko p{margin:4px 0}.promo-toko small{display:block;color:var(--muted);margin-bottom:8px}
 .saldo-pop{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);z-index:90;display:flex;flex-direction:column;gap:2px;padding:12px 18px;border-radius:16px;border:2px solid #1C2520;background:#F2C230;font:inherit;text-align:center;cursor:pointer;box-shadow:0 4px 0 #1C2520;animation:popin .4s ease-out}.saldo-pop b{font-size:15px}.saldo-pop span{font-size:12.5px}@keyframes popin{from{transform:translate(-50%,40px);opacity:0}}
 .kk-baru{margin-top:10px;padding:10px 12px;border-radius:12px;background:#E8F4DF;border:2px solid #2F6B4F;display:flex;flex-direction:column;gap:2px}.kk-baru b{font-size:15px}.kk-baru span{font-size:13px;color:var(--muted)}
 .kk-saldo{display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 10px;border-radius:12px;background:#FFF6D6;font-size:14px}.kk-saldo span{flex:1}.kk-saldo .kk-gico{margin:0}
@@ -1878,7 +1878,14 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       pr.append(el('b',null,tb?'🧱 Rumahmu bisa naik jadi tingkat 2 & 3!':dl?'🛵 Motor & sepeda, pilih warnanya sendiri!':'🛍️ Isi pekaranganmu!'),
         el('p',null,tb?'Rumah tingkat 2 (10 Receh), tingkat 3 (14 Receh), ubah warna (1), bendera emas (2), sampai jadi ruko (20).':dl?'Motor (4 Receh) dan sepeda (2 Receh) dengan 9 pilihan warna. Kamu bisa keliling kampung, lengkap dengan namamu di atasnya!':'Ayam, kucing, kambing, lampu taman, pohon mangga, kolam ikan, ayunan, sampai papan nama dengan namamu.'),
         el('small',null,KK_ON?'Belinya lewat Kartu Komen-mu → Ubah rumah.':'Dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!'));
-      const go=el('button','btn gold3',KK_ON?'🔑 Beli lewat Kartu Komen':'⏳ Segera dibuka');go.type='button';go.onclick=()=>kkBelanja(dl?'item':'rumah');pr.append(go);left.append(pr)}
+      const go=el('button','btn gold3',KK_ON?'🔑 Beli lewat Kartu Komen':'⏳ Segera dibuka');go.type='button';go.onclick=()=>kkBelanja(dl?'item':'rumah');pr.append(go);left.append(pr);
+      // riwayat belanja terbaru di bangunan ini
+      {const KD=['motor','sepeda'],lalu2=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'baru saja':d<3600?Math.round(d/60)+' menit lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hari lalu'};
+       const L=(window.BELANJA||[]).map(o=>{let t='';if(tb){if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2)}
+         else if(dl){if(o.j==='item'){const v=(o.it||[]).filter(id=>KD.includes(id));if(v.length)t=v.map(id=>id==='motor'?'🛵 Motor':'🚲 Sepeda').join(', ')}}
+         else{if(o.j==='warna')t='🎨 Ubah warna';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Jadi ruko';else if(o.j==='item'){const v=(o.it||[]).filter(id=>!KD.includes(id)&&KK_ITEM[id]);if(v.length)t=v.map(id=>KK_ITEM[id].n).join(', ')}}
+         return t?{u:o.u,t,at:o.at}:null}).filter(Boolean).slice(0,5);
+       if(L.length){const bx=el('div','baru-beli');bx.append(el('b',null,'🧾 Baru dibeli di sini'));L.forEach(o=>{const p=el('p');p.append(goRes(o.u),document.createTextNode(' · '+o.t+' · '),el('small',null,lalu2(o.at)));bx.append(p)});left.append(bx)}}}
     else if(b.type!=='tugu'){sf.append(kp);left.append(sf)}
     if(b.type==='tugu'){const row=el('div','top3');supRank().slice(0,3).forEach(o=>{const c=el('span','t3');c.append(MEDAL(o.rank)+' ');const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};c.append(a,el('small',null,` ${fmt(o.g)}🧱`));row.append(c)});left.append(row,el('p','muted','Ranking lengkap & riwayat juragan di Lihat 3D 🏆'))}
     if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}
@@ -2854,7 +2861,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
-  window.ROBOT_OWNER=j.robot||null;try{renderEtalase()}catch(e){}
+  window.ROBOT_OWNER=j.robot||null;window.BELANJA=j.belanja||[];try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);

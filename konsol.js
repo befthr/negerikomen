@@ -72,16 +72,21 @@ function Rank(){const G={t:0,hs:'rank'};if(!RANK&&OPT.rank){RANK='muat';Promise.
 // ---------- 1. ADU PENALTI ----------
 function Penalti(){const G={shot:0,gol:0,max:5,ph:'aim',t:0,ball:{x:W/2,y:400,r:12},tgt:null,kp:{x:W/2,dx:0},kpDir:0,msg:'',hs:'penalti',
   goal:{x:40,y:96,w:280,h:120}};
-  G.tap=(x,y)=>{if(G.ph==='aim'&&y<G.goal.y+G.goal.h+30){G.tgt={x:Math.max(G.goal.x+14,Math.min(G.goal.x+G.goal.w-14,x)),y:Math.max(G.goal.y+14,Math.min(G.goal.y+G.goal.h-10,y))};
-      // kiper nebak: kadang ke arah bola, kadang salah
-      const zone=x<W/2-50?-1:x>W/2+50?1:0,smart=Math.random()<.42;G.kpDir=smart?zone:[-1,0,1][Math.floor(Math.random()*3)];G.ph='fly';G.t=0;SFX.tendang()}
-    else if(G.ph==='hasil'&&G.t>.9){if(G.shot>=G.max){G.ph='end';SFX.habis();catat(G.hs,G.gol)}else reset()}
+  // swipe: tarik dari bawah ke arah gawang. Arah = tujuan, panjang = tinggi, cepat = kiper susah nebak
+  G.tap=(x,y)=>{if(G.ph==='aim'){if(y>G.goal.y+G.goal.h+20)G.sw={x0:x,y0:y,x,y,t0:performance.now(),tr:[[x,y]]};return}
+    if(G.ph==='hasil'&&G.t>.9){if(G.shot>=G.max){G.ph='end';SFX.habis();catat(G.hs,G.gol)}else reset()}
     else if(G.ph==='end')start('penalti')};
-  const reset=()=>{G.ph='aim';G.t=0;G.ball={x:W/2,y:400,r:12};G.kp={x:W/2,dx:0};G.tgt=null;G.msg=''};
+  G.move=(x,y)=>{if(!G.sw)return;G.sw.x=x;G.sw.y=y;G.sw.tr.push([x,y]);if(G.sw.tr.length>14)G.sw.tr.shift()};
+  G.up=()=>{const w=G.sw;G.sw=null;if(!w||G.ph!=='aim')return;const dx=w.x-w.x0,dy=w.y0-w.y,len=Math.hypot(dx,dy);if(dy<40||len<50)return;
+    const ms=Math.max(60,performance.now()-w.t0),g=G.goal,gx=W/2+dx/dy*(400-(g.y+g.h/2))*.9,tinggi=Math.min(1.25,(len-50)/190),gy=g.y+g.h-12-tinggi*(g.h-6);
+    G.tgt={x:gx,y:gy};G.miss=gx<g.x+6?'MELENCENG!':gx>g.x+g.w-6?'MELENCENG!':gy<g.y+4?'KETINGGIAN!':'';
+    const zone=gx<W/2-50?-1:gx>W/2+50?1:0,smart=Math.random()<(ms<170?.3:ms<320?.42:.6);G.kpDir=smart?zone:[-1,0,1][Math.floor(Math.random()*3)];G.ph='fly';G.t=0;SFX.tendang()};
+  const reset=()=>{G.ph='aim';G.sw=null;G.miss='';G.t=0;G.ball={x:W/2,y:400,r:12};G.kp={x:W/2,dx:0};G.tgt=null;G.msg=''};
   G.update=dt=>{G.t+=dt;if(G.ph==='aim'){G.kp.x=W/2+Math.sin(G.t*2.4)*26}
     if(G.ph==='fly'){const u=Math.min(1,G.t/.55);G.ball.x=W/2+(G.tgt.x-W/2)*u;G.ball.y=400+(G.tgt.y-400)*u-Math.sin(u*Math.PI)*40;G.ball.r=12-u*4;
       const kx=W/2+G.kpDir*(G.goal.w/2-36);G.kp.x+= (kx-G.kp.x)*Math.min(1,dt*7);
-      if(u>=1){G.shot++;const dx=Math.abs(G.tgt.x-G.kp.x),reach=G.tgt.y<G.goal.y+30?38:58;const saved=dx<reach;if(saved){G.msg='DITEPIS!';SFX.tepis()}else{G.gol++;G.msg='GOOOL!';SFX.gol()}G.ph='hasil';G.t=0}}};
+      if(u>=1&&G.miss){G.shot++;G.msg=G.miss;SFX.tepis();G.ph='hasil';G.t=0}
+      else if(u>=1){G.shot++;const dx=Math.abs(G.tgt.x-G.kp.x),reach=G.tgt.y<G.goal.y+30?38:58;const saved=dx<reach;if(saved){G.msg='DITEPIS!';SFX.tepis()}else{G.gol++;G.msg='GOOOL!';SFX.gol()}G.ph='hasil';G.t=0}}};
   G.draw=t=>{ctx.fillStyle='#7FB65A';ctx.fillRect(0,0,W,H);for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#76AD52':'#86BD60';ctx.fillRect(0,230+i*32,W,32)}
     ctx.fillStyle='#5E8FB8';ctx.fillRect(0,0,W,72);for(let i=0;i<24;i++){circ(10+i*15,60+(i%3)*6,8,['#F2C230','#E2453C','#fff','#3E8FC9'][i%4])} // penonton
     const g=G.goal;ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1;for(let x=g.x;x<=g.x+g.w;x+=14){ctx.beginPath();ctx.moveTo(x,g.y);ctx.lineTo(x,g.y+g.h);ctx.stroke()}for(let y=g.y;y<=g.y+g.h;y+=14){ctx.beginPath();ctx.moveTo(g.x,y);ctx.lineTo(g.x+g.w,y);ctx.stroke()}
@@ -91,7 +96,8 @@ function Penalti(){const G={shot:0,gol:0,max:5,ph:'aim',t:0,ball:{x:W/2,y:400,r:
     const kx=G.kp.x,ky=g.y+g.h-34,dive=G.ph!=='aim'?G.kpDir:0;ctx.save();ctx.translate(kx,ky);ctx.rotate(dive*.7*Math.min(1,G.ph==='fly'?G.t/.4:1));rr(-16,-26,32,44,10,'#E2A21B',INK);circ(0,-38,13,'#F1C9A0',INK);rr(-34,-22,18,10,5,'#2E9C6A',INK);rr(16,-22,18,10,5,'#2E9C6A',INK);rr(-14,18,11,18,4,INK);rr(3,18,11,18,4,INK);ctx.restore();
     // bola
     if(G.ph!=='end'){circ(G.ball.x,G.ball.y+6,G.ball.r*.9,'rgba(0,0,0,.18)');circ(G.ball.x,G.ball.y,G.ball.r,'#fff',INK,2.5);circ(G.ball.x,G.ball.y,G.ball.r*.38,INK)}
-    if(G.ph==='aim'){txt('Ketuk gawang buat nendang!',W/2,446,15,'#fff');ctx.globalAlpha=.6+.4*Math.sin(t*6);txt('👆',W/2+90,350,30,'#fff','center',400,null);ctx.globalAlpha=1}
+    if(G.ph==='aim'&&G.sw&&G.sw.tr.length>1){ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=6;ctx.lineCap='round';ctx.beginPath();G.sw.tr.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.lineCap='butt'}
+    if(G.ph==='aim'&&!G.sw){txt('Swipe ke atas buat nendang!',W/2,446,15,'#fff');const k=(t*.9)%1;ctx.globalAlpha=Math.sin(k*Math.PI);txt('👆',W/2+70-k*30,430-k*110,30,'#fff','center',400,null);ctx.globalAlpha=1;txt('Panjang = tinggi · cepat = kencang',W/2,466,11,'rgba(255,255,255,.8)','center',600,null)}
     txt(`⚽ ${G.gol}/${G.shot}`,16,26,18,'#fff','left');txt(`Tendangan ${Math.min(G.shot+1,G.max)} dari ${G.max}`,W-14,26,13,'#fff','right',700);
     if(G.ph==='hasil'){txt(G.msg,W/2,300,44,G.msg[0]==='G'?KUNING:'#fff');if(G.t>.9)txt('ketuk buat lanjut',W/2,446,13,'#fff','center',700)}
     if(G.ph==='end')endCard(`${G.gol} gol dari ${G.max}`,G.gol>=4?'Jago banget! 🏆':G.gol>=2?'Lumayan! Coba lagi 💪':'Kipernya lagi on fire 😅',lsGet(G.hs))};

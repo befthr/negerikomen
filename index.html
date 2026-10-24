@@ -2573,7 +2573,7 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
   if(i>=0&&c.saldoBaru){const nb=el('div','kk-baru');const hadiah=(c.saldoBaru.ket||[]).includes('hadiah pendukung lama'),ufo=(c.saldoBaru.ket||[]).some(k=>/^hadiah UFO/.test(k));
-    nb.append(el('b',null,`🎉 +${c.saldoBaru.n} Receh masuk ke Recehan-mu!`),el('span',null,hadiah?'Hadiah terima kasih untuk pendukung lama. Pakai belanja di Toko Pak Kades ya!':ufo?'Hadiah karena kamu menemukan UFO Nyasar 🛸':'Dari traktiranmu. Makasih udah bantu bangun kampung! Recehan-nya bisa langsung dipakai belanja.'));
+    nb.append(el('b',null,`🎉 +${c.saldoBaru.n} Receh masuk ke Recehan-mu!`),el('span',null,hadiah?'Hadiah terima kasih untuk pendukung lama. Pakai belanja di Toko Pak Kades ya!':ufo?'Hadiah karena kamu menemukan UFO Nyasar 🛸':(c.saldoBaru.ket||[]).some(k=>/^hadiah: /.test(k))?'🎁 Hadiah dari kepala desa: '+(c.saldoBaru.ket.find(k=>/^hadiah: /.test(k))||'').slice(8)+'. Makasih ya!':'Dari traktiranmu. Makasih udah bantu bangun kampung! Recehan-nya bisa langsung dipakai belanja.'));
     body.append(nb);kkApi('saldo-lihat',{},true);try{SND.play('ting',.7)}catch(_){}}
   if(i>=0&&!c.admin){const sw=el('div','kk-saldo');const im=el('img','kk-gico');im.src='receh.svg';im.alt='';const tx=el('span');tx.append('Recehan: ',el('b',null,fmt(c.saldo||0)+' Receh'));
     sw.append(im,tx,kkBtn('+ Isi Recehan','sm',()=>kkIsiSaldo(body,c)));body.append(sw)}
@@ -2665,6 +2665,10 @@ function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'💼 
     if(QUEST){const uf=el('div');w.append(el('p','kk-sub','🛸 Penemu UFO'),uf);const isi=async()=>{const r=await kkApi('ufo-daftar',{},true);uf.innerHTML='';if(!r.ok){uf.append(el('p','kk-muted',r.error||'Gagal'));return}
       if(!r.daftar.length){uf.append(el('p','kk-muted',`Belum ada. Quest ${QUEST.tanggal||''} ${QUEST.start}–${QUEST.end} WIB.`));return}
       uf.append(el('p','kk-muted',r.daftar.map((x,i)=>`${i===0?'🥇':(i+1)+'.'} @${x.u} · ${new Date(x.at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`).join('\n')));uf.lastChild.style.whiteSpace='pre-line'};isi();w.append(kkBtn('Muat ulang penemu','sm',isi))}
+    {const hb=el('div');hb.append(el('p','kk-sub','🎁 Kasih hadiah Receh'),el('p','kk-muted','Buat warga yang berjasa (lapor akun palsu, bantu kampung, dll). Tidak masuk daftar Pendukung.'));
+      const iu=el('input');iu.placeholder='@username warga';const inn=el('input');inn.type='number';inn.min=1;inn.max=50;inn.value=2;inn.style.width='70px';const ia=el('input');ia.placeholder='Alasan, mis. lapor akun TikTok palsu';ia.maxLength=60;
+      const row=el('div','kk-row');row.append(iu,inn);hb.append(row,ia,kkBtn('🎁 Kirim hadiah','sm dark',async e=>{const t=iu.value.trim().replace(/^@/,'');if(!t){toast('Isi username dulu');return}e.target.disabled=true;
+        const r=await kkApi('hadiah',{target:t,n:+inn.value||1,alasan:ia.value},true);e.target.disabled=false;toast(r.ok?`🎁 +${+inn.value||1} Receh terkirim ke @${r.u} (sekarang ${r.saldo})`:(r.error||'Gagal'));if(r.ok){iu.value='';ia.value=''}}));w.append(hb)}
     const tw=el('div');w.append(el('p','kk-sub','💸 Traktiran tanpa kode'),el('p','kk-muted','Traktiran tanpa kode pesanan, tanpa @username warga, dan tanpa kode dompet. Kalau tahu siapa orangnya, masukkan ke Recehan-nya.'),tw);kkTanpaKode(tw);
     body.append(w);kkAntre(box)}
 async function kkTanpaKode(tw){tw.innerHTML='';const res=await kkApi('tanpa-kode',{},true);if(!res.ok){tw.append(el('p','kk-muted',res.error||'Gagal memuat'));return}

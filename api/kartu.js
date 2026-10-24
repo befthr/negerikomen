@@ -423,6 +423,15 @@ export default async function handler(req, res) {
       await kvMany(staf.flatMap(u => [['HINCRBY', 'saldo', u, bayar.get(u)], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at, n: bayar.get(u), ket: 'gaji' })], ['LTRIM', 'saldo:log:' + u, 0, 49]]));
       return res.status(200).json({ ok: true, staf, rincian: Object.fromEntries(bayar), total: totalGaji });
     }
+    if (aksi === 'hadiah') { // hadiah Receh dari kades (bukan traktiran: tidak masuk daftar Pendukung)
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const t = cleanU(body.target), n = Math.floor(+body.n), why = String(body.alasan || '').replace(/[<>]/g, '').trim().slice(0, 60) || 'hadiah dari kepala desa';
+      if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
+      if (!(n >= 1 && n <= 50)) return res.status(400).json({ error: 'Jumlah Receh 1–50' });
+      const saldo = await kv(['HINCRBY', 'saldo', t, n]);
+      await kvMany([['LPUSH', 'saldo:log:' + t, JSON.stringify({ at: Date.now(), n, ket: 'hadiah: ' + why })], ['LTRIM', 'saldo:log:' + t, 0, 49], ['LPUSH', 'hadiah:log', JSON.stringify({ u: t, n, why, at: Date.now() })], ['LTRIM', 'hadiah:log', 0, 99]]);
+      return res.status(200).json({ ok: true, u: t, saldo: +saldo || n });
+    }
     if (aksi === 'tambah-saldo') {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const t = cleanU(body.target), n = Math.floor(+body.n);

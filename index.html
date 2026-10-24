@@ -3054,7 +3054,8 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   for(let i=hills.length-1;i>=0;i--){const h=hills[i];if(h.x-h.r<K.x1+T*4)h.x=K.x1+T*4+h.r;if(h.x-h.r<K.x1+T*4)hills.splice(i,1)}
   hills.sort((a,b)=>a.y-b.y);
   const trees=[];const ok=(x,y)=>!(Math.hypot((x-wd.x)/(wd.rx+T),(y-wd.y)/(wd.ry+T))<1);
-  for(let i=0;i<900;i++){const x=F.x0+R()*(F.x1-F.x0),y=F.y0+R()*(F.y1-F.y0);trees.push({x,y,s:1+R()*.6,k:R()<.5})}
+  {const cx=(F.x0+F.x1)/2,cy2=(F.y0+F.y1)/2,rx=(F.x1-F.x0)/2,ry=(F.y1-F.y0)/2;for(let i=0;i<1300;i++){const x=F.x0-T*4+R()*(F.x1-F.x0+T*8),y=F.y0-T*4+R()*(F.y1-F.y0+T*8);const a=Math.atan2((y-cy2)/ry,(x-cx)/rx),d=Math.hypot((x-cx)/rx,(y-cy2)/ry),lim=.95+.12*Math.sin(a*3+1)+.08*Math.sin(a*7)+.05*Math.sin(a*13);
+    if(d<lim*(R()<.15?1.15:1)&&x<K.x0-T*1.5)trees.push({x,y,s:1+R()*.6,k:R()<.5})}}
   for(let i=0;i<500;i++){const x=M.x0+R()*(M.x1-M.x0),y=M.y1-T*4+R()*T*7;trees.push({x,y,s:1+R()*.5,k:R()<.7})}
   for(let i=0;i<420;i++){const x=E.x0+R()*ew,y=E.y0+R()*eh;const tepi=x>E.x1-ew*.12||y<E.y0+eh*.12||y>E.y1-eh*.1;if(tepi&&ok(x,y))trees.push({x,y,s:1+R()*.5,k:R()<.5})}
   const jalanY=jy;const gate={x:E.x0+T*2,y:jalanY};
@@ -3072,8 +3073,11 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   for(let i=0;i<700;i++){const x=E.x0+R()*ew,y=E.y0+R()*eh;if(kos(x,y))trees.push({x,y,s:.9+R()*.6,k:R()<.45})}
   DESA={K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
 function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {E,M,F,wd}=D;
-  const blob=(x0,y0,x1,y1,col)=>{ctx.fillStyle=col;ctx.fillRect(x0,y0,x1-x0,y1-y0)};
-  blob(E.x0-T*2,E.y0,E.x1+T*4,E.y1+T*8,'#9CC85E');blob(F.x0-T*4,F.y0,F.x1,F.y1+T*4,'#8DBE58');blob(M.x0-T*4,M.y0-T*4,M.x1+T*2,M.y1+T*2,'#7FAE4F');
+  // wilayah alami: tepi bergelombang (superelips + noise) dan berbulu, bukan kotak
+  const blob=(x0,y0,x1,y1,col)=>{const cx=(x0+x1)/2,cy=(y0+y1)/2,rx=(x1-x0)/2,ry=(y1-y0)/2;const sh=(g,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();for(let i=0;i<=120;i++){const t=i/120*6.2832,c=Math.cos(t),s2=Math.sin(t);
+      const n=1+.1*Math.sin(t*3+cx*.003)+.07*Math.sin(t*7+cy*.002)+.04*Math.sin(t*13)+.02*Math.sin(t*29);const px=cx+Math.sign(c)*Math.pow(Math.abs(c),.75)*rx*n*g,py=cy+Math.sign(s2)*Math.pow(Math.abs(s2),.75)*ry*n*g;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill()};
+    sh(1.06,.25);sh(1.02,.45);sh(.97,.9);ctx.globalAlpha=1};
+  blob(E.x0-T*4,E.y0-T*2,E.x1+T*6,E.y1+T*10,'#A3C962');blob(F.x0-T*6,F.y0-T*2,F.x1+T*2,F.y1+T*6,'#97C25C');blob(M.x0-T*8,M.y0-T*6,M.x1+T*6,M.y1+T*6,'#8CBA56');
   // pegunungan (kontur dari atas)
   // tiap gunung: bayangan jatuh ke tanah (kanan bawah), lapisan kontur bergeser ke kiri-atas (cahaya dari barat laut), sisi gelap di tenggara, punggungan & salju di puncak
   const LT=['#4E8040','#5E9049','#6FA054','#86B060','#A8AE8E','#C8C6B6','#ECECE2','#FFFFFF'],DK=['#2F5428','#3A6230','#456E37','#57793F','#7C7D6A','#9A9888','#C6C4B8','#E2E2DA'];

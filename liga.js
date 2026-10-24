@@ -66,14 +66,14 @@ const FORM=[[.5,.95],[.15,.78],[.38,.8],[.62,.8],[.85,.78],[.2,.6],[.42,.62],[.5
 function bolaDi(L,m){const s=(k,a)=>Math.sin(m*a+L.ph[k]);let x=.5+.32*s(0,.21)+.1*s(1,.67),y=.5+.3*s(2,.17)+.1*s(3,.53);
   for(const g of L.gol){const dt=g.m-m;if(dt>=0&&dt<1.6){const u=1-dt/1.6;const gy=g.t===0?-.02:1.02;x=x+(.5-x)*u;y=y+(gy-y)*u*u}else if(dt<0&&dt>-1.2){return {x:.5,y:g.t===0?-.03:1.03,net:true}}else if(dt<=-1.2&&dt>-2){const u=(-dt-1.2)/.8;return {x:.5,y:(g.t===0?-.03:1.03)*(1-u)+.5*u}}}
   return {x:Math.max(.04,Math.min(.96,x)),y:Math.max(.03,Math.min(.97,y))}}
-function draw(t){const st=status(),malam=(((now()+252e5)%864e5)/36e5)>=18;
+function draw(t){const st=status(),jamN=((now()+252e5)%864e5)/36e5,malam=jamN>=18||jamN<5.5,sepi=!st.main&&(jamN>=21||jamN<6);
   ctx.fillStyle='#2F5E3A';ctx.fillRect(0,0,W,H);
   // penonton
   for(let i=0;i<26;i++){const c=['#F2C230','#E58AA6','#8E5AA8','#F4EFE3','#2F9E6A','#E07A3E','#3E8FC9'][i%7];const hop=st.main&&lastEv&&(t*8+i)%6<1?2:0;orang(14+i*12.8,FY-14-hop,c,4.5);orang(14+i*12.8,FY+FH+14-hop,['#3E8FC9','#F2C230','#C4402F','#F4EFE3'][i%4],4.5)}
   for(let i=0;i<10;i++){ctx.fillStyle=i%2?'#5DAA55':'#54A04D';ctx.fillRect(FX,FY+i*FH/10,FW,FH/10)}
   ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(FX+4,FY+4,FW-8,FH-8);ctx.beginPath();ctx.moveTo(FX+4,FY+FH/2);ctx.lineTo(FX+FW-4,FY+FH/2);ctx.stroke();ctx.beginPath();ctx.arc(W/2,FY+FH/2,36,0,7);ctx.stroke();
   ctx.strokeRect(W/2-60,FY+4,120,50);ctx.strokeRect(W/2-60,FY+FH-54,120,50);ctx.fillStyle='#fff';ctx.fillRect(W/2-26,FY-2,52,6);ctx.fillRect(W/2-26,FY+FH-4,52,6);
-  if(malam){ctx.fillStyle='rgba(10,20,50,.35)';ctx.fillRect(0,0,W,H);[[FX-6,FY-6],[FX+FW+6,FY-6],[FX-6,FY+FH+6],[FX+FW+6,FY+FH+6]].forEach(([x,y])=>{const g=ctx.createRadialGradient(x,y,2,x,y,160);g.addColorStop(0,'rgba(255,245,200,.55)');g.addColorStop(1,'rgba(255,245,200,0)');ctx.fillStyle=g;ctx.fillRect(x-160,y-160,320,320);ctx.fillStyle='#ddd';ctx.fillRect(x-4,y-4,8,8)})}
+  if(malam&&sepi){ctx.fillStyle='rgba(8,14,36,.55)';ctx.fillRect(0,0,W,H)}else if(malam){ctx.fillStyle='rgba(10,20,50,.35)';ctx.fillRect(0,0,W,H);[[FX-6,FY-6],[FX+FW+6,FY-6],[FX-6,FY+FH+6],[FX+FW+6,FY+FH+6]].forEach(([x,y])=>{const g=ctx.createRadialGradient(x,y,2,x,y,160);g.addColorStop(0,'rgba(255,245,200,.55)');g.addColorStop(1,'rgba(255,245,200,0)');ctx.fillStyle=g;ctx.fillRect(x-160,y-160,320,320);ctx.fillStyle='#ddd';ctx.fillRect(x-4,y-4,8,8)})}
   const P=(x,y)=>[FX+x*FW,FY+y*FH];
   if(st.main){const L=laga(st.d,st.s),m=st.menit,b=bolaDi(L,m);
     // pemain mengikuti bola dari posisi formasi; yang terdekat mengejar
@@ -91,8 +91,8 @@ function draw(t){const st=status(),malam=(((now()+252e5)%864e5)/36e5)>=18;
     const lg=L.gol.filter(g=>g.m<=m);txt(lg.length?'⚽ '+lg.map(g=>'@'+g.n+" "+Math.floor(g.m)+"'").join(' · '):'Belum ada gol',W/2,H-28,10,'#fff','center',600)}
   else{rr(10,8,W-20,46,10,INK);if(st.s>=0){const L=laga(st.d,st.s);txt('Laga berikutnya '+String(JAM[st.s]).padStart(2,'0')+'.00',W/2,20,11,'#9effa0');txt(`${TIM[L.A].nama}  vs  ${TIM[L.B].nama}`,W/2,40,14,KUNING)}
     else{txt('Laga hari ini selesai',W/2,22,12,'#9effa0');txt('Besok mulai 13.00',W/2,40,14,KUNING)}
-    pemain(ctx,W/2-30,FY+FH/2+60,'#E07A3E','',null,.8,t*10);pemain(ctx,W/2+10,FY+FH/2+40,'#8E5AA8','',null,.8,t*10+2);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(W/2-8+Math.sin(t*2)*14,FY+FH/2+52,4,0,7);ctx.fill();
-    txt('Lapangan sepi · anak-anak main sendiri',W/2,H-28,10,'#ffffffcc','center',600)}
+    if(!sepi){pemain(ctx,W/2-30,FY+FH/2+60,'#E07A3E','',null,.8,t*10);pemain(ctx,W/2+10,FY+FH/2+40,'#8E5AA8','',null,.8,t*10+2);}ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(W/2-8+(sepi?0:Math.sin(t*2)*14),FY+FH/2+52,4,0,7);ctx.fill();
+    txt(sepi?'Lapangan tutup · warga sudah tidur 😴':'Lapangan sepi · anak-anak main sendiri',W/2,H-28,10,'#ffffffcc','center',600)}
   const jam=new Date(now()+252e5);txt('🕒 '+String(jam.getUTCHours()).padStart(2,'0')+'.'+String(jam.getUTCMinutes()).padStart(2,'0')+' WIB'+(OPT.qa&&speed>1?` · ⏩ x${speed}`:''),W/2,H-10,10,'#ffffffaa','center',600)}
 // ---------- panel bawah: jadwal & klasemen ----------
 let panel,pk=0,tab='jadwal';function isiPanel(){if(!panel)return;const st=status(),d=hariKe(now());panel.innerHTML='';

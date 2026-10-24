@@ -88,8 +88,8 @@ const MAKS_PAJANG = 3;
 const VWARNA = ['merah', 'biru', 'hijau', 'kuning', 'hitam', 'putih', 'pink', 'ungu', 'oranye']; // warna motor & sepeda
 const ULANG = ['papan', 'motor', 'sepeda']; // boleh dibeli lagi untuk ganti tulisan/warna
 const okTeks = t => /^[\p{L}\p{N} .,'!&\-]{1,20}$/u.test(t);
-// masa simpan pesanan (termasuk cicilan bendera emas): 14 hari
-const EXP = j => ['EX', 14 * 864e2];
+// pesanan yang menunggu disimpan tanpa batas waktu (boleh dicicil kapan saja); selesai/batal tetap dibersihkan
+const EXP = j => [];
 async function simpanStatus(jenis, kode, status) {
   const v = jparse(await kv(['GET', jenis + ':req:' + kode]));
   if (v && v.status === 'menunggu') await kv(['SET', jenis + ':req:' + kode, JSON.stringify({ ...v, status, ubah: Date.now() }), ...EXP(jenis)]);
@@ -489,6 +489,7 @@ export default async function handler(req, res) {
         if (!kodes.length) continue;
         const vals = await kvMany(kodes.map(k => ['GET', j + ':req:' + k]));
         kodes.forEach((k, i) => { const v = jparse(vals[i]); if (v && v.status === 'menunggu') out.push({ kode: k, jenis: j, ...v }); });
+        const tetap = out.filter(o => o.jenis === j); if (tetap.length) await kvMany(tetap.flatMap(o => [['PERSIST', j + ':req:' + o.kode], ['PERSIST', j + ':user:' + o.u]]));
         const basi = kodes.filter((k, i) => !jparse(vals[i])); if (basi.length) await kv(['SREM', j + ':antre', ...basi]);
       }
       out.sort((a, b) => a.at - b.at);
@@ -522,7 +523,7 @@ export default async function handler(req, res) {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const kode = String(body.kode || '').trim().toUpperCase(), jenis = Object.keys(JENIS).find(j => kode.startsWith(JENIS[j].awal + '-'));
       const v = jenis && jparse(await kv(['GET', jenis + ':req:' + kode]));
-      if (!v) return res.status(404).json({ error: 'Kode ' + kode + ' tidak ditemukan (salah ketik, atau sudah lebih dari 14 hari).' });
+      if (!v) return res.status(404).json({ error: 'Kode ' + kode + ' tidak ditemukan (salah ketik, atau pesanan sudah lama dibatalkan).' });
       return res.status(200).json({ pesanan: { kode, jenis, ...v } });
     }
     if (aksi === 'konfirmasi-warna' || aksi === 'konfirmasi-ubah') {

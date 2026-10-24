@@ -2842,7 +2842,7 @@ function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',.
       w.querySelector('.kk-kode').onclick=()=>kkSalin(p.kode);body.append(w);return}
     {const H=p.harga||1,B=+p.bayar||0,K=H-B;w.append(el('b',null,`⏳ ${KK_JENIS[j].ic} ${KK_JENIS[j].n} menunggu pembayaran`),el('div','kk-kode',p.kode));
       if(H>1){const bar=el('div','kk-bayar'),f=el('i');f.style.width=Math.max(3,B/H*100)+'%';bar.append(f);w.append(bar,el('small','kk-bayar-l',`Sudah masuk ${B}/${H} · kurang ${K}`))}
-      w.append(el('p','kk-muted',`${kkPesanTeks({jenis:j,...p})}. Bayar ${B?'sisanya ':''}pakai Recehan, atau traktir ${K} Genteng di Trakteer dan tulis kode pesanan ini di pesan traktiran.`+(H>1?' Boleh dicicil dengan kode yang sama dalam 14 hari.':'')+(c.saldo>0&&c.saldo<K?` Recehan-mu ${c.saldo}, belum cukup buat sisanya.`:'')))}
+      w.append(el('p','kk-muted',`${kkPesanTeks({jenis:j,...p})}. Bayar ${B?'sisanya ':''}pakai Recehan, atau traktir ${K} Genteng di Trakteer dan tulis kode pesanan ini di pesan traktiran.`+(H>1?' Boleh dicicil kapan saja dengan kode yang sama, nggak ada batas waktu.':'')+(c.saldo>0&&c.saldo<K?` Recehan-mu ${c.saldo}, belum cukup buat sisanya.`:'')))}
     w.querySelector('.kk-kode').onclick=()=>kkSalin(p.kode);
     const row=el('div','kk-row');const a=el('a','btn gold3','Buka Trakteer');a.href=kkLinkJenis(j);a.target='_blank';a.rel='noopener';row.append(a,kkBtn('📋 Salin kode pesanan','',()=>kkSalin(p.kode)));
     {const bs=kkBayarSaldo(body,c,{...p,jenis:j});if(bs)row.prepend(bs)}

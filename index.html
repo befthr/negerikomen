@@ -2594,7 +2594,7 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   lk.append(a1,el('span',null,'·'),a2);body.append(lk)}
 /* ---- Ganti warna rumah (traktir 1 Genteng, dikonfirmasi kades) ---- */
 const KK_WARNA=['merah','merah muda','oranye','terakota','kuning','emas','hijau','hijau muda','tosca','biru muda','biru','navy','ungu','ungu muda','marun','coklat','krem','putih','abu-abu','hitam'];
-function kkExtra(u,ex){const i=kkResIdx(u);if(i<0||!ex||!ex.length)return;const r=RES[i];if(!r._dataHist)r._dataHist=Array.isArray(r.history)?r.history:[];
+function kkExtra(u,ex){const i=kkResIdx(u);if(i<0||!ex||!ex.length)return;ex=ex.map(e=>e&&typeof e.note==='string'?Object.assign({},e,{note:e.note.replace('(traktir 1 Genteng)','(1 Receh)')}):e);const r=RES[i];if(!r._dataHist)r._dataHist=Array.isArray(r.history)?r.history:[];
   r.history=[...r._dataHist,...ex.map(e=>({...e,x:1}))];kkPakaiLokal(i,histOf(r).length-1)}
 const kkNamaWarna=w=>/^#/.test(w||'')?w.toUpperCase():(w||'acak');
 function kkTrakteerUrl(){const u=D.trakteer&&D.trakteer.url;return u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u)?u:'https://trakteer.id/negerikomen'}

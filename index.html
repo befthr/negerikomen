@@ -139,6 +139,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .loker.flash{animation:flash 1.2s ease 2}
 .loker h3{color:#8A6A10}
 .loker-l{margin:-4px 0 6px;font-size:14px}
+.jtabs{display:flex;gap:6px;margin:4px 0 8px;overflow-x:auto;scrollbar-width:none}.jtabs::-webkit-scrollbar{display:none}.jtabs button{flex:none;font:700 12.5px var(--f-body,inherit);padding:6px 11px;border-radius:999px;border:1.5px solid #D9C98F;background:#fff;color:#6B6455;cursor:pointer}.jtabs button.on{background:#1C2520;border-color:#1C2520;color:#F2C230}.jtabs button i{font-style:normal;opacity:.7;margin-left:3px}.jempty{padding:16px 2px;font-size:13.5px;color:var(--muted);text-align:center}
 .jobs{border-top:1.5px dashed #D9C98F;max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .jobs::-webkit-scrollbar{width:6px}.jobs::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 .job{border-bottom:1.5px dashed #D9C98F}
@@ -1588,7 +1589,13 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
     const a=el('a','btn dark','Lamar via DM Instagram');a.href='https://ig.me/m/negerikomen';a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else if(ok){const a=el('a','btn dark','Lamar sekarang');a.href=j.url.trim();a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran lewat DM dibuka sebentar lagi.'))}
-  d.append(bd);$('jobs').append(d)});
+  d.dataset.st=closed?'tutup':(ok||dm)?'aktif':'segera';d.append(bd);$('jobs').append(d)});
+{const box=$('jobs'),tb=el('div','jtabs'),em=el('p','jempty','');em.hidden=true;box.append(em);
+  const T=[['semua','Semua'],['aktif','Aktif'],['segera','Segera'],['tutup','Tutup']],N=k=>k==='semua'?JOBS.length:box.querySelectorAll('.job[data-st="'+k+'"]').length;
+  const pilih=k=>{tb.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));let n=0;box.querySelectorAll('.job').forEach(d=>{const v=k==='semua'||d.dataset.st===k;d.hidden=!v;if(v)n++});
+    em.hidden=!!n;em.textContent=k==='aktif'?'Belum ada lowongan yang dibuka. Pantau story @negerikomen!':k==='segera'?'Belum ada lowongan baru. Tunggu kabar dari Pak Kades!':'Belum ada lowongan yang ditutup.';box.scrollTop=0};
+  T.forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.append(el('i',null,String(N(k))));b.onclick=()=>pilih(k);tb.append(b)});
+  box.before(tb);pilih('semua')}
 {const L=RES.map((r,i)=>({r,i})).filter(o=>NK.jobOn(o.r));if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`Tukang Proyek (${fmt(L.length)})`;
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.append(helm(),document.createTextNode('@'+r.name));b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}
 

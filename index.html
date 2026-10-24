@@ -3045,12 +3045,13 @@ function bukaLiga(qa){muatLiga().then(()=>window.LIGA.open({qa,tim:LIGA_TIM()}))
 let STQA=/^#(stadion|desa)-qa$/.test(location.hash);const STD={x:0,y:0,w:T*11,h:T*7};
 /* ---- QA desa baru (konsep): pegunungan utara, hutan barat, desa baru di timur dengan waduk, sungai, air terjun, sawah terasering, gerbang ---- */
 let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,kh=K.y1-K.y0,cy=(K.y0+K.y1)/2;let sd=9;const R=()=>(sd=(sd*16807)%2147483647)/2147483647;
-  const E={x0:K.x1+T*4,x1:K.x1+T*4+kw*.95,y0:K.y0-kh*.2,y1:K.y1+kh*.3};const M={x0:K.x0-kw*.5,x1:E.x1+T*10,y0:K.y0-kh*.95,y1:K.y0-T*3};const F={x0:K.x0-kw*.45,x1:K.x0-T*3,y0:K.y0-T*3,y1:K.y1+kh*.3};
+  const E={x0:K.x1+T*4,x1:K.x1+T*4+kw*.95,y0:K.y0-kh*.2,y1:K.y1+kh*.3};const M={x0:K.x1+T*6,x1:E.x1+T*12,y0:K.y0-kh*.95,y1:K.y0+T*2};const F={x0:K.x0-kw*.45,x1:K.x0-T*3,y0:K.y0-T*3,y1:K.y1+kh*.3};
   const ew=E.x1-E.x0,eh=E.y1-E.y0,jy=cy+T*.5;const wd={x:E.x0+ew*.72,y:jy+eh*.24,rx:ew*.2,ry:eh*.13};
   // pegunungan berlapis: barisan belakang besar & tinggi, barisan depan lebih kecil; plus bukit di tepi timur & barat
   const hills=[];for(let row=0;row<4;row++){const yy=M.y0+(M.y1-M.y0)*(.18+row*.24);for(let x=M.x0+T*(4+row*5);x<M.x1;x+=T*(9+R()*7))hills.push({x:x+R()*T*4,y:yy+R()*T*5,r:T*(row===0?15:row===1?12:row===2?10:7)*(.8+R()*.45),h:row===0?1:row===1?.85:row===2?.7:.5})}
   for(let i=0;i<9;i++)hills.push({x:E.x1+T*(3+R()*6),y:E.y0+i*(eh/8),r:T*(7+R()*5),h:.6+R()*.3});
-  for(let i=0;i<6;i++)hills.push({x:F.x0+T*(2+R()*8),y:F.y0+T*6+i*((F.y1-F.y0)/6),r:T*(6+R()*4),h:.5+R()*.3});
+  // jangan sampai gunung menimpa kampung lama
+  for(let i=hills.length-1;i>=0;i--){const h=hills[i];if(h.x-h.r<K.x1+T*4)h.x=K.x1+T*4+h.r;if(h.x-h.r<K.x1+T*4)hills.splice(i,1)}
   hills.sort((a,b)=>a.y-b.y);
   const trees=[];const ok=(x,y)=>!(Math.hypot((x-wd.x)/(wd.rx+T),(y-wd.y)/(wd.ry+T))<1);
   for(let i=0;i<900;i++){const x=F.x0+R()*(F.x1-F.x0),y=F.y0+R()*(F.y1-F.y0);trees.push({x,y,s:1+R()*.6,k:R()<.5})}

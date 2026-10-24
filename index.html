@@ -106,7 +106,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .legend .lf{width:3px;height:14px;background:#5A4A3A;position:relative;margin-right:9px}
 .legend .lf::after{content:'';position:absolute;left:3px;top:0;border-left:10px solid #F2C230;border-top:4px solid transparent;border-bottom:4px solid transparent}
 .legend .la{width:16px;height:8px;background:repeating-linear-gradient(90deg,#2E8B6A 0 4px,#FFFDF6 4px 8px);border:1px solid var(--ink);border-radius:0 0 5px 5px}
-@media (max-width:520px){.legend{top:auto;bottom:84px;right:auto;left:10px;font-size:10.5px;padding:4px 7px;gap:2px}.maptag{left:8px;top:8px;gap:4px}.maptag span{font-size:10.5px;padding:4px 8px}}
+.lgbtn{display:none}@media (max-width:520px){.lgbtn{display:flex;position:absolute;left:10px;bottom:84px;width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);background:#fff;color:var(--ink);font-weight:800;font-size:17px;align-items:center;justify-content:center;box-shadow:0 3px 0 var(--ink);z-index:3}.legend{display:none;top:auto;bottom:126px;right:auto;left:10px;font-size:11px;padding:6px 9px;gap:3px}.legend.open{display:flex}.maptag{left:8px;top:8px;gap:4px}.maptag span{font-size:10.5px;padding:4px 8px}}
 .hint{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 80px);background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font-size:12.5px;color:var(--muted);pointer-events:none}
 .side{display:flex;flex-direction:column;gap:14px;min-width:0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
@@ -336,7 +336,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="mapbox">
         <canvas id="map" role="img" aria-label="Peta kampung Negeri Komen"></canvas>
         <div class="maptag"><span id="tagDay">Hari ke-1</span><span class="y" id="tagWarga">1 warga</span></div>
-        <div class="legend" aria-label="Keterangan peta"><span><i class="lf"></i>Bendera emas = pendukung</span><span><i class="la"></i>Ruko = toko warga</span></div>
+        <button type="button" class="lgbtn" id="lgbtn" aria-label="Keterangan peta">ⓘ</button><div class="legend" id="legend" aria-label="Keterangan peta"><span><i class="lf"></i>Bendera emas = pendukung</span><span><i class="la"></i>Ruko = toko warga</span><span>🪧 Plang di rumah = karyawan</span><span>🪧 Plang besar = nama dusun</span><span>🤖 GENTO = robot eksklusif</span><span>🛸 UFO = muncul saat quest</span></div>
         <div class="hint" id="hint">Geser untuk jelajah · cubit atau scroll untuk zoom · ketuk rumah</div>
         <div class="zoom">
           <button type="button" id="snd" class="snd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button>
@@ -426,8 +426,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       </div>
 
       <div class="card okb" id="okb" hidden>
-        <h3 id="okbTitle">🏆 Orang Kaya Baru</h3>
-        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Warga yang rumahnya berubah berkat traktiran Genteng 🧱</p>
+        <h3 id="okbTitle">🛒 Belanja terbaru di kampung</h3>
+        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Belanja pakai Recehan di Toko Pak Kades, Dealer &amp; TB. Ketuk buat lihat rumahnya 👀</p>
         <ul class="blist" id="okbList"></ul>
       </div>
 
@@ -1596,12 +1596,16 @@ if(AWARDS.length){$('award').hidden=false;
     if(a.note)bt.append(el('span',null,a.note));
     if(i>=0)bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('awardList').append(li)})}
 
-/* orang kaya baru: pemenang rumah custom */
-{const L=RES.map((r,i)=>({r,i})).filter(o=>o.r.custom&&o.r.custom.title).sort((a,b)=>(+b.r.donor||0)-(+a.r.donor||0));
-  if(L.length){$('okb').hidden=false;$('okbTitle').textContent=`🏆 Orang Kaya Baru (${fmt(L.length)})`;
-    L.forEach(({r,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
-      bt.append(el('span','ico','🏡'),el('b',null,'@'+r.name),el('span',null,String(r.custom.title).slice(0,120)+(r.custom.day?` · hari ke-${r.custom.day}`:'')));
-      bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('okbList').append(li)})}}
+/* belanja terbaru: dari log belanja Recehan (diisi setelah /api/kartu?aksi=pilihan) */
+function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO'};
+  const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'baru saja':d<3600?Math.round(d/60)+' menit lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hari lalu'};
+  const L=(window.BELANJA||[]).map(o=>{let t='';if(o.j==='warna')t='🎨 Ganti warna rumah';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Buka ruko';else if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2);
+    else if(o.j==='item'){const v=(o.it||[]).map(id=>KD[id]||(KK_ITEM[id]?'🛍️ '+KK_ITEM[id].n:'')).filter(Boolean);if(v.length)t=v.join(', ')}
+    return t&&o.u?{u:o.u,t,at:o.at}:null}).filter(Boolean).slice(0,20);
+  box.innerHTML='';if(!L.length){$('okb').hidden=true;return}$('okb').hidden=false;$('okbTitle').textContent=`🛒 Belanja terbaru di kampung (${fmt(L.length)})`;
+  L.forEach(o=>{const i=kkResIdx(o.u),li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+    bt.append(el('span','ico','🛒'),el('b',null,'@'+o.u),el('span',null,o.t+' · '+lalu(o.at)));
+    bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)})}
 
 /* pendukung Trakteer (bendera emas / toko) */
 let JUR=-2;
@@ -1717,6 +1721,7 @@ function drawLabels(v,t){
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
   {name:D.quest.name||'UFO Nyasar',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||'',tanggal:D.quest.tanggal||''}:null;
 const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
+{const lb=document.getElementById('lgbtn'),lg=document.getElementById('legend');if(lb&&lg){lb.onclick=e=>{e.stopPropagation();lg.classList.toggle('open')};document.getElementById('map').addEventListener('pointerdown',()=>lg.classList.remove('open'))}}
 // jam WIB real time di pojok peta (+ pengingat UFO di hari quest)
 {const tg=document.querySelector('.maptag');if(tg){const sp=document.createElement('span');sp.id='tagJam';sp.style.background='#1F2F5C';tg.append(sp);
   const upd=()=>{const d=new Date(Date.now()+7*3600e3),H=d.getUTCHours(),M=d.getUTCMinutes(),m=H*60+M,tgl=d.toISOString().slice(0,10);
@@ -2934,7 +2939,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
-  window.ROBOT_OWNER=j.robot||null;window.BELANJA=j.belanja||[];try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
+  window.ROBOT_OWNER=j.robot||null;window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);

@@ -1750,6 +1750,20 @@ function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('
   const h=el('div','st-hint',s.rb?'Jalan-jalan pakai GENTO! Bebas lewat mana aja, panah buat arahin, TERBANG buat ngebut, TEBAS pakai pedang ⚔️, TEMBAK buat mercon 💥':s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
   cv.parentElement.append(u);cv.parentElement.classList.add('nyetir')}
 document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '){e.preventDefault();boostSetir()}else if((e.key==='x'||e.key==='X')&&SETIR&&SETIR.rb){e.preventDefault();tebasSetir()}else if(e.key==='Shift'){e.preventDefault();SETIR&&SETIR.rb?terbangSetir():boostSetir()}else if(e.key==='Escape')selesaiSetir()});
+// siang-malam ikut jam WIB: mulai gelap 17.30, gelap penuh 18.30, terang lagi 05.00-06.00 (uji: ?jam=19:00)
+const JAM_UJI=(new URLSearchParams(location.search).get('jam')||'').match(/^(\d{1,2})[:.](\d{2})$/);
+function malamNow(){const d=new Date();let m=JAM_UJI?(+JAM_UJI[1]*60+ +JAM_UJI[2]):(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440;m+=JAM_UJI?0:d.getUTCSeconds()/60;
+  const cl=x=>Math.max(0,Math.min(1,x));const n=m>=1050?cl((m-1050)/60):m<300?1:m<360?1-(m-300)/60:0;const senja=m>=1020&&m<1140?Math.sin(cl((m-1020)/120)*Math.PI):0;return {n,senja}}
+function drawMalam(v,t){const {n,senja}=malamNow();if(n<=0&&senja<=0)return false;const W=v.W,H=v.H;ctx.save();ctx.setTransform(1,0,0,1,0,0);
+  if(senja>0){ctx.fillStyle=`rgba(255,128,48,${.16*senja})`;ctx.fillRect(0,0,W,H)}
+  if(n>0){ctx.fillStyle=`rgba(10,16,46,${.7*n})`;ctx.fillRect(0,0,W,H);
+    // lampu rumah & bangunan menyala hangat
+    ctx.globalCompositeOperation='lighter';const z=v.z,T=NK.T,rr=T*.42*z,x0=-rr,y0=-rr,x1=W+rr,y1=H+rr;
+    const glow=(wx,wy,r,a)=>{const x=v.ox+wx*z,y=v.oy+wy*z;if(x<x0||x>x1||y<y0||y>y1)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,196,96,${a})`);g.addColorStop(1,'rgba(255,196,96,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)};
+    if(z>.35)RES.forEach((r,i)=>{if(((i*7)%10)<8)glow(NK.wx(r.x),NK.wx(r.y),rr,.45*n)});
+    BLD.forEach(b=>glow(NK.wx(b.x)+(b.w||1)*T/2,NK.wx(b.y)+T/2,rr*2.2*(b.w||1)/1.5,.28*n))}
+  ctx.restore();return n>0}
+let MALAM_T=0;
 function frame(now){
   if(SETIR)stepSetir(now);
   if(IKUT){const r=RES[IKUT.i],o=r&&(r.items||[]).find(x=>x.id===IKUT.id),SVv=window.__SETIR,st=SVv&&SETIR&&SVv.u===(r&&r.name)?SVv:(o?NK.rideOf(r,o,r.items.indexOf(o),now/1000):null);
@@ -1760,10 +1774,12 @@ function frame(now){
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
     NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true});
+    try{drawMalam(v,t)}catch(e){}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
     drawLabels(v,reduce?0:t);dirty=false;
   }
+  if(reduce&&now-MALAM_T>60000){MALAM_T=now;dirty=true}
   requestAnimationFrame(frame);
 }
 
@@ -1884,8 +1900,8 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
        const L=(window.BELANJA||[]).map(o=>{let t='';if(tb){if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2)}
          else if(dl){if(o.j==='item'){const v=(o.it||[]).filter(id=>KD.includes(id));if(v.length)t=v.map(id=>id==='motor'?'🛵 Motor':'🚲 Sepeda').join(', ')}}
          else{if(o.j==='warna')t='🎨 Ubah warna';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Jadi ruko';else if(o.j==='item'){const v=(o.it||[]).filter(id=>!KD.includes(id)&&KK_ITEM[id]);if(v.length)t=v.map(id=>KK_ITEM[id].n).join(', ')}}
-         return t?{u:o.u,t,at:o.at}:null}).filter(Boolean).slice(0,5);
-       if(L.length){const bx=el('div','baru-beli');bx.append(el('b',null,'🧾 Baru dibeli di sini'));L.forEach(o=>{const p=el('p');p.append(goRes(o.u),document.createTextNode(' · '+o.t+' · '),el('small',null,lalu2(o.at)));bx.append(p)});left.append(bx)}}}
+         return t?{u:o.u,t,at:o.at}:null}).filter(Boolean).slice(0,3);
+       if(L.length){const bx=el('div','baru-beli');bx.append(el('b',null,'🧾 Baru beli di sini'));L.forEach(o=>{const p=el('p');p.append(goRes(o.u),document.createTextNode(' · '+o.t+' · '),el('small',null,lalu2(o.at)));bx.append(p)});left.append(bx)}}}
     else if(b.type!=='tugu'){sf.append(kp);left.append(sf)}
     if(b.type==='tugu'){const row=el('div','top3');supRank().slice(0,3).forEach(o=>{const c=el('span','t3');c.append(MEDAL(o.rank)+' ');const a=el('a',null,'@'+o.r.name);a.href='#'+encodeURIComponent(o.r.name);a.onclick=e=>{e.preventDefault();select({kind:'r',i:o.i});scrollMap()};c.append(a,el('small',null,` ${fmt(o.g)}🧱`));row.append(c)});left.append(row,el('p','muted','Ranking lengkap & riwayat juragan di Lihat 3D 🏆'))}
     if(b.type==='layartancap'&&TT_ITEMS.length){const o=TT_ITEMS[0],pp=el('p','nowplay');pp.append(el('b',null,'🎬 Sedang tayang: '));const a=el('a',null,o.title+' ▶');a.href=safeUrl(o.url);a.target='_blank';a.rel='noopener';pp.append(a);left.append(pp)}

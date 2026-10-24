@@ -1692,7 +1692,7 @@ function drawDusunSel(v,t){const k=sel.k,q=DSN_Q[k],z=v.z,X=x=>v.ox+x*z,Y=y=>v.o
   ctx.restore()}
 function selectDusun(k){sel={kind:'d',k};const q=DSN_Q[k];flyTo({cx:q.cx,cy:q.cy,zoom:clampZ(Math.min(cw/(q.x1-q.x0),ch/(q.y1-q.y0))*1.05)},900);showResult(sel);dirty=true;SND.play('pop',.8)}
 function homeView(){const w=BB.x1-BB.x0,h=BB.y1-BB.y0;fitZ=Math.min(cw/(w+T*2),ch/(h+T*3));
-  minZ=Math.max(.12,fitZ*.55);return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ*1.15}}
+  minZ=Math.max(.06,fitZ*.55);try{if(STQA){const b=desaBangun().bounds;minZ=Math.min(minZ,Math.min(cw/(b.x1-b.x0),ch/(b.y1-b.y0))*.95)}}catch(e){}return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ*1.15}}
 function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);cw=Math.max(1,r.width);ch=Math.max(1,r.height);
   cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);homeView();dirty=true}
 const clampZ=z=>Math.max(minZ,Math.min(maxZ,z));
@@ -1869,7 +1869,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);window.QA_IKUT=false;showResult({kind:'q'});dirty=true;return}}
   if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){SND.play('pop',.8);bukaRental();return}}
   if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){SND.play('pop',.8);openDemoGento();return}}
-  if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){SND.play('pop',.8);bukaLiga(true);return}
+  if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){SND.play('pop',.8);bukaLiga(LIGA_QA);return}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
@@ -3051,9 +3051,9 @@ function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL
 // QA Liga Dusun (desa baru, belum dibuka): #liga-qa — 5 tim dusun, pemain diambil acak dari warga dusunnya
 const LIGA_TIM=()=>{const COL=['#C4402F','#2F74B5','#E07A3E','#2F9E6A','#E58AA6'];return [0,1,2,3,4].map(k=>({nama:dsnLabel(k),col:COL[k],pemain:RES.filter(r=>dsnOf(r.x,r.y)===k).map(r=>String(r.name))}))};
 function muatLiga(){return new Promise(ok=>{if(window.LIGA)return ok();const s=document.createElement('script');s.src='/liga.js?v=7';s.onload=()=>{window.LIGA.setTim(LIGA_TIM());ok()};document.head.append(s)})}
-function bukaLiga(qa){muatLiga().then(()=>window.LIGA.open({qa,tim:LIGA_TIM()}))}
+function bukaLiga(qa){muatLiga().then(()=>window.LIGA.open({qa,tim:LIGA_TIM(),mulai:'2026-10-25T00:00:00+07:00'}))}
 // QA stadion di peta (#stadion-qa): lapangan di luar dusun (sebelah timur), ketuk = buka Liga Dusun
-let STQA=/^#(stadion|desa)-qa$/.test(location.hash);const STD={x:0,y:0,w:T*11,h:T*7};
+let STQA=true;const LIGA_QA=/^#(stadion|desa|liga)-qa$/.test(location.hash);const STD={x:0,y:0,w:T*11,h:T*7};
 /* ---- QA desa baru (konsep): pegunungan utara, hutan barat, desa baru di timur dengan waduk, sungai, air terjun, sawah terasering, gerbang ---- */
 let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,kh=K.y1-K.y0,cy=(K.y0+K.y1)/2;let sd=9;const R=()=>(sd=(sd*16807)%2147483647)/2147483647;
   const E={x0:K.x1+T*4,x1:K.x1+T*4+kw*.95,y0:K.y0-kh*.2,y1:K.y1+kh*.3};const M={x0:K.x1+T*6,x1:E.x1+T*12,y0:K.y0-kh*.95,y1:K.y0+T*2};const F={x0:K.x0-kw*.45,x1:K.x0-T*3,y0:K.y0-T*3,y1:K.y1+kh*.3};
@@ -3089,9 +3089,10 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   const ring=[];for(let i=0;i<2600;i++){const a=R()*6.2832,d=tepiR(a)*(.93+R()*.5);ring.push({x:wc.x+Math.cos(a)*wc.rx*d*1.05,y:wc.y+Math.sin(a)*wc.ry*d*1.05,s:1.1+R()*.7,k:R()<.6})}
   DESA={wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
 function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {E,M,F,wd}=D;
+  const VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z,vis=(x,y,r)=>x+r>VX0&&x-r<VX1&&y+r>VY0&&y-r<VY1;
   {const w=D.wc,big=T*400;const pth=(g)=>{ctx.beginPath();ctx.rect(w.x-big,w.y-big,big*2,big*2);for(let i=0;i<=160;i++){const a=i/160*6.2832,r=D.tepiR(a)*g;const px=w.x+Math.cos(a)*w.rx*r,py=w.y+Math.sin(a)*w.ry*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()};
    ctx.fillStyle='rgba(47,94,58,.35)';pth(1.0);ctx.fill('evenodd');ctx.fillStyle='rgba(47,94,58,.6)';pth(1.04);ctx.fill('evenodd');ctx.fillStyle='#2F5E3A';pth(1.09);ctx.fill('evenodd');
-   D.ring.forEach(o=>{const s2=o.s;if(o.k){ctx.fillStyle='#244A2C';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s2);ctx.lineTo(o.x+T*.35*s2,o.y+T*.3*s2);ctx.lineTo(o.x-T*.35*s2,o.y+T*.3*s2);ctx.closePath();ctx.fill()}else{ctx.fillStyle='#2F6B3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.42*s2,0,7);ctx.fill()}})}
+   D.ring.forEach(o=>{if(!vis(o.x,o.y,T))return;const s2=o.s;if(o.k){ctx.fillStyle='#244A2C';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s2);ctx.lineTo(o.x+T*.35*s2,o.y+T*.3*s2);ctx.lineTo(o.x-T*.35*s2,o.y+T*.3*s2);ctx.closePath();ctx.fill()}else{ctx.fillStyle='#2F6B3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.42*s2,0,7);ctx.fill()}})}
   // wilayah alami: tepi bergelombang (superelips + noise) dan berbulu, bukan kotak
   const blob=(x0,y0,x1,y1,col)=>{const cx=(x0+x1)/2,cy=(y0+y1)/2,rx=(x1-x0)/2,ry=(y1-y0)/2;const sh=(g,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();for(let i=0;i<=120;i++){const t=i/120*6.2832,c=Math.cos(t),s2=Math.sin(t);
       const n=1+.1*Math.sin(t*3+cx*.003)+.07*Math.sin(t*7+cy*.002)+.04*Math.sin(t*13)+.02*Math.sin(t*29);const px=cx+Math.sign(c)*Math.pow(Math.abs(c),.75)*rx*n*g,py=cy+Math.sign(s2)*Math.pow(Math.abs(s2),.75)*ry*n*g;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill()};
@@ -3101,7 +3102,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // tiap gunung: bayangan jatuh ke tanah (kanan bawah), lapisan kontur bergeser ke kiri-atas (cahaya dari barat laut), sisi gelap di tenggara, punggungan & salju di puncak
   const LT=['#4E8040','#5E9049','#6FA054','#86B060','#A8AE8E','#C8C6B6','#ECECE2','#FFFFFF'],DK=['#2F5428','#3A6230','#456E37','#57793F','#7C7D6A','#9A9888','#C6C4B8','#E2E2DA'];
   const kont=(h,i,k,dx,dy)=>{ctx.beginPath();for(let a=0;a<=6.3;a+=.2){const rr=h.r*k*(1+.13*Math.sin(a*3+h.x*.01)+.09*Math.cos(a*5+h.y*.01)+.05*Math.sin(a*7+i));const px=h.x+dx+Math.cos(a)*rr,py=h.y+dy+Math.sin(a)*rr*.82;a?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()};
-  D.hills.forEach(h=>{const n=h.h>.8?8:h.h>.65?7:6;
+  D.hills.forEach(h=>{if(!vis(h.x,h.y,h.r*1.4))return;const n=h.h>.8?8:h.h>.65?7:6;
     ctx.fillStyle='rgba(20,40,20,.28)';kont(h,0,1.04,h.r*.28,h.r*.22);ctx.fill();
     for(let i=0;i<n;i++){const k=1-i/(n+.6),up=i*h.r*.07*h.h;
       ctx.fillStyle=DK[i];kont(h,i,k,up*.25,-up*.7);ctx.fill();
@@ -3127,10 +3128,10 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   ctx.strokeStyle='#D9C38E';ctx.lineWidth=T*.95;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.stroke();ctx.strokeStyle='#E8D6A6';ctx.lineWidth=3;ctx.setLineDash([T*.5,T*.4]);ctx.stroke();ctx.setLineDash([]);
   {const s1=D.sungai1;const bx=s1[1][0]-T*.2;ctx.fillStyle='#8A5A2E';ctx.fillRect(bx-T*1.6,D.jalanY-T*.8,T*3.2,T*1.6);ctx.fillStyle='#A8743F';for(let i=0;i<9;i++)ctx.fillRect(bx-T*1.5+i*T*.36,D.jalanY-T*.8,T*.22,T*1.6)}
   // pohon
-  D.trees.forEach(o=>{const s=o.s;if(o.k){ctx.fillStyle='#2A5E36';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x-T*.35*s,o.y+T*.3*s);ctx.closePath();ctx.fill();ctx.fillStyle='#357042';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x,o.y+T*.3*s);ctx.closePath();ctx.fill()}
+  D.trees.forEach(o=>{if(!vis(o.x,o.y,T))return;const s=o.s;if(o.k){ctx.fillStyle='#2A5E36';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x-T*.35*s,o.y+T*.3*s);ctx.closePath();ctx.fill();ctx.fillStyle='#357042';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x,o.y+T*.3*s);ctx.closePath();ctx.fill()}
     else{ctx.fillStyle='rgba(0,0,0,.15)';ctx.beginPath();ctx.ellipse(o.x+4,o.y+6,T*.4*s,T*.25*s,0,0,7);ctx.fill();ctx.fillStyle='#3E7F3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.4*s,0,7);ctx.fill()}});
   // rumah desa baru
-  D.rumah.forEach(h=>{const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
+  D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang
   {const g=D.gate,bw=T*13,bh=T*4.2;// gerbang besar dilihat dari atas: 2 tugu di sisi jalan + papan nama melintang
    [g.y-T*3.6,g.y+T*2.2].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(g.x-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(g.x-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(g.x-T*.8,y+T*.25,T*1.6,T*.9)});
@@ -3170,7 +3171,7 @@ function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(
   // papan nama & skor
   ctx.fillStyle='#1C2520';ctx.fillRect(x+w/2-150,y-58,300,46);ctx.fillStyle='#F2C230';ctx.font='800 17px Poppins,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   if(st&&st.main){const TM=window.LIGA.tim();ctx.fillText(`${TM[st.L.A].nama} ${st.sa}–${st.sb} ${TM[st.L.B].nama}`,x+w/2,y-41);ctx.fillStyle='#9effa0';ctx.font='700 11px Poppins,sans-serif';ctx.fillText(`🔴 LIVE ${Math.floor(st.menit)}' · ketuk buat nonton`,x+w/2,y-22)}
-  else{ctx.fillText('⚽ STADION DESA (QA)',x+w/2,y-41);ctx.fillStyle='#9effa0';ctx.font='700 11px Poppins,sans-serif';const n=st&&st.next;ctx.fillText(n?`Laga berikutnya ${n.jam}.00 · ketuk`:'Laga hari ini selesai · ketuk',x+w/2,y-22)}
+  else{ctx.fillText('⚽ STADION DESA',x+w/2,y-41);ctx.fillStyle='#9effa0';ctx.font='700 11px Poppins,sans-serif';const n=st&&st.next;ctx.fillText(n?`Laga berikutnya ${n.jam}.00 · ketuk`:'Laga hari ini selesai · ketuk',x+w/2,y-22)}
   if(st&&st.gol){ctx.fillStyle='#F2C230';ctx.strokeStyle='#1C2520';ctx.lineWidth=4;ctx.fillRect(x+w/2-90,y+h/2-22,180,44);ctx.strokeRect(x+w/2-90,y+h/2-22,180,44);ctx.fillStyle='#1C2520';ctx.font='800 22px Poppins,sans-serif';ctx.fillText('GOOOL!',x+w/2,y+h/2)}
   ctx.setTransform(1,0,0,1,0,0);
   if(window.__MALAM_N>0)dirty=true}
@@ -3179,9 +3180,10 @@ function bukaRental(){const body=kkModal();body.append(el('h3',null,'🎮 Rental
   const k=kkGet();const row=el('div','kk-row');
   row.append(kkBtn('🎟️ Sewa 1 hari · 1 Receh','gold3',()=>{if(!k){toast('Ambil Kartu Komen dulu ya, buat bayar pakai Recehan');return}kkTutup();kkBuka(k.u)}),kkBtn('🛒 Beli selamanya · 4 Receh','',()=>{kkTutup();kkBelanja('item')}));
   body.append(row,el('p','kk-muted','Sewa & beli cuma bisa pakai Recehan (bukan traktir langsung). Belum punya Recehan? Isi dulu di Kartu Komen → + Isi Recehan. Sewa berlaku 24 jam.'))}
+setTimeout(()=>{try{homeView();dirty=true}catch(e){}},0);
 window.__qaDesa=()=>({D:desaBangun(),fly:flyTo});
 function bukaDesa(){STQA=true;const b=desaBangun().bounds;minZ=Math.min(minZ,Math.min(cw/(b.x1-b.x0),ch/(b.y1-b.y0))*.9);muatLiga().then(()=>{dirty=true});flyTo({cx:(b.x0+b.x1)/2,cy:(b.y0+b.y1)/2,zoom:clampZ(Math.min(cw/(b.x1-b.x0),ch/(b.y1-b.y0))*1.05)},1200)}
-if(STQA)setTimeout(location.hash==='#desa-qa'?bukaDesa:bukaStadion,900);addEventListener('hashchange',()=>{if(location.hash==='#stadion-qa')bukaStadion();if(location.hash==='#desa-qa')bukaDesa()});
+if(/^#(stadion|desa)-qa$/.test(location.hash))setTimeout(location.hash==='#desa-qa'?bukaDesa:bukaStadion,900);addEventListener('hashchange',()=>{if(location.hash==='#stadion-qa')bukaStadion();if(location.hash==='#desa-qa')bukaDesa()});
 if(location.hash==='#liga-qa')setTimeout(()=>bukaLiga(true),900);addEventListener('hashchange',()=>{if(location.hash==='#liga-qa')bukaLiga(true)});
 // QA: #konsol-rumah = contoh rumah pemilik konsol di 3D + kotak "Main sekarang" seperti di Kartu Komen
 function openDemoKonsol(){open3D({demo:'konsol',name:'contohkonsol',nick:'Contoh rumah pemilik konsol',x:0,y:0,wall:'kuning',roof:'biru',items:[{id:'konsol'},{id:'ayam'},{id:'lampu'}]},0)}

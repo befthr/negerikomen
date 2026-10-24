@@ -1695,7 +1695,8 @@ function drawLabels(v,t){
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
   {name:D.quest.name||'UFO Nyasar',start:D.quest.start.replace('.',':'),end:D.quest.end.replace('.',':'),code:D.quest.code||'',tanggal:D.quest.tanggal||''}:null;
 const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
-function questOn(){if(!QUEST)return false;if(QUEST.tanggal&&new Date(Date.now()+252e5).toISOString().slice(0,10)!==QUEST.tanggal)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
+const UFO_QA=location.hash==='#ufo-qa';
+function questOn(){if(UFO_QA&&QUEST)return true;if(!QUEST)return false;if(QUEST.tanggal&&new Date(Date.now()+252e5).toISOString().slice(0,10)!==QUEST.tanggal)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);
   return a<=b?(w>=a&&w<b):(w>=a||w<b)}
 let qOn=false;
 function questPos(t){const cx=(BB.x0+BB.x1)/2,cy=(BB.y0+BB.y1)/2,rx=(BB.x1-BB.x0)/2+T*2.4,ry=(BB.y1-BB.y0)/2+T*2.4,a=t*0.035+1.3;
@@ -1765,6 +1766,7 @@ function drawMalam(v,t){const {n,senja}=malamNow();if(n<=0&&senja<=0)return fals
   ctx.restore();return n>0}
 let MALAM_T=0;
 function frame(now){
+  if(UFO_QA&&window.QA_IKUT&&qOn){const p=questPos(now/1000);cam.cx=p.x;cam.cy=p.y;dirty=true}
   if(SETIR)stepSetir(now);
   if(IKUT){const r=RES[IKUT.i],o=r&&(r.items||[]).find(x=>x.id===IKUT.id),SVv=window.__SETIR,st=SVv&&SETIR&&SVv.u===(r&&r.name)?SVv:(o?NK.rideOf(r,o,r.items.indexOf(o),now/1000):null);
     if(!st||Date.now()>IKUT.sampai){IKUT=null}else{const k=fly?0:.12;if(!fly){cam.cx+=(st.x-cam.cx)*k;cam.cy+=(st.y-cam.cy)*k}dirty=true}}
@@ -1799,7 +1801,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientR
 cv.addEventListener('dblclick',e=>{const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,1.7)});
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
-  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);showResult({kind:'q'});dirty=true;return}}
+  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);window.QA_IKUT=false;showResult({kind:'q'});dirty=true;return}}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
@@ -1873,7 +1875,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       el('p',null,'Cepat! 20 penemu pertama dapat Recehan: 🥇 10 Receh · 🥈🥉 5 · ke-4–10 dapat 3 · ke-11–20 dapat 1.'));
     {const v3u=el('button','btn','🛸 Lihat UFO-nya dalam 3D');v3u.type='button';v3u.onclick=()=>openUfo3D();acts.append(v3u)}
     const k=kkGet(),msg=el('p','kk-msg');left.append(msg);
-    if(KK_ON&&k&&k.t){const b=el('button','btn gold3','🛸 Klaim pakai Kartu Komen');b.type='button';b.onclick=async()=>{b.disabled=true;const r=await kkApi('ufo',{},true);
+    if((KK_ON&&k&&k.t)||UFO_QA){const b=el('button','btn gold3','🛸 Klaim pakai Kartu Komen'+(UFO_QA?' (uji)':''));b.type='button';b.onclick=async()=>{b.disabled=true;const r=UFO_QA?{ok:true,ke:3,hadiah:5}:await kkApi('ufo',{},true);
         if(!r.ok){b.disabled=false;msg.textContent=r.error||'Gagal';msg.className='kk-msg err';return}try{SND.play('ting',.9)}catch(_){}
         msg.className='kk-msg';msg.textContent=(r.ke===1?'🥇 KAMU PENEMU PERTAMA!':`✅ Kamu penemu ke-${r.ke}!`)+(r.hadiah?` +${r.hadiah} Receh masuk ke Recehan-mu 🎉`:(r.sudah?'':' (hadiah Recehan untuk 20 penemu pertama sudah habis)'));b.remove();window.UFO_KE=r.ke;setTimeout(()=>{try{openUfo3D()}catch(e){}},900)};acts.append(b)}
     else{const c=q.code||'UFO NYASAR';left.append(el('p',null,`Belum punya Kartu Komen? Salin kode ini, lalu komen di video HARI KE-6 (tayang jam 19.00, BUKAN video yang di-pin) sebelum ${q.end} WIB:`));
@@ -2907,7 +2909,7 @@ function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]
 function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Contoh GENTO',x:0,y:0,wall:'putih',roof:'merah',items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
-if(location.hash==='#gento-rahasia')setTimeout(openDemoGento,800); if(location.hash==='#ufo-rahasia')setTimeout(openUfo3D,800); // pratinjau rahasia untuk kades
+if(location.hash==='#gento-rahasia')setTimeout(openDemoGento,800); if(location.hash==='#ufo-rahasia')setTimeout(openUfo3D,800);if(UFO_QA)setTimeout(()=>{questTick();window.QA_IKUT=true;cam.zoom=Math.max(cam.zoom,.9);dirty=true;toast('Mode uji UFO 🛸 klik UFO-nya (klaim cuma simulasi)')},1200); // pratinjau rahasia untuk kades
 // QA kades: #gento-jalan = coba jalan-jalan + tembak mercon di peta tanpa harus membeli (hanya di perangkat ini)
 function cobaGento(){const k=Math.max(0,RES.findIndex(r=>r.name==='lembarpeta'));select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(k,'robot');scrollMap();toast('Mode uji GENTO 🤖 (cuma terlihat di perangkatmu)')}
 addEventListener('hashchange',()=>{if(location.hash==='#ufo-rahasia')openUfo3D();if(location.hash==='#gento-rahasia')openDemoGento();if(location.hash==='#gento-jalan')cobaGento()});

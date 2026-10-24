@@ -431,6 +431,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <ul class="blist" id="okbList"></ul>
       </div>
 
+      <div class="card okb" id="kryCard" hidden>
+        <h3>👷 Karyawan Kampung</h3>
+        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Warga yang kerja bantu kepala desa. Gaji 2 Receh tiap pekan. Ketuk buat lihat rumahnya 👀</p>
+        <ul class="blist" id="kryList"></ul>
+      </div>
+
       <div class="card trak" id="trak" hidden>
         <div class="trak-row">
           <img src="genteng.png" alt="" width="56" height="56">
@@ -1597,6 +1603,14 @@ if(AWARDS.length){$('award').hidden=false;
     if(i>=0)bt.onclick=()=>{select({kind:'r',i});scrollMap()};li.append(bt);$('awardList').append(li)})}
 
 /* belanja terbaru: dari log belanja Recehan (diisi setelah /api/kartu?aksi=pilihan) */
+function renderKaryawan(){const box=$('kryList');if(!box)return;const BL={jan:0};const bln=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const tgl=d=>{const [y,m,dd]=String(d).split('-').map(Number);return dd+' '+bln[m-1]};const ic={posronda:'🔦',warung:'🏪'};
+  const L=[];BLD.forEach(b=>staffOf(b).forEach(x=>L.push({u:x.user,role:x.role||'Karyawan',tempat:b.name||'',ic:ic[b.type]||'👷',until:x.until})));
+  box.innerHTML='';if(!L.length){$('kryCard').hidden=true;return}$('kryCard').hidden=false;
+  L.forEach(o=>{const i=kkResIdx(o.u),r=i>=0?RES[i]:null,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+    bt.append(el('span','ico',o.ic),el('b',null,(r&&r.nick?r.nick+' · ':'')+'@'+o.u),el('span',null,o.role+(o.tempat&&!o.role.includes(o.tempat)?' · '+o.tempat:'')+(o.until?' · kerja s/d '+tgl(o.until):'')));
+    bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)})}
+setTimeout(()=>{try{renderKaryawan()}catch(e){console.error(e)}},0);
 function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO'};
   const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'baru saja':d<3600?Math.round(d/60)+' menit lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hari lalu'};
   const L=(window.BELANJA||[]).map(o=>{let t='';if(o.j==='warna')t='🎨 Ganti warna rumah';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Buka ruko';else if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2);

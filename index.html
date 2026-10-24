@@ -754,6 +754,10 @@ function drawHouse(r,s,a){
     ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-h/2+5;k<h/2;k+=5){ctx.moveTo(-w/2,k);ctx.lineTo(w/2,k)}ctx.stroke();
     ctx.strokeStyle=shade(roof,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-h/2);ctx.lineTo(0,h/2);ctx.stroke()}
   if(TK)ctx.translate(0,TK);
+  if(r.kerja&&!shopOn(r)){ // rumah karyawan: lencana bulat emas di pojok atap
+    const bx=w/2-3,by=-h/2-TK*.0-2;ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.arc(bx+1.2,by+1.4,6.2,0,7);ctx.fill();
+    ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(bx,by,6.2,0,7);ctx.fill();ctx.fillStyle='#1C2520';ctx.beginPath();ctx.arc(bx,by,4.7,0,7);ctx.fill();
+    ctx.font='6px "Noto Color Emoji",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(r.kerja.ic,bx,by+.4)}
   if(jobOn(r)){ // tukang proyek: list kuning-hitam di atap, cone & helm
     ctx.save();ctx.beginPath();ctx.rect(-w/2,-h/2,w,h);ctx.clip();
     for(let k=-w-h;k<w+h;k+=7){ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(k,-h/2);ctx.lineTo(k+3.5,-h/2);ctx.lineTo(k+3.5-h,h/2);ctx.lineTo(k-h,h/2);ctx.closePath();ctx.fill()}
@@ -1407,6 +1411,9 @@ const $=id=>document.getElementById(id);
 const D=Object.assign({day:1,kavling:50,followers:null,target:1000,residents:[],buildings:null,voucher:null,updated:null},window.NK_DATA||{});
 const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.isFinite(r.y));
 const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
+// rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
+const KERJA_IK={posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
+BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user)return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||['👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1]}}}));
 const KAV=Math.max(D.kavling||50,RES.length);
 const FREE_N=Math.max(0,KAV-RES.length);
 const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
@@ -1682,7 +1689,7 @@ function drawLabels(v,t){
   if(hs>=24&&!SETIR){const cx=cv.width/2,cy=cv.height/2;
     const list=RES.map((r,i)=>{const [sx,sy]=toS(r.x,r.y);return {r,i,sx,sy,d:Math.hypot(sx-cx,sy-cy)-(r.day===D.day?400*dpr:0)}})
       .filter(o=>o.sx>-80&&o.sy>-40&&o.sx<cv.width+80&&o.sy<cv.height+80).sort((a,b)=>a.d-b.d).slice(0,120);
-    list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy)-((o.r.sup||NK.shopOn(o.r,TODAY))?hs*.5*dpr:0),NK.shopOn(o.r,TODAY)?'🏪 '+o.r.shop.name:'@'+o.r.name,papanOf(o.r)?'🪧 '+papanOf(o.r):'',false)})}
+    list.forEach(o=>{if(sel&&sel.kind==='r'&&sel.i===o.i)return;tryTag(o.sx,lift(o.sy)-((o.r.sup||NK.shopOn(o.r,TODAY))?hs*.5*dpr:0),NK.shopOn(o.r,TODAY)?'🏪 '+o.r.shop.name:'@'+o.r.name,papanOf(o.r)?'🪧 '+papanOf(o.r):o.r.kerja?o.r.kerja.ic+' '+o.r.kerja.role+' '+o.r.kerja.bn:'',false)})}
 }
 /* ---------- daily quest: UFO Nyasar muncul di jam tertentu (WIB) ---------- */
 const QUEST=(D.quest&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.start||'')&&/^\d{1,2}[:.]\d{2}$/.test(D.quest.end||''))?
@@ -2183,7 +2190,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
       else{cat.rotation.y=k.arah>0?Math.PI/2:-Math.PI/2;cat.rotation.x=(k.f-.5)*-.8;kp.rotation.x=-.2;cb.scale.set(1,.8,1.45);kakiK.forEach(l=>l.scale.y=1.3)}
       telinga.forEach((e,i)=>e.rotation.z=Math.sin(s*7+i*3)>.85?(i?-.5:.5):0);
       tail.rotation.z=Math.sin(s*(k.diam?2.6:9))*.7;tail.rotation.x=k.diam?0:.6}})}
-function items3D(g,r){if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
+function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={items:[{id:'papan',teks:r.kerja.papan},...(Array.isArray(r.items)?r.items:[])].slice(0,3)};if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8},o||{}));
   const SLOT=[[-2.5,1.3,.5],[2.6,-.2,-.6],[-2.4,-.4,1.2]];
   const A=g.userData.anim||(g.userData.anim=[]);

@@ -1989,14 +1989,24 @@ let tt=null;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;
 const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loading=null;
   const AC=window.AudioContext||window.webkitAudioContext;
   async function load(u){const r=await fetch(u);return ac.decodeAudioData(await r.arrayBuffer())}
-  async function init(){if(loading)return loading;ac=new AC();master=ac.createGain();master.gain.value=0;master.connect(ac.destination);
+  let siang=null,malam=null,nt=null,nx={krik:0,kodok:0,tong:0};
+  async function init(){if(loading)return loading;ac=new AC();master=ac.createGain();master.gain.value=0;master.connect(ac.destination);siang=ac.createGain();siang.connect(master);malam=ac.createGain();malam.gain.value=0;malam.connect(master);
     loading=Promise.all([load('ambience.mp3').then(b=>buf=b),load('sfx-pop.mp3').then(b=>fx.pop=b),load('sfx-ting.mp3').then(b=>fx.ting=b)]).catch(()=>{});return loading}
   // putar berulang dengan crossfade 3 detik supaya tidak ada jeda
-  function loop(at){if(!on||!buf)return;const X=3,len=buf.duration,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;s.connect(g);g.connect(master);
+  function loop(at){if(!on||!buf)return;const X=3,len=buf.duration,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;s.connect(g);g.connect(siang);
     g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(1,at+X);g.gain.setValueAtTime(1,at+len-X);g.gain.linearRampToValueAtTime(0,at+len);s.start(at);s.stop(at+len+.05);
     const next=at+len-X;timer=setTimeout(()=>loop(next),Math.max(0,(next-ac.currentTime-1)*1000))}
-  let starting=false;async function start(){if(on||starting)return;starting=true;await init();starting=false;if(!ac)return;await ac.resume();on=true;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(.55,ac.currentTime,.6);loop(ac.currentTime+.05)}
-  function stop(){on=false;clearTimeout(timer);if(ac){master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(0,ac.currentTime,.15);setTimeout(()=>{if(!on)ac.suspend()},600)}}
+  // suara malam (tanpa musik): jangkrik, kodok sawah, kentongan ronda di kejauhan. Siang-malam berganti pelan mengikuti jam WIB.
+  function nada(f,d,type,v,f2,at,pan,lp){const o=ac.createOscillator(),g=ac.createGain(),t=at||ac.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);let n=o;if(lp){const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=lp;n.connect(f);n=f}
+    if(ac.createStereoPanner){const p=ac.createStereoPanner();p.pan.value=pan||0;n.connect(p);n=p}n.connect(g);g.connect(malam);o.start(t);o.stop(t+d+.05)}
+  function tickMalam(){if(!on||!ac)return;let n=0;try{n=Math.max(0,Math.min(1,malamNow().n||0))}catch(e){}const T=ac.currentTime;
+    siang.gain.setTargetAtTime(1-.85*n,T,1.5);malam.gain.setTargetAtTime(n*1.1,T,1.5);if(n<.05)return;
+    if(T>nx.krik){const f=4300+Math.random()*700,pan=Math.random()*1.6-.8,k=2+Math.floor(Math.random()*3);for(let i=0;i<k;i++)nada(f,.03,'sine',.035,0,T+i*.05,pan);nx.krik=T+.15+Math.random()*.5}
+    if(T>nx.kodok){const pan=Math.random()*1.4-.7,k=2+Math.floor(Math.random()*2),f=150+Math.random()*60;for(let i=0;i<k;i++)nada(f,.11,'sawtooth',.05,f*.7,T+i*.17,pan,700);nx.kodok=T+2+Math.random()*5}
+    if(!nx.tong)nx.tong=T+20+Math.random()*30;else if(T>nx.tong){[0,.35,.7,1.25].forEach(d=>nada(820,.28,'sine',.05,760,T+d,.5,0));nx.tong=T+60+Math.random()*60}}
+  let starting=false;async function start(){if(on||starting)return;starting=true;await init();starting=false;if(!ac)return;await ac.resume();on=true;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(.55,ac.currentTime,.6);loop(ac.currentTime+.05);clearInterval(nt);nt=setInterval(tickMalam,120)}
+  function stop(){on=false;clearTimeout(timer);clearInterval(nt);if(ac){master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(0,ac.currentTime,.15);setTimeout(()=>{if(!on)ac.suspend()},600)}}
   function play(n,v){if(!on||!fx[n])return;const s=ac.createBufferSource(),g=ac.createGain();s.buffer=fx[n];g.gain.value=v||1;s.connect(g);g.connect(ac.destination);s.start()}
   return {start,stop,play,get on(){return on},ok:!!AC}})();
 {const b=$('snd');if(!SND.ok)b.hidden=true;

@@ -1648,7 +1648,7 @@ function bounds(){
 const BB=bounds();
 /* dusun: 4 kuadran dibelah jalan besar tengah (x/y = C). Klik plang → wilayah dusun disorot */
 const DSN_COL=['#E2574C','#3E8FC9','#E2A21B','#2E9C6A','#C2569A'];
-const DSN_NO=['1','2','3-A','4','3-B'],DSN_BELAH=C-2*S; // Dusun 3 dibelah dua di jalan aspal: 3-A dekat balai, 3-B ke barat
+const DSN_NO=['1','2','3-A','4','3-B'],DSN_BELAH=C-3*S; // Dusun 3 dibelah dua: 3-A (like terbanyak) dapat bagian lebih luas, 3-B ke barat
 const dsnOf=(x,y)=>{const k=(x<C?0:1)+(y<C?0:2);return k===2&&x<DSN_BELAH?4:k};
 const DSN_Q=[0,1,2,3].map(k=>{const e=k%2,s2=k>1;const x0=e?0:BB.x0,x1=e?BB.x1:0,y0=s2?0:BB.y0,y1=s2?BB.y1:0;return {x0,x1,y0,y1,cx:(x0+x1)/2,cy:(y0+y1)/2}});
 {const bx=(DSN_BELAH-C)*T,a=DSN_Q[2];a.x0=bx;a.cx=(a.x0+a.x1)/2;DSN_Q.push({x0:BB.x0,x1:bx,y0:0,y1:BB.y1,cx:(BB.x0+bx)/2,cy:BB.y1/2})}

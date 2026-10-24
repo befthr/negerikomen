@@ -2526,6 +2526,10 @@ async function kkPakai(i,n){const res=await kkApi('pilih',{n},true);
   if(sel&&sel.kind==='r'&&$('v3').hidden)showResult(sel);return true}
 async function kkSalin(t){try{await navigator.clipboard.writeText(t);toast('Disalin! Tinggal tempel di komentar.')}catch(e){toast('Tekan lama kuncinya untuk menyalin')}}
 function kkTutup(){const m=$('kk');if(m)m.remove()}
+function kkSukses(judul,baris){const o=el('div');o.style.cssText='position:fixed;inset:0;z-index:120;background:rgba(16,22,18,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+  const b=el('div');b.style.cssText='background:#fff;border:4px solid #1C2520;border-radius:20px;box-shadow:0 8px 0 #1C2520;padding:26px 24px 20px;max-width:340px;width:100%;text-align:center';
+  b.append(el('div',null,'✅'),el('h3',null,judul));b.firstChild.style.fontSize='48px';b.children[1].style.margin='6px 0 10px';baris.forEach(t=>{const p=el('p',null,t);p.style.margin='4px 0';b.append(p)});
+  const ok=kkBtn('Oke','sm dark',()=>o.remove());ok.style.marginTop='14px';b.append(ok);o.append(b);o.addEventListener('click',e=>{if(e.target===o)o.remove()});document.body.append(o);try{SND.play('ting',.8)}catch(_){}}
 function kkModal(){kkTutup();const m=el('div','kk');m.id='kk';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
   const box=el('div','kk-box'),x=el('button','kk-x','✕');x.type='button';x.setAttribute('aria-label','Tutup');x.onclick=kkTutup;
   m.onclick=e=>{if(e.target===m)kkTutup()};const body=el('div','kk-body');box.append(x,body);m.append(box);document.body.append(m);return body}
@@ -2670,7 +2674,11 @@ function kkAdmin(body){{const w=el('div','kk-admin');w.append(el('b',null,'💼 
     {const hb=el('div');hb.append(el('p','kk-sub','🎁 Kasih hadiah Receh'),el('p','kk-muted','Buat warga yang berjasa (lapor akun palsu, bantu kampung, dll). Tidak masuk daftar Pendukung.'));
       const iu=el('input');iu.placeholder='@username warga';const inn=el('input');inn.type='number';inn.min=1;inn.max=50;inn.value=2;inn.style.width='70px';const ia=el('input');ia.placeholder='Alasan, mis. lapor akun TikTok palsu';ia.maxLength=60;
       const row=el('div','kk-row');row.append(iu,inn);hb.append(row,ia,kkBtn('🎁 Kirim hadiah','sm dark',async e=>{const t=iu.value.trim().replace(/^@/,'');if(!t){toast('Isi username dulu');return}e.target.disabled=true;
-        const r=await kkApi('hadiah',{target:t,n:+inn.value||1,alasan:ia.value},true);e.target.disabled=false;toast(r.ok?`🎁 +${+inn.value||1} Receh terkirim ke @${r.u} (sekarang ${r.saldo})`:(r.error||'Gagal'));if(r.ok){iu.value='';ia.value=''}}));w.append(hb)}
+        const nn=+inn.value||1,al=ia.value.trim();const r=await kkApi('hadiah',{target:t,n:nn,alasan:al},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
+        iu.value='';ia.value='';kkSukses('🎁 Hadiah terkirim!',[`+${nn} Receh masuk ke Recehan @${r.u}`,`Recehan @${r.u} sekarang: ${r.saldo} Receh 🪙`,al?`Alasan: ${al}`:''].filter(Boolean));hl()}));
+      const hlog=el('div');const hl=async()=>{const r=await kkApi('hadiah-log',{},true);hlog.innerHTML='';if(!r.ok){hlog.append(el('p','kk-muted',r.error||'Gagal memuat riwayat'));return}
+        hlog.append(el('p','kk-muted',r.daftar.length?'Riwayat hadiah terakhir:\n'+r.daftar.map(x=>`✅ @${x.u} +${x.n} · ${new Date(x.at).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ${x.why} (Recehan sekarang ${x.saldo})`).join('\n'):'Belum ada hadiah yang dikirim.'));hlog.lastChild.style.whiteSpace='pre-line'};
+      hb.append(hlog,kkBtn('Cek riwayat hadiah','sm',hl));hl();w.append(hb)}
     const tw=el('div');w.append(el('p','kk-sub','💸 Traktiran tanpa kode'),el('p','kk-muted','Traktiran tanpa kode pesanan, tanpa @username warga, dan tanpa kode dompet. Kalau tahu siapa orangnya, masukkan ke Recehan-nya.'),tw);kkTanpaKode(tw);
     body.append(w);kkAntre(box)}
 async function kkTanpaKode(tw){tw.innerHTML='';const res=await kkApi('tanpa-kode',{},true);if(!res.ok){tw.append(el('p','kk-muted',res.error||'Gagal memuat'));return}

@@ -423,6 +423,13 @@ export default async function handler(req, res) {
       await kvMany(staf.flatMap(u => [['HINCRBY', 'saldo', u, bayar.get(u)], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at, n: bayar.get(u), ket: 'gaji' })], ['LTRIM', 'saldo:log:' + u, 0, 49]]));
       return res.status(200).json({ ok: true, staf, rincian: Object.fromEntries(bayar), total: totalGaji });
     }
+    if (aksi === 'hadiah-log') { // riwayat hadiah kades (cek sudah masuk atau belum) + saldo terkini penerima
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const L = (await kv(['LRANGE', 'hadiah:log', 0, 9]) || []).map(jparse).filter(Boolean);
+      const us = [...new Set(L.map(x => x.u))], sv = us.length ? await kv(['HMGET', 'saldo', ...us]) || [] : [];
+      const sm = Object.fromEntries(us.map((u, i) => [u, +sv[i] || 0]));
+      return res.status(200).json({ daftar: L.map(x => ({ ...x, saldo: sm[x.u] })) });
+    }
     if (aksi === 'hadiah') { // hadiah Receh dari kades (bukan traktiran: tidak masuk daftar Pendukung)
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const t = cleanU(body.target), n = Math.floor(+body.n), why = String(body.alasan || '').replace(/[<>]/g, '').trim().slice(0, 60) || 'hadiah dari kepala desa';

@@ -2828,6 +2828,8 @@ function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',.
   Object.keys(KK_JENIS).forEach(j=>{const p=P[j];if(!p)return;const w=el('div','kk-wait');
     const lunas=(+p.bayar||0)>=(p.harga||1);
     if(lunas){w.classList.add('lunas');w.append(el('b',null,`✅ ${KK_JENIS[j].ic} ${KK_JENIS[j].n} sudah lunas`),el('div','kk-kode',p.kode),el('p','kk-muted',`${kkPesanTeks({jenis:j,...p})}. Pembayaran ${p.harga||1}/${p.harga||1} sudah masuk, nggak perlu bayar lagi. Tinggal tunggu Pak Kades cek & pasang${(p.items||[]).includes('papan')?' (papan nama dicek dulu biar tulisannya aman)':''}. Biasanya nggak lama kok!`));
+      {const dm=el('a','btn','💬 Follow up ke Pak Kades di IG');dm.href='https://ig.me/m/negerikomen';dm.target='_blank';dm.rel='noopener';dm.onclick=()=>kkSalin(p.kode);
+       const r=el('div','kk-row');r.append(dm);w.append(el('p','kk-muted','Kelamaan? DM @negerikomen di Instagram, sebut kode pesananmu (otomatis tersalin saat tombol diklik).'),r)}
       w.querySelector('.kk-kode').onclick=()=>kkSalin(p.kode);body.append(w);return}
     {const H=p.harga||1,B=+p.bayar||0,K=H-B;w.append(el('b',null,`⏳ ${KK_JENIS[j].ic} ${KK_JENIS[j].n} menunggu pembayaran`),el('div','kk-kode',p.kode));
       if(H>1){const bar=el('div','kk-bayar'),f=el('i');f.style.width=Math.max(3,B/H*100)+'%';bar.append(f);w.append(bar,el('small','kk-bayar-l',`Sudah masuk ${B}/${H} · kurang ${K}`))}

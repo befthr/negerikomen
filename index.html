@@ -1799,7 +1799,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientR
 cv.addEventListener('dblclick',e=>{const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,1.7)});
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
-  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);showResult({kind:'q'});dirty=true;try{openUfo3D()}catch(e){}return}}
+  if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);showResult({kind:'q'});dirty=true;return}}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
@@ -1875,7 +1875,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     const k=kkGet(),msg=el('p','kk-msg');left.append(msg);
     if(KK_ON&&k&&k.t){const b=el('button','btn gold3','🛸 Klaim pakai Kartu Komen');b.type='button';b.onclick=async()=>{b.disabled=true;const r=await kkApi('ufo',{},true);
         if(!r.ok){b.disabled=false;msg.textContent=r.error||'Gagal';msg.className='kk-msg err';return}try{SND.play('ting',.9)}catch(_){}
-        msg.className='kk-msg';msg.textContent=(r.ke===1?'🥇 KAMU PENEMU PERTAMA!':`✅ Kamu penemu ke-${r.ke}!`)+(r.hadiah?` +${r.hadiah} Receh masuk ke Recehan-mu 🎉`:(r.sudah?'':' (hadiah Recehan untuk 20 penemu pertama sudah habis)'));b.remove()};acts.append(b)}
+        msg.className='kk-msg';msg.textContent=(r.ke===1?'🥇 KAMU PENEMU PERTAMA!':`✅ Kamu penemu ke-${r.ke}!`)+(r.hadiah?` +${r.hadiah} Receh masuk ke Recehan-mu 🎉`:(r.sudah?'':' (hadiah Recehan untuk 20 penemu pertama sudah habis)'));b.remove();window.UFO_KE=r.ke;setTimeout(()=>{try{openUfo3D()}catch(e){}},900)};acts.append(b)}
     else{const c=q.code||'UFO NYASAR';left.append(el('p',null,`Belum punya Kartu Komen? Salin kode ini, lalu komen di video episode malam ini (yang baru tayang jam 19.00, BUKAN video yang di-pin) sebelum ${q.end} WIB:`));
       const f=el('div','kk-frasa',c);f.onclick=()=>kkSalin(c);left.append(f);acts.append(kkBtn('📋 Salin kode','gold3',()=>kkSalin(c)));
       const a=el('a','btn gent','Komen di Instagram');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';acts.append(a)}}
@@ -2903,7 +2903,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
 function GENTO_ON(){return !!(window.NK_DATA&&window.NK_DATA.gento)}
 function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]:null;
   open3D(me?Object.assign({},me,{demo:'ufo',nick:'UFO Nyasar di atas rumah @'+me.name}):{demo:'ufo',name:'ufonyasar',nick:'UFO Nyasar 🛸',x:0,y:0,wall:'krem',roof:'merah'},me?i:0);
-  setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
+  setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,window.UFO_KE?(window.UFO_KE===1?'🥇 Selamat, kamu penemu pertama! ':`🎉 Selamat, kamu penemu ke-${window.UFO_KE}! `)+'Bagikan momen langka ini 📸':'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
 function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Contoh GENTO',x:0,y:0,wall:'putih',roof:'merah',items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);

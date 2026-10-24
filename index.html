@@ -2299,7 +2299,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
     else if(o.id==='motor'){wheel(-.45,.22);wheel(.45,.22);add(B(.8,.24,.3),VC||'#C4402F',0,.42,0);add(B(.38,.08,.26),'#1C2520',-.12,.58,0);add(B(.05,.3,.05),'#1C2520',.42,.62,0);add(B(.05,.05,.46),'#1C2520',.42,.77,0);add(S(.07),'#F2C230',.5,.55,0)}
     else if(o.id==='ayam'){const b=add(S(.26),'#F4EFE3',0,.34,0);b.scale.set(1.2,1,1);add(S(.15),'#F4EFE3',.26,.58,0);add(B(.06,.1,.1),'#D8312A',.26,.76,0);add(new T.ConeGeometry(.04,.12,6),'#F2A93B',.42,.58,0).rotation.z=-Math.PI/2;add(new T.ConeGeometry(.14,.3,6),'#2F6B4F',-.3,.48,0).rotation.z=.9;[-.06,.06].forEach(zz=>add(C(.02,.02,.14),'#F2A93B',0,.08,zz))}
     else if(o.id==='robot'){g.remove(q);robot3D(g,A,M)}
-    else if(o.id==='konsol'){[[-.22,-.15],[.22,-.15],[-.22,.15],[.22,.15]].forEach(([a,c])=>add(C(.025,.025,.34),'#6B4527',a,.17,c));add(B(.56,.05,.4),'#B07A45',0,.36,0);add(B(.36,.06,.22),'#2B2F5E',0,.42,0);
+    else if(o.id==='konsol'){q.scale.setScalar(1.6);[[-.22,-.15],[.22,-.15],[-.22,.15],[.22,.15]].forEach(([a,c])=>add(C(.025,.025,.34),'#6B4527',a,.17,c));add(B(.56,.05,.4),'#B07A45',0,.36,0);add(B(.36,.06,.22),'#2B2F5E',0,.42,0);
       const sc=add(B(.16,.012,.1),'#7FD8FF',0,.455,0,{emissive:'#7FD8FF',emissiveIntensity:.8});add(S(.022),'#F2C230',-.13,.46,.03);add(S(.022),'#FF5E8A',.13,.46,.03);A.push(t=>{sc.material.emissiveIntensity=.5+.4*Math.sin(t*.004+k)})}
     else if(o.id==='kucing'){const b=add(S(.25),'#E07A3E',0,.28,0);b.scale.set(1.4,.9,.9);add(S(.17),'#E07A3E',.36,.46,0);[-.08,.08].forEach(zz=>add(new T.ConeGeometry(.06,.14,4),'#E07A3E',.36,.65,zz));const t=add(C(.04,.04,.45),'#E07A3E',-.42,.42,0);t.rotation.z=.6}
     else if(o.id==='kambing'){const b=add(B(.7,.36,.36),'#F4EFE3',0,.5,0);[[-.24,-.12],[-.24,.12],[.24,-.12],[.24,.12]].forEach(([a,c])=>add(C(.04,.04,.34),'#8E7A60',a,.17,c));add(B(.24,.26,.22),'#F4EFE3',.44,.74,0);[-.06,.06].forEach(zz=>{const h=add(C(.02,.03,.22),'#8E5A3C',.4,.95,zz);h.rotation.z=.5})}
@@ -2991,6 +2991,9 @@ addEventListener('hashchange',()=>{if(location.hash==='#ufo-rahasia')openUfo3D()
 if(location.hash==='#gento-jalan')setTimeout(cobaGento,1200);
 // QA konsol playadalahmain (belum dijual): #konsol-qa
 function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL&&window.KONSOL.open({qa,me,kirim:k?(g,v)=>kkApi('konsol-skor',{g,v,qa:!!qa},true):null,rank:()=>fetch('/api/kartu?aksi=konsol-rank'+(qa?'&qa=1':'')).then(r=>r.json()).catch(()=>({}))});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=8';s.onload=go;document.head.append(s)}
+// QA: #konsol-rumah = contoh rumah pemilik konsol di 3D + kotak "Main sekarang" seperti di Kartu Komen
+function openDemoKonsol(){open3D({demo:'konsol',name:'contohkonsol',nick:'Contoh rumah pemilik konsol',x:0,y:0,wall:'kuning',roof:'biru',items:[{id:'konsol'},{id:'ayam'},{id:'lampu'}]},0)}
+if(location.hash==='#konsol-rumah')setTimeout(openDemoKonsol,900);addEventListener('hashchange',()=>{if(location.hash==='#konsol-rumah')openDemoKonsol()});
 if(location.hash==='#konsol-qa')setTimeout(()=>bukaKonsol(true),900);addEventListener('hashchange',()=>{if(location.hash==='#konsol-qa')bukaKonsol(true)});
 document.querySelectorAll('.emasLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.emas||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
 document.querySelectorAll('.usahaLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.usaha||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
@@ -3010,6 +3013,8 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';
   if(bd0&&bd0.type==='tugu'){$('v3demo').append(el('p',null,'🏆 Ranking penyumbang Genteng:'));const ol=el('ol','rank');rankList(ol,5);$('v3demo').append(ol);if((D.juraganHistory||[]).length){const dh=el('div','jhist');dh.append(el('p',null,'📜 Riwayat Juragan Genteng (dari awal):'));const o2=el('ol');jhFill(o2);dh.append(o2);$('v3demo').append(dh)}}
   if(bd0&&bd0.type==='layartancap'&&TT_ITEMS.length){{const p=el('p',null,'🎬 Tontonan malam ini, kiriman tetangga ');TT_AKUN.forEach((a,k)=>{if(k)p.append(' & ');p.append(ttMention(a))});p.append(':');$('v3demo').append(p)};const g=el('div','tgrid tmini');tancapCards(g,2);$('v3demo').append(g)}
+  if(r&&r.demo==='konsol'){const mg=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));
+    mg.append(gh,el('p','kk-muted','Begini tampilannya di Kartu Komen pemilik. 8 mini game, skor terbaik masuk 🏆 Ranking pemilik!'),kkBtn('🎮 Main sekarang','gold3',()=>bukaKonsol(true)));$('v3demo').append(mg)}
   if(r&&r.demo===true){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
     tx.append(el('b',null,'🏪 Toko Kamu'),moreText(null,'Keripik pedas bikinan sendiri, level 1–5. Pedasnya nampol tapi bikin nagih! Dibuat tiap hari dari singkong pilihan, tanpa pengawet. Tersedia ukuran 100 gr dan 250 gr. Bisa COD sekitar kampung atau kirim ke seluruh Indonesia. Order lewat link di bawah ya!',2));
     const a=el('a','btn dark','Buka link ↗');a.href='#';a.onclick=e=>{e.preventDefault();toast('Ini contoh. Nanti diisi link pilihanmu: toko online, WA, IG, apa pun')};tx.append(a,el('small',null,'Foto, deskripsi & link diisi sendiri lewat formulir. Tampil di daftar Toko Warga selama 30 hari.'));d.append(im,tx);$('v3demo').append(d)}
@@ -3017,7 +3022,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
-  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='gento'?'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!':r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!':r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();

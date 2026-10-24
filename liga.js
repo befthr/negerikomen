@@ -76,7 +76,7 @@ function draw(t){const st=status(),malam=(((now()+252e5)%864e5)/36e5)>=18;
   if(st.main){const L=laga(st.d,st.s),m=st.menit,b=bolaDi(L,m);
     // pemain mengikuti bola dari posisi formasi; yang terdekat mengejar
     [[L.A,0],[L.B,1]].forEach(([k,side])=>{const col=TIM[k].col;let best=-1,bd=9;const pos=FORM.map((f,i)=>{let hx=f[0],hy=side?1-f[1]:f[1];const w=i===0?.08:i<5?.25:i<9?.4:.35;
-        let x=hx+(b.x-hx)*w+.02*Math.sin(m*1.7+i+side*3),y=hy+(b.y-hy)*w*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)y=side?Math.max(.9,y):Math.min(.1,y);const dd=Math.hypot(x-b.x,y-b.y);if(i&&dd<bd){bd=dd;best=i}return [x,y]});
+        let x=hx+(b.x-hx)*w+.02*Math.sin(m*1.7+i+side*3),y=hy+(b.y-hy)*w*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)y=side?Math.min(.1,y):Math.max(.9,y);const dd=Math.hypot(x-b.x,y-b.y);if(i&&dd<bd){bd=dd;best=i}return [x,y]});
       if(best>0&&!b.net){pos[best]=[b.x+(side?.02:-.02),b.y+(side?-.03:.03)]}const nm=side?L.lb:L.la;pos.forEach(([x,y],i)=>{const [px,py]=P(x,y);pemain(ctx,px,py,i===0?(side?'#333':'#eee'):col,NOMOR[i],nm[i],.95,performance.now()/80+i*1.3)})});
     const [bx,by]=P(b.x,b.y);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(bx,by,4,0,7);ctx.fill();ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.stroke();
     const sa=L.gol.filter(g=>g.t===0&&g.m<=m).length,sb=L.gol.filter(g=>g.t===1&&g.m<=m).length;
@@ -89,7 +89,7 @@ function draw(t){const st=status(),malam=(((now()+252e5)%864e5)/36e5)>=18;
     const lg=L.gol.filter(g=>g.m<=m);txt(lg.length?'⚽ '+lg.map(g=>'@'+g.n+" "+Math.floor(g.m)+"'").join(' · '):'Belum ada gol',W/2,H-28,10,'#fff','center',600)}
   else{rr(10,8,W-20,46,10,INK);if(st.s>=0){const L=laga(st.d,st.s);txt('Laga berikutnya '+String(JAM[st.s]).padStart(2,'0')+'.00',W/2,20,11,'#9effa0');txt(`${TIM[L.A].nama}  vs  ${TIM[L.B].nama}`,W/2,40,14,KUNING)}
     else{txt('Laga hari ini selesai',W/2,22,12,'#9effa0');txt('Besok mulai 13.00',W/2,40,14,KUNING)}
-    orang(W/2-30,FY+FH/2+60,'#E07A3E');orang(W/2+10,FY+FH/2+40,'#8E5AA8');ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(W/2-8+Math.sin(t*2)*14,FY+FH/2+52,4,0,7);ctx.fill();
+    pemain(ctx,W/2-30,FY+FH/2+60,'#E07A3E','',null,.8,t*10);pemain(ctx,W/2+10,FY+FH/2+40,'#8E5AA8','',null,.8,t*10+2);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(W/2-8+Math.sin(t*2)*14,FY+FH/2+52,4,0,7);ctx.fill();
     txt('Lapangan sepi · anak-anak main sendiri',W/2,H-28,10,'#ffffffcc','center',600)}
   const jam=new Date(now()+252e5);txt('🕒 '+String(jam.getUTCHours()).padStart(2,'0')+'.'+String(jam.getUTCMinutes()).padStart(2,'0')+' WIB'+(OPT.qa&&speed>1?` · ⏩ x${speed}`:''),W/2,H-10,10,'#ffffffaa','center',600)}
 // ---------- panel bawah: jadwal & klasemen ----------
@@ -111,12 +111,13 @@ function open(opt={}){if(root)return;OPT=opt;TIM=opt.tim||[];vt=Date.now();speed
   root.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{speed=+b.dataset.s;root.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('on',x===b))});
   root.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{lompat(+b.dataset.h,0);peluit(1)});
   const jn=root.querySelector('[data-j]');if(jn)jn.onclick=()=>{const st=status();if(!st.main){const h=JAM[st.s>=0?st.s:0];lompat(h,0);peluit(1)}};
+  if(opt.qa&&!status().main){const st=status();lompat(st.s>=0?JAM[st.s]:20,st.s>=0?0:2)}
   isiPanel();last=0;raf=requestAnimationFrame(frame)}
 function close(){cancelAnimationFrame(raf);if(root)root.remove();root=null}
 function liveAt(ms){const d=hariKe(ms),mnt=((ms+252e5)%864e5)/6e4;for(let s=0;s<8;s++){const m0=JAM[s]*60;if(mnt>=m0&&mnt<m0+DUR)return {main:true,L:laga(d,s),menit:(mnt-m0)/DUR*90}}const nx=JAM.findIndex(j=>j*60>mnt);return {main:false,next:nx>=0?{jam:JAM[nx],L:laga(d,nx)}:null}}
 function drawMini(c,x,y,w,h,ms){const st=liveAt(ms);if(!st.main)return st;const L=st.L,m=st.menit,b=bolaDi(L,m);const P=(u,v)=>[x+u*w,y+v*h];
   const o=(px,py,col,r)=>{c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(px+r*.3,py+r*.5,r,r*.6,0,0,7);c.fill();c.fillStyle=col;c.beginPath();c.arc(px,py,r,0,7);c.fill();c.fillStyle='#F1C9A0';c.beginPath();c.arc(px,py-r*.15,r*.45,0,7);c.fill()};
-  const r=Math.max(2.2,w*.022),kk=w/300;[[L.A,0],[L.B,1]].forEach(([k,side])=>{const nm=side?L.lb:L.la;FORM.forEach((f,i)=>{const hx=f[0],hy=side?1-f[1]:f[1],wt=i===0?.08:i<5?.25:i<9?.4:.35;let px=hx+(b.x-hx)*wt+.02*Math.sin(m*1.7+i+side*3),py=hy+(b.y-hy)*wt*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)py=side?Math.max(.9,py):Math.min(.1,py);const [X,Y]=P(px,py);c.save();c.translate(X,Y);c.rotate(-Math.PI/2);pemain(c,0,0,i===0?(side?'#333':'#eee'):TIM[k].col,NOMOR[i],nm[i],kk,performance.now()/80+i*1.3);c.restore()})});
+  const r=Math.max(2.2,w*.022),kk=w/300;[[L.A,0],[L.B,1]].forEach(([k,side])=>{const nm=side?L.lb:L.la;FORM.forEach((f,i)=>{const hx=f[0],hy=side?1-f[1]:f[1],wt=i===0?.08:i<5?.25:i<9?.4:.35;let px=hx+(b.x-hx)*wt+.02*Math.sin(m*1.7+i+side*3),py=hy+(b.y-hy)*wt*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)py=side?Math.min(.1,py):Math.max(.9,py);const [X,Y]=P(px,py);c.save();c.translate(X,Y);c.rotate(-Math.PI/2);pemain(c,0,0,i===0?(side?'#333':'#eee'):TIM[k].col,NOMOR[i],nm[i],kk,performance.now()/80+i*1.3);c.restore()})});
   const [bx,by]=P(b.x,b.y);c.fillStyle='#fff';c.beginPath();c.arc(bx,by,r*.7,0,7);c.fill();
   st.sa=L.gol.filter(g=>g.t===0&&g.m<=m).length;st.sb=L.gol.filter(g=>g.t===1&&g.m<=m).length;st.gol=L.gol.find(g=>m-g.m>=0&&m-g.m<3.5);return st}
 window.LIGA={open,close,laga,klasemen,liveAt,drawMini,setTim:t=>{TIM=t},tim:()=>TIM};

@@ -106,7 +106,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .legend .lf{width:3px;height:14px;background:#5A4A3A;position:relative;margin-right:9px}
 .legend .lf::after{content:'';position:absolute;left:3px;top:0;border-left:10px solid #F2C230;border-top:4px solid transparent;border-bottom:4px solid transparent}
 .legend .la{width:16px;height:8px;background:repeating-linear-gradient(90deg,#2E8B6A 0 4px,#FFFDF6 4px 8px);border:1px solid var(--ink);border-radius:0 0 5px 5px}
-@media (max-width:520px){.legend{top:52px;right:auto;left:12px;font-size:11.5px;padding:5px 8px}}
+@media (max-width:520px){.legend{top:auto;bottom:84px;right:auto;left:10px;font-size:10.5px;padding:4px 7px;gap:2px}.maptag{left:8px;top:8px;gap:4px}.maptag span{font-size:10.5px;padding:4px 8px}}
 .hint{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 80px);background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font-size:12.5px;color:var(--muted);pointer-events:none}
 .side{display:flex;flex-direction:column;gap:14px;min-width:0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
@@ -1720,8 +1720,8 @@ const mins=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
 // jam WIB real time di pojok peta (+ pengingat UFO di hari quest)
 {const tg=document.querySelector('.maptag');if(tg){const sp=document.createElement('span');sp.id='tagJam';sp.style.background='#1F2F5C';tg.append(sp);
   const upd=()=>{const d=new Date(Date.now()+7*3600e3),H=d.getUTCHours(),M=d.getUTCMinutes(),m=H*60+M,tgl=d.toISOString().slice(0,10);
-    let x='🕖 '+String(H).padStart(2,'0')+'.'+String(M).padStart(2,'0')+' WIB';
-    if(QUEST&&(!QUEST.tanggal||QUEST.tanggal===tgl)){const a=mins(QUEST.start),b=mins(QUEST.end);if(m<a&&a-m<=300)x+=' · 🛸 UFO '+QUEST.start.replace(':','.');else if(m>=a&&m<b)x+=' · 🛸 UFO DI LANGIT!'}
+    const hp=innerWidth<520;let x='🕖 '+String(H).padStart(2,'0')+'.'+String(M).padStart(2,'0')+(hp?'':' WIB');
+    if(QUEST&&(!QUEST.tanggal||QUEST.tanggal===tgl)){const a=mins(QUEST.start),b=mins(QUEST.end);if(m<a&&a-m<=300)x+=' · 🛸 '+(hp?'':'UFO ')+QUEST.start.replace(':','.');else if(m>=a&&m<b)x+=hp?' · 🛸 UFO!':' · 🛸 UFO DI LANGIT!'}
     if(sp.textContent!==x)sp.textContent=x};upd();setInterval(upd,5000)}}
 const UFO_QA=location.hash==='#ufo-qa';
 function questOn(){if(UFO_QA&&QUEST)return true;if(!QUEST)return false;if(QUEST.tanggal&&new Date(Date.now()+252e5).toISOString().slice(0,10)!==QUEST.tanggal)return false;const d=new Date(),w=(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440,a=mins(QUEST.start),b=mins(QUEST.end);

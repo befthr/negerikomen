@@ -7,7 +7,7 @@ window.NK_DATA = {
  "day": 6,
  "updated": "2026-10-23",
  "kavling": 1650,
- "followers": 1108,
+ "followers": 3264,
  "target": 1000,
  "supOthers": 3,
  "tontonan": {

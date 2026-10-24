@@ -412,7 +412,7 @@ export default async function handler(req, res) {
       const G = D.gaji || {}, JOB = { warung: 'warung', posronda: 'satpam', bakso: 'bakso', padang: 'padang', masjid: 'marbot' };
       const besar = (job, x) => Math.max(0, Math.min(50, Math.floor(+((x && x.gaji) ?? G[job] ?? G.default ?? GAJI)) || 0));
       const bayar = new Map(), tambah = (u, n) => { u = cleanU(u); if (okU(u) && warga(D, u) && n > 0) bayar.set(u, (bayar.get(u) || 0) + n) };
-      (D.buildings || []).forEach(b => (Array.isArray(b.staff) ? b.staff : []).forEach(x => x && tambah(x.user, besar(JOB[b.type] || b.type, x))));
+      (D.buildings || []).forEach(b => (Array.isArray(b.staff) ? b.staff : []).forEach(x => x && (!x.until || String(x.until) >= hariIniStr) && tambah(x.user, besar(JOB[b.type] || b.type, x)))); // kontrak karyawan 30 hari (until)
       (D.residents || []).filter(r => r.job && (!r.job.until || String(r.job.until) >= hariIniStr)).forEach(r => tambah(r.name, besar('proyek', r.job)));
       const staf = [...bayar.keys()], totalGaji = [...bayar.values()].reduce((a, b) => a + b, 0);
       const sudah = await kv(['GET', 'gaji:' + minggu]);

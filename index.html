@@ -1413,7 +1413,7 @@ const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.is
 const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
 const KERJA_IK={posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
-BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user)return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||['👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type}}}));
+BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||['👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}}));
 const KAV=Math.max(D.kavling||50,RES.length);
 const FREE_N=Math.max(0,KAV-RES.length);
 const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
@@ -2407,7 +2407,7 @@ function build3DB(b){const T=THREE,g=new T.Group();
 function perkEl(t){const i=el('i',t.bi!=null?'go':null,String(t));if(t.bi!=null){i.title='Lihat bangunan';i.textContent=String(t)+' ›';i.onclick=e=>{e.stopPropagation();if(!$('v3').hidden)close3D();select({kind:'b',i:t.bi});scrollMap()}}return i}
 function perksOf(r){const L=[];
   BLD.forEach((b,bi)=>{if(bossOf(b)===r.name)L.push(Object.assign(new String((WAKAF(b)?'🤲 Pewakaf ':'👑 Bos ')+(b.name||'Bangunan')),{bi}))});
-  BLD.forEach((b,bi)=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push(Object.assign(new String('👷 '+(x.role||'Karyawan')+' '+(b.name||'')),{bi}))}));
+  BLD.forEach((b,bi)=>staffOf(b).forEach(x=>{if(x.user===r.name)L.push(Object.assign(new String('👷 '+(x.role||'Karyawan')+' '+(b.name||'')+(x.until?' · s/d '+new Date(x.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')),{bi}))}));
   {const j=juraganIdx();if(j>=0&&RES[j].name===r.name){const tb=BLD.findIndex(b=>b.type==='tugu');L.push(tb>=0?Object.assign(new String('👑 Juragan Genteng'),{bi:tb}):'👑 Juragan Genteng')}}
   if(r.style&&['panggung','serigala','victorian'].includes(r.style))L.push('🏆 Rumah Impian');
   if(r.sup)L.push('🚩 Bendera Emas');else if(r.donor)L.push('🧱 Pendukung');
@@ -2884,7 +2884,7 @@ function bslug(b){return 'b-'+String(b.name||b.type).toLowerCase().replace(/[^a-
 function WAKAF(b){return !!(b&&(b.wakaf||b.type==='masjid'))}
 function bossTxt(b,u){return WAKAF(b)?'🤲 Diwakafkan @'+u:'👑 Bos @'+u}
 function bossOf(b){return b.by&&b.by!=='negerikomen'?b.by:null}
-function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user):[]}
+function staffOf(b){return Array.isArray(b.staff)?b.staff.filter(x=>x&&x.user&&(!x.until||x.until>=TODAY)):[]}
 async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden=false;
   {const x=$('v3x');x.textContent=V3BACK?'←':'✕';x.classList.toggle('back',!!V3BACK);x.setAttribute('aria-label',V3BACK?'Kembali ke kartu':'Tutup')}
   const bd=$('v3bd');bd.innerHTML='';$('v3demo').innerHTML='';

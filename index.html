@@ -2975,7 +2975,7 @@ function cobaGento(){const k=Math.max(0,RES.findIndex(r=>r.name==='lembarpeta'))
 addEventListener('hashchange',()=>{if(location.hash==='#ufo-rahasia')openUfo3D();if(location.hash==='#gento-rahasia')openDemoGento();if(location.hash==='#gento-jalan')cobaGento()});
 if(location.hash==='#gento-jalan')setTimeout(cobaGento,1200);
 // QA konsol playadalahmain (belum dijual): #konsol-qa
-function bukaKonsol(qa){const go=()=>window.KONSOL&&window.KONSOL.open({qa});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=2';s.onload=go;document.head.append(s)}
+function bukaKonsol(qa){const go=()=>window.KONSOL&&window.KONSOL.open({qa});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=3';s.onload=go;document.head.append(s)}
 if(location.hash==='#konsol-qa')setTimeout(()=>bukaKonsol(true),900);addEventListener('hashchange',()=>{if(location.hash==='#konsol-qa')bukaKonsol(true)});
 document.querySelectorAll('.emasLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.emas||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});
 document.querySelectorAll('.usahaLink').forEach(a=>{const u=D.trakteer&&(D.trakteer.usaha||D.trakteer.url);if(u&&/^https:\/\/(www\.)?trakteer\.id\//.test(u))a.href=u.trim();else a.removeAttribute('href')});

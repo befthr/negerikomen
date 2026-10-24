@@ -1413,7 +1413,7 @@ const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.is
 const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
 const KERJA_IK={posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
-BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user)return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||['👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1]}}}));
+BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user)return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||['👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type}}}));
 const KAV=Math.max(D.kavling||50,RES.length);
 const FREE_N=Math.max(0,KAV-RES.length);
 const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
@@ -2190,7 +2190,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
       else{cat.rotation.y=k.arah>0?Math.PI/2:-Math.PI/2;cat.rotation.x=(k.f-.5)*-.8;kp.rotation.x=-.2;cb.scale.set(1,.8,1.45);kakiK.forEach(l=>l.scale.y=1.3)}
       telinga.forEach((e,i)=>e.rotation.z=Math.sin(s*7+i*3)>.85?(i?-.5:.5):0);
       tail.rotation.z=Math.sin(s*(k.diam?2.6:9))*.7;tail.rotation.x=k.diam?0:.6}})}
-function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={items:[{id:'papan',teks:r.kerja.papan},...(Array.isArray(r.items)?r.items:[])].slice(0,3)};if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
+function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={items:[{id:'papan',teks:r.kerja.papan,prop:r.kerja.prop},...(Array.isArray(r.items)?r.items:[])].slice(0,3)};if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8},o||{}));
   const SLOT=[[-2.5,1.3,.5],[2.6,-.2,-.6],[-2.4,-.4,1.2]];
   const A=g.userData.anim||(g.userData.anim=[]);
@@ -2220,7 +2220,16 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
     else if(o.id==='kolam'){const f=q.children[2];A.push(t=>{const u=t*.0012+k;f.position.set(Math.cos(u)*.35,.15,Math.sin(u)*.35);f.rotation.y=-u})}
     else if(o.id==='ayunan'){const seat=q.children.slice(-3);const pv=new T.Group();pv.position.y=1.25;q.add(pv);seat.forEach(m=>{q.remove(m);m.position.y-=1.25;pv.add(m)});A.push(t=>{pv.rotation.x=Math.sin(t*.0025+k)*.45})}
     else if(o.id==='mangga')A.push(t=>{q.rotation.z=Math.sin(t*.0012+k)*.03});
-    if(o.id==='papan'){[-.38,.38].forEach(xx=>add(B(.06,.6,.06),'#6B4527',xx,.3,0));const sg=new T.Mesh(new T.BoxGeometry(1.05,.4,.06),[M('#8A5A2E'),M('#8A5A2E'),M('#8A5A2E'),M('#8A5A2E'),new T.MeshStandardMaterial({map:signTex(String(o.teks||'').slice(0,20)||'RUMAH','#B07A45','#FFF6D6'),roughness:.7}),M('#8A5A2E')]);sg.position.set(0,.72,0);sg.castShadow=true;q.add(sg);q.rotation.y=0;q.position.set(-1.6,0,2.9)}
+    if(o.id==='papan'){[-.38,.38].forEach(xx=>add(B(.06,.6,.06),'#6B4527',xx,.3,0));const sg=new T.Mesh(new T.BoxGeometry(1.05,.4,.06),[M('#8A5A2E'),M('#8A5A2E'),M('#8A5A2E'),M('#8A5A2E'),new T.MeshStandardMaterial({map:signTex(String(o.teks||'').slice(0,20)||'RUMAH','#B07A45','#FFF6D6'),roughness:.7}),M('#8A5A2E')]);sg.position.set(0,.72,0);sg.castShadow=true;q.add(sg);q.rotation.y=0;q.position.set(-1.6,0,2.9);
+      const C2=(a,b2,h,n)=>new T.CylinderGeometry(a,b2,h,n||14);
+      if(o.prop==='posronda'){ // kentongan bambu tergantung di tiang + pemukul
+        [.75,1.25].forEach(xx=>add(B(.06,.95,.06),'#6B4527',xx,.47,0));add(B(.6,.06,.06),'#6B4527',1,.95,0);
+        add(C2(.006,.006,.12,4),'#3A2A1A',1,.86,0);const kt=add(C2(.1,.1,.5,16),'#C9A45C',1,.56,0);add(B(.03,.32,.05),'#3A2A1A',1,.56,.095);
+        [.33,.79].forEach(yy=>add(C2(.105,.105,.03,16),'#A9853F',1,yy,0));const pk=add(C2(.025,.025,.38,8),'#8A5A2E',1.25,.35,.18);pk.rotation.z=.6}
+      if(o.prop==='warung'){ // meja kecil + kaleng kerupuk kaca tutup kuning
+        add(B(.8,.05,.5),'#8A5A2E',1.05,.42,0);[[.72,-.2],[1.38,-.2],[.72,.2],[1.38,.2]].forEach(([xx,zz])=>add(B(.05,.4,.05),'#6B4527',xx,.2,zz));
+        [[.86,'#F2C230'],[1.24,'#C4402F']].forEach(([xx,tc])=>{add(C2(.17,.17,.42,20),'#CFE8F2',xx,.66,0,{transparent:true,opacity:.45,roughness:.1});add(C2(.18,.18,.06,20),tc,xx,.9,0);
+          for(let k=0;k<4;k++){const kr=add(C2(.12,.12,.025,12),'#F4E3B5',xx+(k%2?.03:-.03),.5+k*.08,(k%3-1)*.03);kr.rotation.x=(k%2?.3:-.25)}})}}
   })}
 function shade3(c){const k=new THREE.Color(c);k.multiplyScalar(.75);return k}
 function screenTex(){const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');

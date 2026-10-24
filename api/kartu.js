@@ -369,6 +369,17 @@ export default async function handler(req, res) {
         const warna = {}; for (const id of ['motor', 'sepeda']) if (ids.includes(id)) { const w = String((body.warna || {})[id] || 'merah'); if (!VWARNA.includes(w)) return res.status(400).json({ error: 'Warna ' + id + ' tidak tersedia.' }); warna[id] = w }
         isi = { items: ids, teks, warna, harga: ids.reduce((t, id) => t + KATALOG[id], 0) };
         if (ids.includes('robot') && !D.gento && s.u !== OWNER) return res.status(400).json({ error: 'Barang ini belum dijual.' });
+        if (ids.includes('konsol')) { // playadalahmain: hanya pakai Recehan, langsung jadi
+          if (ids.length > 1) return res.status(400).json({ error: 'Beli playadalahmain terpisah dari item lain ya.' });
+          if ((info.saldo || 0) < isi.harga) return res.status(400).json({ error: `playadalahmain cuma bisa dibeli pakai Recehan. Recehan-mu ${info.saldo || 0} Receh, butuh ${isi.harga} Receh. Isi Recehan dulu ya!` });
+          const after = await kv(['HINCRBY', 'saldo', s.u, -isi.harga]);
+          if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, isi.harga]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
+          const A2 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = 'ITEM-'; for (let i = 0; i < 4; i++) kode += A2[crypto.randomInt(A2.length)];
+          const v = { u: s.u, jenis: 'item', ...isi, bayar: isi.harga, trk: [{ nama: 'saldo', qty: isi.harga, at: Date.now() }], at: Date.now(), status: 'menunggu' };
+          await kvMany([['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -isi.harga, ket: kode })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
+          await terapkan(kv, kvMany, 'item', kode, v, true, 'otomatis');
+          return res.status(200).json({ ok: true, langsung: true, kode, jenis: 'item', harga: isi.harga, kartu: await infoKartu(D, s.u) });
+        }
         if (ids.includes('robot')) { // GENTO: beli langsung pakai Recehan, sekaligus. Tidak ada pesanan menggantung → tidak ada yang bayar dobel.
           const p = await kv(['GET', ROBOT]); if (p) return res.status(400).json({ error: 'GENTO cuma ada 1 di kampung, dan sudah dimiliki @' + p + '.' });
           if ((info.saldo || 0) < isi.harga) return res.status(400).json({ error: `GENTO cuma bisa dibeli pakai Recehan. Recehan-mu ${info.saldo || 0} Receh, butuh ${isi.harga} Receh. Isi Recehan dulu ya!` });

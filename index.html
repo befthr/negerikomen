@@ -3034,7 +3034,7 @@ function cobaGento(){const k=Math.max(0,RES.findIndex(r=>r.name==='lembarpeta'))
 addEventListener('hashchange',()=>{if(location.hash==='#ufo-rahasia')openUfo3D();if(location.hash==='#gento-rahasia')openDemoGento();if(location.hash==='#gento-jalan')cobaGento()});
 if(location.hash==='#gento-jalan')setTimeout(cobaGento,1200);
 // QA konsol playadalahmain (belum dijual): #konsol-qa
-function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL&&window.KONSOL.open({qa,me,kirim:k?(g,v)=>kkApi('konsol-skor',{g,v,qa:!!qa},true):null,rank:()=>fetch('/api/kartu?aksi=konsol-rank'+(qa?'&qa=1':'')).then(r=>r.json()).catch(()=>({}))});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=8';s.onload=go;document.head.append(s)}
+function bukaKonsol(qa){const k=kkGet(),me=k&&k.u||'';const go=()=>window.KONSOL&&window.KONSOL.open({qa,me,kirim:k?(g,v)=>kkApi('konsol-skor',{g,v,qa:!!qa},true):null,rank:()=>fetch('/api/kartu?aksi=konsol-rank'+(qa?'&qa=1':'')).then(r=>r.json()).catch(()=>({}))});if(window.KONSOL)return go();const s=document.createElement('script');s.src='/konsol.js?v=9';s.onload=go;document.head.append(s)}
 // QA: #konsol-rumah = contoh rumah pemilik konsol di 3D + kotak "Main sekarang" seperti di Kartu Komen
 function openDemoKonsol(){open3D({demo:'konsol',name:'contohkonsol',nick:'Contoh rumah pemilik konsol',x:0,y:0,wall:'kuning',roof:'biru',items:[{id:'konsol'},{id:'ayam'},{id:'lampu'}]},0)}
 if(location.hash==='#konsol-rumah')setTimeout(openDemoKonsol,900);addEventListener('hashchange',()=>{if(location.hash==='#konsol-rumah')openDemoKonsol()});

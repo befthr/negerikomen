@@ -1602,7 +1602,7 @@ function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={mot
   const L=(window.BELANJA||[]).map(o=>{let t='';if(o.j==='warna')t='🎨 Ganti warna rumah';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Buka ruko';else if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2);
     else if(o.j==='item'){const v=(o.it||[]).map(id=>KD[id]||(KK_ITEM[id]?'🛍️ '+KK_ITEM[id].n:'')).filter(Boolean);if(v.length)t=v.join(', ')}
     return t&&o.u?{u:o.u,t,at:o.at}:null}).filter(Boolean).slice(0,20);
-  box.innerHTML='';if(!L.length){$('okb').hidden=true;return}$('okb').hidden=false;$('okbTitle').textContent=`🛒 Belanja terbaru di kampung (${fmt(L.length)})`;
+  box.innerHTML='';if(!L.length){$('okb').hidden=true;return}$('okb').hidden=false;$('okbTitle').textContent='🛒 Belanja terbaru di kampung';
   L.forEach(o=>{const i=kkResIdx(o.u),li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     bt.append(el('span','ico','🛒'),el('b',null,'@'+o.u),el('span',null,o.t+' · '+lalu(o.at)));
     bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)})}

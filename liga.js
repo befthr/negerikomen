@@ -10,6 +10,7 @@ const css=`.lg{position:fixed;inset:0;z-index:210;background:rgba(10,14,12,.88);
 .lg canvas{display:block;width:100%;height:auto;border-radius:12px}.lg-qa{display:inline-block;background:#C4502F;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800;margin-left:6px}
 .lg-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.lg-row button{flex:1;min-width:56px;border:2px solid ${INK};background:${KREM};color:${INK};border-radius:10px;padding:6px 4px;font:700 12px Poppins,sans-serif;cursor:pointer}.lg-row button.on{background:${KUNING}}
 .lg-k{margin:10px 0 2px;font-size:11.5px;line-height:1.35;color:#ffffffcc}.lg-k b{color:#F2C230}
+.lg-tab{display:flex;gap:6px;margin:12px 0 6px}.lg-tab button{flex:1;border:2px solid #1C2520;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 8px;font:800 12.5px Poppins,sans-serif;cursor:pointer}.lg-tab button.on{background:#F2C230;color:#1C2520}
 .lg h4{margin:12px 0 6px;font-size:13px;letter-spacing:.06em;color:${KUNING}}.lg table{width:100%;border-collapse:collapse;font-size:12.5px}.lg td,.lg th{padding:5px 4px;border-bottom:1px solid #ffffff22;text-align:center}.lg td:first-child,.lg th:first-child{text-align:left}
 .lg .jd{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:8px;font-size:12.5px;cursor:pointer}.lg .jd.now{background:#ffffff22}.lg .jd:hover{background:#ffffff14}.lg .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;border:1.5px solid ${INK};vertical-align:-1px}`;
 // ---------- acak berbenih ----------
@@ -94,11 +95,12 @@ function draw(t){const st=status(),malam=(((now()+252e5)%864e5)/36e5)>=18;
     txt('Lapangan sepi · anak-anak main sendiri',W/2,H-28,10,'#ffffffcc','center',600)}
   const jam=new Date(now()+252e5);txt('🕒 '+String(jam.getUTCHours()).padStart(2,'0')+'.'+String(jam.getUTCMinutes()).padStart(2,'0')+' WIB'+(OPT.qa&&speed>1?` · ⏩ x${speed}`:''),W/2,H-10,10,'#ffffffaa','center',600)}
 // ---------- panel bawah: jadwal & klasemen ----------
-let panel,pk=0;function isiPanel(){if(!panel)return;const st=status(),d=hariKe(now());panel.innerHTML='';
-  const j=document.createElement('div');j.innerHTML='<h4>📅 JADWAL HARI INI</h4>';JAM.forEach((h,s)=>{const L=laga(d,s),r=document.createElement('div');r.className='jd'+(st.main&&st.s===s?' now':'');
+let panel,pk=0,tab='jadwal';function isiPanel(){if(!panel)return;const st=status(),d=hariKe(now());panel.innerHTML='';
+  const tbr=document.createElement('div');tbr.className='lg-tab';[['jadwal','📅 Jadwal hari ini'],['klas','🏆 Klasemen']].forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;if(tab===k)b.className='on';b.onclick=()=>{tab=k;isiPanel()};tbr.append(b)});panel.append(tbr);
+  const j=document.createElement('div');j.hidden=tab!=='jadwal';JAM.forEach((h,s)=>{const L=laga(d,s),r=document.createElement('div');r.className='jd'+(st.main&&st.s===s?' now':'');
     const sel=((now()+252e5)%864e5)/6e4>=h*60+DUR;r.innerHTML=`<span>${String(h).padStart(2,'0')}.00</span><span><i class="dot" style="background:${TIM[L.A].col}"></i>${TIM[L.A].nama} ${sel?`<b>${L.ga}–${L.gb}</b>`:'vs'} ${TIM[L.B].nama}<i class="dot" style="background:${TIM[L.B].col};margin:0 0 0 5px"></i></span>`;
     if(OPT.qa)r.onclick=()=>{lompat(h,0)};j.append(r)});panel.append(j);
-  const k=document.createElement('div');k.innerHTML='<h4>🏆 KLASEMEN LIGA DUSUN</h4>';const tb=document.createElement('table');tb.innerHTML='<tr><th>Tim</th><th>M</th><th>Mn</th><th>S</th><th>K</th><th>GD</th><th>Poin</th></tr>';
+  const k=document.createElement('div');k.hidden=tab!=='klas';const tb=document.createElement('table');tb.innerHTML='<tr><th>Tim</th><th>M</th><th>Mn</th><th>S</th><th>K</th><th>GD</th><th>Poin</th></tr>';
   klasemen().forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`<td><i class="dot" style="background:${TIM[o.k].col}"></i>${TIM[o.k].nama}</td><td>${o.m}</td><td>${o.mn}</td><td>${o.s}</td><td>${o.k2}</td><td>${o.gf-o.ga}</td><td><b>${o.p}</b></td>`;tb.append(tr)});k.append(tb);panel.append(k)}
 function lompat(h,mm){const d=hariKe(now());vt=d*864e5-252e5+(h*60+mm)*6e4;lastEv='';isiPanel()}
 function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;vt+=dt*1000*speed;ctx.setTransform(dpr,0,0,dpr,0,0);draw(ts/1000);if((pk+=dt)>1){pk=0;isiPanel()}}

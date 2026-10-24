@@ -599,7 +599,7 @@ function drawPlang(cx,cy,nama,oleh){const c=ctx,w=T*2.9,h=T*(oleh?1.85:1.5);c.fi
   c.fillStyle='#2F6B4F';c.fillRect(cx-w/2+4,cy-h/2+4,w-8,T*.22);
   if(nama){c.fillStyle='#1C2520';c.textAlign='center';c.textBaseline='middle';let fs=T*.5;do{c.font=`800 ${fs}px sans-serif`;fs-=1}while(c.measureText(nama).width>w-16&&fs>8);c.fillText(nama,cx,cy+(oleh?-T*.05:T*.1));
     if(oleh){let f2=T*.28;const tx='usulan @'+oleh;do{c.font=`700 ${f2}px sans-serif`;f2-=1}while(c.measureText(tx).width>w-16&&f2>6);c.fillStyle='#2F6B4F';c.fillText(tx,cx,cy+T*.55)}}}
-const PLANG=[[-2,-2,1,1],[1,-2,0,1],[-2,1,1,0],[1,1,0,0]]; // [bx,by, pojok x (1=kanan), pojok y (1=bawah)] → pojok dalam blok yang menghadap pusat
+const PLANG=[[-2,-2,1,1],[1,-2,0,1],[-2,1,1,0],[1,1,0,0],[-4,1,1,0]]; // ke-5 = Dusun 3-B (Dusun 3 dibelah jalan aspal x=C-12) // [bx,by, pojok x (1=kanan), pojok y (1=bawah)] → pojok dalam blok yang menghadap pusat
 // isi tengah blok: sebagian besar LAHAN KOSONG (calon fasilitas dari voting warga); 1 lapangan bola, 2 empang, sawah di pinggiran
 // lampu merah: di simpang jalan besar × jalan aspal/besar. Siklus 16 dtk: arah mendatar hijau 0–7, kuning 7–8, lalu arah tegak hijau 8–15, kuning 15–16.
 const adaLampu=(k,q)=>k%2===0&&q%2===0&&(k===0||q===0);
@@ -1623,12 +1623,14 @@ function bounds(){
 }
 const BB=bounds();
 /* dusun: 4 kuadran dibelah jalan besar tengah (x/y = C). Klik plang → wilayah dusun disorot */
-const DSN_COL=['#E2574C','#3E8FC9','#E2A21B','#2E9C6A'];
-const dsnOf=(x,y)=>(x<C?0:1)+(y<C?0:2);
+const DSN_COL=['#E2574C','#3E8FC9','#E2A21B','#2E9C6A','#C2569A'];
+const DSN_NO=['1','2','3-A','4','3-B'],DSN_BELAH=C-2*S; // Dusun 3 dibelah dua di jalan aspal: 3-A dekat balai, 3-B ke barat
+const dsnOf=(x,y)=>{const k=(x<C?0:1)+(y<C?0:2);return k===2&&x<DSN_BELAH?4:k};
 const DSN_Q=[0,1,2,3].map(k=>{const e=k%2,s2=k>1;const x0=e?0:BB.x0,x1=e?BB.x1:0,y0=s2?0:BB.y0,y1=s2?BB.y1:0;return {x0,x1,y0,y1,cx:(x0+x1)/2,cy:(y0+y1)/2}});
+{const bx=(DSN_BELAH-C)*T,a=DSN_Q[2];a.x0=bx;a.cx=(a.x0+a.x1)/2;DSN_Q.push({x0:BB.x0,x1:bx,y0:0,y1:BB.y1,cx:(BB.x0+bx)/2,cy:BB.y1/2})}
 const dsnNama=k=>{const A=(window.NK_DATA&&Array.isArray(window.NK_DATA.dusun))?window.NK_DATA.dusun:[];const D=A[k];const o=D&&typeof D==='object';return {nama:String((o?D.nama:D)||'').trim(),oleh:o&&D.oleh?String(D.oleh).replace(/^@/,''):''}};
-const dsnLabel=k=>dsnNama(k).nama||('Dusun '+(k+1));
-const PLANG_POS=[[-2,-2],[1,-2],[-2,1],[1,1]].map(([bx,by])=>{const ix=C+bx*S+2,iy=C+by*S+2;return {x:NK.wx(ix)-T/2+1.5*T,y:NK.wx(iy)-T/2+1.35*T}});
+const dsnLabel=k=>dsnNama(k).nama||('Dusun '+DSN_NO[k]);
+const PLANG_POS=[[-2,-2],[1,-2],[-2,1],[1,1],[-4,1]].map(([bx,by])=>{const ix=C+bx*S+2,iy=C+by*S+2;return {x:NK.wx(ix)-T/2+1.5*T,y:NK.wx(iy)-T/2+1.35*T}});
 function drawDusunSel(v,t){const k=sel.k,q=DSN_Q[k],z=v.z,X=x=>v.ox+x*z,Y=y=>v.oy+y*z;ctx.save();ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='rgba(20,28,24,.5)';DSN_Q.forEach((o,i)=>{if(i!==k)ctx.fillRect(X(o.x0),Y(o.y0),(o.x1-o.x0)*z,(o.y1-o.y0)*z)});
   ctx.fillStyle=DSN_COL[k]+'26';ctx.fillRect(X(q.x0),Y(q.y0),(q.x1-q.x0)*z,(q.y1-q.y0)*z);
@@ -1869,7 +1871,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     cp.onclick=()=>copy(location.origin+location.pathname+'#'+encodeURIComponent(r.name));acts.append(cp);
     if(KK_ON){const mine=(kkGet()||{}).u===String(r.name).toLowerCase();const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kamu':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka(r.name);acts.append(kb)}}
   else if(s.kind==='d'){const k=s.k,nm=dsnNama(k),n=RES.filter(r=>dsnOf(r.x,r.y)===k).length,nb=BLD.filter(b=>{const w=b.w||3;return dsnOf(b.x+(w-1)/2,b.y+(w-1)/2)===k}).length;
-    left.append(el('h2',null,'🏡 '+(nm.nama||('Dusun '+(k+1)))),el('p',null,[nm.nama?`Dusun ${k+1}`:'',`${n} warga`,`${nb} bangunan`].filter(Boolean).join(' · ')),
+    left.append(el('h2',null,'🏡 '+(nm.nama||('Dusun '+DSN_NO[k]))),el('p',null,[nm.nama?`Dusun ${DSN_NO[k]}`:'',`${n} warga`,`${nb} bangunan`].filter(Boolean).join(' · ')),
       el('p',null,nm.nama?(nm.oleh?`Nama usulan @${nm.oleh}, dipilih warga lewat like terbanyak.`:'Nama pilihan warga.'):'Belum punya nama. Usulkan nama dusun di komen video terbaru @negerikomen. Like terbanyak jadi namanya!'))}
   else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🛸`),
       el('p',null,'Cepat! 20 penemu pertama dapat Recehan: 🥇 10 Receh · 🥈🥉 5 · ke-4–10 dapat 3 · ke-11–20 dapat 1.'));

@@ -21,6 +21,10 @@ const css=`.kns{position:fixed;inset:0;z-index:200;background:rgba(10,14,12,.86)
 let st,cv,ctx,dpr,raf=0,last=0,game=null,menuHot=-1,ac=null,root=null;
 const lsGet=k=>{try{return +localStorage.getItem('kns_'+k)||0}catch(e){return 0}};
 const lsSet=(k,v)=>{try{localStorage.setItem('kns_'+k,String(v))}catch(e){}};
+// riwayat poin terakhir per game (5 terakhir, terbaru di depan)
+const hGet=k=>{try{const v=JSON.parse(localStorage.getItem('kns_h_'+k)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}};
+function catat(k,v){const h=hGet(k);h.unshift({v,at:Date.now()});try{localStorage.setItem('kns_h_'+k,JSON.stringify(h.slice(0,5)))}catch(e){};if(v>lsGet(k))lsSet(k,v)}
+const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'barusan':d<3600?Math.round(d/60)+' mnt lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hr lalu'};
 // ---------- SFX (WebAudio, tanpa musik) ----------
 function au(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}return ac}
 function tone(f,d,type='square',v=.12,f2){const a=au();if(!a)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0008,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02)}
@@ -36,14 +40,14 @@ const circ=(x,y,r,f,s,lw=3)=>{ctx.beginPath();ctx.arc(x,y,r,0,7);if(f){ctx.fillS
 const rnd=(a,b)=>a+Math.random()*(b-a);
 function genteng(x,y,w,c='#C4402F'){ctx.save();ctx.translate(x,y);rr(-w/2,-w*.32,w,w*.64,4,c,INK);ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=2;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*w/3.2,-w*.3);ctx.lineTo(i*w/3.2,w*.3);ctx.stroke()}ctx.restore()}
 // ---------- tombol di layar ----------
-let BTN=[];const btn=(x,y,w,h,label,fn,col=KUNING,sz=17)=>{BTN.push({x,y,w,h,fn});rr(x,y,w,h,12,col,INK);txt(label,x+w/2,y+h/2+1,sz,col===KUNING||col===KREM?INK:'#fff','center',800,null)};
+let BTN=[];const btn=(x,y,w,h,label,fn,col=KUNING,sz=17)=>{BTN.push({x,y,w,h,fn});rr(x,y,w,h,12,col,INK);txt(label,x+w/2,y+h/2+1,sz,col===KUNING||col===KREM||col==='#fff'?INK:'#fff','center',800,null)};
 // ---------- MENU ----------
 const GAMES=[{id:'penalti',n:'Adu Penalti',ic:'⚽',c:'#3E8FC9'},{id:'genteng',n:'Tangkap Genteng',ic:'🧱',c:MERAH},{id:'pancing',n:'Pancing Ikan',ic:'🎣',c:'#2E9C9A'},{id:'bakso',n:'Racik Bakso',ic:'🍜',c:'#E2A21B'}];
 const Menu={draw(t){ctx.fillStyle='#22503B';ctx.fillRect(0,0,W,H);for(let i=0;i<12;i++){ctx.fillStyle='rgba(255,255,255,.04)';ctx.fillRect(0,i*44+(t*20%44),W,18)}
   ctx.font='800 26px Poppins,system-ui,sans-serif';{const a1=ctx.measureText('playadalah').width,a2=ctx.measureText('main').width,x0=W/2-(a1+a2)/2;txt('playadalah',x0,46,26,'#fff','left');txt('main',x0+a1,46,26,KUNING,'left')}txt('Pilih game-nya!',W/2,82,15,'#CFE8D8','center',700,null);
   GAMES.forEach((g,i)=>{const x=20+(i%2)*170,y=110+Math.floor(i/2)*170,hot=menuHot===i;BTN.push({x,y,w:150,h:150,fn:()=>start(g.id)});
     rr(x,y+(hot?2:0),150,150,20,g.c,INK);rr(x+8,y+8+(hot?2:0),134,96,14,'rgba(255,255,255,.18)');ctx.font='54px "Noto Color Emoji",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(g.ic,x+75,y+58+Math.sin(t*3+i)*3);
-    txt(g.n,x+75,y+124,14,'#fff');const hs=lsGet(g.id);if(hs)txt('🏆 '+hs,x+75,y+143,11,KUNING,'center',700,null)});
+    txt(g.n,x+75,y+124,14,'#fff');const hs=lsGet(g.id),h=hGet(g.id);if(h.length)txt(`Terakhir ${h[0].v} · 🏆 ${hs}`,x+75,y+143,11,KUNING,'center',700,null)});
   txt('Tanpa musik · cuma suara kampung 😄',W/2,452,11,'#9CC2AE','center',600,null)}};
 // ---------- 1. ADU PENALTI ----------
 function Penalti(){const G={shot:0,gol:0,max:5,ph:'aim',t:0,ball:{x:W/2,y:400,r:12},tgt:null,kp:{x:W/2,dx:0},kpDir:0,msg:'',hs:'penalti',
@@ -51,7 +55,7 @@ function Penalti(){const G={shot:0,gol:0,max:5,ph:'aim',t:0,ball:{x:W/2,y:400,r:
   G.tap=(x,y)=>{if(G.ph==='aim'&&y<G.goal.y+G.goal.h+30){G.tgt={x:Math.max(G.goal.x+14,Math.min(G.goal.x+G.goal.w-14,x)),y:Math.max(G.goal.y+14,Math.min(G.goal.y+G.goal.h-10,y))};
       // kiper nebak: kadang ke arah bola, kadang salah
       const zone=x<W/2-50?-1:x>W/2+50?1:0,smart=Math.random()<.42;G.kpDir=smart?zone:[-1,0,1][Math.floor(Math.random()*3)];G.ph='fly';G.t=0;SFX.tendang()}
-    else if(G.ph==='hasil'&&G.t>.9){if(G.shot>=G.max){G.ph='end';SFX.habis();if(G.gol>lsGet(G.hs))lsSet(G.hs,G.gol)}else reset()}
+    else if(G.ph==='hasil'&&G.t>.9){if(G.shot>=G.max){G.ph='end';SFX.habis();catat(G.hs,G.gol)}else reset()}
     else if(G.ph==='end')start('penalti')};
   const reset=()=>{G.ph='aim';G.t=0;G.ball={x:W/2,y:400,r:12};G.kp={x:W/2,dx:0};G.tgt=null;G.msg=''};
   G.update=dt=>{G.t+=dt;if(G.ph==='aim'){G.kp.x=W/2+Math.sin(G.t*2.4)*26}
@@ -80,7 +84,7 @@ function Genteng(){const G={x:W/2,items:[],skor:0,nyawa:3,t:0,sp:0,ph:'main',hs:
     G.items.forEach(o=>{o.y+=o.v*dt;o.rot+=dt*2});G.x=Math.max(34,Math.min(W-34,G.x));
     G.items=G.items.filter(o=>{if(o.y>H-86&&o.y<H-52&&Math.abs(o.x-G.x)<40){if(o.tp==='bom'){G.nyawa--;SFX.bom();G.fx.push({x:o.x,y:o.y,t:0,s:'💥'})}else{const p=o.tp==='emas'?3:1;G.skor+=p;(o.tp==='emas'?SFX.emas:SFX.tangkap)();G.fx.push({x:o.x,y:o.y,t:0,s:'+'+p})}return false}
       if(o.y>H+20){return false}return true});G.fx.forEach(f=>f.t+=dt);G.fx=G.fx.filter(f=>f.t<.8);
-    if(G.nyawa<=0){G.ph='end';SFX.habis();if(G.skor>lsGet(G.hs))lsSet(G.hs,G.skor)}};
+    if(G.nyawa<=0){G.ph='end';SFX.habis();catat(G.hs,G.skor)}};
   G.draw=t=>{const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#8FD3F2');sky.addColorStop(1,'#CFEFFA');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
     circ(60,70,22,'#fff');circ(84,66,18,'#fff');circ(270,110,20,'#fff');circ(292,106,15,'#fff');
     ctx.fillStyle='#7FB65A';ctx.fillRect(0,H-50,W,50);for(let i=0;i<6;i++){rr(i*64-10,H-92,52,44,4,['#E2574C','#3E8FC9','#F2C230','#8E5AA8','#2E9C6A','#E07A3E'][i],INK)}
@@ -105,7 +109,7 @@ function Pancing(){const IKAN=[{n:'Ikan kecil',c:'#F2A33A',p:1,s:.8},{n:'Ikan ma
   G.update=dt=>{if(G.ph==='end')return;G.t+=dt;G.waktu-=dt;G.mt-=dt;G.fish.forEach(f=>{f.x+=f.v*dt;if(f.x<-20)f.x=W+20;if(f.x>W+20)f.x=-20});
     if(G.ph==='tunggu'){G.wait-=dt;if(G.wait<=0){G.ph='makan';G.bite=.85;SFX.strike()}}
     else if(G.ph==='makan'){G.bite-=dt;if(G.bite<=0){G.ph='siap';G.bob=null;G.msg='Yah, ikannya kabur!';G.mt=1.2;SFX.lepas()}}
-    if(G.waktu<=0){G.waktu=0;G.ph='end';SFX.habis();if(G.skor>lsGet(G.hs))lsSet(G.hs,G.skor)}};
+    if(G.waktu<=0){G.waktu=0;G.ph='end';SFX.habis();catat(G.hs,G.skor)}};
   G.draw=t=>{const sky=ctx.createLinearGradient(0,0,0,210);sky.addColorStop(0,'#FFD38A');sky.addColorStop(1,'#FFE9C2');ctx.fillStyle=sky;ctx.fillRect(0,0,W,210);circ(290,70,26,'#FFF3C4');
     ctx.fillStyle='#7FB65A';ctx.fillRect(0,150,W,62);for(let i=0;i<5;i++)rr(i*80+6,118,48,34,4,['#C4402F','#3E8FC9','#F2C230','#8E5AA8','#2E9C6A'][i],INK);
     const wg=ctx.createLinearGradient(0,210,0,H);wg.addColorStop(0,'#4FA9D6');wg.addColorStop(1,'#256E9E');ctx.fillStyle=wg;ctx.fillRect(0,210,W,H-210);
@@ -130,7 +134,7 @@ function Bakso(){const BHN=[{id:'mi',n:'Mi',e:'🍜'},{id:'bakso',n:'Bakso',e:'�
   const cocok=()=>{const k=new Set([...Object.keys(G.order),...Object.keys(G.isi)]);for(const x of k)if((G.order[x]||0)!==(G.isi[x]||0))return false;return true};
   G.tap=(x,y)=>{if(G.ph==='end'){start('bakso');return}for(const b of BTN)if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){b.fn();return}};
   G.btns=()=>{};
-  G.update=dt=>{if(G.ph!=='main')return;G.t+=dt;G.waktu-=dt;G.mt-=dt;if(G.waktu<=0){G.waktu=0;G.ph='end';SFX.habis();if(G.skor>lsGet(G.hs))lsSet(G.hs,G.skor)}};
+  G.update=dt=>{if(G.ph!=='main')return;G.t+=dt;G.waktu-=dt;G.mt-=dt;if(G.waktu<=0){G.waktu=0;G.ph='end';SFX.habis();catat(G.hs,G.skor)}};
   G.draw=t=>{ctx.fillStyle='#F7E6C4';ctx.fillRect(0,0,W,H);ctx.fillStyle='#E2574C';for(let i=0;i<9;i++)ctx.fillRect(i*44,0,22,40);ctx.fillStyle='#fff';for(let i=0;i<9;i++)ctx.fillRect(i*44+22,0,22,40);rr(0,36,W,12,0,'#8B5A2B');
     // pembeli (tanpa wajah) + gelembung pesanan
     const px=56;rr(px-20,96,40,54,12,['#3E8FC9','#8E5AA8','#2E9C6A','#E07A3E','#E2453C'][G.pembeli],INK);circ(px,82,16,'#F1C9A0',INK);
@@ -149,8 +153,9 @@ function Bakso(){const BHN=[{id:'mi',n:'Mi',e:'🍜'},{id:'bakso',n:'Bakso',e:'�
     if(G.ph==='end'){BTN=[];endCard(`${G.porsi} porsi · ${G.skor} poin`,G.porsi>=8?'Juragan Bakso! 👑':G.porsi>=4?'Warung laris manis! 🍜':'Pembelinya sabar kok 😄',lsGet(G.hs))}};
   return G}
 // ---------- kartu akhir ----------
-function endCard(a,b,hs){ctx.fillStyle='rgba(14,21,18,.72)';ctx.fillRect(0,0,W,H);rr(40,130,280,220,22,KREM,INK);txt('SELESAI!',W/2,170,28,MERAH,'center',800,null);txt(a,W/2,214,22,INK,'center',800,null);txt(b,W/2,250,15,HIJAU,'center',700,null);txt('🏆 Rekor: '+hs,W/2,284,14,INK,'center',700,null);
-  BTN=[];btn(60,304,110,36,'🔁 Main lagi',()=>start(game.id),KUNING,14);btn(190,304,110,36,'🎮 Menu',()=>{game=null;SFX.klik()},'#fff',14)}
+function endCard(a,b,hs){ctx.fillStyle='rgba(14,21,18,.72)';ctx.fillRect(0,0,W,H);rr(40,92,280,330,22,KREM,INK);txt('SELESAI!',W/2,126,28,MERAH,'center',800,null);txt(a,W/2,166,22,INK,'center',800,null);txt(b,W/2,198,15,HIJAU,'center',700,null);txt('🏆 Rekor: '+hs,W/2,226,14,INK,'center',700,null);
+  rr(58,242,244,124,12,'#fff');txt('📜 Riwayat poin terakhir',W/2,258,12,INK,'center',800,null);hGet(game.id).forEach((o,i)=>{const y=280+i*17;txt((i?'':'▶ ')+o.v+' '+({penalti:'gol',genteng:'genteng'}[game.id]||'poin'),72,y,12,i?INK:MERAH,'left',800,null);txt(lalu(o.at),288,y,11,'#777','right',600,null)});
+  BTN=[];btn(60,374,110,36,'🔁 Main lagi',()=>start(game.id),KUNING,14);btn(190,374,110,36,'🎮 Menu',()=>{game=null;SFX.klik()},'#fff',14)}
 // ---------- loop ----------
 function start(id){SFX.klik();const f={penalti:Penalti,genteng:Genteng,pancing:Pancing,bakso:Bakso}[id];game=f();game.id=id}
 function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(ts-(last||ts))/1000);last=ts;const t=ts/1000;

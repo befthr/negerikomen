@@ -1454,7 +1454,7 @@ window.NK_DATA = {
   { "name": "dapxy.zz", "x": 41, "y": 76, "day": 5, "nick": "Dapxy" }
  ],
  "buildings": [
-  { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1 },
+  { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1, "staff": [{"user":"muhhusainalfathaly_","role":"Satpam"},{"user":"mandre.js","role":"Satpam"}] },
   { "type": "warung", "name": "Warung", "by": "negerikomen", "day": 1, "x": 46, "y": 44, "w": 1, "staff": [{"user":"eriinvm_","role":"Penjaga Warung"},{"user":"especiallyou","role":"Penjaga Warung"}] },
   { "type": "bakso", "name": "Warung Bakso", "by": "simson__01", "day": 2, "x": 47, "y": 41, "w": 3 },
   { "type": "padang", "name": "Rumah Makan Padang", "by": "sorminnn_fdlyy", "day": 2, "x": 41, "y": 47, "w": 3 },

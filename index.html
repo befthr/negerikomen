@@ -141,6 +141,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .loker h3{color:#8A6A10}
 .loker-l{margin:-4px 0 6px;font-size:14px}
 .jtabs{display:flex;gap:6px;margin:4px 0 8px;overflow-x:auto;scrollbar-width:none}.jtabs::-webkit-scrollbar{display:none}.jtabs button{flex:none;font:700 12.5px var(--f-body,inherit);padding:6px 11px;border-radius:999px;border:1.5px solid #D9C98F;background:#fff;color:#6B6455;cursor:pointer}.jtabs button.on{background:#1C2520;border-color:#1C2520;color:#F2C230}.jtabs button i{font-style:normal;opacity:.7;margin-left:3px}.jempty{padding:16px 2px;font-size:13.5px;color:var(--muted);text-align:center}
+.jsrc{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 8px}.jsrc button{font:800 13.5px var(--f-body,inherit);padding:9px 8px;border-radius:12px;border:2px solid #D9C98F;background:#fff;color:#6B6455;cursor:pointer}.jsrc button.on{background:#1C2520;border-color:#1C2520;color:#F2C230}.jsrc i{font-style:normal;margin-left:6px;padding:0 7px;border-radius:999px;background:#F2C23033;font-size:12px}.jum{padding:10px 2px;border-bottom:1.5px dashed #D9C98F}.jumh{display:flex;gap:10px;align-items:center}.jumh .jt{flex:1;min-width:0}.jum .jnote{margin:6px 0}.jumr{display:grid;grid-template-columns:1fr 1fr;gap:6px}.jumr .btn{margin:0;font-size:13.5px;padding:9px 6px}
 .jobs{border-top:1.5px dashed #D9C98F;max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .jobs::-webkit-scrollbar{width:6px}.jobs::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 .job{border-bottom:1.5px dashed #D9C98F}
@@ -1617,7 +1618,22 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   const pilih=k=>{tb.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));let n=0;box.querySelectorAll('.job').forEach(d=>{const v=k==='semua'||d.dataset.st===k;d.hidden=!v;if(v)n++});
     em.hidden=!!n;em.textContent=k==='aktif'?'Belum ada lowongan yang dibuka. Pantau story @negerikomen!':k==='segera'?'Belum ada lowongan baru. Tunggu kabar dari Pak Kades!':'Belum ada lowongan yang ditutup.';box.scrollTop=0};
   T.forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.append(el('i',null,String(N(k))));b.onclick=()=>pilih(k);tb.append(b)});
-  box.before(tb);pilih('semua')}
+  tb.id='jtabsK';box.before(tb);pilih('semua')}
+// tab sumber loker: Pak Kades (lowongan kampung) / Umum (lowongan dari bangunan milik warga)
+{const um=el('div','jobs jumum');um.id='jobsUmum';um.hidden=true;$('jobs').after(um);
+  const src=el('div','jsrc'),lede=document.querySelector('#loker .loker-l'),LD={k:lede?lede.textContent:'',u:'Lowongan dari bangunan milik warga. Lamar langsung, bosnya yang milih!'};
+  const pk=k=>{src.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('jtabsK').hidden=$('jobs').hidden=k!=='k';um.hidden=k!=='u';if(lede)lede.textContent=LD[k]};
+  [['k','👑 Loker Pak Kades'],['u','🏠 Loker Umum']].forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.append(el('i',null,k==='k'?String(JOBS.length):'0'));b.onclick=()=>pk(k);src.append(b)});
+  $('jtabsK').before(src);pk('k');
+  window.renderUmum=()=>{const LW=window.LOWONGAN||{},L=BLD.filter(b=>bossOf(b)&&LW[bKey(b)]);um.innerHTML='';src.querySelector('[data-k="u"] i').textContent=String(L.length);
+    if(!L.length){um.append(el('p','jempty','Belum ada lowongan dari warga. Punya bangunan? Buka lowongan lewat Kartu Komen-mu, nanti muncul di sini!'));return}
+    const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸',masjid:'🕌'};
+    L.forEach(b=>{const w=LW[bKey(b)],d=el('div','job jum');const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+(w.roles||[]).join(', ')),el('span',null,(b.name||'Bangunan')+' · Bos @'+bossOf(b)));
+      const hd=el('div','jumh');hd.append(el('span','jico',IC[b.type]||'🏢'),tt,el('span','jst'+(w.sisa>0?' open':''),w.sisa>0?'Sisa '+w.sisa+' slot':'Penuh'));
+      const row=el('div','jumr'),lm=el('button','btn gold3','📝 Lamar kerja'),lh=el('button','btn','Lihat di peta');lm.type=lh.type='button';
+      lm.onclick=()=>kkLamar(b);lh.onclick=()=>{const i=BLD.indexOf(b);select({kind:'b',i});scrollMap()};row.append(lh,lm);
+      d.append(hd,el('p','jnote','Kontrak 30 hari · tanpa gaji · dapat plang & lencana'),row);um.append(d)})};
+  renderUmum()}
 {const L=RES.map((r,i)=>({r,i})).filter(o=>NK.jobOn(o.r));if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`Tukang Proyek (${fmt(L.length)})`;
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.append(helm(),document.createTextNode('@'+r.name));b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}
 
@@ -3129,7 +3145,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
-  try{stafPlus(j.staf)}catch(e){console.error(e)}window.LOWONGAN=j.lowongan||{};
+  try{stafPlus(j.staf)}catch(e){console.error(e)}window.LOWONGAN=j.lowongan||{};try{renderUmum()}catch(e){}
   window.ROBOT_OWNER=j.robot||null;window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));

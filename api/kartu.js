@@ -159,7 +159,7 @@ async function infoKartu(D, u) {
   const pesan = {}; J.forEach((j, k) => { const v = jparse(reqs[k]); pesan[j] = kodes[k] && v && v.status === 'menunggu' ? { kode: kodes[k], ...v } : null });
   let pil = jparse(p); if (pil && pil.nv !== V.length) pil = null; // kades bikin versi baru → versi baru yang tampil
   const kol = jparse(it); const m = pesan.warna;
-  let [saldo, dompet, slog, seen, sewaMs] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u], ['LRANGE', 'saldo:log:' + u, 0, 9], ['GET', 'saldo:seen:' + u], ['PTTL', 'sewa:konsol:' + u]]);
+  let [saldo, dompet, slog, seen, sewaMs, klam, kseen] = await kvMany([['HGET', 'saldo', u], ['GET', 'dompet:u:' + u], ['LRANGE', 'saldo:log:' + u, 0, 9], ['GET', 'saldo:seen:' + u], ['PTTL', 'sewa:konsol:' + u], ['LRANGE', 'kabarlamar:' + u, 0, 4], ['GET', 'kabarlamar:seen:' + u]]);
   const masuk = (slog || []).map(jparse).filter(x => x && x.n > 0 && x.at > (+seen || 0));
   if (!dompet && r) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (let t = 0; t < 5 && !dompet; t++) { let c = 'DOMPET-'; for (let i = 0; i < 4; i++) c += A[crypto.randomInt(A.length)];
       if (await kv(['SET', 'dompet:k:' + c, u, 'NX'])) { await kv(['SET', 'dompet:u:' + u, c]); dompet = c } } }
@@ -172,7 +172,7 @@ async function infoKartu(D, u) {
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
     emas: !!(r && r.sup) || !!em, ruko: jparse(rk), tingkat: Math.max(+(r && r.tingkat) || 1, +((jparse(tk) || {}).lantai) || 1), atas: (jparse(tk) || {}).atas || (r && r.atas) || null, items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,
-    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, sewaKonsol: +sewaMs > 0 ? Date.now() + +sewaMs : null, dompet: dompet || null, saldoBaru: masuk.length ? { n: masuk.reduce((t, x) => t + x.n, 0), ket: masuk.map(x => x.ket), at: masuk[0].at } : null };
+    minta: m ? { kode: m.kode, wall: m.wall, roof: m.roof, style: m.style, at: m.at } : null, saldo: +saldo || 0, sewaKonsol: +sewaMs > 0 ? Date.now() + +sewaMs : null, dompet: dompet || null, kabarLamar: (klam || []).map(jparse).filter(x => x && x.at > (+kseen || 0)), saldoBaru: masuk.length ? { n: masuk.reduce((t, x) => t + x.n, 0), ket: masuk.map(x => x.ket), at: masuk[0].at } : null };
 }
 
 const adaPenanda = c => String(c || '').toLowerCase().includes('#' + PENANDA);
@@ -340,7 +340,9 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
       }
       if (aksi === 'lowongan') { if (body.buka && L.length >= MAKS_STAF) return res.status(400).json({ error: 'Karyawanmu sudah ' + MAKS_STAF + ' (penuh). Lowongan bisa dibuka lagi saat ada kontrak yang selesai.' }); await kv(body.buka ? ['HSET', 'lowongan', key, '1'] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
-      if (body.op === 'tolak') { await kv(['HDEL', 'pelamar:' + key, t]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
+      if (body.op === 'tolak') { const lam = jparse(await kv(['HGET', 'pelamar:' + key, t])); if (!lam) return res.status(404).json({ error: 'Lamaran @' + t + ' tidak ada.' });
+        const alasan = L.length >= MAKS_STAF ? 'Lowongan sudah penuh (maksimal ' + MAKS_STAF + ' karyawan)' : 'Belum terpilih kali ini';
+        await kvMany([['HDEL', 'pelamar:' + key, t], ['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: false, b: b.name || 'Bangunan', bos: s.u, role: lam.role, alasan, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
       if (body.op !== 'tambah') return res.status(400).json({ error: 'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri setelah ' + KONTRAK_HARI + ' hari.' });
       const roles = ROLE_B[b.type] || ROLE_DEF, role = String(body.role || '');
       if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: '@' + t + ' belum jadi warga Negeri Komen. Ajak komen dulu ya!' });
@@ -350,6 +352,7 @@ export default async function handler(req, res) {
       if (L.length >= MAKS_STAF) return res.status(400).json({ error: 'Maksimal ' + MAKS_STAF + ' karyawan per bangunan.' });
       L.push({ user: t, role, sejak: tglWIB(), until: tglWIB(KONTRAK_HARI - 1), at: Date.now() });
       const penuh = L.length >= MAKS_STAF; // karyawan sudah 3 → lowongan otomatis ditutup
+      await kvMany([['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: true, b: b.name || 'Bangunan', bos: s.u, role, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]);
       await kvMany([['HSET', 'stafplus', key, JSON.stringify(L)], ['HDEL', 'pelamar:' + key, t], ...(penuh ? [['HDEL', 'lowongan', key]] : [])]);
       return res.status(200).json({ ok: true, penuh, kartu: await infoKartu(D, s.u) });
     }
@@ -507,6 +510,7 @@ export default async function handler(req, res) {
       if (hadiah) await kvMany([['HINCRBY', 'saldo', s.u, hadiah], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: hadiah, ket: 'hadiah UFO #' + ke })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
       return res.status(200).json({ ok: true, ke, hadiah });
     }
+    if (aksi === 'kabarlamar-lihat') { await kv(['SET', 'kabarlamar:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'pelamar-lihat') { await kv(['SET', 'pelamar:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'saldo-lihat') { await kv(['SET', 'saldo:seen:' + s.u, String(Date.now()), 'EX', 400 * 864e2]); return res.status(200).json({ ok: true }) }
     if (aksi === 'gaji') { // kades: gaji mingguan karyawan fasilitas (sekali per pekan)

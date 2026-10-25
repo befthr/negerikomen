@@ -218,7 +218,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .empty{margin:0;color:var(--muted);font-size:14.5px}
 .bsearch{width:100%;margin:2px 0 10px;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;font:500 14px var(--f-body);background:#F7F8F3;color:var(--ink)}
 #okbList{border-top:1.5px dashed #E2D6A8;margin-top:6px}#okbList li{border-bottom:1.5px dashed #E2D6A8}#okbList li:last-child{border-bottom:0}
-#okbList{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#okbList::-webkit-scrollbar{width:6px}#okbList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
+#okbList{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#kryList{max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#kryTabs{margin:0 0 6px}#kryTabs small{opacity:.7;margin-left:2px}#okbList::-webkit-scrollbar{width:6px}#okbList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 #bList{border-top:1.5px dashed #D6DDD0;gap:0}#bList li{border-bottom:1.5px dashed #D6DDD0}#bList li:last-child{border-bottom:0}
 .bscroll{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}.bscroll::-webkit-scrollbar{width:6px}.bscroll::-webkit-scrollbar-thumb{background:#C9D1C6;border-radius:6px}
 .blist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
@@ -1675,7 +1676,11 @@ function renderKaryawan(){const box=$('kryList');if(!box)return;const BL={jan:0}
   const L=[];BLD.forEach(b=>staffOf(b).forEach(x=>L.push({u:x.user,role:x.role||'Karyawan',tempat:b.name||'',ic:ic[b.type]||'👷',until:x.until})));
   (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>{if(x&&x.user&&!(x.until&&x.until<NK.wibToday()))L.push({u:x.user,role:x.role||'Karyawan',tempat:x.type==='rental'?'Rental playadalahmain':(x.tempat||''),ic:x.type==='rental'?'🎮':'👷',until:x.until})});
   box.innerHTML='';if(!L.length){$('kryCard').hidden=true;return}$('kryCard').hidden=false;
-  L.forEach(o=>{const i=kkResIdx(o.u),r=i>=0?RES[i]:null,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+  // tab per tempat kerja: Semua + tiap bangunan
+  let tb=$('kryTabs');if(!tb){tb=el('div','jtabs');tb.id='kryTabs';box.before(tb)}tb.innerHTML='';
+  const tempatL=[...new Set(L.map(o=>o.tempat||'Lainnya'))];window.KRY_TAB=tempatL.includes(window.KRY_TAB)?window.KRY_TAB:'semua';
+  [['semua','Semua',L.length],...tempatL.map(t=>[t,(L.find(o=>(o.tempat||'Lainnya')===t)||{}).ic+' '+t,L.filter(o=>(o.tempat||'Lainnya')===t).length])].forEach(([k,t,n])=>{const b=el('button',window.KRY_TAB===k?'on':'');b.type='button';b.append(t+' ',el('small',null,String(n)));b.onclick=()=>{window.KRY_TAB=k;renderKaryawan()};tb.append(b)});
+  L.filter(o=>window.KRY_TAB==='semua'||(o.tempat||'Lainnya')===window.KRY_TAB).forEach(o=>{const i=kkResIdx(o.u),r=i>=0?RES[i]:null,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     bt.append(el('span','ico',o.ic),el('b',null,(r&&r.nick?r.nick+' · ':'')+'@'+o.u),el('span',null,o.role+(o.tempat&&!o.role.includes(o.tempat)?' · '+o.tempat:'')+(o.until?' · kerja s/d '+tgl(o.until):'')));
     bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)})}
 setTimeout(()=>{try{renderKaryawan()}catch(e){console.error(e)}},0);

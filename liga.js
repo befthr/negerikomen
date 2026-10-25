@@ -158,13 +158,13 @@ async function kartuBagikan(){try{await document.fonts.ready}catch(e){}
   if(st.main&&!st.rp){const g=laga(st.d,st.s);info='🔴 LIVE: '+TIM[g.A].nama+' vs '+TIM[g.B].nama}else if(st.s>=0){const g=laga(hariKe(t),st.s);info='Berikutnya '+String(JAM[st.s]).padStart(2,'0')+'.00: '+TIM[g.A].nama+' vs '+TIM[g.B].nama}else info='Laga lagi besok mulai 13.00 WIB';
   c.textAlign='center';c.fillStyle='#fff';let fi=36;c.font=`700 ${fi}px ${F}`;while(c.measureText(info).width>940&&fi>22){fi-=2;c.font=`700 ${fi}px ${F}`}c.fillText(info,540,yb+20);
   // ajakan
-  R(90,1650,900,220,36,KUNING,6);c.fillStyle=INK;c.font=`600 34px ${F}`;c.fillText('Nonton live tiap hari 13.00–20.00 WIB',540,1704);c.font=`800 64px ${F}`;c.fillText('@negerikomen',540,1774);c.font=`600 30px ${F}`;c.fillStyle='#5B6860';c.fillText('negerikomen.vercel.app',540,1836);
+  R(90,1650,900,220,36,KUNING,6);c.fillStyle=INK;c.font=`600 34px ${F}`;c.fillText('Nonton live tiap hari 13.00–20.00 WIB',540,1704);c.font=`800 64px ${F}`;c.fillText('@negerikomen',540,1774);c.font=`600 30px ${F}`;c.fillStyle='#5B6860';c.fillText('negerikomen.my.id',540,1836);
   return await new Promise(r=>k.toBlob(r,'image/png'))}
 let pvU=null;async function bukaBagikan(){const bt=root.querySelector('.lg-sh');bt.disabled=true;bt.textContent='Menyiapkan gambar…';
   try{const b=await kartuBagikan(),f=new File([b],'liga-dusun-negerikomen.png',{type:'image/png'});if(pvU)URL.revokeObjectURL(pvU);pvU=URL.createObjectURL(b);
     const o=document.createElement('div');o.className='lg-pv';o.innerHTML=`<div class="lg-pvb"><img alt="Klasemen Liga Dusun"><div class="lg-row"><button class="lg-go">📤 Bagikan</button><a class="lg-dl" download="${f.name}">⬇️ Simpan gambar</a></div><button class="lg-pvx">Tutup</button></div>`;
     o.querySelector('img').src=pvU;o.querySelector('.lg-dl').href=pvU;const can=!!(navigator.canShare&&navigator.canShare({files:[f]}));const go=o.querySelector('.lg-go');go.hidden=!can;
-    go.onclick=async()=>{try{await navigator.share({files:[f],title:'Liga Dusun · Negeri Komen',text:'Klasemen & top skor Liga Dusun di Negeri Komen ⚽ Nonton live di negerikomen.vercel.app'})}catch(e){}};
+    go.onclick=async()=>{try{await navigator.share({files:[f],title:'Liga Dusun · Negeri Komen',text:'Klasemen & top skor Liga Dusun di Negeri Komen ⚽ Nonton live di negerikomen.my.id'})}catch(e){}};
     o.querySelector('.lg-pvx').onclick=()=>o.remove();o.addEventListener('pointerdown',e=>{if(e.target===o)o.remove()});root.append(o)}catch(e){}
   bt.disabled=false;bt.textContent='📸 Bagikan klasemen & top skor'}
 function open(opt={}){if(root)return;OPT=opt;TIM=opt.tim||[];vt=Date.now();speed=1;hari0=opt.mulai?hariKe(Date.parse(opt.mulai)):hariKe(vt);

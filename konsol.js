@@ -390,9 +390,9 @@ function bagikan(a,b,hs){SFX.klik();const gm=GAMES.find(g=>g.id===game.id)||{n:'
   T('★ playadalahmain 1.0 ★',540,120,46,'#FF5E8A');T(gm.ic,540,300,170,'#fff',400);T(gm.n,540,450,74,KUNING);
   x.fillStyle=KREM;x.strokeStyle=INK;x.lineWidth=10;x.beginPath();x.roundRect(110,530,860,470,48);x.fill();x.stroke();
   T('SKOR',540,600,44,'#5B6860');T(a,540,710,120,INK);T(b,540,820,46,'#2F9E6A',700);T('🏆 Rekor: '+hs+(rk?'  ·  Ranking #'+rk:''),540,920,44,INK,700);
-  if(OPT.me)T('@'+OPT.me,540,1090,56,'#fff');T('Bisa kalahin aku? 😎',540,1170,46,'#7FD8FF',700);T('negerikomen.vercel.app · @negerikomen',540,1270,36,'#ffffffaa',600);
+  if(OPT.me)T('@'+OPT.me,540,1090,56,'#fff');T('Bisa kalahin aku? 😎',540,1170,46,'#7FD8FF',700);T('negerikomen.my.id · @negerikomen',540,1270,36,'#ffffffaa',600);
   c.toBlob(async bl=>{if(!bl)return;const f=new File([bl],'skor-'+game.id+'.png',{type:'image/png'});
-    try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Skor '+gm.n,text:`Skor ${gm.n} aku ${a}! Bisa kalahin? 🎮 negerikomen.vercel.app`});return}}catch(e){if(e&&e.name==='AbortError')return}
+    try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Skor '+gm.n,text:`Skor ${gm.n} aku ${a}! Bisa kalahin? 🎮 negerikomen.my.id`});return}}catch(e){if(e&&e.name==='AbortError')return}
     const u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download=f.name;document.body.append(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)},'image/png')}
 // ---------- loop ----------
 function start(id,diam){if(!diam)SFX.klik();const f={penalti:Penalti,genteng:Genteng,pancing:Pancing,bakso:Bakso,ayam:Ayam,karung:Karung,layang:Layang,memori:Memori,pinang:Pinang,kentongan:Kentongan,karet:Karet,pesawat:Pesawat,tambang:Tambang,egrang:Egrang}[id];game=f();game.id=id}

@@ -265,8 +265,8 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
 .v3{position:fixed;inset:0;z-index:60;background:rgba(16,22,18,.72);display:grid;place-items:center;padding:16px}
 .v3box{position:relative;width:min(560px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:linear-gradient(180deg,#DDEBF2,#F5F7F1 70%);border-radius:22px;border:2px solid var(--ink);box-shadow:0 6px 0 var(--ink);overflow:hidden}
-.v3gaya{position:absolute;left:10px;top:calc(min(46vh,420px) - 142px);z-index:2;padding:5px 10px;border-radius:999px;border:2px solid var(--ink);background:#1F2F5C;color:#fff;font:inherit;font-weight:800;font-size:12px;box-shadow:0 2px 0 var(--ink);cursor:pointer;opacity:.94}
-.v3fire{position:absolute;left:10px;top:calc(min(46vh,420px) - 40px);z-index:2;padding:5px 10px;border-radius:999px;border:2px solid var(--ink);background:#D62E2E;color:#fff;font:inherit;font-weight:800;font-size:12px;box-shadow:0 2px 0 var(--ink);cursor:pointer;opacity:.94}.v3slash{top:calc(min(46vh,420px) - 74px);background:#2F74B5}.v3fly{top:calc(min(46vh,420px) - 108px);background:#E07A3E}.v3fire:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.v3gaya{position:absolute;left:10px;top:calc(min(46vh,420px) - 186px);z-index:2;padding:5px 10px;border-radius:999px;border:2px solid var(--ink);background:#1F2F5C;color:#fff;font:inherit;font-weight:800;font-size:12px;box-shadow:0 2px 0 var(--ink);cursor:pointer;opacity:.94}
+.v3fire{position:absolute;left:10px;top:calc(min(46vh,420px) - 50px);z-index:2;width:40px;height:40px;padding:0;display:grid;place-items:center;line-height:1;border-radius:50%;border:2px solid var(--ink);background:#D62E2E;color:#fff;font:inherit;font-weight:800;font-size:19px;box-shadow:0 2px 0 var(--ink);cursor:pointer;opacity:.94}.v3slash{top:calc(min(46vh,420px) - 98px);background:#2F74B5}.v3fly{top:calc(min(46vh,420px) - 146px);background:#E07A3E}.v3fire:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .v3share{position:absolute;right:10px;top:calc(min(46vh,420px) - 42px);z-index:2;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;border:2px solid var(--ink);background:#F2C230;color:var(--ink);font:800 13px var(--f-body);box-shadow:0 2px 0 var(--ink);cursor:pointer}.v3share:disabled{opacity:.6}
 .v3scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .v3box canvas{display:block;flex:none;width:100%;height:min(46vh,420px);touch-action:none;cursor:grab}
@@ -487,9 +487,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <button type="button" class="v3x" id="v3x" aria-label="Tutup">✕</button>
     <canvas id="v3c"></canvas>
     <button type="button" class="v3share" id="v3save">📸 Bagikan</button>
-    <button type="button" class="v3fire" id="v3fire" hidden>💥 Mercon</button>
-    <button type="button" class="v3fire v3slash" id="v3slash" hidden>⚔️ Tebas</button>
-    <button type="button" class="v3fire v3fly" id="v3fly" hidden>🚀 Terbang</button>
+    <button type="button" class="v3fire" id="v3fire" hidden aria-label="Tembak mercon" title="Tembak mercon">💥</button>
+    <button type="button" class="v3fire v3slash" id="v3slash" hidden aria-label="Tebas" title="Tebas">⚔️</button>
+    <button type="button" class="v3fire v3fly" id="v3fly" hidden aria-label="Terbang" title="Terbang">☁️</button>
     <button type="button" class="v3gaya" id="v3gaya" hidden>🕺 Gaya</button>
     <div class="v3load" id="v3load">Membangun rumah 3D…</div>
     <div class="v3scroll"><div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div><div id="v3demo"></div></div>
@@ -1829,7 +1829,7 @@ function stepSetir(now){const s=SETIR;if(!s)return;const dt=Math.min(.05,Math.ma
   const ang=Math.atan2(s.dy,s.dx),lane=s.rb?0:T*.22;{const lf=s.fly>0?Math.min(1,s.fly/.4,(3-s.fly)/.4+0):0;Object.assign(window.__SETIR,{x:s.x+Math.sin(ang)*lane,y:s.y-Math.cos(ang)*lane,ang,gas:s.mt&&s.boost>0?(now/120)%1:-1,lift:s.rb?Math.max(0,Math.min(1,s.fly>0?Math.min(s.fly/.4,(3-s.fly)/.4):0)):0})}dirty=true;
   const u=$('setir');if(u){u.querySelector('#stT').textContent=Math.ceil(s.dur-el);u.querySelector('.st-bar i').style.width=(100*(1-el/s.dur))+'%';
     u.querySelectorAll('.st-pad button').forEach(b=>b.classList.toggle('q',!!s.want&&b.dataset.d===s.want.join(',')));
-    const fy=u.querySelector('.st-fly');if(fy){fy.classList.toggle('on',s.fly>0);fy.disabled=s.fcd>0&&s.fly<=0;fy.style.setProperty('--p',(100*(1-s.fcd/9))+'%');fy.textContent=s.fly>0?'🚀 WUSH!':s.fcd>0?'⏳ '+Math.ceil(s.fcd):'🚀 TERBANG'}
+    const fy=u.querySelector('.st-fly');if(fy){fy.classList.toggle('on',s.fly>0);fy.disabled=s.fcd>0&&s.fly<=0;fy.style.setProperty('--p',(100*(1-s.fcd/9))+'%');fy.textContent=s.fly>0?'☁️ WUSH!':s.fcd>0?'⏳ '+Math.ceil(s.fcd):'☁️ TERBANG'}
     const bo=u.querySelector('.st-boost');if(bo){if(s.rb){bo.disabled=s.cd>0;bo.style.setProperty('--p',(100*(1-s.cd/2.8))+'%');bo.textContent=s.cd>0?'💥 DUAR!':'💥 TEMBAK';bo.classList.toggle('on',s.cd>2)}else{bo.classList.toggle('on',s.boost>0);bo.disabled=s.cd>0&&s.boost<=0;bo.style.setProperty('--p',(100*(1-s.cd/ST_CD))+'%');bo.textContent=s.boost>0?'🔥 NGEBUT!':s.cd>0?'⏳ '+Math.ceil(s.cd):'🚀 BOOST'}}}}
 function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('div','setir');u.id='setir';
   const top=el('div','st-top');const tt=el('span');tt.append(s.rb?'🤖 GENTO · ':s.mt?'🛵 Keliling · ':'🚲 Keliling · ',el('b',null,String(s.dur)),' dtk');tt.querySelector('b').id='stT';const bar=el('div','st-bar');bar.append(el('i'));
@@ -1839,7 +1839,7 @@ function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('
     b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();belok(d.split(',').map(Number))});pad.append(b)});
   u.append(top,pad);if(s.mt||s.rb){const bo=el('button','st-boost',s.rb?'💥 TEMBAK':'🚀 BOOST');bo.type='button';bo.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();boostSetir()});u.append(bo)}
   if(s.rb){const sl=el('button','st-slash','⚔️ TEBAS');sl.type='button';sl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();tebasSetir()});u.append(sl)}
-  if(s.rb){const fy=el('button','st-fly','🚀 TERBANG');fy.type='button';fy.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();terbangSetir()});u.append(fy)}
+  if(s.rb){const fy=el('button','st-fly','☁️ TERBANG');fy.type='button';fy.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();terbangSetir()});u.append(fy)}
   const h=el('div','st-hint',s.rb?'Jalan-jalan pakai GENTO! Bebas lewat mana aja, panah buat arahin, TERBANG buat ngebut, TEBAS pakai pedang ⚔️, TEMBAK buat mercon 💥':s.mt?'Tekan panah buat belok di simpang berikutnya. BOOST buat ngebut!':'Tekan panah buat belok di simpang berikutnya.');u.append(h);setTimeout(()=>h.remove(),4500);
   cv.parentElement.append(u);cv.parentElement.classList.add('nyetir')}
 document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '){e.preventDefault();boostSetir()}else if((e.key==='x'||e.key==='X')&&SETIR&&SETIR.rb){e.preventDefault();tebasSetir()}else if(e.key==='Shift'){e.preventDefault();SETIR&&SETIR.rb?terbangSetir():boostSetir()}else if(e.key==='Escape')selesaiSetir()});

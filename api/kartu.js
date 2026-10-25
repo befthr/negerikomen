@@ -86,7 +86,28 @@ const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 4
 const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, konsol: 4, bougenville: 2 };
 const MAKS_PAJANG = 3;
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
-const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => KONTRAK_OK.includes(+v) ? +v : KONTRAK_HARI; // kontrak karyawan 30 hari; tidak bisa diberhentikan (biar tidak ada konflik), lepas otomatis saat kontrak habis
+const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => { const h = +String(v || '').split(':')[0]; return KONTRAK_OK.includes(h) ? h : KONTRAK_HARI };
+const GAJI_OK = [0, 1, 2]; const gajiK = v => { const g = +String(v || '').split(':')[1]; return GAJI_OK.includes(g) ? g : 0 };
+const PEKAN = h => h === 7 ? 1 : h === 14 ? 2 : 4; // gaji dibayar di awal tiap pekan kontrak (hari 0, 7, 14, 21)
+// gaji karyawan swasta: disetor penuh oleh bos saat karyawan diterima, cair otomatis tiap pekan (dicek saat peta dibuka)
+async function cairkanGaji() {
+  if (!(await kv(['SET', 'gaji:lock', '1', 'NX', 'EX', 30]))) return;
+  try {
+    const raw = await kv(['HGETALL', 'stafplus']) || [], now = Date.now(), tulis = [];
+    for (let i = 0; i + 1 < raw.length; i += 2) {
+      const key = raw[i], L = jparse(raw[i + 1]); if (!Array.isArray(L)) continue; let ubah = false;
+      for (const x of L) {
+        if (!x || !(x.gaji > 0) || !x.at) continue;
+        const due = Math.min(x.pekan || 1, Math.floor((now - x.at) / (7 * 864e5)) + 1), sudah = +x.dibayar || 0;
+        if (due <= sudah) continue; const n = (due - sudah) * x.gaji;
+        tulis.push(['HINCRBY', 'saldo', x.user, n], ['LPUSH', 'saldo:log:' + x.user, JSON.stringify({ at: now, n, ket: 'gaji: dari @' + (x.bos || '') + ' (' + (x.tempat || 'tempat kerja') + ')' })], ['LTRIM', 'saldo:log:' + x.user, 0, 49]);
+        x.dibayar = due; ubah = true;
+      }
+      if (ubah) tulis.push(['HSET', 'stafplus', key, JSON.stringify(L)]);
+    }
+    if (tulis.length) await kvMany(tulis);
+  } finally { await kv(['DEL', 'gaji:lock']) }
+} // kontrak karyawan 30 hari; tidak bisa diberhentikan (biar tidak ada konflik), lepas otomatis saat kontrak habis
 const tglWIB = (plus = 0) => new Date(Date.now() + 7 * 3600e3 + plus * 864e5).toISOString().slice(0, 10);
 const stafAktif = L => (Array.isArray(L) ? L : []).filter(x => x && x.user && (!x.until || x.until >= tglWIB()));
 const ROLE_B = { penginapan: ['Resepsionis', 'Satpam', 'Pelayan', 'Tukang Kebun'], sekolah: ['Guru', 'Satpam', 'Penjaga Kantin', 'Tukang Kebun'],
@@ -167,7 +188,7 @@ async function infoKartu(D, u) {
   const pl = milik.length ? await kvMany([...milik.map(b => ['HGETALL', 'pelamar:' + bKey(b)]), ['HMGET', 'lowongan', ...milik.map(bKey)], ['GET', 'pelamar:seen:' + u]]) : [];
   const lw = pl.length ? pl[pl.length - 2] || [] : [], plSeen = pl.length ? +pl[pl.length - 1] || 0 : 0;
   const pelamarOf = k => { const a = pl[k] || [], o = []; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o.push({ user: a[i], ...v }) } return o.sort((x, y) => x.at - y.at) };
-  const bangunan = milik.map((b, k) => ({ buka: !!lw[k], pelamar: pelamarOf(k), seen: plSeen, key: bKey(b), name: b.name || 'Bangunan', type: b.type, roles: ROLE_B[b.type] || ROLE_DEF, maks: MAKS_STAF, staf: stafAktif(jparse(stv[k])), kontrak: hariK(lw[k]), pilihanKontrak: KONTRAK_OK }));
+  const bangunan = milik.map((b, k) => ({ buka: !!lw[k], pelamar: pelamarOf(k), seen: plSeen, key: bKey(b), name: b.name || 'Bangunan', type: b.type, roles: ROLE_B[b.type] || ROLE_DEF, maks: MAKS_STAF, staf: stafAktif(jparse(stv[k])), kontrak: hariK(lw[k]), gaji: gajiK(lw[k]), pilihanKontrak: KONTRAK_OK }));
   return { u, bangunan, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
@@ -245,6 +266,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ rank: out });
     }
     if (aksi === 'pilihan' && req.method === 'GET') {
+      try { await cairkanGaji() } catch (e) { }
       const raw = await kv(['HGETALL', 'pilihan']) || [], out = {};
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
@@ -256,7 +278,7 @@ export default async function handler(req, res) {
       const lwKeys = []; for (let i = 0; lwg && i + 1 < lwg.length; i += 2) lwKeys.push(lwg[i]);
       const lwN = lwKeys.length ? await kvMany(lwKeys.map(k => ['HLEN', 'pelamar:' + k])) : [];
       const lowongan = {}; for (let i = 0; lwg && i + 1 < lwg.length; i += 2) { const key = lwg[i]; const n = (staf[key] || []).length;
-        const tp = key.split('@')[0]; if (n >= MAKS_STAF) continue; lowongan[key] = { roles: ROLE_B[tp] || ROLE_DEF, hari: hariK(lwg[i + 1]), sisa: Math.max(0, MAKS_STAF - n), pelamar: +lwN[i / 2] || 0 } }
+        const tp = key.split('@')[0]; if (n >= MAKS_STAF) continue; lowongan[key] = { roles: ROLE_B[tp] || ROLE_DEF, hari: hariK(lwg[i + 1]), gaji: gajiK(lwg[i + 1]), sisa: Math.max(0, MAKS_STAF - n), pelamar: +lwN[i / 2] || 0 } }
       const donasi = {}; for (let i = 0; rd && i + 1 < rd.length; i += 2) donasi[rd[i]] = +rd[i + 1] || 0;
       const ruko = {}, item = {};
       for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
@@ -339,7 +361,7 @@ export default async function handler(req, res) {
           ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at, n: -n, ket: 'bonus karyawan @' + t })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
         return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
       }
-      if (aksi === 'lowongan') { if (body.buka && L.length >= MAKS_STAF) return res.status(400).json({ error: 'Karyawanmu sudah ' + MAKS_STAF + ' (penuh). Lowongan bisa dibuka lagi saat ada kontrak yang selesai.' }); await kv(body.buka ? ['HSET', 'lowongan', key, String(hariK(body.hari))] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
+      if (aksi === 'lowongan') { if (body.buka && L.length >= MAKS_STAF) return res.status(400).json({ error: 'Karyawanmu sudah ' + MAKS_STAF + ' (penuh). Lowongan bisa dibuka lagi saat ada kontrak yang selesai.' }); await kv(body.buka ? ['HSET', 'lowongan', key, hariK(body.hari) + ':' + (GAJI_OK.includes(+body.gaji) ? +body.gaji : 0)] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
       if (body.op === 'tolak') { const lam = jparse(await kv(['HGET', 'pelamar:' + key, t])); if (!lam) return res.status(404).json({ error: 'Lamaran @' + t + ' tidak ada.' });
         const alasan = L.length >= MAKS_STAF ? 'Lowongan sudah penuh (maksimal ' + MAKS_STAF + ' karyawan)' : 'Belum terpilih kali ini';
         await kvMany([['HDEL', 'pelamar:' + key, t], ['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: false, b: b.name || 'Bangunan', bos: s.u, role: lam.role, alasan, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
@@ -350,12 +372,19 @@ export default async function handler(req, res) {
       if (!roles.includes(role)) return res.status(400).json({ error: 'Pilih jabatannya dulu.' });
       if (L.some(x => x.user === t)) return res.status(400).json({ error: '@' + t + ' sudah jadi karyawanmu.' });
       if (L.length >= MAKS_STAF) return res.status(400).json({ error: 'Maksimal ' + MAKS_STAF + ' karyawan per bangunan.' });
-      const hari = KONTRAK_OK.includes(+body.hari) ? +body.hari : hariK(await kv(['HGET', 'lowongan', key]));
-      L.push({ user: t, role, hari, sejak: tglWIB(), until: tglWIB(hari - 1), at: Date.now() });
+      const lwv = await kv(['HGET', 'lowongan', key]), langsung = KONTRAK_OK.includes(+body.hari);
+      const hari = langsung ? +body.hari : hariK(lwv), gaji = langsung ? (GAJI_OK.includes(+body.gaji) ? +body.gaji : 0) : gajiK(lwv), pekan = PEKAN(hari), setor = gaji * pekan;
+      if (setor > 0) { // setor gaji penuh di awal
+        const after = await kv(['HINCRBY', 'saldo', s.u, -setor]);
+        if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, setor]); return res.status(400).json({ error: `Recehan-mu kurang. Gaji ${gaji} Receh × ${pekan} pekan = ${setor} Receh harus disetor di awal.` }) }
+        await kvMany([['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -setor, ket: 'setor gaji @' + t + ' (' + pekan + ' pekan)' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
+      }
+      L.push({ user: t, role, hari, sejak: tglWIB(), until: tglWIB(hari - 1), at: Date.now(), ...(gaji ? { gaji, pekan, dibayar: 0, bos: s.u, tempat: b.name || 'Bangunan' } : {}) });
       const penuh = L.length >= MAKS_STAF; // karyawan sudah 3 → lowongan otomatis ditutup
-      await kvMany([['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: true, b: b.name || 'Bangunan', bos: s.u, role, hari, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]);
+      await kvMany([['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: true, b: b.name || 'Bangunan', bos: s.u, role, hari, gaji, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]);
       await kvMany([['HSET', 'stafplus', key, JSON.stringify(L)], ['HDEL', 'pelamar:' + key, t], ...(penuh ? [['HDEL', 'lowongan', key]] : [])]);
-      return res.status(200).json({ ok: true, penuh, kartu: await infoKartu(D, s.u) });
+      if (gaji) await cairkanGaji(); // gaji pekan pertama langsung cair
+      return res.status(200).json({ ok: true, penuh, setor, kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'konsol-skor') { // simpan skor pemilik konsol (skor tertinggi saja); QA hanya kades, ke papan uji
       const g = String(body.g || ''), v = Math.floor(+body.v), qa = !!body.qa;

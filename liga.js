@@ -18,7 +18,7 @@ const hash=s=>{let h=2166136261;for(const ch of String(s)){h^=ch.charCodeAt(0);h
 const rngOf=seed=>{let a=hash(seed)||1;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
 const PAIR=[];for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)PAIR.push([i,j]);
 const hariKe=ms=>Math.floor((ms+252e5)/864e5); // hari WIB sejak epoch
-let TIM=[],OPT={},root,cv,ctx,dpr,raf,last=0,vt=0,speed=1,mute=false,ac=null,lastEv='',hari0=0;
+let rp=null,rpBox=null,TIM=[],OPT={},root,cv,ctx,dpr,raf,last=0,vt=0,speed=1,mute=false,ac=null,lastEv='',hari0=0;
 // jadwal hari d slot s → pasangan tim (bergiliran supaya semua tim ketemu semua lawan)
 function laga(d,s){const r=rngOf('liga'+d);const urut=PAIR.map((p,i)=>[r(),p]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);const p=urut[s%10];const sw=(d+s)%2;
   const A=sw?p[1]:p[0],B=sw?p[0]:p[1],R=rngOf('laga'+d+'-'+s);
@@ -30,7 +30,7 @@ function laga(d,s){const r=rngOf('liga'+d);const urut=PAIR.map((p,i)=>[r(),p]).s
   const ph=[...Array(8)].map(()=>R()*6.28);return {A,B,la,lb,gol,ga,gb,ph,d,s}}
 // waktu virtual (WIB, ms). QA bisa mempercepat & lompat jam
 const now=()=>vt;
-function status(){const t=now(),d=hariKe(t),mnt=((t+252e5)%864e5)/6e4;for(let s=0;s<8;s++){const m0=JAM[s]*60;if(mnt>=m0&&mnt<m0+DUR)return {d,s,menit:(mnt-m0)/DUR*90,main:true}}
+function status(){if(rp)return {d:rp.d,s:rp.s,menit:rp.m,main:true,rp:true};const t=now(),d=hariKe(t),mnt=((t+252e5)%864e5)/6e4;for(let s=0;s<8;s++){const m0=JAM[s]*60;if(mnt>=m0&&mnt<m0+DUR)return {d,s,menit:(mnt-m0)/DUR*90,main:true}}
   const nx=JAM.findIndex(j=>j*60>mnt);return {d,s:nx,main:false,mnt}}
 // ---------- klasemen dari semua laga yang sudah selesai sejak hari mulai ----------
 function klasemen(){const st=TIM.map((t,k)=>({k,m:0,mn:0,s:0,k2:0,gf:0,ga:0,p:0}));const t=now(),d1=hariKe(t),mnt=((t+252e5)%864e5)/6e4;
@@ -63,7 +63,7 @@ function pemain(c,x,y,col,no,nama,k,lari){const tg=col==='#eee'||col==='#F4EFE3'
   if(nama){const t=nama.length>11?nama.slice(0,10)+'…':nama;c.font=`700 ${5.6*k}px Poppins,sans-serif`;const w=c.measureText(t).width+5;c.fillStyle='rgba(28,37,32,.72)';c.beginPath();c.roundRect(x-w/2,y+12*k,w,8*k,3);c.fill();c.fillStyle='#fff';c.fillText(t,x,y+16.2*k)}}
 const NOMOR=[1,2,4,5,3,6,8,10,7,9,11];
 const FORM=[[.5,.95],[.15,.78],[.38,.8],[.62,.8],[.85,.78],[.2,.6],[.42,.62],[.58,.62],[.8,.6],[.38,.45],[.62,.45]];
-function bolaDi(L,m){const s=(k,a)=>Math.sin(m*a+L.ph[k]);let x=.5+.32*s(0,.21)+.1*s(1,.67),y=.5+.3*s(2,.17)+.1*s(3,.53);
+function bolaDi(L,m){const q=m*12,s=(k,a)=>Math.sin(q*a+L.ph[k]);let x=.5+.32*s(0,.21)+.1*s(1,.67),y=.5+.3*s(2,.17)+.1*s(3,.53);
   for(const g of L.gol){const dt=g.m-m;if(dt>=0&&dt<1.6){const u=1-dt/1.6;const gy=g.t===0?-.02:1.02;x=x+(.5-x)*u;y=y+(gy-y)*u*u}else if(dt<0&&dt>-1.2){return {x:.5,y:g.t===0?-.03:1.03,net:true}}else if(dt<=-1.2&&dt>-2){const u=(-dt-1.2)/.8;return {x:.5,y:(g.t===0?-.03:1.03)*(1-u)+.5*u}}}
   return {x:Math.max(.04,Math.min(.96,x)),y:Math.max(.03,Math.min(.97,y))}}
 function draw(t){const st=status(),jamN=((now()+252e5)%864e5)/36e5,malam=jamN>=18||jamN<5.5,sepi=!st.main&&(jamN>=21||jamN<6);
@@ -78,15 +78,15 @@ function draw(t){const st=status(),jamN=((now()+252e5)%864e5)/36e5,malam=jamN>=1
   if(st.main){const L=laga(st.d,st.s),m=st.menit,b=bolaDi(L,m);
     // pemain mengikuti bola dari posisi formasi; yang terdekat mengejar
     [[L.A,0],[L.B,1]].forEach(([k,side])=>{const col=TIM[k].col;let best=-1,bd=9;const pos=FORM.map((f,i)=>{let hx=f[0],hy=side?1-f[1]:f[1];const w=i===0?.08:i<5?.25:i<9?.4:.35;
-        let x=hx+(b.x-hx)*w+.02*Math.sin(m*1.7+i+side*3),y=hy+(b.y-hy)*w*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)y=side?Math.min(.1,y):Math.max(.9,y);const dd=Math.hypot(x-b.x,y-b.y);if(i&&dd<bd){bd=dd;best=i}return [x,y]});
+        let x=hx+(b.x-hx)*w+.025*Math.sin(m*20+i+side*3),y=hy+(b.y-hy)*w*.8+.025*Math.cos(m*15.6+i*2+side);if(i===0)y=side?Math.min(.1,y):Math.max(.9,y);const dd=Math.hypot(x-b.x,y-b.y);if(i&&dd<bd){bd=dd;best=i}return [x,y]});
       if(best>0&&!b.net){pos[best]=[b.x+(side?.02:-.02),b.y+(side?-.03:.03)]}const nm=side?L.lb:L.la;pos.forEach(([x,y],i)=>{const [px,py]=P(x,y);pemain(ctx,px,py,i===0?(side?'#333':'#eee'):col,NOMOR[i],nm[i],.95,performance.now()/80+i*1.3)})});
     const [bx,by]=P(b.x,b.y);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(bx,by,4,0,7);ctx.fill();ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.stroke();
     const sa=L.gol.filter(g=>g.t===0&&g.m<=m).length,sb=L.gol.filter(g=>g.t===1&&g.m<=m).length;
     // kejadian: gol, peluit
     const ev=L.gol.find(g=>m-g.m>=0&&m-g.m<3.5);const key=ev?L.d+'-'+L.s+'-'+ev.m:'';if(key&&key!==lastEv){lastEv=key;SORAK();peluit(1)}if(!key)lastEv='';
     rr(10,8,W-20,46,10,INK);ctx.fillStyle=TIM[L.A].col;ctx.fillRect(16,14,8,34);ctx.fillStyle=TIM[L.B].col;ctx.fillRect(W-24,14,8,34);
-    txt(TIM[L.A].nama,30,22,12,'#fff','left');txt(TIM[L.B].nama,W-30,22,12,'#fff','right');txt(`${sa} – ${sb}`,W/2,31,24,KUNING);txt(`${Math.min(90,Math.floor(m))}'`,W/2,47,10,'#9effa0');
-    txt('⚽ menyerang ke atas',30,40,9,'#ffffffaa','left',600);
+    txt(TIM[L.A].nama,30,22,12,'#fff','left');txt(TIM[L.B].nama,W-30,22,12,'#fff','right');txt(`${sa} – ${sb}`,W/2,31,24,KUNING);txt(st.rp&&m>=90?'FT':`${Math.min(90,Math.floor(m))}'`,W/2,47,10,st.rp?KUNING:'#9effa0');
+    txt(st.rp?'🔁 Tayangan ulang':'⚽ menyerang ke atas',30,40,9,st.rp?KUNING:'#ffffffaa','left',st.rp?800:600);if(st.rp&&m>=90){rr(60,FY+FH/2-26,W-120,52,12,INK,KUNING);txt('PELUIT AKHIR',W/2,FY+FH/2-8,15,KUNING);txt(`${TIM[L.A].nama} ${sa} – ${sb} ${TIM[L.B].nama}`,W/2,FY+FH/2+12,10,'#fff','center',700)}
     if(ev){rr(40,FY+FH/2-34,W-80,68,14,KUNING,INK);txt('GOOOL!',W/2,FY+FH/2-12,24,INK);txt('@'+ev.n+' · '+TIM[ev.t?L.B:L.A].nama,W/2,FY+FH/2+16,11,INK,'center',700)}
     const lg=L.gol.filter(g=>g.m<=m);txt(lg.length?'⚽ '+lg.map(g=>'@'+g.n+" "+Math.floor(g.m)+"'").join(' · '):'Belum ada gol',W/2,H-28,10,'#fff','center',600)}
   else{rr(10,8,W-20,46,10,INK);if(st.s>=0){const L=laga(st.d,st.s);txt('Laga berikutnya '+String(JAM[st.s]).padStart(2,'0')+'.00',W/2,20,11,'#9effa0');txt(`${TIM[L.A].nama}  vs  ${TIM[L.B].nama}`,W/2,40,14,KUNING)}
@@ -99,7 +99,8 @@ let panel,pk=0,tab='jadwal';function isiPanel(){if(!panel)return;const st=status
   const tbr=document.createElement('div');tbr.className='lg-tab';[['jadwal','📅 Jadwal'],['klas','🏆 Klasemen'],['top','⚽ Top Skor']].forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;if(tab===k)b.className='on';b.onclick=()=>{tab=k;isiPanel()};tbr.append(b)});panel.append(tbr);
   const j=document.createElement('div');j.hidden=tab!=='jadwal';JAM.forEach((h,s)=>{const L=laga(d,s),r=document.createElement('div');r.className='jd'+(st.main&&st.s===s?' now':'');
     const sel=((now()+252e5)%864e5)/6e4>=h*60+DUR;r.innerHTML=`<span>${String(h).padStart(2,'0')}.00</span><span><i class="dot" style="background:${TIM[L.A].col}"></i>${TIM[L.A].nama} ${sel?`<b>${L.ga}–${L.gb}</b>`:'vs'} ${TIM[L.B].nama}<i class="dot" style="background:${TIM[L.B].col};margin:0 0 0 5px"></i></span>`;
-    if(OPT.qa)r.onclick=()=>{lompat(h,0)};j.append(r)});panel.append(j);
+    if(sel){r.title='Tonton tayangan ulang';r.querySelector('span').textContent=String(h).padStart(2,'0')+'.00 ▶';r.onclick=()=>putarUlang(d,s)}else if(OPT.qa)r.onclick=()=>{lompat(h,0)};j.append(r)});
+  if(tab==='jadwal'){const hint=document.createElement('p');hint.className='lg-k';hint.innerHTML='▶ Ketuk laga yang sudah selesai buat nonton <b>tayangan ulang</b>.';j.append(hint)}panel.append(j);
   const k=document.createElement('div');k.hidden=tab!=='klas';const tb=document.createElement('table');tb.innerHTML='<tr><th>Tim</th><th>M</th><th>Mn</th><th>S</th><th>K</th><th>GD</th><th>Poin</th></tr>';
   klasemen().forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`<td><i class="dot" style="background:${TIM[o.k].col}"></i>${TIM[o.k].nama}</td><td>${o.m}</td><td>${o.mn}</td><td>${o.s}</td><td>${o.k2}</td><td>${o.gf-o.ga}</td><td><b>${o.p}</b></td>`;tb.append(tr)});k.append(tb);panel.append(k);
   const ts=document.createElement('div');ts.hidden=tab!=='top';const L=topSkor();
@@ -111,13 +112,20 @@ let panel,pk=0,tab='jadwal';function isiPanel(){if(!panel)return;const st=status
 function topSkor(){const M={};const t=now(),d1=hariKe(t),mnt=((t+252e5)%864e5)/6e4;
   for(let d=hari0;d<=d1;d++)for(let s=0;s<8;s++){if(d===d1&&mnt<JAM[s]*60+DUR)continue;const L=laga(d,s);L.gol.forEach(g=>{const k=g.t?L.B:L.A,id=g.n+'|'+k;(M[id]=M[id]||{n:g.n,k,g:0}).g++})}
   return Object.values(M).sort((a,b)=>b.g-a.g||a.n.localeCompare(b.n))}
+// tayangan ulang: laga yang sudah selesai bisa ditonton lagi, kecepatannya bisa diatur (khusus tayangan ulang)
+function putarUlang(d,s){rp={d,s,m:0,sp:10,jeda:false};lastEv='';peluit(1);rpUI();try{root.querySelector('canvas').scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}}
+function rpUI(){if(!rpBox)return;rpBox.hidden=!rp;if(!rp)return;const L=laga(rp.d,rp.s),J=JAM[rp.s];
+  rpBox.innerHTML=`<p class="lg-k">🔁 <b>Tayangan ulang</b> · ${TIM[L.A].nama} vs ${TIM[L.B].nama} (${String(J).padStart(2,'0')}.00) · x10 = 3 menit, x60 = 30 detik</p><div class="lg-row">${[5,10,30,60].map(v=>`<button data-r="${v}" class="${rp.sp===v?'on':''}">x${v}</button>`).join('')}<button data-rj>${rp.jeda?'▶ Lanjut':'⏸ Jeda'}</button></div><div class="lg-row"><button data-ra>⟲ Dari awal</button><button data-rx>✕ Kembali ke live</button></div>`;
+  rpBox.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rp.sp=+b.dataset.r;rpUI()});
+  rpBox.querySelector('[data-rj]').onclick=()=>{rp.jeda=!rp.jeda;rpUI()};rpBox.querySelector('[data-ra]').onclick=()=>{rp.m=0;rp.jeda=false;lastEv='';peluit(1);rpUI()};
+  rpBox.querySelector('[data-rx]').onclick=()=>{rp=null;lastEv='';rpUI();isiPanel()}}
 function lompat(h,mm){const d=hariKe(now());vt=d*864e5-252e5+(h*60+mm)*6e4;lastEv='';isiPanel()}
-function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;vt+=dt*1000*speed;ctx.setTransform(dpr,0,0,dpr,0,0);draw(ts/1000);if((pk+=dt)>1){pk=0;isiPanel()}}
+function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;vt+=dt*1000*speed;if(rp&&!rp.jeda)rp.m=Math.min(90,rp.m+dt*rp.sp*90/(DUR*60));ctx.setTransform(dpr,0,0,dpr,0,0);draw(ts/1000);if((pk+=dt)>1){pk=0;isiPanel()}}
 function open(opt={}){if(root)return;OPT=opt;TIM=opt.tim||[];vt=Date.now();speed=1;hari0=opt.mulai?hariKe(Date.parse(opt.mulai)):hariKe(vt);
   if(!document.getElementById('lg-css')){const s=document.createElement('style');s.id='lg-css';s.textContent=css;document.head.append(s)}
   root=document.createElement('div');root.className='lg';root.innerHTML=`<div class="lg-b"><div class="lg-t"><b>⚽ Liga Dusun${opt.qa?'<span class="lg-qa">MODE UJI (QA)</span>':''}</b><span><button class="lg-x lg-m" title="Suara">🔊</button> <button class="lg-x lg-c" aria-label="Tutup">✕</button></span></div><canvas width="${W}" height="${H}"></canvas>
    ${opt.qa?'<p class="lg-k">⏩ <b>Kecepatan waktu</b> · x30 = 1 laga (30 menit) selesai dalam 1 menit. Khusus QA, warga nggak lihat tombol ini.</p><div class="lg-row lg-sp"><button data-s="1" class="on">x1</button><button data-s="30">x30</button><button data-s="120">x120</button><button data-j="1" title="Lompat ke laga yang sedang/akan main">Laga sekarang ▶</button></div><p class="lg-k">🕒 <b>Lompat ke laga jam…</b> · langsung nonton laga di jam itu dari menit awal.</p><div class="lg-row lg-jm">'+JAM.map(h=>`<button data-h="${h}">${h}.00</button>`).join('')+'</div>':''}<div class="lg-p"></div></div>`;
-  document.body.append(root);cv=root.querySelector('canvas');dpr=Math.min(3,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx=cv.getContext('2d');panel=root.querySelector('.lg-p');
+  document.body.append(root);cv=root.querySelector('canvas');dpr=Math.min(3,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx=cv.getContext('2d');panel=root.querySelector('.lg-p');rpBox=document.createElement('div');rpBox.hidden=true;panel.before(rpBox);rp=null;
   root.querySelector('.lg-c').onclick=close;root.addEventListener('pointerdown',e=>{au();if(e.target===root)close()});
   root.querySelector('.lg-m').onclick=e=>{mute=!mute;e.target.textContent=mute?'🔇':'🔊'};
   root.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{speed=+b.dataset.s;root.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('on',x===b))});

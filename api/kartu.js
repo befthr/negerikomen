@@ -447,6 +447,7 @@ export default async function handler(req, res) {
         if (info.emas) return res.status(400).json({ error: 'Rumahmu sudah punya bendera emas.' });
         isi = { harga: 2 };
       } else if (jenis === 'ruko') {
+        return res.status(400).json({ error: 'Ruko sedang ditutup sementara. Mau kerja sama usaha? DM @negerikomen ya.' }); // ruko nonaktif
         const wall = String(body.wall || ''), roof = String(body.roof || '');
         if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna ruko dulu.' });
         isi = { wall, roof, harga: 20 };

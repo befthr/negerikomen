@@ -464,7 +464,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="etalase" id="etalase"></div>
         <ul class="trak-tiers" data-nokk>
           <li data-nokk><b>🚩 2 Genteng · <a class="emasLink" href="#" target="_blank" rel="noopener">Bendera Emas ↗</a></b><span>Boleh dicicil (1 + 1 juga bisa). Rumahmu dapat <b>bendera emas</b> di peta, langsung dibangun walau belum komen, dan namamu masuk daftar Pendukung kampung.</span><small>Syarat: follow @negerikomen, tulis username IG + warna rumah + warna atap di pesan traktiran (boleh pakai kode warna).</small></li>
-          <li><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
+          <li class="ruko-tier" hidden><b>🏪 20 Genteng · <a class="usahaLink" href="#" target="_blank" rel="noopener">Buka Usaha ↗</a></b><span>Rumahmu jadi <b>ruko 2 lantai</b> dengan warna pilihanmu dan papan nama tokomu selama 30 hari, tampil di daftar Toko Warga lengkap dengan foto, deskripsi, dan link. Termasuk bendera emas.</span><small>Syarat: sudah jadi warga (follow dan punya rumah).</small><button type="button" class="demoRuko demoBtn demoSm">👀 Lihat contoh ruko 3D</button></li>
         </ul>
         <p class="trak-foot" data-kk hidden><span><b>Wajib tulis username IG-mu di pesan traktiran</b> (tanpa @, Trakteer menolak tanda @), biar Pak Kades tahu Recehan-nya masuk ke siapa. Traktir <img class="kk-gico" src="genteng.png" alt="">1 Genteng = <img class="kk-gico" src="receh.svg" alt=""><b>1 Receh</b> masuk ke Recehan-mu, dan namamu tercatat sebagai pendukung kampung. Buat bayar pesanan, tulis <b>kode pesanan</b>-nya. Lupa? DM screenshot traktiranmu ke @negerikomen. <a id="tLink2" href="#" target="_blank" rel="noopener">Traktir Genteng ↗</a></span></p>
       </div>
@@ -1540,8 +1540,8 @@ function renderShops(){
   const ul=$('tList');ul.innerHTML='';
   $('tokoTitle').textContent=`Toko Warga (${fmt(SHOPS.length)})`;
   $('toko').classList.toggle('kosong',!SHOPS.length);
-  if(!SHOPS.length){if(HAS_TRAK){$('toko').hidden=false;ul.append(el('li','empty','🏪 Belum ada toko warga. Jadilah yang pertama!'))}return}
-  $('toko').hidden=false;
+  if(!SHOPS.length){if(HAS_TRAK&&typeof RUKO_ON!=='undefined'&&!RUKO_ON){$('toko').hidden=false;$('toko').classList.remove('kosong');ul.hidden=true;$('tokoTitle').textContent='🤝 Kerja sama usaha';const lp=$('toko').querySelector('.trak-lede');if(lp)lp.textContent='Punya toko atau brand? Yuk ramaikan Negeri Komen bareng.';return}if(HAS_TRAK&&typeof RUKO_ON!=='undefined'&&RUKO_ON){$('toko').hidden=false;ul.append(el('li','empty','🏪 Belum ada toko warga. Jadilah yang pertama!'))}return}
+  $('toko').hidden=false;ul.hidden=false;
   SHOPS.forEach(o=>{const r=o.r,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     const src=safeImg(r.shop.img);let th;
     if(src){th=document.createElement('img');th.src=src;th.alt='';th.loading='lazy';th.referrerPolicy='no-referrer';th.width=56;th.height=56;th.onerror=()=>{const f=el('span','th','🏪');th.replaceWith(f)}}else th=el('span',null,'🏪');
@@ -1549,8 +1549,10 @@ function renderShops(){
     const left=daysLeft(r);const who=el('span','who','@'+r.name+' · ');who.append(el('em',null,left===1?'hari terakhir':`tinggal ${left} hari`));
     bt.append(th,el('b',null,r.shop.name),who);if(r.shop.desc)bt.append(el('span','ds',String(r.shop.desc).slice(0,140)));
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
+const RUKO_ON=false; // ruko ditutup sementara (kerja sama usaha lewat DM)
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
-if(HAS_TRAK){const a=document.createElement('a');a.href=(/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.usaha||''))?D.trakteer.usaha:D.trakteer.url).trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
+if(HAS_TRAK&&!RUKO_ON){const n=$('tokoNote');n.innerHTML='';n.append('Mau kerja sama usaha atau promosi tokomu di Negeri Komen? DM ',el('b',null,'@negerikomen'),' ya.')}
+if(HAS_TRAK&&RUKO_ON){const a=document.createElement('a');a.href=(/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.usaha||''))?D.trakteer.usaha:D.trakteer.url).trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
   const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';const k1=el('span');k1.dataset.kk='';k1.hidden=true;k1.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari: buka Kartu Komen → Ubah rumah → Jadi ruko (',b,'), lalu traktir lewat paket ',a,'. ');
   const b2=document.createElement('b');b2.textContent='20 Genteng';const a2=a.cloneNode(true);const k2=el('span');k2.dataset.nokk='';k2.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari lewat paket ',a2,' (',b2,') di Trakteer. ');n.append(k1,k2);const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}
 renderShops();
@@ -2004,7 +2006,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     else{kp.append(document.createTextNode('belum ada. '));const a=el('a',null,'Lihat lowongan →');a.href='#loker';kp.append(a)}
     if(b.type==='tokokampung'||b.type==='dealer'||b.type==='tb'){const pr=el('div','promo-toko');const dl=b.type==='dealer',tb=b.type==='tb';
       pr.append(el('b',null,tb?'🧱 Rumahmu bisa naik jadi tingkat 2 & 3!':dl?'🛵 Motor & sepeda, pilih warnanya sendiri!':'🛍️ Isi pekaranganmu!'),
-        el('p',null,tb?'Rumah tingkat 2 (10 Receh), tingkat 3 (14 Receh), ubah warna (1), bendera emas (2), sampai jadi ruko (20).':dl?'Motor (4 Receh) dan sepeda (2 Receh) dengan 9 pilihan warna. Kamu bisa keliling kampung, lengkap dengan namamu di atasnya!':'Ayam, kucing, kambing, lampu taman, pohon mangga, kolam ikan, ayunan, sampai papan nama dengan namamu.'),
+        el('p',null,tb?'Rumah tingkat 2 (10 Receh), tingkat 3 (14 Receh), ubah warna (1), bendera emas (2).':dl?'Motor (4 Receh) dan sepeda (2 Receh) dengan 9 pilihan warna. Kamu bisa keliling kampung, lengkap dengan namamu di atasnya!':'Ayam, kucing, kambing, lampu taman, pohon mangga, kolam ikan, ayunan, sampai papan nama dengan namamu.'),
         el('small',null,KK_ON?'Belinya lewat Kartu Komen-mu → Ubah rumah.':'Dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!'));
       const go=el('button','btn gold3',KK_ON?'🔑 Beli lewat Kartu Komen':'⏳ Segera dibuka');go.type='button';go.onclick=()=>kkBelanja(dl?'item':'rumah');pr.append(go);left.append(pr);
       // riwayat belanja terbaru di bangunan ini
@@ -3055,7 +3057,7 @@ function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));bod
     tile('🎨','Ubah warna',P.warna?'':'1 Receh',tunggu('warna'),()=>kkWarna(body,c,i),'Genteng & tembok sesukamu');
     tile('🚩','Bendera emas',c.emas||P.emas?'':'2 Receh',c.emas?'✓ Kamu sudah punya':tunggu('emas'),c.emas?null:()=>kkEmas(body,c,i),'Berkibar di atap + namamu masuk daftar Pendukung');
     {const tk=c.tingkat||1,sp=!!r.style;tile('🏢','Rumah tingkat',sp||tk>=3||P.tingkat?'':(tk===2?'4 Receh':'10 Receh'),sp?'✨ Rumah spesialmu eksklusif':tk>=3?'✓ Sudah tingkat 3':tunggu('tingkat'),sp||tk>=3?null:()=>kkTingkat(body,c,i),tk===2?'Naik jadi 3 lantai, tiap lantai boleh beda warna':'Jadi 2 atau 3 lantai, tiap lantai boleh beda warna')}
-    const rk=NK.shopOn(r,TODAY);tile('🏪','Jadi ruko',rk||P.ruko?'':'20 Receh',rk?'✓ Aktif · '+(r.shop.until||''):tunggu('ruko'),rk?null:()=>kkRuko(body,c,i),'Rumahmu jadi toko 30 hari, lengkap dengan papan nama');
+    const rk=NK.shopOn(r,TODAY);if(RUKO_ON||rk)tile('🏪','Jadi ruko',rk||P.ruko?'':'20 Receh',rk?'✓ Aktif · '+(r.shop.until||''):tunggu('ruko'),rk?null:()=>kkRuko(body,c,i),'Rumahmu jadi toko 30 hari, lengkap dengan papan nama');
     tile('📸','Rumah dari foto','', 'Segera hadir',null);
     const ket=[];if(c.emas)ket.push('🚩 Kamu sudah punya bendera emas. Benderanya sudah berkibar di rumahmu, dan namamu ada di daftar Pendukung kampung.');if(rk)ket.push(`🏪 Rumahmu sedang jadi ruko sampai ${r.shop.until}.`);
     body.append(g,...ket.map(t=>el('p','kk-note',t)),el('p','kk-muted','Semua yang kamu dapat tetap tercatat milikmu. Rumah lama nggak hilang.'));return}
@@ -3151,7 +3153,7 @@ function renderEtalase(){const box=$('etalase');if(!box)return;box.innerHTML='';
   const re=kkRumahMini({x:0,y:0,wall:'#F1E4C6',roof:'#C4402F'});const ns='http://www.w3.org/2000/svg';[['rect',{x:50,y:2,width:2.5,height:30,fill:'#5A4A3A'}],['polygon',{points:'52.5,3 63,7 52.5,11',fill:'#F2C230',stroke:'#8A6A10','stroke-width':.8}]].forEach(([t,o])=>{const e=document.createElementNS(ns,t);for(const q in o)e.setAttribute(q,o[q]);re.append(e)});tile(re,'Bendera emas','2','rumah',1,'Berkibar di atap + masuk daftar Pendukung');
   let k=2;Object.entries(KK_ITEM).filter(([id])=>id!=='robot'&&id!=='konsol').forEach(([id,v])=>tile(kkItemSVG(id,id==='papan'?'NAMAMU':null,id==='motor'?'biru':id==='sepeda'?'pink':null),v.n,String(v.h),'item',k++,v.d,v.k==='Eksklusif'));
   tile(kkTingkatSVG({x:0,y:0,wall:'#F4D35E',roof:'#C4402F'},2),'Rumah tingkat 2','10','rumah',k++,'Di TB Genteng Jaya Jaya Joss');tile(kkTingkatSVG({x:0,y:0,wall:'#BFE3F2',roof:'#2F74B5'},3),'Rumah tingkat 3','14','rumah',k++,'Tiap lantai boleh beda warna');
-  tile(kkRukoMini('krem','biru'),'Ruko','20','rumah',k,'Rumahmu jadi toko 30 hari');
+  if(RUKO_ON)tile(kkRukoMini('krem','biru'),'Ruko','20','rumah',k,'Rumahmu jadi toko 30 hari');
   const cta=el('button','btn gold eta-cta',KK_ON?'🛍️ Belanja lewat Kartu Komen':'⏳ Dibuka bareng Kartu Komen');cta.type='button';cta.onclick=()=>kkBelanja('rumah');
   box.append(el('p','eta-lede',KK_ON?'Pilih barangnya, belinya lewat Kartu Komen-mu → Ubah rumah. Punya Recehan? Bayar langsung, barangnya langsung muncul!':'Segera dibuka! Barang-barang ini bisa kamu pasang di rumahmu lewat Kartu Komen.'),g,cta)}
 try{renderEtalase()}catch(e){}

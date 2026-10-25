@@ -96,12 +96,21 @@ function draw(t){const st=status(),jamN=((now()+252e5)%864e5)/36e5,malam=jamN>=1
   const jam=new Date(now()+252e5);txt('🕒 '+String(jam.getUTCHours()).padStart(2,'0')+'.'+String(jam.getUTCMinutes()).padStart(2,'0')+' WIB'+(OPT.qa&&speed>1?` · ⏩ x${speed}`:''),W/2,H-10,10,'#ffffffaa','center',600)}
 // ---------- panel bawah: jadwal & klasemen ----------
 let panel,pk=0,tab='jadwal';function isiPanel(){if(!panel)return;const st=status(),d=hariKe(now());panel.innerHTML='';
-  const tbr=document.createElement('div');tbr.className='lg-tab';[['jadwal','📅 Jadwal hari ini'],['klas','🏆 Klasemen']].forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;if(tab===k)b.className='on';b.onclick=()=>{tab=k;isiPanel()};tbr.append(b)});panel.append(tbr);
+  const tbr=document.createElement('div');tbr.className='lg-tab';[['jadwal','📅 Jadwal'],['klas','🏆 Klasemen'],['top','⚽ Top Skor']].forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;if(tab===k)b.className='on';b.onclick=()=>{tab=k;isiPanel()};tbr.append(b)});panel.append(tbr);
   const j=document.createElement('div');j.hidden=tab!=='jadwal';JAM.forEach((h,s)=>{const L=laga(d,s),r=document.createElement('div');r.className='jd'+(st.main&&st.s===s?' now':'');
     const sel=((now()+252e5)%864e5)/6e4>=h*60+DUR;r.innerHTML=`<span>${String(h).padStart(2,'0')}.00</span><span><i class="dot" style="background:${TIM[L.A].col}"></i>${TIM[L.A].nama} ${sel?`<b>${L.ga}–${L.gb}</b>`:'vs'} ${TIM[L.B].nama}<i class="dot" style="background:${TIM[L.B].col};margin:0 0 0 5px"></i></span>`;
     if(OPT.qa)r.onclick=()=>{lompat(h,0)};j.append(r)});panel.append(j);
   const k=document.createElement('div');k.hidden=tab!=='klas';const tb=document.createElement('table');tb.innerHTML='<tr><th>Tim</th><th>M</th><th>Mn</th><th>S</th><th>K</th><th>GD</th><th>Poin</th></tr>';
-  klasemen().forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`<td><i class="dot" style="background:${TIM[o.k].col}"></i>${TIM[o.k].nama}</td><td>${o.m}</td><td>${o.mn}</td><td>${o.s}</td><td>${o.k2}</td><td>${o.gf-o.ga}</td><td><b>${o.p}</b></td>`;tb.append(tr)});k.append(tb);panel.append(k)}
+  klasemen().forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`<td><i class="dot" style="background:${TIM[o.k].col}"></i>${TIM[o.k].nama}</td><td>${o.m}</td><td>${o.mn}</td><td>${o.s}</td><td>${o.k2}</td><td>${o.gf-o.ga}</td><td><b>${o.p}</b></td>`;tb.append(tr)});k.append(tb);panel.append(k);
+  const ts=document.createElement('div');ts.hidden=tab!=='top';const L=topSkor();
+  if(!L.length)ts.innerHTML='<p style="font-size:12.5px;opacity:.85;margin:8px 2px">Belum ada gol. Top skor muncul setelah laga pertama selesai.</p>';
+  else{const t2=document.createElement('table');t2.innerHTML='<tr><th>#</th><th style="text-align:left">Pemain</th><th>Tim</th><th>⚽</th></tr>';
+    L.slice(0,15).forEach((o,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td style="text-align:left">@${o.n}</td><td style="font-size:11px;text-align:left;white-space:nowrap"><i class="dot" style="background:${TIM[o.k].col}"></i>${TIM[o.k].nama}</td><td><b>${o.g}</b></td>`;t2.append(tr)});ts.append(t2)}
+  panel.append(ts)}
+// top skor: hitung gol per pemain dari laga yang sudah selesai sejak liga dimulai
+function topSkor(){const M={};const t=now(),d1=hariKe(t),mnt=((t+252e5)%864e5)/6e4;
+  for(let d=hari0;d<=d1;d++)for(let s=0;s<8;s++){if(d===d1&&mnt<JAM[s]*60+DUR)continue;const L=laga(d,s);L.gol.forEach(g=>{const k=g.t?L.B:L.A,id=g.n+'|'+k;(M[id]=M[id]||{n:g.n,k,g:0}).g++})}
+  return Object.values(M).sort((a,b)=>b.g-a.g||a.n.localeCompare(b.n))}
 function lompat(h,mm){const d=hariKe(now());vt=d*864e5-252e5+(h*60+mm)*6e4;lastEv='';isiPanel()}
 function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;vt+=dt*1000*speed;ctx.setTransform(dpr,0,0,dpr,0,0);draw(ts/1000);if((pk+=dt)>1){pk=0;isiPanel()}}
 function open(opt={}){if(root)return;OPT=opt;TIM=opt.tim||[];vt=Date.now();speed=1;hari0=opt.mulai?hariKe(Date.parse(opt.mulai)):hariKe(vt);
@@ -123,5 +132,5 @@ function drawMini(c,x,y,w,h,ms){const st=liveAt(ms);if(!st.main)return st;const 
   const r=Math.max(2.2,w*.022),kk=w/300;[[L.A,0],[L.B,1]].forEach(([k,side])=>{const nm=side?L.lb:L.la;FORM.forEach((f,i)=>{const hx=f[0],hy=side?1-f[1]:f[1],wt=i===0?.08:i<5?.25:i<9?.4:.35;let px=hx+(b.x-hx)*wt+.02*Math.sin(m*1.7+i+side*3),py=hy+(b.y-hy)*wt*.8+.02*Math.cos(m*1.3+i*2+side);if(i===0)py=side?Math.min(.1,py):Math.max(.9,py);const [X,Y]=P(px,py);c.save();c.translate(X,Y);c.rotate(-Math.PI/2);pemain(c,0,0,i===0?(side?'#333':'#eee'):TIM[k].col,NOMOR[i],nm[i],kk,performance.now()/80+i*1.3);c.restore()})});
   const [bx,by]=P(b.x,b.y);c.fillStyle='#fff';c.beginPath();c.arc(bx,by,r*.7,0,7);c.fill();
   st.sa=L.gol.filter(g=>g.t===0&&g.m<=m).length;st.sb=L.gol.filter(g=>g.t===1&&g.m<=m).length;st.gol=L.gol.find(g=>m-g.m>=0&&m-g.m<3.5);return st}
-window.LIGA={open,close,laga,klasemen,liveAt,drawMini,setTim:t=>{TIM=t},tim:()=>TIM};
+window.LIGA={open,close,laga,klasemen,topSkor,liveAt,drawMini,setTim:t=>{TIM=t},tim:()=>TIM};
 })();

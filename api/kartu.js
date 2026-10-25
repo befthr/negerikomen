@@ -256,7 +256,7 @@ export default async function handler(req, res) {
       const lwKeys = []; for (let i = 0; lwg && i + 1 < lwg.length; i += 2) lwKeys.push(lwg[i]);
       const lwN = lwKeys.length ? await kvMany(lwKeys.map(k => ['HLEN', 'pelamar:' + k])) : [];
       const lowongan = {}; for (let i = 0; lwg && i + 1 < lwg.length; i += 2) { const key = lwg[i]; const n = (staf[key] || []).length;
-        const tp = key.split('@')[0]; lowongan[key] = { roles: ROLE_B[tp] || ROLE_DEF, sisa: Math.max(0, MAKS_STAF - n), pelamar: +lwN[i / 2] || 0 } }
+        const tp = key.split('@')[0]; if (n >= MAKS_STAF) continue; lowongan[key] = { roles: ROLE_B[tp] || ROLE_DEF, sisa: Math.max(0, MAKS_STAF - n), pelamar: +lwN[i / 2] || 0 } }
       const donasi = {}; for (let i = 0; rd && i + 1 < rd.length; i += 2) donasi[rd[i]] = +rd[i + 1] || 0;
       const ruko = {}, item = {};
       for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
@@ -339,7 +339,7 @@ export default async function handler(req, res) {
           ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at, n: -n, ket: 'bonus karyawan @' + t })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
         return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
       }
-      if (aksi === 'lowongan') { await kv(body.buka ? ['HSET', 'lowongan', key, '1'] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
+      if (aksi === 'lowongan') { if (body.buka && L.length >= MAKS_STAF) return res.status(400).json({ error: 'Karyawanmu sudah ' + MAKS_STAF + ' (penuh). Lowongan bisa dibuka lagi saat ada kontrak yang selesai.' }); await kv(body.buka ? ['HSET', 'lowongan', key, '1'] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
       if (body.op === 'tolak') { await kv(['HDEL', 'pelamar:' + key, t]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
       if (body.op !== 'tambah') return res.status(400).json({ error: 'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri setelah ' + KONTRAK_HARI + ' hari.' });
       const roles = ROLE_B[b.type] || ROLE_DEF, role = String(body.role || '');
@@ -349,8 +349,9 @@ export default async function handler(req, res) {
       if (L.some(x => x.user === t)) return res.status(400).json({ error: '@' + t + ' sudah jadi karyawanmu.' });
       if (L.length >= MAKS_STAF) return res.status(400).json({ error: 'Maksimal ' + MAKS_STAF + ' karyawan per bangunan.' });
       L.push({ user: t, role, sejak: tglWIB(), until: tglWIB(KONTRAK_HARI - 1), at: Date.now() });
-      await kvMany([['HSET', 'stafplus', key, JSON.stringify(L)], ['HDEL', 'pelamar:' + key, t]]);
-      return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
+      const penuh = L.length >= MAKS_STAF; // karyawan sudah 3 → lowongan otomatis ditutup
+      await kvMany([['HSET', 'stafplus', key, JSON.stringify(L)], ['HDEL', 'pelamar:' + key, t], ...(penuh ? [['HDEL', 'lowongan', key]] : [])]);
+      return res.status(200).json({ ok: true, penuh, kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'konsol-skor') { // simpan skor pemilik konsol (skor tertinggi saja); QA hanya kades, ke papan uji
       const g = String(body.g || ''), v = Math.floor(+body.v), qa = !!body.qa;

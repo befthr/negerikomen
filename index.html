@@ -2822,7 +2822,7 @@ function kkStaf(body,c,b){const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'
   const kb=el('div','kk-game on kk-staf');const gh=el('div','kk-gh');gh.append(el('b',null,IC+' Karyawan '+b.name),el('span','kk-soon',b.staf.length+'/'+b.maks));kb.append(gh);
   kb.append(el('p','kk-muted','Kamu bosnya! Atur sendiri siapa yang kerja di '+b.name+'.'));
   const inf=document.createElement('details');inf.className='kk-info';inf.open=!b.buka&&!b.staf.length&&!(b.pelamar||[]).length;const sm=document.createElement('summary');sm.append(el('b',null,'📌 Info wajib dibaca'));inf.append(sm);const il=el('ul');
-  ['Karyawan wajib sudah jadi warga Negeri Komen','Maksimal '+b.maks+' karyawan','Karyawan dapat plang di rumahnya, lencana, dan namanya tercatat di info '+b.name,'Tidak ada gaji. Bonus Receh boleh dikasih, terserah kamu, diambil dari Recehan-mu','Kontrak '+(b.kontrak||30)+' hari, selesai otomatis. Karyawan tidak bisa diberhentikan sebelum kontraknya habis, jadi pilih yang serius ya','Cara milih bebas: buka lowongan (warga melamar dari peta) atau langsung tunjuk orangnya'].forEach(t=>il.append(el('li',null,t)));
+  ['Karyawan wajib sudah jadi warga Negeri Komen','Maksimal '+b.maks+' karyawan','Karyawan dapat plang di rumahnya, lencana, dan namanya tercatat di info '+b.name,'Tidak ada gaji. Bonus Receh boleh dikasih, terserah kamu, diambil dari Recehan-mu','Kontrak '+(b.kontrak||30)+' hari, selesai otomatis. Karyawan tidak bisa diberhentikan sebelum kontraknya habis, jadi pilih yang serius ya','Cara milih bebas: buka lowongan (warga melamar dari peta) atau langsung tunjuk orangnya','Kalau karyawan sudah 3, lowongan otomatis ditutup'].forEach(t=>il.append(el('li',null,t)));
   inf.append(il);kb.append(inf);
   const ul=el('ul','kk-sl');b.staf.forEach(x=>{const li=el('li');const nm=el('span');nm.append(el('b',null,'@'+x.user),' · '+x.role+(x.until?' · kontrak s/d '+new Date(x.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):''));
     const bo=kkBtn('🎁 Bonus','sm',async()=>{const n=Math.floor(+sel2.value);if(!await kkYakin('Kirim bonus?',`+${n} Receh untuk @${x.user}\nDiambil dari Recehan-mu (sisa ${Math.max(0,(c.saldo||0)-n)} Receh).`,'Ya, kirim'))return;
@@ -2830,7 +2830,7 @@ function kkStaf(body,c,b){const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'
     const sel2=document.createElement('select');sel2.className='kk-sel';[1,2,3,5].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n+' Receh';sel2.append(o)});
 const ak=el('div','kk-sa');ak.append(sel2,bo);li.append(nm,ak);ul.append(li)});
   if(b.staf.length)kb.append(ul);
-  {const lw=el('div','kk-lw'+(b.buka?' on':''));lw.append(el('b',null,b.buka?'📢 Lowongan DIBUKA':'📢 Lowongan tutup'),el('span','kk-muted',b.buka?'Warga bisa melamar lewat info '+b.name+' & rumahmu di peta.':'Buka lowongan biar warga bisa melamar dari peta.'));
+  if(b.staf.length<b.maks||b.buka){const lw=el('div','kk-lw'+(b.buka?' on':''));lw.append(el('b',null,b.buka?'📢 Lowongan DIBUKA':'📢 Lowongan tutup'),el('span','kk-muted',b.buka?'Warga bisa melamar lewat info '+b.name+' & rumahmu di peta.':'Buka lowongan biar warga bisa melamar dari peta.'));
     const tg=kkBtn(b.buka?'Tutup lowongan':'Buka lowongan',b.buka?'sm':'gold3',async()=>{if(!await kkYakin(b.buka?'Tutup lowongan?':'Buka lowongan?',b.buka?'Warga tidak bisa melamar lagi. Lamaran yang sudah masuk tetap tersimpan.':'Tombol "📝 Lamar kerja" muncul di info '+b.name+' dan di rumahmu. Kamu yang pilih siapa yang diterima.',b.buka?'Ya, tutup':'Ya, buka'))return;
       tg.disabled=true;const r=await kkApi('lowongan',{key:b.key,buka:!b.buka},true);tg.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}toast(b.buka?'Lowongan ditutup':'📢 Lowongan dibuka! Share ke story biar ramai pelamar');kkTampil(body,r.kartu)});
     lw.append(tg);kb.append(lw)}
@@ -2841,7 +2841,7 @@ const ak=el('div','kk-sa');ak.append(sel2,bo);li.append(nm,ak);ul.append(li)});
       const ak=el('div','kk-sa');const lihat=kkBtn('Rumahnya','sm',()=>{const k=kkResIdx(x.user);if(k>=0){kkTutup();select({kind:'r',i:k});scrollMap()}});
       const tr=kkBtn('Terima','sm gold3',async()=>{if(b.staf.length>=b.maks){toast('Karyawan sudah '+b.maks+' (penuh)');return}
         if(!await kkYakin('Terima @'+x.user+'?',`Jadi ${x.role} di ${b.name} selama ${b.kontrak||30} hari.\n\nKaryawan tidak bisa diberhentikan sebelum kontrak habis.`,'Ya, terima'))return;
-        tr.disabled=true;const r=await kkApi('staf',{key:b.key,op:'tambah',target:x.user,role:x.role},true);tr.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎉 @${x.user} diterima jadi ${x.role}!`);kkTampil(body,r.kartu)});
+        tr.disabled=true;const r=await kkApi('staf',{key:b.key,op:'tambah',target:x.user,role:x.role},true);tr.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎉 @${x.user} diterima jadi ${x.role}!`+(r.penuh?' Karyawan sudah 3, lowongan otomatis ditutup.':''));kkTampil(body,r.kartu)});
       const tl=kkBtn('Tolak','sm',async()=>{if(!await kkYakin('Tolak lamaran @'+x.user+'?','Lamarannya dihapus dari daftar.','Ya, tolak'))return;const r=await kkApi('staf',{key:b.key,op:'tolak',target:x.user},true);if(!r.ok){toast(r.error||'Gagal');return}kkTampil(body,r.kartu)});
       ak.append(lihat,tl,tr);li.append(nm,ak);pu.append(li)});pb.append(pu);kb.append(pb)}
   if(b.staf.length<b.maks){const f=el('div','kk-sf');const inp=document.createElement('input');inp.placeholder='username warga (tanpa @)';inp.autocapitalize='off';inp.spellcheck=false;inp.className='kk-in';
@@ -2849,7 +2849,7 @@ const ak=el('div','kk-sa');ak.append(sel2,bo);li.append(nm,ak);ul.append(li)});
     const tb=kkBtn('+ Tambah karyawan','gold3',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase(),role=rs.value;if(!t){toast('Isi username karyawannya dulu');inp.focus();return}if(!role){toast('Pilih jabatannya dulu');return}
       if(kkResIdx(t)<0){toast('@'+t+' belum jadi warga Negeri Komen');return}
       if(!await kkYakin('Tambah karyawan?',`@${t} jadi ${role} di ${b.name} selama ${b.kontrak||30} hari.\nDia dapat plang di rumahnya & lencana karyawan.\n\nKaryawan tidak bisa diberhentikan sebelum kontrak habis. Pastikan username & jabatannya benar ya.`,'Ya, tambah'))return;
-      tb.disabled=true;const r=await kkApi('staf',{key:b.key,op:'tambah',target:t,role},true);tb.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎉 @${t} resmi jadi ${role} di ${b.name}!`);kkTampil(body,r.kartu)});
+      tb.disabled=true;const r=await kkApi('staf',{key:b.key,op:'tambah',target:t,role},true);tb.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎉 @${t} resmi jadi ${role} di ${b.name}!`+(r.penuh?' Karyawan sudah 3, lowongan otomatis ditutup.':''));kkTampil(body,r.kartu)});
     f.append(inp,rs,tb);kb.append(f)}
   else kb.append(el('p','kk-note','Sudah '+b.maks+' karyawan (maksimal). Slot kosong lagi saat ada kontrak yang selesai.'));
   // urutan: kabar pelamar baru → pelamar → lowongan → karyawan → tambah → info (dilipat)

@@ -3351,7 +3351,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
-  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?'Desa baru · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!':r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?'Desa baru · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · cuma 1 di kampung':'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();
@@ -3409,7 +3409,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   if(JG){c.lineWidth=28;c.strokeStyle='#D4A72C';c.strokeRect(14,14,W-28,H-28);c.lineWidth=6;c.strokeStyle='#1C2520';c.strokeRect(36,36,W-72,H-72)}
   c.fillStyle='#1C2520';c.textAlign='center';c.font=`700 34px ${FB}`;c.fillText('N E G E R I   K O M E N',W/2,JG?100:150);
   c.font=`800 76px ${FD}`;if(JG){c.font=`800 38px ${FB}`;c.fillStyle='#8A5A00';c.fillText('👑 JURAGAN GENTENG 👑',W/2,150);c.fillStyle='#1C2520';c.font=`800 76px ${FD}`}
-  c.fillText(bd0?'Bangunan kampung':'Rumahku di kampung',W/2,250);
+  c.fillText(bd0?'Bangunan kampung':r&&r.demo==='gento'?'Robot Eksklusif':'Rumahku di kampung',W/2,250);
   /* gambar 3D */
   const X=60,Y=320,S=960;c.save();rr(c,X,Y,S,S,40);c.clip();const sg=c.createLinearGradient(0,Y,0,Y+S);sg.addColorStop(0,'#DDEBF2');sg.addColorStop(.7,'#F5F7F1');c.fillStyle=sg;c.fillRect(X,Y,S,S);
   c.drawImage(src,X,Y,S,S);
@@ -3418,7 +3418,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   c.restore();c.lineWidth=6;c.strokeStyle='#1C2520';rr(c,X,Y,S,S,40);c.stroke();
   /* nama */
   c.fillStyle='#1C2520';const nm=bd0?(bd0.name||'Bangunan'):(r.nick||('@'+r.name));fitText(c,nm,W-120,84,FD);c.fillText(nm,W/2,1400);
-  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo==='ufo'?(window.UFO_KE?`🛸 Penemu UFO ke-${window.UFO_KE} · `:'🛸 Momen langka · ')+'Malam '+new Date(Date.now()+252e5).toISOString().slice(0,10).split('-').reverse().slice(0,2).join('/'):r&&r.demo==='gento'?'🤖 Robot eksklusif · cuma 1 di kampung':r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?'📅 Diresmikan '+resmi(bd0.day):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
+  c.font=`600 42px ${FB}`;c.fillStyle='#5B6860';c.fillText(r&&r.demo==='ufo'?(window.UFO_KE?`🛸 Penemu UFO ke-${window.UFO_KE} · `:'🛸 Momen langka · ')+'Malam '+new Date(Date.now()+252e5).toISOString().slice(0,10).split('-').reverse().slice(0,2).join('/'):r&&r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · cuma 1 di kampung':'🤖 Robot eksklusif · cuma 1 di kampung'):r&&r.demo?'Contoh ruko · paket Buka Usaha':bd0?'📅 Diresmikan '+resmi(bd0.day):(r.nick?'@'+r.name+' · ':'')+`Warga #${i+2} · hari ke-${r.day||1}`,W/2,1465);
   const tags=[];if(bd0){const bo=bossOf(bd0);tags.push(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa');const n=staffOf(bd0).length;if(n)tags.push(`👷 ${n} karyawan`)}else{tags.push(...perksOf(r).map(String));if(NK.jobOn(r))tags.push('🦺 Tukang Proyek')}
   if(tags.length){c.font=`700 32px ${FB}`;const rows=[[]];let rw=0;const gap=14,maxW=W-100;
     tags.slice(0,6).forEach(t=>{const w=c.measureText(t).width+44;if(rw+w>maxW&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push({t,w});rw+=w+gap});

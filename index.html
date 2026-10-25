@@ -1625,7 +1625,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   sm.append(ic,tt,el('span','jst'+(ok||dm?' open':''),closed?'Ditutup':ok||dm?(j.until?'s/d '+new Date(j.until+'T12:00:00').getDate()+' Okt'+(j.jam?' '+j.jam.replace(':','.'):''):'Dibuka'):'Segera'),el('span','chev','▾'));d.append(sm);
   const bd=el('div','jbody');if(j.desc)bd.append(el('p',null,j.desc));
   [['Syarat',j.syarat],['Yang kamu dapat',j.benefit]].forEach(([h,L])=>{if(!L||!L.length)return;bd.append(el('h4',null,h));const ul=document.createElement('ul');L.forEach(t=>ul.append(el('li',null,t)));bd.append(ul)});
-  if(closed){bd.append(el('p','jnote','Pendaftaran sudah ditutup. Pantau episode berikutnya untuk pengumuman!'))}
+  if(closed){bd.append(el('p','jnote','Pendaftaran sudah ditutup. Yang terpilih diumumkan sesuai ketentuan loker.'))}
   else if(dm&&j.web){bd.append(el('h4',null,'Cara lamar'));bd.append(el('p',null,'Lamar langsung di web lewat Kartu Komen-mu: tulis alasanmu, centang sudah follow & subscribe, kirim. Gampang!'));
     if((j.syarat||[]).some(t=>/lembarpeta/.test(t))){const lr=el('div','lp-links');[['📷 Follow IG @lembarpeta','https://www.instagram.com/lembarpeta'],['▶️ Subscribe YouTube @lembarpeta','https://www.youtube.com/@lembarpeta']].forEach(([t,u])=>{const a=el('a','btn',t);a.href=u;a.target='_blank';a.rel='noopener';lr.append(a)});bd.append(lr)}
     if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', '+(j.jam==='24:00'?'jam 24.00 (tengah malam)':(j.jam||'23.59').replace(':','.'))+' WIB.'));

@@ -19,10 +19,14 @@ const rngOf=seed=>{let a=hash(seed)||1;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Ma
 const PAIR=[];for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)PAIR.push([i,j]);
 const hariKe=ms=>Math.floor((ms+252e5)/864e5); // hari WIB sejak epoch
 let rp=null,rpBox=null,TIM=[],OPT={},root,cv,ctx,dpr,raf,last=0,vt=0,speed=1,mute=false,ac=null,lastEv='',hari0=0;
+// roster per tanggal: warga baru main mulai besok setelah pindah (hasil laga lama tidak berubah saat warga bertambah).
+// CAP = snapshot jumlah warga (urutan data) untuk tanggal tertentu, supaya laga yang sudah diumumkan tetap sama.
+const CAP={[hariKe(Date.UTC(2026,9,25)-252e5+1)]:2196};
+function boleh(p,d){if(typeof p==='string')return true;if(CAP[d]!=null)return p.i<CAP[d];return hariKe(Date.UTC(2026,9,18+p.d)-252e5+1)<d}
 // jadwal hari d slot s → pasangan tim (bergiliran supaya semua tim ketemu semua lawan)
 function laga(d,s){const r=rngOf('liga'+d);const urut=PAIR.map((p,i)=>[r(),p]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);const p=urut[s%10];const sw=(d+s)%2;
   const A=sw?p[1]:p[0],B=sw?p[0]:p[1],R=rngOf('laga'+d+'-'+s);
-  const pilih=k=>{const pool=TIM[k].pemain.slice();const out=[];while(out.length<11&&pool.length)out.push(pool.splice(Math.floor(R()*pool.length),1)[0]);while(out.length<11)out.push('warga'+(out.length+1));return out};
+  const pilih=k=>{const pool=TIM[k].pemain.filter(p=>boleh(p,d)).map(p=>typeof p==='string'?p:p.n);const out=[];while(out.length<11&&pool.length)out.push(pool.splice(Math.floor(R()*pool.length),1)[0]);while(out.length<11)out.push('warga'+(out.length+1));return out};
   const la=pilih(A),lb=pilih(B);const ga=Math.floor(Math.pow(R(),1.5)*4.4),gb=Math.floor(Math.pow(R(),1.5)*4.4);
   const gol=[];for(let i=0;i<ga;i++)gol.push({m:3+R()*85,t:0,n:la[5+Math.floor(R()*6)]});for(let i=0;i<gb;i++)gol.push({m:3+R()*85,t:1,n:lb[5+Math.floor(R()*6)]});gol.sort((a,b)=>a.m-b.m);
   // jaga jarak antar gol supaya animasi tidak tabrakan

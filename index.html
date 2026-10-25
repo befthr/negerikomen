@@ -3329,7 +3329,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang
   // plang desa lama di sisi kampung, menghadap jalan ke desa baru
-  {const K=D.K,px=K.x1-T*7.5,py=D.jalanY+T*2.75;papan(px,py-T*.4,'🏡 DESA AWALKOMEN',T*.5,'#1C2520','#F2C230')}
+  {const K=D.K,px=K.x1-T*4.6,py=D.jalanY+T*5.2;papan(px,py-T*.4,'🏡 DESA AWALKOMEN',T*.5,'#1C2520','#F2C230')}
   {const g=D.gate,bw=T*13,bh=T*4.2;// gerbang besar dilihat dari atas: 2 tugu di sisi jalan + papan nama melintang
    [g.y-T*3.6,g.y+T*2.2].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(g.x-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(g.x-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(g.x-T*.8,y+T*.25,T*1.6,T*.9)});
    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);

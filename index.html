@@ -263,7 +263,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .v3{position:fixed;inset:0;z-index:60;background:rgba(16,22,18,.72);display:grid;place-items:center;padding:16px}
 .v3box{position:relative;width:min(560px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:linear-gradient(180deg,#DDEBF2,#F5F7F1 70%);border-radius:22px;border:2px solid var(--ink);box-shadow:0 6px 0 var(--ink);overflow:hidden}
 .v3gaya{position:absolute;left:12px;top:calc(min(46vh,420px) - 104px);z-index:2;padding:8px 14px;border-radius:999px;border:2px solid var(--ink);background:#1F2F5C;color:#fff;font:inherit;font-weight:800;font-size:13px;box-shadow:0 3px 0 var(--ink);cursor:pointer}
-.v3fire{position:absolute;left:12px;top:calc(min(46vh,420px) - 54px);z-index:2;padding:9px 16px;border-radius:999px;border:2px solid var(--ink);background:#D62E2E;color:#fff;font:inherit;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--ink);cursor:pointer}.v3slash{left:auto;right:12px;top:calc(min(46vh,420px) - 104px);background:#2F74B5}.v3fire:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.v3fire{position:absolute;left:12px;top:calc(min(46vh,420px) - 54px);z-index:2;padding:9px 16px;border-radius:999px;border:2px solid var(--ink);background:#D62E2E;color:#fff;font:inherit;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--ink);cursor:pointer}.v3slash{left:auto;right:12px;top:calc(min(46vh,420px) - 104px);background:#2F74B5}.v3fly{left:auto;right:12px;top:calc(min(46vh,420px) - 154px);background:#E07A3E}.v3fire:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .v3share{position:absolute;right:12px;top:calc(min(46vh,420px) - 54px);z-index:2;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:2px solid var(--ink);background:#F2C230;color:var(--ink);font:800 14px var(--f-body);box-shadow:0 3px 0 var(--ink);cursor:pointer}.v3share:disabled{opacity:.6}
 .v3scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .v3box canvas{display:block;flex:none;width:100%;height:min(46vh,420px);touch-action:none;cursor:grab}
@@ -485,6 +485,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
     <button type="button" class="v3share" id="v3save">📸 Bagikan</button>
     <button type="button" class="v3fire" id="v3fire" hidden>💥 Tembak mercon!</button>
     <button type="button" class="v3fire v3slash" id="v3slash" hidden>⚔️ Tebas!</button>
+    <button type="button" class="v3fire v3fly" id="v3fly" hidden>🚀 Terbang!</button>
     <button type="button" class="v3gaya" id="v3gaya" hidden>🕺 Ganti gaya</button>
     <div class="v3load" id="v3load">Membangun rumah 3D…</div>
     <div class="v3scroll"><div class="v3info"><b id="v3name"></b><span id="v3sub"></span><div class="badges" id="v3bd"></div><div id="v3demo"></div></div>
@@ -2048,14 +2049,14 @@ function rental3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0)m.scale.s
   const cv=document.createElement('canvas');cv.width=768;cv.height=128;const c=cv.getContext('2d');c.fillStyle='#1C2520';c.fillRect(0,0,768,128);c.fillStyle='#FF5E8A';c.font='800 58px Poppins,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🎮 RENTAL playadalahmain',384,66);
   const sg=new T.Mesh(new T.PlaneGeometry(4.4,.74),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv)}));sg.position.set(0,3.35,1.25);H.add(sg);box(4.5,.8,.08,'#1C2520',0,3.35,1.2);
   ['#E07A3E','#8E5AA8','#2F9E6A','#3E8FC9'].forEach((col,i)=>{const x=-1.5+i*1,z=2.3;box(.34,.5,.24,col,x,.45,z);const kp=new T.Mesh(new T.SphereGeometry(.16,12,10),M('#F1C9A0'));kp.position.set(x,.88,z);kp.castShadow=true;H.add(kp);box(.32,.12,.06,'#2B2F5E',x,.55,z+.16)})}
-function rumahGento3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0){m.scale.set(5.6,1,5.6)}else m.visible=false});const H=new T.Group();H.position.set(12.5,0,4);H.rotation.y=.4;g.add(H);
+function rumahGento3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0){m.scale.set(6.6,1,6.6)}else m.visible=false});const H=new T.Group();H.position.set(15,0,4);H.rotation.y=.4;g.add(H);
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.75},o||{}));const box=(w,h,d,c,x,y,z,o)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c,o));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;H.add(m);return m};
   box(5.4,3.4,3.4,'#F4EFE3',0,1.7,0);box(5.5,.22,3.5,'#F2C230',0,1.75,0);for(let f=0;f<2;f++)for(let i=0;i<5;i++)box(.62,.7,.06,'#9ED8FF',-2.1+i*1.05,.85+f*1.7,1.72,{emissive:'#3A6E8F',emissiveIntensity:.2});box(1,1.3,.08,'#5B3A22',0,.65,1.73);
   [-1,1].forEach(sd=>{const p=box(5.8,.22,2.3,'#2F74B5',0,4.05,sd*.82);p.rotation.x=sd*.62});box(5.9,.25,.3,'#285F95',0,4.62,0)}
 // kandang GENTO: rangka hanggar terbuka di belakang robot (dinding belakang, tiang, balok atas, papan nama) — warna sama dengan Rumah GENTO di peta
 function kandang3D(g){const T=THREE,K=new T.Group();K.position.set(-1.7,0,-3.2);K.rotation.y=.4;g.add(K);const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.7},o||{}));
   const box=(w,h,d,c,x,y,z,o)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c,o));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;K.add(m);return m};
-  const W2=9,Hh=18,D=-6,FZ=14;box(W2*2,Hh,.3,'#2F74B5',0,Hh/2,D);box(W2*2,.5,.34,'#F2C230',0,Hh*.55,D+.02);
+  const W2=11,Hh=22,D=-8,FZ=16;box(W2*2,Hh,.3,'#2F74B5',0,Hh/2,D);box(W2*2,.5,.34,'#F2C230',0,Hh*.55,D+.02);
   for(let i=-6;i<=6;i++)box(.12,Hh-.4,.32,'#285F95',i*1.4,Hh/2,D+.04);
   [-W2,W2].forEach(x=>{box(.6,Hh,.6,'#F4EFE3',x,Hh/2,D+.3);box(.6,Hh,.6,'#F4EFE3',x,Hh/2,FZ);box(.3,.3,FZ-D,'#2F74B5',x,Hh-.15,(FZ+D)/2)});
   box(W2*2+.6,.7,.7,'#2F74B5',0,Hh,FZ);box(W2*2+.6,.7,.7,'#2F74B5',0,Hh,D+.3);
@@ -2196,6 +2197,10 @@ const MERCON_SND=(()=>{let ac=null;const AC=window.AudioContext||window.webkitAu
     // kretek-kretek
     for(let k=0;k<16;k++){const c0=B+.15+Math.random()*.9,cs=ac.createBufferSource();cs.buffer=noise(.04);const cg=ac.createGain();cg.gain.setValueAtTime(.5*Math.random()+.2,c0);cg.gain.exponentialRampToValueAtTime(.0001,c0+.04);const cf=ac.createBiquadFilter();cf.type='highpass';cf.frequency.value=2500;cs.connect(cf);cf.connect(cg);cg.connect(out);cs.start(c0)}}})();
 // suara tebasan pedang: desing logam + sabetan angin + hantaman
+const TERBANG_SND=(()=>{let ac=null;const AC=window.AudioContext||window.webkitAudioContext;return()=>{if(!AC)return;try{if(!ac)ac=new AC();if(ac.state==='suspended')ac.resume();const t=ac.currentTime,d=5.6,n=Math.floor(ac.sampleRate*d),b=ac.createBuffer(1,n,ac.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=Math.random()*2-1;
+  const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=b;f.type='lowpass';f.frequency.setValueAtTime(300,t);f.frequency.linearRampToValueAtTime(1400,t+1.4);f.frequency.linearRampToValueAtTime(700,t+3.8);f.frequency.linearRampToValueAtTime(1100,t+5.2);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.5,t+.3);g.gain.setValueAtTime(.45,t+1.6);g.gain.linearRampToValueAtTime(.2,t+3.8);g.gain.linearRampToValueAtTime(.4,t+5);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(ac.destination);s.start(t);
+  const o=ac.createOscillator(),og=ac.createGain();o.type='sawtooth';o.frequency.setValueAtTime(70,t);o.frequency.linearRampToValueAtTime(140,t+1.6);o.frequency.linearRampToValueAtTime(90,t+5);og.gain.setValueAtTime(.0001,t);og.gain.exponentialRampToValueAtTime(.08,t+.3);og.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(og);og.connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}}})();
 const SLASH_SND=(()=>{let ac=null;const AC=window.AudioContext||window.webkitAudioContext;
   return ()=>{if(!AC)return;if(!ac)ac=new AC();ac.resume();const T=ac.currentTime,out=ac.createGain();out.gain.value=.6;out.connect(ac.destination);
     const n=ac.createBuffer(1,ac.sampleRate*.6,ac.sampleRate),x=n.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;
@@ -2304,6 +2309,15 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
   const WARNA=['#FF4D4D','#FFD24D','#4DD2FF','#FF6BD6','#7CFF6B','#FFFFFF'];
   g.userData.tembak=()=>{tembakAt=performance.now();try{MERCON_SND()}catch(e){}};
   g.userData.tebas=()=>{tebasAt=performance.now();try{SLASH_SND()}catch(e){}};
+  // TERBANG: lepas landas ke atas dengan semburan api ke bawah, melayang, lalu turun pelan ke kandang
+  {let flyAt=-1e9;const FL=new T.Group();R.add(FL);FL.visible=false;const fm=(c,o)=>new T.MeshBasicMaterial({color:c,transparent:true,opacity:o,depthWrite:false});
+   const api=[];[-1.1,1.1].forEach(x=>{const a=new T.Mesh(new T.ConeGeometry(.75,3.2,14),fm('#FFB347',.9));a.rotation.x=Math.PI;a.position.set(x,-1.4,0);FL.add(a);const b=new T.Mesh(new T.ConeGeometry(.4,2,12),fm('#FFF6C2',.95));b.rotation.x=Math.PI;b.position.set(x,-.9,0);FL.add(b);api.push(a,b)});
+   const asap=[];for(let i=0;i<14;i++){const m=new T.Mesh(new T.SphereGeometry(1,10,8),fm('#C9C9C9',.0));g.add(m);asap.push(m)}
+   g.userData.terbang=()=>{flyAt=performance.now();try{TERBANG_SND()}catch(e){}};
+   queueMicrotask(()=>A.push(()=>{const u=(performance.now()-flyAt)/1000;if(u<0||u>6.5){FL.visible=false;asap.forEach(m=>m.material.opacity=0);return}
+     const naik=u<1.6?Math.pow(u/1.6,2):u<3.8?1:u<6?1-Math.pow((u-3.8)/2.2,1.6)*1:0,H=26;R.position.y+=Math.max(0,naik)*H+(u>1.6&&u<3.8?Math.sin(u*4)*.4:0);
+     FL.visible=u<6.2;const k=u<1.6?1.4:u<3.8?.8:1.1;api.forEach((m,i)=>{m.scale.set(1,k*(.8+.3*Math.random()),1)});
+     asap.forEach((m,i)=>{const v=((u*1.6+i/14)%1);m.position.set(R.position.x+(Math.sin(i*2.3)*2.5)*v,v*2,R.position.z+Math.cos(i*1.7)*2.5*v);m.scale.setScalar(.6+v*2.2);m.material.opacity=(u<5.8?.45:0)*(1-v)})}))}
   A.push(t=>{const s=t*.001,now=performance.now(),dt=(now-tembakAt)/1000;
     // lengan kanan mengikuti pose; saat menembak meriam diacungkan ke langit
     let w=0;const bidik=dt<2.6;if(bidik)w=Math.min(1,dt/.2)*(dt<2.2?1:Math.max(0,(2.6-dt)/.4));
@@ -3275,6 +3289,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6});scn.add(sun);
   let {g,flag}=bd0?build3DB(bd0):build3D(r);scn.add(g);
   {const gb=$('v3gaya');gb.hidden=!g.userData.gaya;gb.onclick=()=>{if(!g.userData.gaya)return;const n=g.userData.gaya();gb.textContent='🕺 Gaya: '+n;auto=false}}
+  {const fb=$('v3fly');fb.hidden=!g.userData.terbang;let fc=0;fb.onclick=()=>{if(!g.userData.terbang||Date.now()<fc)return;fc=Date.now()+6800;auto=false;g.userData.terbang()}}
   {const sb=$('v3slash');sb.hidden=!g.userData.tebas;let cd=0;sb.onclick=()=>{if(!g.userData.tebas||Date.now()<cd)return;cd=Date.now()+1100;auto=false;g.userData.tebas()}}
   {const fb=$('v3fire');fb.hidden=!g.userData.tembak;let cd=0;fb.onclick=()=>{if(!g.userData.tembak||Date.now()<cd)return;cd=Date.now()+2700;g.userData.tembak();fb.disabled=true;setTimeout(()=>fb.disabled=false,2700)}}
   let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;

@@ -2524,7 +2524,7 @@ window.NK_DATA = {
   { "name": "fanss_lionelmessi", "x": 84, "y": 16, "day": 7, "roof": "merah muda", "wall": "putih" },
   { "name": "de_agus_king", "x": 22, "y": 2, "day": 7 },
   { "name": "nggxnnn", "x": 82, "y": 12, "day": 7, "roof": "biru" },
-  { "name": "__scc_acount", "x": 83, "y": 14, "day": 7, "roof": "putih", "wall": "biru" },
+  {"name": "__scc_acount", "x": 83, "y": 14, "day": 7, "roof": "putih", "wall": "biru", "nick": "4ndriiii"},
   { "name": "_khusnul111", "x": 14, "y": 7, "day": 7, "nick": "_khusnul", "roof": "merah muda" },
   { "name": "denzzstory_27", "x": 80, "y": 10, "day": 7, "nick": "Denza", "roof": "biru" },
   { "name": "hardatul_fikram_ji", "x": 70, "y": 2, "day": 7, "nick": "Ikram", "roof": "hitam" },

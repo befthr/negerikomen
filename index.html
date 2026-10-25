@@ -2833,7 +2833,7 @@ function kkStaf(body,c,b){const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'
     const sel2=document.createElement('select');sel2.className='kk-sel';[1,2,3,5].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n+' Receh';sel2.append(o)});
 const ak=el('div','kk-sa');ak.append(sel2,bo);li.append(nm,ak);ul.append(li)});
   if(b.staf.length)kb.append(ul);
-  if(b.staf.length<b.maks||b.buka){const lw=el('div','kk-lw'+(b.buka?' on':''));lw.append(el('b',null,b.buka?'📢 Lowongan DIBUKA':'📢 Lowongan tutup'),el('span','kk-muted',b.buka?'Warga bisa melamar lewat info '+b.name+' & rumahmu di peta.':'Buka lowongan biar warga bisa melamar dari peta.'));
+  if(b.staf.length<b.maks||b.buka){const lw=el('div','kk-lw'+(b.buka?' on':''));lw.append(el('b',null,b.buka?'📢 Lowongan DIBUKA':'📢 Lowongan tutup'),el('span','kk-muted',(b.buka?'Warga bisa melamar lewat info '+b.name+' & rumahmu di peta.':'Buka lowongan biar warga bisa melamar dari peta.')+' Mau lowonganmu dibantu diumumkan di story @negerikomen? DM Pak Kades aja!'));
     const tg=kkBtn(b.buka?'Tutup lowongan':'Buka lowongan',b.buka?'sm':'gold3',async()=>{if(!await kkYakin(b.buka?'Tutup lowongan?':'Buka lowongan?',b.buka?'Warga tidak bisa melamar lagi. Lamaran yang sudah masuk tetap tersimpan.':'Tombol "📝 Lamar kerja" muncul di info '+b.name+' dan di rumahmu. Kamu yang pilih siapa yang diterima.',b.buka?'Ya, tutup':'Ya, buka'))return;
       tg.disabled=true;const r=await kkApi('lowongan',{key:b.key,buka:!b.buka},true);tg.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}toast(b.buka?'Lowongan ditutup':'📢 Lowongan dibuka! Share ke story biar ramai pelamar');kkTampil(body,r.kartu)});
     lw.append(tg);kb.append(lw)}

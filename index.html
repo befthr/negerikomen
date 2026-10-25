@@ -453,7 +453,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 
       <div class="card okb" id="kryCard" hidden>
         <h3>👷 Karyawan Kampung</h3>
-        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Warga yang kerja bantu kepala desa. Gaji 2 Receh tiap pekan. Ketuk buat lihat rumahnya 👀</p>
+        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Warga yang lagi kerja di bangunan kampung, dari Loker Negeri &amp; Loker Swasta. Ketuk buat lihat rumahnya 👀</p>
         <ul class="blist" id="kryList"></ul>
       </div>
 
@@ -1443,7 +1443,15 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   ctx.setTransform(1,0,0,1,0,0);
   return blocks;
 }
-function tag(x,y,name,sub,fs,strong,own){
+function tag(x,y,name,sub,fs,strong,own,lite){
+  if(lite){ // label ringkas: pil gelap transparan, teks putih kecil, tanpa bayangan → bangunan tetap jadi fokus
+    ctx.font=`600 ${fs}px Figtree, "Segoe UI", sans-serif`;const w1=ctx.measureText(name).width;let w2=0;
+    if(sub){ctx.font=`500 ${fs*0.82}px Figtree, "Segoe UI", sans-serif`;w2=ctx.measureText(sub).width}
+    const pw=fs*0.42,w=Math.max(w1,w2)+pw*2,h=sub?fs*2.05:fs*1.35,bx=x-w/2,by=y-h-fs*0.2;
+    ctx.fillStyle='rgba(20,28,24,.55)';rr(bx,by,w,h,h/2>fs?fs*.45:h/2);ctx.fill();
+    ctx.textBaseline='alphabetic';ctx.textAlign='left';ctx.fillStyle='rgba(255,255,255,.95)';ctx.font=`600 ${fs}px Figtree, "Segoe UI", sans-serif`;ctx.fillText(name,bx+pw,by+fs*1.0);
+    if(sub){ctx.fillStyle='rgba(255,236,190,.92)';ctx.font=`500 ${fs*0.82}px Figtree, "Segoe UI", sans-serif`;ctx.fillText(sub,bx+pw,by+fs*1.78)}
+    return {x:bx,y:by,w,h:h+fs*0.2}}
   ctx.font=`700 ${fs}px Figtree, "Segoe UI", sans-serif`;
   const w1=ctx.measureText(name).width;let w2=0;
   if(sub){ctx.font=`500 ${fs*0.78}px Figtree, "Segoe UI", sans-serif`;w2=ctx.measureText(sub).width}
@@ -1761,12 +1769,12 @@ function scrollMap(){if(window.innerWidth<=920)$('search').scrollIntoView({behav
 
 /* label dengan penghindar tabrakan */
 function drawLabels(v,t){
-  const z=v.z,toS=(x,y)=>[v.ox+NK.wx(x)*z,v.oy+NK.wx(y)*z],hs=T*z/dpr,fs=Math.round(13*dpr);
+  const z=v.z,toS=(x,y)=>[v.ox+NK.wx(x)*z,v.oy+NK.wx(y)*z],hs=T*z/dpr,fs=Math.round(13*dpr),fsS=Math.round(10.5*dpr); // fsS: label ringkas (bukan yang dipilih)
   const placed=[];const fits=r=>!placed.some(p=>r.x<p.x+p.w&&r.x+r.w>p.x&&r.y<p.y+p.h&&r.y+r.h>p.y);
-  const measure=(name,sub)=>{ctx.font=`700 ${fs}px Figtree`;let w=ctx.measureText(name).width;if(sub){ctx.font=`500 ${fs*.78}px Figtree`;w=Math.max(w,ctx.measureText(sub).width)}
+  const measure=(name,sub,fs)=>{ctx.font=`700 ${fs}px Figtree`;let w=ctx.measureText(name).width;if(sub){ctx.font=`500 ${fs*.78}px Figtree`;w=Math.max(w,ctx.measureText(sub).width)}
     return {w:w+fs,h:(sub?fs*2.15:fs*1.45)+fs*.45}};
-  const tryTag=(x,y,name,sub,own,force)=>{if(x<-200||y<-60||x>cv.width+200||y>cv.height+200)return;const m=measure(name,sub);
-    const r={x:x-m.w/2,y:y-m.h,w:m.w,h:m.h};if(!force&&!fits(r))return;placed.push(r);NK.tag(x,y,name,sub,fs,true,own)};
+  const tryTag=(x,y,name,sub,own,force,big)=>{if(x<-200||y<-60||x>cv.width+200||y>cv.height+200)return;const f=big?fs:fsS;if(!big&&hs<24)sub='';const m=measure(name,sub,f);
+    const r={x:x-m.w/2,y:y-m.h,w:m.w,h:m.h};if(!force&&!fits(r))return;placed.push(r);NK.tag(x,y,name,sub,f,true,own&&big,!big)};
   // terpilih
   if(sel&&sel.kind!=='d'&&!SETIR){const p=targetOf(sel),[sx,sy]=[v.ox+p.x*z,v.oy+p.y*z];
     const rad=(sel.kind==='b'?T*1.9:T*.8)*z*(1+.07*Math.sin(t*6));
@@ -1774,15 +1782,15 @@ function drawLabels(v,t){
     ctx.strokeStyle='rgba(28,37,32,.85)';ctx.lineWidth=1.5*dpr;ctx.stroke();ctx.restore()}
   const lift=y=>y-hs*.45*dpr;
   if(sel&&sel.kind!=='d'&&!SETIR){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
-    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy)-((r.sup||NK.shopOn(r,TODAY))?hs*.5*dpr:0),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:(r.juragan?'👑 @':'@')+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(r.juragan?'Juragan Genteng · ':'')+(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup&&!r.juragan?' · pendukung':'')+(papanOf(r)?' · 🪧 '+papanOf(r):''),true,true)}
-    else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true);
-    else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true)}}
+    if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy)-((r.sup||NK.shopOn(r,TODAY))?hs*.5*dpr:0),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:(r.juragan?'👑 @':'@')+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(r.juragan?'Juragan Genteng · ':'')+(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup&&!r.juragan?' · pendukung':'')+(papanOf(r)?' · 🪧 '+papanOf(r):''),true,true,true)}
+    else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true,true);
+    else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
   {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true)}}
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.short||b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
-  if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true);
+  if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true,true);
     // 4 rumah terdekat di depan/belakang kendaraan tetap diberi nama, biar tahu lagi lewat rumah siapa
     RES.map(r=>({r,d:Math.hypot(NK.wx(r.x)-W_.x,NK.wx(r.y)-W_.y)})).filter(o=>o.d<T*6&&o.r.name!==W_.u).sort((a,b)=>a.d-b.d).slice(0,12).reduce((n,{r})=>{if(n>=4)return n;const p0=placed.length,[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy),'@'+r.name,'',false);return n+(placed.length>p0?1:0)},0)}
   if(hs>=24&&!SETIR){const cx=cv.width/2,cy=cv.height/2;

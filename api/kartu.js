@@ -32,6 +32,7 @@ const KV_URL = String(process.env.KV_REST_API_URL || '').replace(/\/$/, '');
 const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || '');
 const IG_TOKEN = String(process.env.IG_TOKEN || '').trim().replace(/^["']|["']$/g, '');
 const OWNER = 'negerikomen';
+const LOKER_NEGERI = { rental: { tutup: Date.UTC(2026, 9, 30, 17, 0) } }; // tutup Jumat 30 Okt 24.00 WIB
 const PENANDA = 'kartukomen'; // hashtag di caption postingan Kartu Komen yang di-pin
 const KUNCI_DETIK = 30 * 60;
 const SESI_DETIK = 400 * 24 * 3600;
@@ -329,6 +330,33 @@ export default async function handler(req, res) {
       if (!(await kv(['SET', 'sewa:konsol:' + s.u, String(Date.now()), 'NX', 'EX', 864e2]))) { await kv(['HINCRBY', 'saldo', s.u, 1]); return res.status(400).json({ error: 'Sewamu masih aktif.' }) }
       await kvMany([['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -1, ket: 'sewa playadalahmain 1 hari' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
       return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
+    }
+    // Loker Negeri (milik kades) lewat web: warga kirim lamaran, kades lihat daftar & bisa tambah pelamar dari DM
+    if (aksi === 'lamar-negeri') {
+      const job = String(body.job || ''), L = LOKER_NEGERI[job];
+      if (!L) return res.status(404).json({ error: 'Lowongan tidak ditemukan.' });
+      if (body.cek) { const v = jparse(await kv(['HGET', 'pelamarN:' + job, s.u])); return res.status(200).json({ ok: true, sudah: !!v, lamaran: v }) }
+      if (Date.now() >= L.tutup) return res.status(400).json({ error: 'Lowongan ini sudah ditutup.' });
+      if (!warga(D, s.u)) return res.status(403).json({ error: 'Kamu harus jadi warga dulu (punya rumah di Negeri Komen).' });
+      const pesan = String(body.pesan || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 200);
+      if (pesan.length < 5) return res.status(400).json({ error: 'Tulis alasanmu dulu ya.' });
+      if (!body.follow) return res.status(400).json({ error: 'Centang dulu kalau sudah follow IG & subscribe YouTube @lembarpeta.' });
+      const ada = await kv(['HEXISTS', 'pelamarN:' + job, s.u]);
+      if (!ada && (+(await kv(['HLEN', 'pelamarN:' + job])) || 0) >= 500) return res.status(400).json({ error: 'Pelamarnya sudah banyak banget. Tunggu pengumuman ya!' });
+      await kv(['HSET', 'pelamarN:' + job, s.u, JSON.stringify({ pesan, follow: true, at: Date.now(), via: 'web' })]);
+      return res.status(200).json({ ok: true, ulang: !!ada });
+    }
+    if (aksi === 'pelamar-negeri') { // kades: lihat pelamar / tambah manual dari DM / hapus
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const job = String(body.job || ''); if (!LOKER_NEGERI[job]) return res.status(404).json({ error: 'Lowongan tidak ditemukan.' });
+      if (body.tambah) { const t = cleanU(body.tambah); if (!okU(t)) return res.status(400).json({ error: 'Username tidak valid' });
+        const pesan = String(body.pesan || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 200) || '(lamar lewat DM)';
+        await kv(['HSET', 'pelamarN:' + job, t, JSON.stringify({ pesan, follow: !!body.follow, at: Date.now(), via: 'dm' })]) }
+      if (body.hapus) await kv(['HDEL', 'pelamarN:' + job, cleanU(body.hapus)]);
+      const H = await kv(['HGETALL', 'pelamarN:' + job]) || [], daftar = [];
+      for (let i = 0; i < H.length; i += 2) { const v = jparse(H[i + 1]) || {}; daftar.push({ u: H[i], ...v, warga: !!warga(D, H[i]) }) }
+      daftar.sort((a, b) => (a.at || 0) - (b.at || 0));
+      return res.status(200).json({ ok: true, daftar });
     }
     if (aksi === 'lamar') { // warga melamar kerja ke bangunan milik warga lain yang lowongannya dibuka
       const key = String(body.key || ''), b = (D.buildings || []).find(x => x && bKey(x) === key && x.by && String(x.by).toLowerCase() !== OWNER);

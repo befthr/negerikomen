@@ -1504,9 +1504,10 @@ $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
 $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
 $('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE_N);$('sBld').textContent=fmt(BLD.length);
+const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
 function showGoal(){if(!(Number.isFinite(D.followers)&&D.target))return;
   const GOALS=[{n:D.target},{n:3000,label:'Desa Baru'}];const G=GOALS.find(g=>D.followers<g.n)||GOALS[GOALS.length-1];const tgt=G.n;
-  $('goal').querySelector('h3').textContent=G.label?`Target follower · 🏘️ ${G.label}`:'Target follower';
+  $('goal').querySelector('h3').textContent=G.label?`Target follower · 🏘️ ${D.followers>=G.n?NAMA_DESA:G.label}`:'Target follower';
   const pct=Math.min(100,D.followers/tgt*100);
   $('goal').hidden=false;$('gNow').textContent=fmt(D.followers);$('gTarget').textContent='dari '+fmt(tgt)+' follower';
   $('gBar').style.width=pct.toFixed(1)+'%';$('gBarWrap').setAttribute('aria-valuenow',Math.round(pct));
@@ -1698,7 +1699,7 @@ function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={mot
 
 /* pendukung Trakteer (bendera emas / toko) */
 let JUR=-2;
-const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
+// NAMA_DESA dideklarasikan di atas (sebelum showGoal)
 function juraganIdx(){const top=supRank().filter(o=>o.rank===1);return top.length===1&&top[0].g>=2?top[0].i:-1}
 function supRank(){const n=r=>+r.donor||(r.sup?2:0);const L=RES.map((r,i)=>({r,i,g:n(r)})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));L.sort((a,b)=>b.g-a.g);let rank=0,prev=null;L.forEach(o=>{if(o.g!==prev){rank++;prev=o.g}o.rank=rank});return L}
 const MEDAL=k=>k===1?'🥇':k===2?'🥈':k===3?'🥉':'#'+k;
@@ -3350,6 +3351,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // label
   const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=14*dpr;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(tx).width+f*1.1,h=f*1.9;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(X-w/2,Y-h/2,w,h,f*.5);ctx.fill();ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*dpr;ctx.stroke();ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y);ctx.restore()};
   lb((M.x0+M.x1)/2,M.y1-(M.y1-M.y0)*.25,'⛰️ Pegunungan');lb(wd.x,wd.y,'💧 Waduk');lb((F.x0+F.x1)/2,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0],D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y+D.sawah.rows*D.sawah.h/2,'🌾 Sawah terasering');
+  {const E=D.E;ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+((E.x0+E.x1)/2+T*4)*z,Y=v.oy+(D.jalanY-T*24)*z,f=19*dpr,tx='🏘️ '+NAMA_DESA;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(tx).width+f*1.2,h=f*2;ctx.fillStyle='#F2C230';ctx.beginPath();ctx.roundRect(X-w/2,Y-h/2,w,h,f*.5);ctx.fill();ctx.strokeStyle='#1C2520';ctx.lineWidth=3*dpr;ctx.stroke();ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y);ctx.restore()} // nama desa di peta
   ctx.setTransform(1,0,0,1,0,0)}
 function stdPos(){desaBangun()}
 function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {x,y,w,h}=STD;
@@ -3416,7 +3418,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
-  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?'Desa baru · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak():'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?NAMA_DESA+' · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak():'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();

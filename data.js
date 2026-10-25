@@ -17,8 +17,6 @@ window.NK_DATA = {
   ]
  },
  "trakteer": {
-  "emas": "https://trakteer.id/negerikomen/reward/bendera-emas-eP19B",
-  "usaha": "https://trakteer.id/negerikomen/reward/buka-usaha-rumahmu-jadi-toko-di-negeri-komen-7xKbp",
   "url": "https://trakteer.id/negerikomen",
   "unit": "Genteng"
  },

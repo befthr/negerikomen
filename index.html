@@ -813,8 +813,8 @@ function drawHouse(r,s,a){
     ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(px+2.6,top);ctx.lineTo(px+17,top+5);ctx.lineTo(px+2.6,top+10);ctx.closePath();ctx.fill();
     ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke();
     ctx.fillStyle='#FFF7C2';ctx.beginPath();ctx.moveTo(px+4,top+2.2);ctx.lineTo(px+9,top+3.6);ctx.lineTo(px+4,top+5);ctx.closePath();ctx.fill()}
-  if(Array.isArray(r.items)&&r.items.length){ // item pekarangan: di belakang rumah (sisi yang tidak menghadap jalan)
-    r.items.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}
+  {const IT=window.itemsPek?window.itemsPek(r):(Array.isArray(r.items)?r.items:[]);if(IT.length){ // item pekarangan: di belakang rumah (sisi yang tidak menghadap jalan)
+    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
   ctx.restore();
 }
 // item tampak atas (±10 px), tanpa wajah
@@ -1457,10 +1457,14 @@ const D=Object.assign({day:1,kavling:50,followers:null,target:1000,residents:[],
 const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.isFinite(r.y));
 const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
-const KERJA_IK={posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
+const KERJA_IK={rental:['🎮','PENJAGA RENTAL'],posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
 const KERJA_IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
 const bKey=b=>b.type+'@'+b.x+','+b.y;
-function hitungKerja(){RES.forEach(r=>{delete r.kerja});BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}}))}
+function hitungKerja(){RES.forEach(r=>{delete r.kerja});const add=(b,x)=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}};BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>add(b,x)));
+  // karyawan bangunan desa baru (bukan di BLD), contoh di data.js: "karyawanDesa":[{"type":"rental","user":"namaig","role":"Penjaga Rental","until":"2026-11-27"}]
+  (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>x&&add({type:x.type,name:x.type==='rental'?'playadalahmain':(x.tempat||'')},x))}
+// item pekarangan yang tampil: Penjaga Rental otomatis dapat konsol playadalahmain di halaman (selama kontrak)
+window.itemsPek=itemsPek;function itemsPek(r){const it=Array.isArray(r.items)?r.items:[];return r.kerja&&r.kerja.prop==='rental'&&!it.some(o=>o.id==='konsol')&&it.length<3?[...it,{id:'konsol'}]:it}
 hitungKerja();
 // karyawan yang diatur sendiri oleh pemilik bangunan (dari database) digabung ke data kampung
 function stafPlus(m){let ubah=false;BLD.forEach(b=>{if(!b._st0)b._st0=Array.isArray(b.staff)?b.staff:[];const add=(m||{})[bKey(b)]||[];const nx=b._st0.concat(add);if(JSON.stringify(nx)!==JSON.stringify(b.staff||[])){b.staff=nx;ubah=true}});
@@ -1642,6 +1646,7 @@ if(AWARDS.length){$('award').hidden=false;
 function renderKaryawan(){const box=$('kryList');if(!box)return;const BL={jan:0};const bln=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const tgl=d=>{const [y,m,dd]=String(d).split('-').map(Number);return dd+' '+bln[m-1]};const ic={posronda:'🔦',warung:'🏪',masjid:'🕌',penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
   const L=[];BLD.forEach(b=>staffOf(b).forEach(x=>L.push({u:x.user,role:x.role||'Karyawan',tempat:b.name||'',ic:ic[b.type]||'👷',until:x.until})));
+  (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>{if(x&&x.user&&!(x.until&&x.until<NK.wibToday()))L.push({u:x.user,role:x.role||'Karyawan',tempat:x.type==='rental'?'Rental playadalahmain':(x.tempat||''),ic:x.type==='rental'?'🎮':'👷',until:x.until})});
   box.innerHTML='';if(!L.length){$('kryCard').hidden=true;return}$('kryCard').hidden=false;
   L.forEach(o=>{const i=kkResIdx(o.u),r=i>=0?RES[i]:null,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     bt.append(el('span','ico',o.ic),el('b',null,(r&&r.nick?r.nick+' · ':'')+'@'+o.u),el('span',null,o.role+(o.tempat&&!o.role.includes(o.tempat)?' · '+o.tempat:'')+(o.until?' · kerja s/d '+tgl(o.until):'')));
@@ -2369,7 +2374,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
       else{cat.rotation.y=k.arah>0?Math.PI/2:-Math.PI/2;cat.rotation.x=(k.f-.5)*-.8;kp.rotation.x=-.2;cb.scale.set(1,.8,1.45);kakiK.forEach(l=>l.scale.y=1.3)}
       telinga.forEach((e,i)=>e.rotation.z=Math.sin(s*7+i*3)>.85?(i?-.5:.5):0);
       tail.rotation.z=Math.sin(s*(k.diam?2.6:9))*.7;tail.rotation.x=k.diam?0:.6}})}
-function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={items:[{id:'papan',teks:r.kerja.papan,prop:r.kerja.prop},...(Array.isArray(r.items)?r.items:[])].slice(0,3)};if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
+function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={items:[{id:'papan',teks:r.kerja.papan,prop:r.kerja.prop},...(r.kerja.prop==='rental'&&!(r.items||[]).some(o=>o.id==='konsol')?[{id:'konsol'}]:[]),...(Array.isArray(r.items)?r.items:[])].slice(0,3)};if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8},o||{}));
   const SLOT=[[-2.5,1.3,.5],[2.6,-.2,-.6],[-2.4,-.4,1.2]];
   const A=g.userData.anim||(g.userData.anim=[]);

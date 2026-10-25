@@ -141,6 +141,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .loker h3{color:#8A6A10}
 .loker-l{margin:-4px 0 6px;font-size:14px}
 .jtabs{display:flex;gap:6px;margin:4px 0 8px;overflow-x:auto;scrollbar-width:none}.jtabs::-webkit-scrollbar{display:none}.jtabs button{flex:none;font:700 12.5px var(--f-body,inherit);padding:6px 11px;border-radius:999px;border:1.5px solid #D9C98F;background:#fff;color:#6B6455;cursor:pointer}.jtabs button.on{background:#1C2520;border-color:#1C2520;color:#F2C230}.jtabs button i{font-style:normal;opacity:.7;margin-left:3px}.jempty{padding:16px 2px;font-size:13.5px;color:var(--muted);text-align:center}
+.lp-links{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.lp-links .btn{margin:0;font-size:13px;padding:8px 12px}
 .jsrc{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 8px}.jsrc button{font:800 13.5px var(--f-body,inherit);padding:9px 8px;border-radius:12px;border:2px solid #D9C98F;background:#fff;color:#6B6455;cursor:pointer}.jsrc button.on{background:#1C2520;border-color:#1C2520;color:#F2C230}.jsrc i{font-style:normal;margin-left:6px;padding:0 7px;border-radius:999px;background:#F2C23033;font-size:12px}.jum{padding:10px 2px;border-bottom:1.5px dashed #D9C98F}.jumh{display:flex;gap:10px;align-items:center}.jumh .jt{flex:1;min-width:0}.jum .jnote{margin:6px 0}.jumr{display:grid;grid-template-columns:1fr 1fr;gap:6px}.jumr .btn{margin:0;font-size:13.5px;padding:9px 6px}
 .jobs{border-top:1.5px dashed #D9C98F;max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .jobs::-webkit-scrollbar{width:6px}.jobs::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
@@ -1598,7 +1599,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   const bd=el('div','jbody');if(j.desc)bd.append(el('p',null,j.desc));
   [['Syarat',j.syarat],['Yang kamu dapat',j.benefit]].forEach(([h,L])=>{if(!L||!L.length)return;bd.append(el('h4',null,h));const ul=document.createElement('ul');L.forEach(t=>ul.append(el('li',null,t)));bd.append(ul)});
   if(closed){bd.append(el('p','jnote','Pendaftaran sudah ditutup. Pantau episode berikutnya untuk pengumuman!'))}
-  else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if((j.syarat||[]).some(t=>/lembarpeta/.test(t)))bd.append(el('p',null,'📸 Sertakan juga screenshot bukti follow IG & subscribe YouTube @lembarpeta.'));if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', '+(j.jam?j.jam.replace(':','.'):'23.59')+' WIB. Pengumuman di episode berikutnya.'));
+  else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if((j.syarat||[]).some(t=>/lembarpeta/.test(t))){bd.append(el('p',null,'📸 Sertakan juga screenshot bukti follow IG & subscribe YouTube @lembarpeta.'));const lr=el('div','lp-links');[['📷 Follow IG @lembarpeta','https://www.instagram.com/lembarpeta'],['▶️ Subscribe YouTube @lembarpeta','https://www.youtube.com/@lembarpeta']].forEach(([t,u])=>{const a=el('a','btn',t);a.href=u;a.target='_blank';a.rel='noopener';lr.append(a)});bd.append(lr)}if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', '+(j.jam?j.jam.replace(':','.'):'23.59')+' WIB. Pengumuman di episode berikutnya.'));
     const a=el('a','btn dark','Lamar via DM Instagram');a.href='https://ig.me/m/negerikomen';a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else if(ok){const a=el('a','btn dark','Lamar sekarang');a.href=j.url.trim();a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran lewat DM dibuka sebentar lagi.'))}
@@ -1658,6 +1659,7 @@ function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={mot
 
 /* pendukung Trakteer (bendera emas / toko) */
 let JUR=-2;
+const NAMA_DESA='Desa Komen-Komen Sejahtera'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
 function juraganIdx(){const top=supRank().filter(o=>o.rank===1);return top.length===1&&top[0].g>=2?top[0].i:-1}
 function supRank(){const n=r=>+r.donor||(r.sup?2:0);const L=RES.map((r,i)=>({r,i,g:n(r)})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));L.sort((a,b)=>b.g-a.g);let rank=0,prev=null;L.forEach(o=>{if(o.g!==prev){rank++;prev=o.g}o.rank=rank});return L}
 const MEDAL=k=>k===1?'🥇':k===2?'🥈':k===3?'🥉':'#'+k;
@@ -3267,7 +3269,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);
    ctx.fillStyle='#F2C230';ctx.fillRect(g.x-bw/2,g.y-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(g.x-bw/2,g.y-bh/2,bw,bh);
    for(let i=0;i<14;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(g.x-bw/2+i*bw/14,g.y-bh/2-T*.75,bw/14,T*.4)}
-   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${T*.8}px Poppins,sans-serif`;ctx.fillText('SELAMAT DATANG DI',g.x,g.y-T*.95);ctx.font=`800 ${T*1.6}px Poppins,sans-serif`;ctx.fillText('DESA ???',g.x,g.y+T*.75)}
+   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${T*.8}px Poppins,sans-serif`;ctx.fillText('SELAMAT DATANG DI',g.x,g.y-T*.95);{const nm=NAMA_DESA.toUpperCase();let fs=T*1.6;ctx.font=`800 ${fs}px Poppins,sans-serif`;while(ctx.measureText(nm).width>bw*.92&&fs>T*.5){fs-=T*.05;ctx.font=`800 ${fs}px Poppins,sans-serif`}ctx.fillText(nm,g.x,g.y+T*.75)}}
   // Rental playadalahmain: toko kecil, papan neon, etalase konsol, antrean anak-anak
   {const {x,y,w,h}=D.RT;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x+8,y+10,w,h);ctx.fillStyle='#E9DFC6';ctx.fillRect(x,y,w,h);
    const bx=x+T*.8,by=y+T*.9,bw=w-T*1.6,bh=h*.62;ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(bx+6,by+8,bw,bh);ctx.fillStyle='#2B2F5E';ctx.fillRect(bx,by,bw,bh*.7);ctx.fillStyle='rgba(255,255,255,.1)';for(let i=0;i<bw;i+=T*.4)ctx.fillRect(bx+i,by,3,bh*.7);

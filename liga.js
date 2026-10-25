@@ -10,6 +10,8 @@ const css=`.lg{position:fixed;inset:0;z-index:210;background:rgba(10,14,12,.88);
 .lg canvas{display:block;width:100%;height:auto;border-radius:12px}.lg-qa{display:inline-block;background:#C4502F;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800;margin-left:6px}
 .lg-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.lg-row button{flex:1;min-width:56px;border:2px solid ${INK};background:${KREM};color:${INK};border-radius:10px;padding:6px 4px;font:700 12px Poppins,sans-serif;cursor:pointer}.lg-row button.on{background:${KUNING}}
 .lg-k{margin:10px 0 2px;font-size:11.5px;line-height:1.35;color:#ffffffcc}.lg-k b{color:#F2C230}
+.lg-sh{display:block;width:100%;margin:12px 0 2px;border:3px solid #1C2520;background:#F2C230;color:#1C2520;border-radius:14px;padding:11px;font:800 14px Poppins,sans-serif;cursor:pointer;box-shadow:0 4px 0 #1C2520}
+.lg-pv{position:absolute;inset:0;background:rgba(10,14,12,.92);display:flex;align-items:center;justify-content:center;padding:14px;z-index:5}.lg-pvb{width:min(380px,100%);max-height:100%;overflow:auto;text-align:center}.lg-pvb img{width:100%;border-radius:14px;border:3px solid #1C2520;display:block}.lg-pvb .lg-row a,.lg-pvb .lg-row button{flex:1;display:block;border:2px solid #1C2520;background:#F2C230;color:#1C2520;border-radius:12px;padding:10px 6px;font:800 13.5px Poppins,sans-serif;text-decoration:none;cursor:pointer}.lg-pvb .lg-row a{background:#F4EFE3}.lg-pvx{margin-top:4px;border:0;background:none;color:#fff;font:700 13px Poppins,sans-serif;text-decoration:underline;cursor:pointer}
 .lg-tab{display:flex;gap:6px;margin:12px 0 6px}.lg-tab button{flex:1;border:2px solid #1C2520;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 8px;font:800 12.5px Poppins,sans-serif;cursor:pointer}.lg-tab button.on{background:#F2C230;color:#1C2520}
 .lg h4{margin:12px 0 6px;font-size:13px;letter-spacing:.06em;color:${KUNING}}.lg table{width:100%;border-collapse:collapse;font-size:12.5px}.lg td,.lg th{padding:5px 4px;border-bottom:1px solid #ffffff22;text-align:center}.lg td:first-child,.lg th:first-child{text-align:left}
 .lg .jd{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:8px;font-size:12.5px;cursor:pointer}.lg .jd.now{background:#ffffff22}.lg .jd:hover{background:#ffffff14}.lg .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;border:1.5px solid ${INK};vertical-align:-1px}`;
@@ -125,12 +127,52 @@ function rpUI(){if(!rpBox)return;rpBox.hidden=!rp;if(!rp)return;const L=laga(rp.
   rpBox.querySelector('[data-rx]').onclick=()=>{rp=null;lastEv='';rpUI();isiPanel()}}
 function lompat(h,mm){const d=hariKe(now());vt=d*864e5-252e5+(h*60+mm)*6e4;lastEv='';isiPanel()}
 function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;vt+=dt*1000*speed;if(rp&&!rp.jeda)rp.m=Math.min(90,rp.m+dt*rp.sp*90/(DUR*60));ctx.setTransform(dpr,0,0,dpr,0,0);draw(ts/1000);if((pk+=dt)>1){pk=0;isiPanel()}}
+// ---------- kartu bagikan: klasemen + top skor jadi gambar story 1080x1920 ----------
+async function kartuBagikan(){try{await document.fonts.ready}catch(e){}
+  const k=document.createElement('canvas');k.width=1080;k.height=1920;const c=k.getContext('2d'),F='Poppins,system-ui,sans-serif';
+  const R=(x,y,w,h,r,f,sw)=>{c.beginPath();c.roundRect(x,y,w,h,r);if(f){c.fillStyle=f;c.fill()}if(sw){c.lineWidth=sw;c.strokeStyle=INK;c.stroke()}};
+  const t=now(),wib=new Date(t+252e5),jam=String(wib.getUTCHours()).padStart(2,'0')+'.'+String(wib.getUTCMinutes()).padStart(2,'0'),hk=(window.NK_DATA&&window.NK_DATA.day)||'';
+  // latar lapangan bergaris
+  c.fillStyle='#24402E';c.fillRect(0,0,1080,1920);for(let i=0;i<16;i++){c.fillStyle=i%2?'#2A4A35':'#24402E';c.fillRect(0,i*120,1080,120)}
+  c.strokeStyle='#ffffff18';c.lineWidth=6;c.beginPath();c.arc(540,960,230,0,7);c.stroke();c.beginPath();c.moveTo(0,960);c.lineTo(1080,960);c.stroke();
+  c.textAlign='center';c.textBaseline='middle';
+  R(380,70,320,64,32,KUNING);c.fillStyle=INK;c.font=`800 30px ${F}`;c.fillText('NEGERI KOMEN',540,103);
+  c.fillStyle='#fff';c.font=`800 110px ${F}`;c.fillText('⚽ LIGA DUSUN',540,215);
+  c.fillStyle='#ffffffcc';c.font=`600 38px ${F}`;c.fillText((hk?'Hari ke-'+hk+' · ':'')+'per jam '+jam+' WIB',540,300);
+  // klasemen
+  R(60,350,960,640,36,KREM,6);c.fillStyle='#C4402F';c.font=`800 38px ${F}`;c.textAlign='left';c.fillText('🏆 KLASEMEN',100,410);
+  const kol=[[590,'M'],[665,'Mn'],[740,'S'],[810,'K'],[880,'GD'],[960,'Poin']];c.fillStyle='#5B6860';c.font=`700 28px ${F}`;c.textAlign='center';kol.forEach(([x,h])=>c.fillText(h,x,470));
+  klasemen().forEach((o,i)=>{const y=540+i*92;if(i===0)R(80,y-42,920,84,20,'#F2C23055');c.fillStyle=INK;c.font=`800 36px ${F}`;c.textAlign='center';c.fillText(String(i+1),118,y);
+    c.fillStyle=TIM[o.k].col;c.beginPath();c.arc(170,y,16,0,7);c.fill();c.lineWidth=3;c.strokeStyle=INK;c.stroke();
+    c.fillStyle=INK;c.textAlign='left';let fs=38;c.font=`700 ${fs}px ${F}`;const nm=TIM[o.k].nama;while(c.measureText(nm).width>340&&fs>22){fs-=2;c.font=`700 ${fs}px ${F}`}c.fillText(nm,200,y);
+    c.textAlign='center';c.font=`600 34px ${F}`;[o.m,o.mn,o.s,o.k2,o.gf-o.ga].forEach((v,j)=>c.fillText(String(v),kol[j][0],y));c.font=`800 40px ${F}`;c.fillText(String(o.p),960,y)});
+  // top skor
+  const L=topSkor().slice(0,5);R(60,1020,960,L.length?140+L.length*80:200,36,'#fff',6);c.textAlign='left';c.fillStyle='#C4402F';c.font=`800 38px ${F}`;c.fillText('⚽ TOP SKOR',100,1080);
+  if(!L.length){c.fillStyle='#5B6860';c.font=`600 32px ${F}`;c.fillText('Belum ada gol hari ini.',100,1150)}
+  L.forEach((o,i)=>{const y=1150+i*80;c.textAlign='center';c.font=`700 40px ${F}`;c.fillStyle=INK;c.fillText(i<3?['🥇','🥈','🥉'][i]:String(i+1),118,y);
+    c.textAlign='left';let fs=36;c.font=`700 ${fs}px ${F}`;const nm='@'+o.n;while(c.measureText(nm).width>470&&fs>22){fs-=2;c.font=`700 ${fs}px ${F}`}c.fillText(nm,170,y);
+    c.fillStyle=TIM[o.k].col;c.beginPath();c.arc(680,y,13,0,7);c.fill();c.fillStyle='#5B6860';c.font=`600 28px ${F}`;let tn=TIM[o.k].nama;while(c.measureText(tn).width>200&&tn.length>3)tn=tn.slice(0,-2)+'…';c.fillText(tn,702,y);
+    c.textAlign='center';c.fillStyle=INK;c.font=`800 40px ${F}`;c.fillText(String(o.g),975,y)});
+  // laga berikut / sedang main
+  const st=status(),yb=L.length?1180+L.length*80+20:1260;let info='';
+  if(st.main&&!st.rp){const g=laga(st.d,st.s);info='🔴 LIVE: '+TIM[g.A].nama+' vs '+TIM[g.B].nama}else if(st.s>=0){const g=laga(hariKe(t),st.s);info='Berikutnya '+String(JAM[st.s]).padStart(2,'0')+'.00: '+TIM[g.A].nama+' vs '+TIM[g.B].nama}else info='Laga lagi besok mulai 13.00 WIB';
+  c.textAlign='center';c.fillStyle='#fff';let fi=36;c.font=`700 ${fi}px ${F}`;while(c.measureText(info).width>940&&fi>22){fi-=2;c.font=`700 ${fi}px ${F}`}c.fillText(info,540,yb+20);
+  // ajakan
+  R(90,1650,900,220,36,KUNING,6);c.fillStyle=INK;c.font=`600 34px ${F}`;c.fillText('Nonton live tiap hari 13.00–20.00 WIB',540,1704);c.font=`800 64px ${F}`;c.fillText('@negerikomen',540,1774);c.font=`600 30px ${F}`;c.fillStyle='#5B6860';c.fillText('negerikomen.vercel.app',540,1836);
+  return await new Promise(r=>k.toBlob(r,'image/png'))}
+let pvU=null;async function bukaBagikan(){const bt=root.querySelector('.lg-sh');bt.disabled=true;bt.textContent='Menyiapkan gambar…';
+  try{const b=await kartuBagikan(),f=new File([b],'liga-dusun-negerikomen.png',{type:'image/png'});if(pvU)URL.revokeObjectURL(pvU);pvU=URL.createObjectURL(b);
+    const o=document.createElement('div');o.className='lg-pv';o.innerHTML=`<div class="lg-pvb"><img alt="Klasemen Liga Dusun"><div class="lg-row"><button class="lg-go">📤 Bagikan</button><a class="lg-dl" download="${f.name}">⬇️ Simpan gambar</a></div><button class="lg-pvx">Tutup</button></div>`;
+    o.querySelector('img').src=pvU;o.querySelector('.lg-dl').href=pvU;const can=!!(navigator.canShare&&navigator.canShare({files:[f]}));const go=o.querySelector('.lg-go');go.hidden=!can;
+    go.onclick=async()=>{try{await navigator.share({files:[f],title:'Liga Dusun · Negeri Komen',text:'Klasemen & top skor Liga Dusun di Negeri Komen ⚽ Nonton live di negerikomen.vercel.app'})}catch(e){}};
+    o.querySelector('.lg-pvx').onclick=()=>o.remove();o.addEventListener('pointerdown',e=>{if(e.target===o)o.remove()});root.append(o)}catch(e){}
+  bt.disabled=false;bt.textContent='📸 Bagikan klasemen & top skor'}
 function open(opt={}){if(root)return;OPT=opt;TIM=opt.tim||[];vt=Date.now();speed=1;hari0=opt.mulai?hariKe(Date.parse(opt.mulai)):hariKe(vt);
   if(!document.getElementById('lg-css')){const s=document.createElement('style');s.id='lg-css';s.textContent=css;document.head.append(s)}
   root=document.createElement('div');root.className='lg';root.innerHTML=`<div class="lg-b"><div class="lg-t"><b>⚽ Liga Dusun${opt.qa?'<span class="lg-qa">MODE UJI (QA)</span>':''}</b><span><button class="lg-x lg-m" title="Suara">🔊</button> <button class="lg-x lg-c" aria-label="Tutup">✕</button></span></div><canvas width="${W}" height="${H}"></canvas>
-   ${opt.qa?'<p class="lg-k">⏩ <b>Kecepatan waktu</b> · x30 = 1 laga (30 menit) selesai dalam 1 menit. Khusus QA, warga nggak lihat tombol ini.</p><div class="lg-row lg-sp"><button data-s="1" class="on">x1</button><button data-s="30">x30</button><button data-s="120">x120</button><button data-j="1" title="Lompat ke laga yang sedang/akan main">Laga sekarang ▶</button></div><p class="lg-k">🕒 <b>Lompat ke laga jam…</b> · langsung nonton laga di jam itu dari menit awal.</p><div class="lg-row lg-jm">'+JAM.map(h=>`<button data-h="${h}">${h}.00</button>`).join('')+'</div>':''}<div class="lg-p"></div></div>`;
+   ${opt.qa?'<p class="lg-k">⏩ <b>Kecepatan waktu</b> · x30 = 1 laga (30 menit) selesai dalam 1 menit. Khusus QA, warga nggak lihat tombol ini.</p><div class="lg-row lg-sp"><button data-s="1" class="on">x1</button><button data-s="30">x30</button><button data-s="120">x120</button><button data-j="1" title="Lompat ke laga yang sedang/akan main">Laga sekarang ▶</button></div><p class="lg-k">🕒 <b>Lompat ke laga jam…</b> · langsung nonton laga di jam itu dari menit awal.</p><div class="lg-row lg-jm">'+JAM.map(h=>`<button data-h="${h}">${h}.00</button>`).join('')+'</div>':''}<div class="lg-p"></div><button class="lg-sh">📸 Bagikan klasemen &amp; top skor</button></div>`;
   document.body.append(root);cv=root.querySelector('canvas');dpr=Math.min(3,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;ctx=cv.getContext('2d');panel=root.querySelector('.lg-p');rpBox=document.createElement('div');rpBox.hidden=true;panel.before(rpBox);rp=null;
-  root.querySelector('.lg-c').onclick=close;root.addEventListener('pointerdown',e=>{au();if(e.target===root)close()});
+  root.querySelector('.lg-c').onclick=close;root.querySelector('.lg-sh').onclick=bukaBagikan;root.addEventListener('pointerdown',e=>{au();if(e.target===root)close()});
   root.querySelector('.lg-m').onclick=e=>{mute=!mute;e.target.textContent=mute?'🔇':'🔊'};
   root.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{speed=+b.dataset.s;root.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('on',x===b))});
   root.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{lompat(+b.dataset.h,0);peluit(1)});

@@ -1558,17 +1558,17 @@ const JOBS=(Array.isArray(D.loker)&&D.loker.length?D.loker:[{id:'proyek',icon:'h
   url:D.lowongan&&D.lowongan.url||''},
  {id:'marbot',icon:'🕌',title:'Marbot Masjid Al-Jabbar',sub:'Jaga dan rawat Masjid Al-Jabbar kampung',
   desc:'Kampung makin ramai, Masjid Al-Jabbar butuh marbot yang amanah. Bantu jaga masjid tetap bersih, nyaman, dan ramai jamaah.',
-  syarat:['Sayang emak','Nggak suka bolos sekolah','Tidak pernah judol','Cita-citanya pengen jadi miliarder','Follow IG & subscribe YouTube @lembarpeta','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  syarat:['Sayang emak','Nggak suka bolos sekolah','Tidak pernah judol','Cita-citanya pengen jadi miliarder','Follow IG & subscribe YouTube @lembarpeta (lampirkan screenshot buktinya saat lamar)','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','Rumahmu jadi rumah marbot selama 30 hari: plang, bedug kecil & sajadah dijemur (bisa diperpanjang)','Lencana Marbot Masjid saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:D.marbot&&D.marbot.url||''},
  {id:'gurutk',icon:'🧸',title:'Guru TK Kampung',sub:'Ngajar bocil di TK kampung',
   desc:'Bocil di kampung makin banyak, TK butuh guru yang sabar dan ceria. Ngajarin nyanyi, mewarnai, dan baris yang rapi.',
-  syarat:['Sabar ngadepin bocil nangis minta pulang','Hafal minimal 3 lagu anak (cukup judulnya 😄)','Bisa gambar matahari pakai muka senyum','Follow IG & subscribe YouTube @lembarpeta','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  syarat:['Sabar ngadepin bocil nangis minta pulang','Hafal minimal 3 lagu anak (cukup judulnya 😄)','Bisa gambar matahari pakai muka senyum','Follow IG & subscribe YouTube @lembarpeta (lampirkan screenshot buktinya saat lamar)','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','Rumahmu jadi rumah guru selama 30 hari: plang, papan tulis kecil & krayon warna-warni (bisa diperpanjang)','Lencana Guru TK saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''},
  {id:'rental',icon:'🎮',title:'Penjaga Rental playadalahmain',sub:'Jaga Rental playadalahmain di desa baru',
   desc:'Rental playadalahmain di desa baru ramai bocil antre main. Butuh penjaga yang jago game dan tegas ngatur giliran.',
-  syarat:['Tegas kalau ada yang main kelamaan ("waktunya habis, gantian!")','Nggak curang nambahin waktu buat teman sendiri','Minimal pernah nonton Bang Windah Basudara sekali','Follow IG & subscribe YouTube @lembarpeta','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
+  syarat:['Tegas kalau ada yang main kelamaan ("waktunya habis, gantian!")','Nggak curang nambahin waktu buat teman sendiri','Minimal pernah nonton Bang Windah Basudara sekali','Follow IG & subscribe YouTube @lembarpeta (lampirkan screenshot buktinya saat lamar)','Sudah jadi warga Negeri Komen (follow @negerikomen & punya rumah)'],
   benefit:['💰 Gaji 2 Receh tiap pekan, langsung masuk Recehan-mu','🎮 Gratis main playadalahmain selama kerja (skor ikut 🏆 ranking)','Rumahmu dapat plang Penjaga Rental selama 30 hari (bisa diperpanjang)','Lencana Penjaga Rental saat rumahmu diklik','Nama tampil di daftar karyawan di web ini','Nama yang lolos disebut di episode'],
   url:''},
  {id:'asisten',icon:'📋',title:'Asisten Kepala Desa',sub:'Tangan kanan kades di desa baru nanti',
@@ -1608,7 +1608,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   const bd=el('div','jbody');if(j.desc)bd.append(el('p',null,j.desc));
   [['Syarat',j.syarat],['Yang kamu dapat',j.benefit]].forEach(([h,L])=>{if(!L||!L.length)return;bd.append(el('h4',null,h));const ul=document.createElement('ul');L.forEach(t=>ul.append(el('li',null,t)));bd.append(ul)});
   if(closed){bd.append(el('p','jnote','Pendaftaran sudah ditutup. Pantau episode berikutnya untuk pengumuman!'))}
-  else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', '+(j.jam?j.jam.replace(':','.'):'23.59')+' WIB'+(j.jam?' (diperpanjang!)':'')+'. Pengumuman di episode hari Sabtu.'));
+  else if(dm&&!ok){bd.append(el('h4',null,'Cara lamar'));const p=el('p',null,'');p.append('DM Instagram @negerikomen dengan format: ',el('b',null,j.dm+' + alasanmu'));bd.append(p);if((j.syarat||[]).some(t=>/lembarpeta/.test(t)))bd.append(el('p',null,'📸 Sertakan juga screenshot bukti follow IG & subscribe YouTube @lembarpeta.'));if(j.until)bd.append(el('p',null,'⏳ Batas lamaran: '+tgl+', '+(j.jam?j.jam.replace(':','.'):'23.59')+' WIB'+(j.jam?' (diperpanjang!)':'')+'. Pengumuman di episode hari Sabtu.'));
     const a=el('a','btn dark','Lamar via DM Instagram');a.href='https://ig.me/m/negerikomen';a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else if(ok){const a=el('a','btn dark','Lamar sekarang');a.href=j.url.trim();a.target='_blank';a.rel='noopener';bd.append(a,el('p','jnote','Pelamar diseleksi kepala desa. Yang lolos diumumkan di episode berikutnya.'))}
   else{bd.append(Object.assign(el('a','btn dark soon','⏳ Segera dibuka'),{}),el('p','jnote','Coming soon! Pantau story @negerikomen, pendaftaran lewat DM dibuka sebentar lagi.'))}

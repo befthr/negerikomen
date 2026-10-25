@@ -86,7 +86,7 @@ const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 4
 const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, konsol: 4, bougenville: 2 };
 const MAKS_PAJANG = 3;
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
-const MAKS_STAF = 3, KONTRAK_HARI = 30; // kontrak karyawan 30 hari; tidak bisa diberhentikan (biar tidak ada konflik), lepas otomatis saat kontrak habis
+const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => KONTRAK_OK.includes(+v) ? +v : KONTRAK_HARI; // kontrak karyawan 30 hari; tidak bisa diberhentikan (biar tidak ada konflik), lepas otomatis saat kontrak habis
 const tglWIB = (plus = 0) => new Date(Date.now() + 7 * 3600e3 + plus * 864e5).toISOString().slice(0, 10);
 const stafAktif = L => (Array.isArray(L) ? L : []).filter(x => x && x.user && (!x.until || x.until >= tglWIB()));
 const ROLE_B = { penginapan: ['Resepsionis', 'Satpam', 'Pelayan', 'Tukang Kebun'], sekolah: ['Guru', 'Satpam', 'Penjaga Kantin', 'Tukang Kebun'],
@@ -167,7 +167,7 @@ async function infoKartu(D, u) {
   const pl = milik.length ? await kvMany([...milik.map(b => ['HGETALL', 'pelamar:' + bKey(b)]), ['HMGET', 'lowongan', ...milik.map(bKey)], ['GET', 'pelamar:seen:' + u]]) : [];
   const lw = pl.length ? pl[pl.length - 2] || [] : [], plSeen = pl.length ? +pl[pl.length - 1] || 0 : 0;
   const pelamarOf = k => { const a = pl[k] || [], o = []; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o.push({ user: a[i], ...v }) } return o.sort((x, y) => x.at - y.at) };
-  const bangunan = milik.map((b, k) => ({ buka: !!lw[k], pelamar: pelamarOf(k), seen: plSeen, key: bKey(b), name: b.name || 'Bangunan', type: b.type, roles: ROLE_B[b.type] || ROLE_DEF, maks: MAKS_STAF, staf: stafAktif(jparse(stv[k])), kontrak: KONTRAK_HARI }));
+  const bangunan = milik.map((b, k) => ({ buka: !!lw[k], pelamar: pelamarOf(k), seen: plSeen, key: bKey(b), name: b.name || 'Bangunan', type: b.type, roles: ROLE_B[b.type] || ROLE_DEF, maks: MAKS_STAF, staf: stafAktif(jparse(stv[k])), kontrak: hariK(lw[k]), pilihanKontrak: KONTRAK_OK }));
   return { u, bangunan, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
@@ -256,7 +256,7 @@ export default async function handler(req, res) {
       const lwKeys = []; for (let i = 0; lwg && i + 1 < lwg.length; i += 2) lwKeys.push(lwg[i]);
       const lwN = lwKeys.length ? await kvMany(lwKeys.map(k => ['HLEN', 'pelamar:' + k])) : [];
       const lowongan = {}; for (let i = 0; lwg && i + 1 < lwg.length; i += 2) { const key = lwg[i]; const n = (staf[key] || []).length;
-        const tp = key.split('@')[0]; if (n >= MAKS_STAF) continue; lowongan[key] = { roles: ROLE_B[tp] || ROLE_DEF, sisa: Math.max(0, MAKS_STAF - n), pelamar: +lwN[i / 2] || 0 } }
+        const tp = key.split('@')[0]; if (n >= MAKS_STAF) continue; lowongan[key] = { roles: ROLE_B[tp] || ROLE_DEF, hari: hariK(lwg[i + 1]), sisa: Math.max(0, MAKS_STAF - n), pelamar: +lwN[i / 2] || 0 } }
       const donasi = {}; for (let i = 0; rd && i + 1 < rd.length; i += 2) donasi[rd[i]] = +rd[i + 1] || 0;
       const ruko = {}, item = {};
       for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
@@ -339,20 +339,21 @@ export default async function handler(req, res) {
           ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at, n: -n, ket: 'bonus karyawan @' + t })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
         return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
       }
-      if (aksi === 'lowongan') { if (body.buka && L.length >= MAKS_STAF) return res.status(400).json({ error: 'Karyawanmu sudah ' + MAKS_STAF + ' (penuh). Lowongan bisa dibuka lagi saat ada kontrak yang selesai.' }); await kv(body.buka ? ['HSET', 'lowongan', key, '1'] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
+      if (aksi === 'lowongan') { if (body.buka && L.length >= MAKS_STAF) return res.status(400).json({ error: 'Karyawanmu sudah ' + MAKS_STAF + ' (penuh). Lowongan bisa dibuka lagi saat ada kontrak yang selesai.' }); await kv(body.buka ? ['HSET', 'lowongan', key, String(hariK(body.hari))] : ['HDEL', 'lowongan', key]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
       if (body.op === 'tolak') { const lam = jparse(await kv(['HGET', 'pelamar:' + key, t])); if (!lam) return res.status(404).json({ error: 'Lamaran @' + t + ' tidak ada.' });
         const alasan = L.length >= MAKS_STAF ? 'Lowongan sudah penuh (maksimal ' + MAKS_STAF + ' karyawan)' : 'Belum terpilih kali ini';
         await kvMany([['HDEL', 'pelamar:' + key, t], ['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: false, b: b.name || 'Bangunan', bos: s.u, role: lam.role, alasan, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]); return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) }) }
-      if (body.op !== 'tambah') return res.status(400).json({ error: 'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri setelah ' + KONTRAK_HARI + ' hari.' });
+      if (body.op !== 'tambah') return res.status(400).json({ error: 'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri sesuai lama kontrak.' });
       const roles = ROLE_B[b.type] || ROLE_DEF, role = String(body.role || '');
       if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: '@' + t + ' belum jadi warga Negeri Komen. Ajak komen dulu ya!' });
       if (t === s.u) return res.status(400).json({ error: 'Kamu bosnya, nggak bisa jadi karyawan sendiri 😄' });
       if (!roles.includes(role)) return res.status(400).json({ error: 'Pilih jabatannya dulu.' });
       if (L.some(x => x.user === t)) return res.status(400).json({ error: '@' + t + ' sudah jadi karyawanmu.' });
       if (L.length >= MAKS_STAF) return res.status(400).json({ error: 'Maksimal ' + MAKS_STAF + ' karyawan per bangunan.' });
-      L.push({ user: t, role, sejak: tglWIB(), until: tglWIB(KONTRAK_HARI - 1), at: Date.now() });
+      const hari = KONTRAK_OK.includes(+body.hari) ? +body.hari : hariK(await kv(['HGET', 'lowongan', key]));
+      L.push({ user: t, role, hari, sejak: tglWIB(), until: tglWIB(hari - 1), at: Date.now() });
       const penuh = L.length >= MAKS_STAF; // karyawan sudah 3 → lowongan otomatis ditutup
-      await kvMany([['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: true, b: b.name || 'Bangunan', bos: s.u, role, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]);
+      await kvMany([['LPUSH', 'kabarlamar:' + t, JSON.stringify({ ok: true, b: b.name || 'Bangunan', bos: s.u, role, hari, at: Date.now() })], ['LTRIM', 'kabarlamar:' + t, 0, 9]]);
       await kvMany([['HSET', 'stafplus', key, JSON.stringify(L)], ['HDEL', 'pelamar:' + key, t], ...(penuh ? [['HDEL', 'lowongan', key]] : [])]);
       return res.status(200).json({ ok: true, penuh, kartu: await infoKartu(D, s.u) });
     }

@@ -2038,7 +2038,7 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
 let T3=null,v3s=null;
 function loadThree(){if(window.THREE)return Promise.resolve();if(T3)return T3;
   T3=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';sc.onload=ok;sc.onerror=no;document.head.append(sc)});return T3}
-function build3D(r){const o=build3DRumah(r);if(r&&r.demo==='gento')try{rumahGento3D(o.g)}catch(e){}if(r&&r.demo==='rental')try{rental3D(o.g)}catch(e){}try{items3D(o.g,r)}catch(e){}if(r&&r.demo==='ufo')try{ufo3D(o.g)}catch(e){}if(r&&r.demo==='gento')try{kandang3D(o.g)}catch(e){}return o}
+function build3D(r){const o=build3DRumah(r);if(r&&r.demo==='gento')try{rumahGento3D(o.g);o.g.children[o.g.children.length-1].visible=false}catch(e){}if(r&&r.demo==='rental')try{rental3D(o.g)}catch(e){}try{items3D(o.g,r)}catch(e){}if(r&&r.demo==='ufo')try{ufo3D(o.g)}catch(e){}if(r&&r.demo==='gento')try{kandang3D(o.g)}catch(e){}return o}
 function rental3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0)m.scale.set(1.25,1,1.25);else m.visible=false});const H=new T.Group();H.rotation.y=.35;g.add(H);
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.75},o||{}));const box=(w,h,d,c,x,y,z,o)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c,o));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;H.add(m);return m};
   box(4.4,2.6,3,'#F4EFE3',0,1.3,-.3);box(4.6,.3,3.2,'#2B2F5E',0,2.75,-.3);
@@ -2060,7 +2060,7 @@ function kandang3D(g){const T=THREE,K=new T.Group();K.position.set(-1.7,0,-3.2);
   for(let i=-6;i<=6;i++)box(.12,Hh-.4,.32,'#285F95',i*1.4,Hh/2,D+.04);
   [-W2,W2].forEach(x=>{box(.6,Hh,.6,'#F4EFE3',x,Hh/2,D+.3);box(.6,Hh,.6,'#F4EFE3',x,Hh/2,FZ);box(.3,.3,FZ-D,'#2F74B5',x,Hh-.15,(FZ+D)/2)});
   box(W2*2+.6,.7,.7,'#2F74B5',0,Hh,FZ);box(W2*2+.6,.7,.7,'#2F74B5',0,Hh,D+.3);
-  const cv=document.createElement('canvas');cv.width=512;cv.height=96;const c=cv.getContext('2d');c.fillStyle='#1C2520';c.fillRect(0,0,512,96);c.fillStyle='#F2C230';c.font='800 52px Poppins,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('RUMAH GENTO',256,50);
+  const cv=document.createElement('canvas');cv.width=512;cv.height=96;const c=cv.getContext('2d');c.fillStyle='#1C2520';c.fillRect(0,0,512,96);c.fillStyle='#F2C230';c.font='800 52px Poppins,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('HANGGAR GENTO',256,50);
   const sg=new T.Mesh(new T.PlaneGeometry(4.6,.86),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv)}));sg.position.set(0,Hh+.05,FZ+.37);sg.scale.set(1.6,1.6,1);K.add(sg);
   const lantai=new T.Mesh(new T.BoxGeometry(W2*2+.6,.08,FZ-D+.6),M('#9AA0A6'));lantai.position.set(0,.04,(FZ+D)/2);lantai.receiveShadow=true;K.add(lantai)}
 // UFO Nyasar 3D: piring terbang melayang di atas rumah, sorot cahaya hijau, lampu keliling berkedip (momen langka buat dibagikan)
@@ -3090,7 +3090,7 @@ function GENTO_ON(){return !!(window.NK_DATA&&window.NK_DATA.gento)}
 function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]:null;
   open3D(me?Object.assign({},me,{demo:'ufo',nick:'UFO Nyasar di atas rumah @'+me.name}):{demo:'ufo',name:'ufonyasar',nick:'UFO Nyasar 🛸',x:0,y:0,wall:'krem',roof:'merah'},me?i:0);
   setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,window.UFO_KE?(window.UFO_KE===1?'🥇 Selamat, kamu penemu pertama! ':`🎉 Selamat, kamu penemu ke-${window.UFO_KE}! `)+'Bagikan momen langka ini 📸':'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
-function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Rumah GENTO',x:0,y:0,wall:'putih',roof:'biru',tingkat:2,items:[{id:'robot'}]},0)}
+function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Hanggar GENTO',x:0,y:0,wall:'putih',roof:'biru',tingkat:2,items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
 if(location.hash==='#gento-rahasia')setTimeout(openDemoGento,800); if(location.hash==='#ufo-rahasia')setTimeout(openUfo3D,800);if(UFO_QA)setTimeout(()=>{questTick();window.QA_IKUT=true;cam.zoom=Math.max(cam.zoom,.9);dirty=true;toast('Mode uji UFO 🛸 klik UFO-nya (klaim cuma simulasi)')},1200); // pratinjau rahasia untuk kades
@@ -3206,9 +3206,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.strokeStyle='#2F74B5';ctx.lineWidth=T*.28;ctx.strokeRect(kx+T*.15,ky+T*.15,kw-T*.3,kh-T*.3);
    [[kx,ky],[kx+kw,ky],[kx,ky+kh],[kx+kw,ky+kh]].forEach(([a,b2])=>{ctx.fillStyle='#F4EFE3';ctx.fillRect(a-T*.3,b2-T*.3,T*.6,T*.6);ctx.strokeStyle='#1C2520';ctx.lineWidth=2;ctx.strokeRect(a-T*.3,b2-T*.3,T*.6,T*.6)});
    ctx.save();ctx.translate(kx+kw/2,ky+kh*.58);ctx.scale(T/16,T/16);try{window.__robot2D&&window.__robot2D(t,1)}catch(e){}ctx.restore();
-   const hx=kx+kw+T*.9,hy=y+h*.3,hw=w-(hx-x)-T*.6,hh=h*.42;ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(hx+6,hy+8,hw,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(hx,hy+hh*.7,hw,hh*.3);ctx.fillStyle='#9ED8FF';for(let i=0;i<3;i++)ctx.fillRect(hx+T*.3+i*(hw-T*.6)/3,hy+hh*.76,(hw-T*.6)/3-T*.2,hh*.16);
-   ctx.fillStyle='#2F74B5';ctx.fillRect(hx,hy,hw,hh*.72);ctx.fillStyle='rgba(255,255,255,.12)';for(let i=0;i<hw;i+=T*.4)ctx.fillRect(hx+i,hy,3,hh*.72);ctx.fillStyle='#F2C230';ctx.fillRect(hx,hy+hh*.34,hw,T*.18);
-   papan(x+w/2,y-T*1.2,window.ROBOT_OWNER?'🤖 RUMAH GENTO · @'+window.ROBOT_OWNER:'🤖 RUMAH GENTO · BELUM DIMILIKI',T*.62,'#F2C230','#1C2520')}
+   papan(x+w/2,y-T*1.2,window.ROBOT_OWNER?'🤖 HANGGAR GENTO · pemilik @'+window.ROBOT_OWNER:'🤖 HANGGAR GENTO · GENTO BELUM DIMILIKI',T*.62,'#F2C230','#1C2520')}
   // label
   const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=14*dpr;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(tx).width+f*1.1,h=f*1.9;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(X-w/2,Y-h/2,w,h,f*.5);ctx.fill();ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*dpr;ctx.stroke();ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y);ctx.restore()};
   lb((M.x0+M.x1)/2,M.y1-(M.y1-M.y0)*.25,'⛰️ Pegunungan');lb(wd.x,wd.y,'💧 Waduk');lb((F.x0+F.x1)/2,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0],D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y+D.sawah.rows*D.sawah.h/2,'🌾 Sawah terasering');
@@ -3268,7 +3266,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(bd0&&bd0.type==='layartancap'&&TT_ITEMS.length){{const p=el('p',null,'🎬 Tontonan malam ini, kiriman tetangga ');TT_AKUN.forEach((a,k)=>{if(k)p.append(' & ');p.append(ttMention(a))});p.append(':');$('v3demo').append(p)};const g=el('div','tgrid tmini');tancapCards(g,2);$('v3demo').append(g)}
   if(r&&r.demo==='rental'){isiRental($('v3demo'))}
   if(r&&r.demo==='gento'){const ow=window.ROBOT_OWNER;const d=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('robot'),el('b',null,'GENTO · 22 Receh'));d.append(gh);
-    if(ow)d.append(el('p','kk-muted','Sudah dimiliki @'+ow+'. Cuma ada 1 di kampung!'));else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Siapa cepat, dia dapat!'),kkBtn('🛒 Beli GENTO · 22 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
+    if(ow)d.append(el('p','kk-muted','Sudah dimiliki @'+ow+'. Cuma ada 1 di kampung!'));else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Siapa cepat, dia dapat!'),el('p','kk-note','ℹ️ Yang kamu beli: robot GENTO, muncul di pekarangan rumahmu & bisa kamu ajak jalan-jalan. Hanggar ini milik desa, bukan rumah.'),kkBtn('🛒 Beli GENTO · 22 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
   if(r&&r.demo==='konsol'){const mg=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));
     mg.append(gh,el('p','kk-muted','Begini tampilannya di Kartu Komen pemilik. 14 mini game, skor terbaik masuk 🏆 Ranking pemilik!'),kkBtn('🎮 Main sekarang','gold3',()=>bukaKonsol(true)));$('v3demo').append(mg)}
   if(r&&r.demo===true){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');

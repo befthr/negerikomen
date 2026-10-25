@@ -1504,7 +1504,8 @@ $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
 $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
 $('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE_N);$('sBld').textContent=fmt(BLD.length);
-const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
+const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_LAMA='Desa Awalkomen'; // desa pertama (kampung lama)
+const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
 function showGoal(){if(!(Number.isFinite(D.followers)&&D.target))return;
   const GOALS=[{n:D.target},{n:3000,label:'Desa Baru'}];const G=GOALS.find(g=>D.followers<g.n)||GOALS[GOALS.length-1];const tgt=G.n;
   $('goal').querySelector('h3').textContent=G.label?`Target follower · 🏘️ ${D.followers>=G.n?NAMA_DESA:G.label}`:'Target follower';
@@ -1981,7 +1982,7 @@ function resX(){const x=el('button','resx','✕');x.type='button';x.setAttribute
 function showResult(s){const box=$('result');box.className='result';box.innerHTML='';box.hidden=false;
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
-      el('p',null,[r.nick,`Warga #${s.i+2}`,'🏡 '+dsnLabel(dsnOf(r.x,r.y)),`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):''].filter(Boolean).join(' · ')));
+      el('p',null,[r.nick,`Warga #${s.i+2}`,'🏡 '+dsnLabel(dsnOf(r.x,r.y))+', '+NAMA_DESA_LAMA,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):''].filter(Boolean).join(' · ')));
     {const pk=perksOf(r);if(pk.length){const bd=el('div','badges perks');pk.forEach(t=>bd.append(perkEl(t)));left.append(bd)}}
     if(NK.jobOn(r)){const bd=el('div','badges');const t=el('i',null,'');t.append(helm(),document.createTextNode('Tukang Proyek'+(r.job.until?' · s/d '+new Date(r.job.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')));bd.append(t);left.append(bd)}
     {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}    if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,120)))}
@@ -3327,6 +3328,8 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // rumah desa baru
   D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang
+  // plang desa lama di sisi kampung, menghadap jalan ke desa baru
+  {const K=D.K,px=K.x1-T*7.5,py=D.jalanY+T*2.75;papan(px,py-T*.4,'🏡 DESA AWALKOMEN',T*.5,'#1C2520','#F2C230')}
   {const g=D.gate,bw=T*13,bh=T*4.2;// gerbang besar dilihat dari atas: 2 tugu di sisi jalan + papan nama melintang
    [g.y-T*3.6,g.y+T*2.2].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(g.x-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(g.x-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(g.x-T*.8,y+T*.25,T*1.6,T*.9)});
    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);

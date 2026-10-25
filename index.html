@@ -1632,7 +1632,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
       const hd=el('div','jumh');hd.append(el('span','jico',IC[b.type]||'🏢'),tt,el('span','jst'+(w.sisa>0?' open':''),w.sisa>0?'Sisa '+w.sisa+' slot':'Penuh'));
       const row=el('div','jumr'),lm=el('button','btn gold3','📝 Lamar kerja'),lh=el('button','btn','Lihat di peta');lm.type=lh.type='button';
       lm.onclick=()=>kkLamar(b);lh.onclick=()=>{const i=BLD.indexOf(b);select({kind:'b',i});scrollMap()};row.append(lh,lm);
-      d.append(hd,el('p','jnote','Kontrak '+KLBL(w.hari)+' · '+KG(w.gaji)+' · dapat plang & lencana'),row);um.append(d)})};
+      d.append(hd,el('p','jnote','Kontrak '+KLBL(w.hari)+KGP(w.gaji)+' · dapat plang & lencana'),row);um.append(d)})};
   renderUmum()}
 {const L=RES.map((r,i)=>({r,i})).filter(o=>NK.jobOn(o.r));if(L.length){$('proyek').hidden=false;$('proyekTitle').textContent=`Tukang Proyek (${fmt(L.length)})`;
   L.forEach(({r,i})=>{const b=document.createElement('button');b.type='button';b.append(helm(),document.createTextNode('@'+r.name));b.onclick=()=>{select({kind:'r',i});scrollMap()};$('proyekList').append(b)})}}
@@ -2804,10 +2804,11 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
       if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,{jenis:'warna',harga:1,...res})}));
   body.append(msg,row)}
 // popup Ya/Tidak sebelum konfirmasi/tolak pesanan
-const KLBL=h=>+h===7?'7 hari':+h===14?'2 pekan':'1 bulan';const KG=g=>+g>0?'💰 Gaji tetap '+g+' Receh/pekan':'🎁 Bonus bebas';const KPK=h=>+h===7?1:+h===14?2:4;
+const KLBL=h=>+h===7?'7 hari':+h===14?'2 pekan':'1 bulan';const KG=g=>+g>0?'💰 Gaji tetap '+g+' Receh/pekan':'🎁 Bonus bebas';const KGP=g=>+g>0?' · 💰 Gaji tetap '+g+' Receh/pekan':''; // tampilan warga: bonus bebas tidak disebut (biar tidak berharap)
+const KPK=h=>+h===7?1:+h===14?2:4;
 // lowongan kerja di bangunan milik warga: tampil di info bangunan & rumah pemiliknya
 function lowonganEl(b){const L=(window.LOWONGAN||{})[bKey(b)]||{},bx=el('div','lowong');
-  bx.append(el('b',null,'📢 Lowongan kerja dibuka!'),el('p',null,'Posisi: '+(L.roles||[]).join(', ')+'. '+(L.sisa>0?'Sisa '+L.sisa+' slot.':'Slot lagi penuh, tapi lamaranmu tetap disimpan.')+' Kontrak '+KLBL(L.hari)+', '+KG(L.gaji)+'. Bos @'+bossOf(b)+' yang milih.'));
+  bx.append(el('b',null,'📢 Lowongan kerja dibuka!'),el('p',null,'Posisi: '+(L.roles||[]).join(', ')+'. '+(L.sisa>0?'Sisa '+L.sisa+' slot.':'Slot lagi penuh, tapi lamaranmu tetap disimpan.')+' Kontrak '+KLBL(L.hari)+KGP(L.gaji)+'. Bos @'+bossOf(b)+' yang milih.'));
   const go=el('button','btn gold3','📝 Lamar kerja');go.type='button';go.onclick=()=>kkLamar(b);bx.append(go);return bx}
 function kkLamar(b){const L=(window.LOWONGAN||{})[bKey(b)];if(!L){toast('Lowongannya sudah tutup');return}
   const k=kkGet();if(!k||!k.u){toast('Ambil Kartu Komen dulu: cari rumahmu di peta, klik, lalu tekan 🔑 Kartu Komen');return}
@@ -2815,7 +2816,7 @@ function kkLamar(b){const L=(window.LOWONGAN||{})[bKey(b)];if(!L){toast('Lowonga
   const body=kkModal();body.append(el('h3',null,'📝 Lamar kerja di '+(b.name||'sini')),el('p','kk-muted','Bos: @'+bossOf(b)+' · kamu melamar sebagai @'+k.u));
   const rs=document.createElement('select');rs.className='kk-sel kk-wide';[['','Pilih posisi…'],...(L.roles||[]).map(r=>[r,r])].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;rs.append(o)});
   const ps=document.createElement('textarea');ps.className='kk-in kk-wide';ps.maxLength=80;ps.rows=2;ps.placeholder='Pesan buat bos (opsional), mis. "Saya rajin & on time!"';
-  const inf=el('div','kk-info');inf.append(el('b',null,'📌 Info wajib dibaca'));const il=el('ul');['Kontrak '+KLBL(L.hari)+', '+KG(L.gaji),'Kalau diterima: plang di rumahmu, lencana, dan namamu tercatat di '+(b.name||'bangunan ini'),'Yang milih karyawan bosnya langsung. Sabar ya kalau belum dipilih','Melamar lagi = lamaran lama diganti'].forEach(t=>il.append(el('li',null,t)));inf.append(il);
+  const inf=el('div','kk-info');inf.append(el('b',null,'📌 Info wajib dibaca'));const il=el('ul');['Kontrak '+KLBL(L.hari)+KGP(L.gaji),'Kalau diterima: plang di rumahmu, lencana, dan namamu tercatat di '+(b.name||'bangunan ini'),'Yang milih karyawan bosnya langsung. Sabar ya kalau belum dipilih','Melamar lagi = lamaran lama diganti'].forEach(t=>il.append(el('li',null,t)));inf.append(il);
   const kirim=kkBtn('Kirim lamaran','gold3',async()=>{if(!rs.value){toast('Pilih posisinya dulu');return}
     if(!await kkYakin('Kirim lamaran?',`Posisi: ${rs.value}\nDi: ${b.name}\nBos: @${bossOf(b)}`,'Ya, kirim'))return;
     kirim.disabled=true;const r=await kkApi('lamar',{key:bKey(b),role:rs.value,pesan:ps.value},true);kirim.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}

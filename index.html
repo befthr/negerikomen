@@ -169,6 +169,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .kk-yakin{position:fixed;inset:0;z-index:400;background:rgba(10,14,12,.55);display:grid;place-items:center;padding:16px}.kk-yk{background:#fff;border-radius:16px;padding:18px;max-width:340px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3)}.kk-yk b{font-size:17px;display:block;margin-bottom:6px}.kk-yk p{white-space:pre-line;font-size:14px;margin:0 0 14px;color:#333}.kk-yk .kk-row{display:flex;gap:8px;justify-content:flex-end}.kk-yk .btn.merah{background:#C4402F;border-color:#C4402F;color:#fff}
 .rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;margin:6px 0 12px;padding:7px;border-radius:12px;background:linear-gradient(#0B1A4A,#1B0B3A)}.rt-g{position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 2px 4px;text-align:center;color:#fff}.rt-g i{display:block;font-style:normal;font-size:18px!important;line-height:1.1}.rt-g b{display:block;font-size:9.5px!important;font-weight:800;line-height:1.15;margin-top:2px}.rt-g small{display:none}
 .kk-cari{width:100%;box-sizing:border-box;margin:0 0 10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);font:inherit;font-size:14px;background:#fff}
+.kk-staf{background:#EEF6F0;border-style:solid;border-color:#BFD9C7}.kk-sl{list-style:none;margin:8px 0 0;padding:0}.kk-sl li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;padding:7px 0;border-top:1px dashed var(--line);font-size:13.5px}.kk-sa{display:flex;gap:4px;align-items:center}.kk-sa button{white-space:nowrap;margin:0}.kk-sel{font:inherit;font-size:13px;padding:6px;border-radius:8px;border:1.5px solid var(--line);background:#fff}.kk-sf{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:10px}.kk-sf .kk-in{font:inherit;font-size:14px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--line);min-width:0}.kk-sf button{grid-column:1/-1}
 .kk-game{margin-top:14px;padding:12px 14px;border-radius:12px;border:1.5px dashed var(--line);background:#F6F4EE;cursor:default}.kk-game.riw{background:#fff}.kk-mgl{list-style:none;margin:8px 0 0;padding:0}.kk-mgl li{display:grid;grid-template-columns:1fr auto;gap:0 8px;padding:6px 0;border-top:1px dashed var(--line);font-size:13.5px}.kk-mgl li b{font-size:15px}.kk-mgl li small{grid-column:1/-1;color:var(--muted);font-size:11.5px}
 .kk-game.on{background:#EEF0FF;border:2px solid #2B2F5E}.kk-game .kk-gh svg{width:34px;height:34px;flex:none;margin-right:8px}.kk-game .kk-gh{justify-content:flex-start}.kk-game .btn{width:100%;margin-top:8px}.kk-game .btn.kk-off{opacity:.55;border-style:dashed}.kk-gh{display:flex;align-items:center;justify-content:space-between;gap:8px}.kk-gh b{font-size:14.5px}.kk-soon{font-size:11.5px;font-weight:800;background:#1C2520;color:#F2C230;border-radius:999px;padding:2px 10px}.kk-game p{margin:4px 0 0!important}
 .kk-gico{width:20px;height:20px;vertical-align:-4px;margin:0 4px 0 2px;border-radius:5px}
@@ -1455,7 +1456,13 @@ const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.is
 const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
 const KERJA_IK={posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
-BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||['👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}}));
+const KERJA_IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
+const bKey=b=>b.type+'@'+b.x+','+b.y;
+function hitungKerja(){RES.forEach(r=>{delete r.kerja});BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}}))}
+hitungKerja();
+// karyawan yang diatur sendiri oleh pemilik bangunan (dari database) digabung ke data kampung
+function stafPlus(m){let ubah=false;BLD.forEach(b=>{if(!b._st0)b._st0=Array.isArray(b.staff)?b.staff:[];const add=(m||{})[bKey(b)]||[];const nx=b._st0.concat(add);if(JSON.stringify(nx)!==JSON.stringify(b.staff||[])){b.staff=nx;ubah=true}});
+  if(ubah){hitungKerja();try{renderKaryawan()}catch(e){}dirty=true}}
 const KAV=Math.max(D.kavling||50,RES.length);
 const FREE_N=Math.max(0,KAV-RES.length);
 const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
@@ -1636,7 +1643,7 @@ if(AWARDS.length){$('award').hidden=false;
 
 /* belanja terbaru: dari log belanja Recehan (diisi setelah /api/kartu?aksi=pilihan) */
 function renderKaryawan(){const box=$('kryList');if(!box)return;const BL={jan:0};const bln=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const tgl=d=>{const [y,m,dd]=String(d).split('-').map(Number);return dd+' '+bln[m-1]};const ic={posronda:'🔦',warung:'🏪'};
+  const tgl=d=>{const [y,m,dd]=String(d).split('-').map(Number);return dd+' '+bln[m-1]};const ic={posronda:'🔦',warung:'🏪',masjid:'🕌',penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
   const L=[];BLD.forEach(b=>staffOf(b).forEach(x=>L.push({u:x.user,role:x.role||'Karyawan',tempat:b.name||'',ic:ic[b.type]||'👷',until:x.until})));
   box.innerHTML='';if(!L.length){$('kryCard').hidden=true;return}$('kryCard').hidden=false;
   L.forEach(o=>{const i=kkResIdx(o.u),r=i>=0?RES[i]:null,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
@@ -2712,10 +2719,11 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);
   if(i>=0&&c.saldoBaru){const nb=el('div','kk-baru');const hadiah=(c.saldoBaru.ket||[]).includes('hadiah pendukung lama'),ufo=(c.saldoBaru.ket||[]).some(k=>/^hadiah UFO/.test(k));
-    nb.append(el('b',null,`🎉 +${c.saldoBaru.n} Receh masuk ke Recehan-mu!`),el('span',null,hadiah?'Hadiah terima kasih untuk pendukung lama. Pakai belanja di Toko Pak Kades ya!':ufo?'Hadiah karena kamu menemukan UFO Nyasar 🛸':(c.saldoBaru.ket||[]).some(k=>/^hadiah: /.test(k))?'🎁 Hadiah dari kepala desa: '+(c.saldoBaru.ket.find(k=>/^hadiah: /.test(k))||'').slice(8)+'. Makasih ya!':'Dari traktiranmu. Makasih udah bantu bangun kampung! Recehan-nya bisa langsung dipakai belanja.'));
+    nb.append(el('b',null,`🎉 +${c.saldoBaru.n} Receh masuk ke Recehan-mu!`),el('span',null,hadiah?'Hadiah terima kasih untuk pendukung lama. Pakai belanja di Toko Pak Kades ya!':ufo?'Hadiah karena kamu menemukan UFO Nyasar 🛸':(c.saldoBaru.ket||[]).some(k=>/^bonus: /.test(k))?'🎁 Bonus '+(c.saldoBaru.ket.find(k=>/^bonus: /.test(k))||'').slice(7)+'. Makasih udah kerja rajin!':(c.saldoBaru.ket||[]).some(k=>/^hadiah: /.test(k))?'🎁 Hadiah dari kepala desa: '+(c.saldoBaru.ket.find(k=>/^hadiah: /.test(k))||'').slice(8)+'. Makasih ya!':'Dari traktiranmu. Makasih udah bantu bangun kampung! Recehan-nya bisa langsung dipakai belanja.'));
     body.append(nb);kkApi('saldo-lihat',{},true);try{SND.play('ting',.7)}catch(_){}}
   if(i>=0&&!c.admin){const sw=el('div','kk-saldo');const im=el('img','kk-gico');im.src='receh.svg';im.alt='';const tx=el('span');tx.append('Recehan: ',el('b',null,fmt(c.saldo||0)+' Receh'));
     sw.append(im,tx,kkBtn('+ Isi Recehan','sm',()=>kkIsiSaldo(body,c)));body.append(sw)}
+  if(i>=0&&!c.admin&&c.bangunan&&c.bangunan.length)c.bangunan.forEach(b=>kkStaf(body,c,b));
   if(i>=0&&c.versi>1){body.append(el('p','kk-sub',`🏠 Rumahmu punya ${c.versi} versi · sedang pakai versi ${c.dipakai+1}`),
       kkBtn('🏠 Ganti di 3D','kk-gratis',()=>{kkTutup();select({kind:'r',i},{instant:true});V3BACK=()=>kkBuka(c.u);open3D(RES[i],i)}))}
   else if(i>=0)body.append(el('p','kk-muted','Rumahmu baru punya 1 versi. Versi baru muncul kalau rumahmu menang lomba, dapat hadiah quest, atau ganti warna lewat traktir.'));
@@ -2784,6 +2792,27 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
       if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkKode(body,{jenis:'warna',harga:1,...res})}));
   body.append(msg,row)}
 // popup Ya/Tidak sebelum konfirmasi/tolak pesanan
+// pemilik bangunan atur karyawan sendiri: tambah/hapus + bonus Receh opsional
+function kkStaf(body,c,b){const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'}[b.type]||'🏢';
+  const kb=el('div','kk-game on kk-staf');const gh=el('div','kk-gh');gh.append(el('b',null,IC+' Karyawan '+b.name),el('span','kk-soon',b.staf.length+'/'+b.maks));kb.append(gh);
+  kb.append(el('p','kk-muted','Kamu bosnya! Karyawanmu dapat plang di rumahnya, lencana, dan namanya tercatat di info '+b.name+'. Mau kasih bonus Receh? Terserah kamu, diambil dari Recehan-mu.'));
+  const ul=el('ul','kk-sl');b.staf.forEach(x=>{const li=el('li');const nm=el('span');nm.append(el('b',null,'@'+x.user),' · '+x.role);
+    const bo=kkBtn('🎁 Bonus','sm',async()=>{const n=Math.floor(+sel2.value);if(!await kkYakin('Kirim bonus?',`+${n} Receh untuk @${x.user}\nDiambil dari Recehan-mu (sisa ${Math.max(0,(c.saldo||0)-n)} Receh).`,'Ya, kirim'))return;
+      bo.disabled=true;const r=await kkApi('bonus',{key:b.key,target:x.user,n},true);bo.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎁 Bonus ${n} Receh terkirim ke @${x.user}!`);kkTampil(body,r.kartu)});
+    const sel2=document.createElement('select');sel2.className='kk-sel';[1,2,3,5].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n+' Receh';sel2.append(o)});
+    const hp=kkBtn('✕','sm',async()=>{if(!await kkYakin('Berhentikan karyawan?',`@${x.user} (${x.role}) tidak lagi bekerja di ${b.name}. Plang dan lencananya ikut hilang.`,'Ya, berhentikan',true))return;
+      hp.disabled=true;const r=await kkApi('staf',{key:b.key,op:'hapus',target:x.user},true);hp.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}toast('@'+x.user+' sudah diberhentikan.');kkTampil(body,r.kartu)});
+    hp.title='Berhentikan';const ak=el('div','kk-sa');ak.append(sel2,bo,hp);li.append(nm,ak);ul.append(li)});
+  if(b.staf.length)kb.append(ul);
+  if(b.staf.length<b.maks){const f=el('div','kk-sf');const inp=document.createElement('input');inp.placeholder='username warga (tanpa @)';inp.autocapitalize='off';inp.spellcheck=false;inp.className='kk-in';
+    const rs=document.createElement('select');rs.className='kk-sel';[['','Jabatan…'],...b.roles.map(r=>[r,r])].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;rs.append(o)});
+    const tb=kkBtn('+ Tambah karyawan','gold3',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase(),role=rs.value;if(!t){toast('Isi username karyawannya dulu');inp.focus();return}if(!role){toast('Pilih jabatannya dulu');return}
+      if(kkResIdx(t)<0){toast('@'+t+' belum jadi warga Negeri Komen');return}
+      if(!await kkYakin('Tambah karyawan?',`@${t} jadi ${role} di ${b.name}.\nDia dapat plang di rumahnya & lencana karyawan.`,'Ya, tambah'))return;
+      tb.disabled=true;const r=await kkApi('staf',{key:b.key,op:'tambah',target:t,role},true);tb.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎉 @${t} resmi jadi ${role} di ${b.name}!`);kkTampil(body,r.kartu)});
+    f.append(inp,rs,tb);kb.append(f)}
+  else kb.append(el('p','kk-note','Sudah '+b.maks+' karyawan (maksimal).'));
+  body.append(kb)}
 function kkYakin(judul,isi,ya,bahaya){return new Promise(ok=>{const o=el('div','kk-yakin'),b=el('div','kk-yk');b.append(el('b',null,judul),el('p',null,isi));
   const r=el('div','kk-row'),t=kkBtn('Tidak','',()=>tutup(false)),y=kkBtn(ya||'Ya','gold3'+(bahaya?' merah':''),()=>tutup(true));r.append(t,y);b.append(r);o.append(b);
   const tutup=v=>{o.remove();removeEventListener('keydown',kd);ok(v)},kd=e=>{if(e.key==='Escape')tutup(false)};o.onclick=e=>{if(e.target===o)tutup(false)};addEventListener('keydown',kd);document.body.append(o);y.focus()})}
@@ -3079,6 +3108,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   (j.emas||[]).forEach(u=>{const i=kkResIdx(u);if(i>=0&&!RES[i].sup){RES[i].sup=true;dirty=true}});
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
+  try{stafPlus(j.staf)}catch(e){console.error(e)}
   window.ROBOT_OWNER=j.robot||null;window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));

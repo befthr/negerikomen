@@ -2797,24 +2797,22 @@ function kkStaf(body,c,b){const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'
   const kb=el('div','kk-game on kk-staf');const gh=el('div','kk-gh');gh.append(el('b',null,IC+' Karyawan '+b.name),el('span','kk-soon',b.staf.length+'/'+b.maks));kb.append(gh);
   kb.append(el('p','kk-muted','Kamu bosnya! Atur sendiri siapa yang kerja di '+b.name+'.'));
   const inf=el('div','kk-info');inf.append(el('b',null,'📌 Info wajib dibaca'));const il=el('ul');
-  ['Karyawan wajib sudah jadi warga Negeri Komen','Maksimal '+b.maks+' karyawan','Karyawan dapat plang di rumahnya, lencana, dan namanya tercatat di info '+b.name,'Tidak ada gaji. Bonus Receh boleh dikasih, terserah kamu, diambil dari Recehan-mu','Tidak ada batas hari: karyawan kerja terus sampai kamu berhentikan','Cara milih bebas: buka lowongan sendiri atau langsung tunjuk orangnya'].forEach(t=>il.append(el('li',null,t)));
+  ['Karyawan wajib sudah jadi warga Negeri Komen','Maksimal '+b.maks+' karyawan','Karyawan dapat plang di rumahnya, lencana, dan namanya tercatat di info '+b.name,'Tidak ada gaji. Bonus Receh boleh dikasih, terserah kamu, diambil dari Recehan-mu','Kontrak '+(b.kontrak||30)+' hari, selesai otomatis. Karyawan tidak bisa diberhentikan sebelum kontraknya habis, jadi pilih yang serius ya','Cara milih bebas: buka lowongan sendiri atau langsung tunjuk orangnya'].forEach(t=>il.append(el('li',null,t)));
   inf.append(il);kb.append(inf);
-  const ul=el('ul','kk-sl');b.staf.forEach(x=>{const li=el('li');const nm=el('span');nm.append(el('b',null,'@'+x.user),' · '+x.role);
+  const ul=el('ul','kk-sl');b.staf.forEach(x=>{const li=el('li');const nm=el('span');nm.append(el('b',null,'@'+x.user),' · '+x.role+(x.until?' · kontrak s/d '+new Date(x.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):''));
     const bo=kkBtn('🎁 Bonus','sm',async()=>{const n=Math.floor(+sel2.value);if(!await kkYakin('Kirim bonus?',`+${n} Receh untuk @${x.user}\nDiambil dari Recehan-mu (sisa ${Math.max(0,(c.saldo||0)-n)} Receh).`,'Ya, kirim'))return;
       bo.disabled=true;const r=await kkApi('bonus',{key:b.key,target:x.user,n},true);bo.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎁 Bonus ${n} Receh terkirim ke @${x.user}!`);kkTampil(body,r.kartu)});
     const sel2=document.createElement('select');sel2.className='kk-sel';[1,2,3,5].forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n+' Receh';sel2.append(o)});
-    const hp=kkBtn('Berhentikan','sm merah',async()=>{if(!await kkYakin('Berhentikan karyawan?',`@${x.user} (${x.role}) tidak lagi bekerja di ${b.name}. Plang dan lencananya ikut hilang.`,'Ya, berhentikan',true))return;
-      hp.disabled=true;const r=await kkApi('staf',{key:b.key,op:'hapus',target:x.user},true);hp.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}toast('@'+x.user+' sudah diberhentikan.');kkTampil(body,r.kartu)});
-const ak=el('div','kk-sa');ak.append(sel2,bo,hp);li.append(nm,ak);ul.append(li)});
+const ak=el('div','kk-sa');ak.append(sel2,bo);li.append(nm,ak);ul.append(li)});
   if(b.staf.length)kb.append(ul);
   if(b.staf.length<b.maks){const f=el('div','kk-sf');const inp=document.createElement('input');inp.placeholder='username warga (tanpa @)';inp.autocapitalize='off';inp.spellcheck=false;inp.className='kk-in';
     const rs=document.createElement('select');rs.className='kk-sel';[['','Jabatan…'],...b.roles.map(r=>[r,r])].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;rs.append(o)});
     const tb=kkBtn('+ Tambah karyawan','gold3',async()=>{const t=inp.value.trim().replace(/^@/,'').toLowerCase(),role=rs.value;if(!t){toast('Isi username karyawannya dulu');inp.focus();return}if(!role){toast('Pilih jabatannya dulu');return}
       if(kkResIdx(t)<0){toast('@'+t+' belum jadi warga Negeri Komen');return}
-      if(!await kkYakin('Tambah karyawan?',`@${t} jadi ${role} di ${b.name}.\nDia dapat plang di rumahnya & lencana karyawan.`,'Ya, tambah'))return;
+      if(!await kkYakin('Tambah karyawan?',`@${t} jadi ${role} di ${b.name} selama ${b.kontrak||30} hari.\nDia dapat plang di rumahnya & lencana karyawan.\n\nKaryawan tidak bisa diberhentikan sebelum kontrak habis. Pastikan username & jabatannya benar ya.`,'Ya, tambah'))return;
       tb.disabled=true;const r=await kkApi('staf',{key:b.key,op:'tambah',target:t,role},true);tb.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast(`🎉 @${t} resmi jadi ${role} di ${b.name}!`);kkTampil(body,r.kartu)});
     f.append(inp,rs,tb);kb.append(f)}
-  else kb.append(el('p','kk-note','Sudah '+b.maks+' karyawan (maksimal).'));
+  else kb.append(el('p','kk-note','Sudah '+b.maks+' karyawan (maksimal). Slot kosong lagi saat ada kontrak yang selesai.'));
   body.append(kb)}
 function kkYakin(judul,isi,ya,bahaya){return new Promise(ok=>{const o=el('div','kk-yakin'),b=el('div','kk-yk');b.append(el('b',null,judul),el('p',null,isi));
   const r=el('div','kk-row'),t=kkBtn('Tidak','',()=>tutup(false)),y=kkBtn(ya||'Ya','gold3'+(bahaya?' merah':''),()=>tutup(true));r.append(t,y);b.append(r);o.append(b);

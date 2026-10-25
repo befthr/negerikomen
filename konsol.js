@@ -67,7 +67,7 @@ function genteng(x,y,w,c='#C4402F'){ctx.save();ctx.translate(x,y);rr(-w/2,-w*.32
 // ---------- tombol di layar ----------
 let BTN=[];const btn=(x,y,w,h,label,fn,col=KUNING,sz=17)=>{BTN.push({x,y,w,h,fn});rr(x,y,w,h,12,col,INK);txt(label,x+w/2,y+h/2+1,sz,col===KUNING||col===KREM||col==='#fff'?INK:'#fff','center',800,null)};
 // ---------- MENU ----------
-const GAMES=[{id:'penalti',n:'ADU PENALTI',ic:'⚽'},{id:'genteng',n:'TANGKAP GENTENG',ic:'🧱'},{id:'pancing',n:'PANCING IKAN',ic:'🎣'},{id:'bakso',n:'RACIK BAKSO',ic:'🍜'},
+const GAMES=[{id:'penalti',n:'ADU PENALTI',ic:'⚽'},{id:'genteng',n:'TANGKAP GENTENG',ic:'🏠'},{id:'pancing',n:'PANCING IKAN',ic:'🎣'},{id:'bakso',n:'RACIK BAKSO',ic:'🍜'},
   {id:'ayam',n:'KEJAR AYAM',ic:'🐔'},{id:'karung',n:'BALAP KARUNG',ic:'🥔'},{id:'layang',n:'LAYANGAN',ic:'🪁'},{id:'memori',n:'MEMORI GENTENG',ic:'🃏'},
   {id:'pinang',n:'PANJAT PINANG',ic:'🎋'},{id:'kentongan',n:'TEBAK KENTONGAN',ic:'🔔'},{id:'karet',n:'LOMPAT KARET',ic:'🪢'},{id:'pesawat',n:'PESAWAT NEMBAK',ic:'✈️'},{id:'tambang',n:'TARIK TAMBANG',ic:'💪'},{id:'egrang',n:'EGRANG',ic:'🦯'}];
 let menuSel=0;const ROW0=96,ROWH=40,COLW=164;
@@ -152,9 +152,9 @@ function Genteng(){const G={x:W/2,items:[],skor:0,nyawa:3,t:0,sp:0,ph:'main',hs:
     const bx=G.x,by=H-72;ctx.fillStyle='#8B5A2B';ctx.beginPath();ctx.moveTo(bx-38,by-14);ctx.lineTo(bx+38,by-14);ctx.lineTo(bx+28,by+16);ctx.lineTo(bx-28,by+16);ctx.closePath();ctx.fill();ctx.strokeStyle=INK;ctx.lineWidth=3;ctx.stroke();
     ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=2;for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(bx+i*13,by-12);ctx.lineTo(bx+i*10,by+14);ctx.stroke()}
     G.fx.forEach(f=>{ctx.globalAlpha=1-f.t/.8;txt(f.s,f.x,f.y-f.t*40,f.s==='💥'?28:20,f.s==='+3'?KUNING:'#fff');ctx.globalAlpha=1});
-    txt(`🧱 ${G.skor}`,16,26,20,'#fff','left');txt('❤️'.repeat(Math.max(0,G.nyawa)),W-14,26,16,'#fff','right',400,null);
+    txt(`🏠 ${G.skor}`,16,26,20,'#fff','left');txt('❤️'.repeat(Math.max(0,G.nyawa)),W-14,26,16,'#fff','right',400,null);
     if(G.t<3&&G.ph==='main')txt('Geser keranjangnya! Awas bom kerupuk 💣',W/2,140,13,'#fff');
-    if(G.ph==='end')endCard(`${G.skor} genteng`,G.skor>=40?'Juragan Genteng! 👑':G.skor>=15?'Mantap! 🧱':'Ayo coba lagi! 💪',lsGet(G.hs))};
+    if(G.ph==='end')endCard(`${G.skor} genteng`,G.skor>=40?'Juragan Genteng! 👑':G.skor>=15?'Mantap! 🏠':'Ayo coba lagi! 💪',lsGet(G.hs))};
   return G}
 // ---------- 3. PANCING IKAN ----------
 function Pancing(){const IKAN=[{n:'Ikan kecil',c:'#F2A33A',p:1,s:.8},{n:'Ikan mas',c:'#F2C230',p:2,s:1},{n:'Lele',c:'#6B5B45',p:3,s:1.15},{n:'Ikan langka',c:'#4FB8FF',p:5,s:1.2}];

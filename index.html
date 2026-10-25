@@ -181,6 +181,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .kk-x.back{right:auto;left:10px;font-size:19px}.kk-box.kkback .kk-body>h3:first-child{margin:0 0 8px 48px;min-height:36px;display:flex;align-items:center}
 .kk-req.lunas{background:#E8F4DF;border-radius:10px;padding:8px}.kk-cf{margin-top:8px;padding:10px;border-radius:10px;background:#fff;border:1.5px solid #E2C978}.kk-cf p{margin:0!important;font-size:13.5px!important}
 .card.toko.domain-baru{margin:10px 0 0;padding:8px 12px;border:1.5px dashed #C9B98A;border-radius:12px;background:#FFF8E6;font-size:13px;text-align:center}.domain-baru b{color:#2F6B4F}
+.sup-fl{font-size:.8em;margin-left:5px;vertical-align:1px}
 .kosong{padding-top:12px;padding-bottom:12px}.card.toko.kosong .trak-row,.card.toko.kosong #tokoNote br{display:none}.card.toko.kosong .tlist{margin:0;border:0}.card.toko.kosong .tlist li{border:0}.card.toko.kosong .tlist .empty{font-weight:700;color:var(--ink);padding:0}.card.toko.kosong #tokoNote{margin-top:6px}
 .trak-how{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#fff;border:1.5px dashed #E2C978;font-size:14px;line-height:1.45}
 .kk-stat p{margin:4px 0!important;font-size:13px!important}
@@ -1686,7 +1687,7 @@ function supRank(){const n=r=>+r.donor||(r.sup?2:0);const L=RES.map((r,i)=>({r,i
 const MEDAL=k=>k===1?'🥇':k===2?'🥈':k===3?'🥉':'#'+k;
 function rankList(box,max){box.innerHTML='';const JI=juraganIdx();const L=supRank(),OTH=Math.max(0,+D.supOthers||0);L.slice(0,max||99).forEach(({r,i,g,rank})=>{const li=document.createElement('li');const b=document.createElement('button');b.type='button';
     const jr=rank===1&&JI===i;if(jr)li.className='jr';
-    const rn=el('span','rn',(jr?'👑 ':r.sup?'🚩 ':'')+'@'+r.name);if(!jr&&!r.sup){const gi=el('img','kk-gico');gi.src='genteng.png';gi.alt='';rn.prepend(gi,' ')}if(jr)rn.append(el('small',null,'Juragan Genteng'));
+    const rn=el('span','rn',(jr?'👑 ':'')+'@'+r.name);if(r.sup){const fl=el('span','sup-fl','🚩');fl.title='Punya Bendera Emas';rn.append(fl)}if(jr)rn.append(el('small',null,'Juragan Genteng'));
     b.append(el('span','rkn'+(rank<=3?' rkt':''),MEDAL(rank)),rn,el('span','rc',g?fmt(g)+' Genteng':''));
     b.onclick=()=>{if(!$('v3').hidden)close3D();select({kind:'r',i});scrollMap()};li.append(b);box.append(li)});
   const more=Math.max(0,L.length-(max||99))+OTH;if(more){const li=el('li','roth');li.append(el('span','rkn','➕'),el('span','rn',`dan ${fmt(more)} warga lainnya`),(()=>{const sp=el('span','rc'),gi=el('img','kk-gico');gi.src='genteng.png';gi.alt='';sp.append(gi);return sp})());box.append(li)}return L.length+OTH}

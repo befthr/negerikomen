@@ -2619,7 +2619,7 @@ window.NK_DATA = {
   { "type": "tk", "name": "TK Al-Mudaaris Al-Hasanah", "by": "alifrmnxhrn", "day": 5, "x": 29, "y": 41, "w": 3, "staff": [] }
  ],
  "awards": [
-  { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-26" }
+  { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-27" }
  ],
  "juraganHistory": [
   { "u": "mroqibh_gntz", "from": "2026-10-19", "to": "2026-10-20", "g": 2, "note": "pendukung pertama kampung" },

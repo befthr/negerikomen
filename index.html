@@ -312,9 +312,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:600;padding:10px 16px;border-radius:999px;z-index:500;font-size:14px}
 :focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.tt-warn{display:flex;align-items:center;gap:10px;background:#C4402F;color:#fff;padding:10px 14px;font-size:14px;line-height:1.4;position:relative;z-index:60}.tt-warn[hidden]{display:none}.tt-warn a{color:#FFE68A;font-weight:800}.tt-warn .tt-ic{font-size:20px;flex:none}.tt-warn span:nth-child(2){flex:1}.tt-warn button{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-weight:800;cursor:pointer}@media(min-width:760px){.tt-warn{justify-content:center;font-size:15px}.tt-warn span:nth-child(2){flex:0 1 auto}}
 </style>
 </head>
 <body>
+<div class="tt-warn" id="ttWarn" role="alert"><span class="tt-ic">⚠️</span><span><b>Negeri Komen TIDAK punya akun TikTok.</b> Akun resmi cuma Instagram <a href="https://instagram.com/negerikomen" target="_blank" rel="noopener">@negerikomen</a>. Ada akun TikTok yang ngaku-ngaku Pak Kades? Jangan percaya, tolong <b>report</b> ya! 🙏</span><button type="button" aria-label="Tutup" id="ttX">✕</button></div>
+<script>try{if(localStorage.getItem('nk-ttwarn')==='1')document.getElementById('ttWarn').hidden=true}catch(e){}document.getElementById('ttX').onclick=function(){document.getElementById('ttWarn').hidden=true;try{localStorage.setItem('nk-ttwarn','1')}catch(e){}}</script>
 <div class="wrap">
   <header class="top">
     <a class="brand" href="./"><img src="logo.png" alt="" width="40" height="40"><b>Negeri Komen</b></a>

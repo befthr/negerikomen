@@ -1,0 +1,26 @@
+{
+ "name": "Negeri Komen",
+ "short_name": "Negeri Komen",
+ "description": "Kampung dari komentar. Komen di @negerikomen, dapat satu rumah.",
+ "start_url": "/?app=1",
+ "scope": "/",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#F4EFE3",
+ "theme_color": "#2F6B4F",
+ "lang": "id",
+ "icons": [
+  {
+   "src": "/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}

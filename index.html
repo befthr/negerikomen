@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#2F6B4F"><link rel="apple-touch-icon" href="/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Negeri Komen">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <title>Negeri Komen · Cari rumahmu</title>
 <meta name="description" content="Kampung yang dibangun dari follower @negerikomen. Cari rumahmu di peta, lihat warga baru dan fasilitas kampung hasil voting.">
@@ -313,6 +314,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 :focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 .tt-warn{display:flex;align-items:center;gap:10px;background:#C4402F;color:#fff;padding:10px 14px;font-size:14px;line-height:1.4;position:relative;z-index:60}.tt-warn[hidden]{display:none}.tt-warn a{color:#FFE68A;font-weight:800}.tt-warn .tt-ic{font-size:20px;flex:none}.tt-warn span:nth-child(2){flex:1}.tt-warn button{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-weight:800;cursor:pointer}@media(min-width:760px){.tt-warn{justify-content:center;font-size:15px}.tt-warn span:nth-child(2){flex:0 1 auto}}
+.app-btn{display:none;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:2px solid var(--ink);background:#fff;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer}.app-btn.on{display:inline-flex}
 </style>
 </head>
 <body>
@@ -3398,6 +3400,16 @@ const go=()=>{fromLink();requestAnimationFrame(frame)};
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go,go);
 window.addEventListener('hashchange',fromLink);
 })();
+</script>
+<script>
+/* aplikasi (PWA): bisa dipasang di layar utama perangkat */
+(function(){if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});
+  var std=window.matchMedia&&matchMedia('(display-mode: standalone)').matches||navigator.standalone;if(std)return;
+  var b=document.createElement('button');b.type='button';b.className='app-btn';b.textContent='📲 Pasang aplikasi';var top=document.querySelector('header.top');if(top)top.appendChild(b);
+  var ev=null,ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;b.classList.add('on')});if(ios)b.classList.add('on');
+  b.onclick=function(){if(ev){ev.prompt();ev.userChoice.finally(function(){ev=null;b.classList.remove('on')})}else if(ios){try{toast('Di Safari: ketuk Bagikan (kotak panah ke atas) → Tambah ke Layar Utama 📲')}catch(e){}}};
+  addEventListener('appinstalled',function(){b.classList.remove('on');try{toast('📲 Negeri Komen terpasang di layar utama!')}catch(e){}})})();
 </script>
 </body>
 </html>

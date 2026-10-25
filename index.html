@@ -3256,12 +3256,12 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
     if(d<lim*(R()<.15?1.15:1)&&x<K.x0-T*1.5)trees.push({x,y,s:1+R()*.6,k:R()<.5})}}
   for(let i=0;i<500;i++){const x=M.x0+R()*(M.x1-M.x0),y=M.y1-T*4+R()*T*7;trees.push({x,y,s:1+R()*.5,k:R()<.7})}
   for(let i=0;i<420;i++){const x=E.x0+R()*ew,y=E.y0+R()*eh;const tepi=x>E.x1-ew*.12||y<E.y0+eh*.12||y>E.y1-eh*.1;if(tepi&&ok(x,y))trees.push({x,y,s:1+R()*.5,k:R()<.5})}
-  const jalanY=jy;const gate={x:E.x0+T*2,y:jalanY};
+  const jalanY=jy;const gate={x:E.x0+T*5,y:jalanY}; // digeser ke timur biar ada jarak dengan gerbang Desa Awalkomen
   const sungai1=[[E.x0+ew*.35,M.y1-T*6],[E.x0+ew*.42,E.y0+eh*.15],[E.x0+ew*.38,E.y0+eh*.32],[wd.x-wd.rx*.8,wd.y-wd.ry*.4],[wd.x-wd.rx*.3,wd.y-wd.ry*.15]]; // ujung masuk ke dalam waduk (tertutup air waduk) biar menyatu
   const sungai2=[[E.x1-ew*.08,M.y1-T*2],[E.x1-ew*.12,E.y0+eh*.2],[E.x1-ew*.2,E.y0+eh*.38],[wd.x+wd.rx*.6,wd.y-wd.ry*.7],[wd.x+wd.rx*.25,wd.y-wd.ry*.3]];
   const sungai3=[[wd.x+wd.rx*.2,wd.y+wd.ry*.35],[wd.x+wd.rx*.5,wd.y+wd.ry*.8],[wd.x+wd.rx*.7,E.y1-eh*.15],[wd.x+wd.rx*.5,E.y1+T*6]];
   const rumah=[];const RF=['#C4402F','#2F74B5','#2F9E6A','#8E5AA8','#E07A3E','#E58AA6','#F2C230'];const sx1=D1=>0;
-  for(let r=0;r<2;r++)for(let i=0;i<22;i++){const x=E.x0+T*10+i*T*2.4;if(Math.abs(x-sungai1[1][0])<T*2.5)continue;rumah.push({x,y:jalanY-T*2.3-r*T*2.4,c:RF[Math.floor(R()*7)]})}
+  for(let r=0;r<2;r++)for(let i=0;i<22;i++){const x=E.x0+T*10+i*T*2.4;if(x<gate.x+T*7.6)continue;if(Math.abs(x-sungai1[1][0])<T*2.5)continue;rumah.push({x,y:jalanY-T*2.3-r*T*2.4,c:RF[Math.floor(R()*7)]})}
   for(let r=0;r<4;r++)for(let i=0;i<30;i++){const x=E.x0+T*24+i*T*2.4,y=jalanY+T*1.1+r*T*2.4;if(Math.abs(x-sungai1[2][0])<T*3||Math.abs(x-sungai1[1][0])<T*3||x>wd.x-wd.rx-T*3)continue;rumah.push({x,y,c:RF[Math.floor(R()*7)]})}
   for(let i=0;i<16;i++){const a=Math.PI*.9+i*.29;rumah.push({x:wd.x+Math.cos(a)*(wd.rx+T*2.4)-T*.9,y:wd.y+Math.sin(a)*(wd.ry+T*2.2)-T*.6,c:RF[Math.floor(R()*7)]})}
   // rumah jangan nempel sungai / bibir waduk: buang yang terlalu dekat (realistis, ada bantaran)
@@ -3328,8 +3328,14 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // rumah desa baru
   D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang
-  // plang desa lama di sisi kampung, menghadap jalan ke desa baru
-  {const K=D.K,px=K.x1-T*4.6,py=D.jalanY+T*5.2;papan(px,py-T*.4,'🏡 DESA AWALKOMEN',T*.5,'#1C2520','#F2C230')}
+  // gerbang Desa Awalkomen (desa lama) di jalan keluar kampung, gaya sama dengan gerbang desa baru
+  {const K=D.K,gx=K.x1-T*2.4,gy=D.jalanY,bw=T*4.6,bh=T*4.6;
+   [gy-T*3.9,gy+T*2.5].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(gx-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(gx-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(gx-T*.8,y+T*.25,T*1.6,T*.9)});
+   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(gx-bw/2+10,gy-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(gx-bw/2-T*.3,gy-bh/2-T*.3,bw+T*.6,bh+T*.6);
+   ctx.fillStyle='#F2C230';ctx.fillRect(gx-bw/2,gy-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(gx-bw/2,gy-bh/2,bw,bh);
+   for(let i=0;i<6;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(gx-bw/2+i*bw/6,gy-bh/2-T*.75,bw/6,T*.4)}
+   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';const fit=(t,f,y,w8)=>{let fs=f;ctx.font=`${w8} ${fs}px Poppins,sans-serif`;while(ctx.measureText(t).width>bw*.88&&fs>T*.3){fs-=T*.04;ctx.font=`${w8} ${fs}px Poppins,sans-serif`}ctx.fillText(t,gx,y)};
+   fit('SELAMAT DATANG DI',T*.5,gy-T*1.5,700);fit('DESA',T*1.1,gy-T*.45,800);fit('AWALKOMEN',T*1.1,gy+T*.85,800)}
   {const g=D.gate,bw=T*13,bh=T*4.2;// gerbang besar dilihat dari atas: 2 tugu di sisi jalan + papan nama melintang
    [g.y-T*3.6,g.y+T*2.2].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(g.x-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(g.x-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(g.x-T*.8,y+T*.25,T*1.6,T*.9)});
    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);

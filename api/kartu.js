@@ -87,7 +87,7 @@ const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1,
 const MAKS_PAJANG = 3;
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
 const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => { const h = +String(v || '').split(':')[0]; return KONTRAK_OK.includes(h) ? h : KONTRAK_HARI };
-const GAJI_OK = [0, 1, 2]; const gajiK = v => { const g = +String(v || '').split(':')[1]; return GAJI_OK.includes(g) ? g : 0 };
+const GAJI_OK = [0, 1, 2, 3]; const gajiK = v => { const g = +String(v || '').split(':')[1]; return GAJI_OK.includes(g) ? g : 0 };
 const PEKAN = h => h === 7 ? 1 : h === 14 ? 2 : 4; // gaji dibayar di awal tiap pekan kontrak (hari 0, 7, 14, 21)
 // gaji karyawan swasta: disetor penuh oleh bos saat karyawan diterima, cair otomatis tiap pekan (dicek saat peta dibuka)
 async function cairkanGaji() {

@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       const dk = (teksSemua(b).toUpperCase().match(/\bDOMPET-[A-Z0-9]{4}\b/) || [])[0];
       if (dk) saldoU = await kv(['GET', 'dompet:k:' + dk]);
       // Trakteer menolak tanda @ di pesan → terima username dengan ATAU tanpa @ (harus sama persis dengan username warga, min 4 huruf)
-      if (!saldoU) { const ats = (pesan.match(/@?[A-Za-z0-9._]{4,30}/g) || []).map(x => x.replace(/^@/, '').toLowerCase().replace(/\.+$/, '')).filter(x => x.length >= 4);
+      if (!saldoU) { const ats = ((pesan + ' ' + (nama || '')).match(/@?[A-Za-z0-9._]{4,30}/g) || []).map(x => x.replace(/^@/, '').toLowerCase().replace(/\.+$/, '')).filter(x => x.length >= 4);
         if (ats.length) { const D = await dataKampung(req); const W = new Set((D.residents || []).map(r => String(r.name).toLowerCase())); saldoU = ats.find(a => W.has(a)) || null } }
       if (saldoU) { await kvMany([['HINCRBY', 'saldo', saldoU, qty], ['HINCRBY', 'donasi', saldoU, qty], ['LPUSH', 'saldo:log:' + saldoU, JSON.stringify({ at: masuk.at, n: qty, ket: 'traktir' })], ['LTRIM', 'saldo:log:' + saldoU, 0, 49]]); cocok = true }
     }

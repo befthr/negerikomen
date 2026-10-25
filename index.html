@@ -3480,8 +3480,16 @@ window.addEventListener('hashchange',fromLink);
   var std=window.matchMedia&&matchMedia('(display-mode: standalone)').matches||navigator.standalone;if(std)return;
   var b=document.createElement('div');b.className='app-btn';b.innerHTML='<img src="/icon-192.png" alt=""><div class="app-t"><b>Negeri Komen di layar utama 📲</b><span>Buka kampung sekali ketuk, layar penuh kayak aplikasi. Gratis, tanpa Play Store.</span></div><button type="button">Pasang</button>';var st=document.querySelector('aside.side .stats');if(st)st.insertAdjacentElement('afterend',b);
   var ev=null,ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;b.classList.add('on')});if(ios)b.classList.add('on');
-  b.querySelector('button').onclick=function(){if(ev){ev.prompt();ev.userChoice.finally(function(){ev=null;b.classList.remove('on')})}else if(ios){try{toast('Di Safari: ketuk Bagikan (kotak panah ke atas) → Tambah ke Layar Utama 📲')}catch(e){}}};
+  // kartu selalu tampil (kecuali sudah terpasang). Di browser Instagram/Facebook pemasangan tidak bisa langsung → arahkan buka di Chrome/Safari
+  var ua=navigator.userAgent,inapp=/Instagram|FBAN|FBAV|Line\/|TikTok|musical_ly/i.test(ua),android=/android/i.test(ua);b.classList.add('on');
+  if(inapp)b.querySelector('button').textContent=android?'Pasang ↗':'Cara pasang';
+  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;b.querySelector('button').textContent='Pasang'});
+  b.querySelector('button').onclick=function(){var T=function(m){try{toast(m)}catch(e){}};
+    if(ev){ev.prompt();ev.userChoice.finally(function(){ev=null})}
+    else if(inapp&&android){location.href='intent://'+location.host+location.pathname+'#Intent;scheme=https;package=com.android.chrome;end';setTimeout(function(){T('Kalau Chrome nggak kebuka: ketuk ⋮ di pojok kanan atas → Buka di browser, lalu tekan Pasang 📲')},1200)}
+    else if(inapp)T('Ketuk ⋯ di pojok kanan atas → Buka di Safari/browser. Di Safari: Bagikan → Tambah ke Layar Utama 📲');
+    else if(ios)T('Di Safari: ketuk Bagikan (kotak panah ke atas) → Tambah ke Layar Utama 📲');
+    else T('Ketuk ⋮ di pojok kanan atas browser → Tambahkan ke Layar utama / Instal aplikasi 📲')};
   addEventListener('appinstalled',function(){b.classList.remove('on');try{toast('📲 Negeri Komen terpasang di layar utama!')}catch(e){}})})();
 </script>
 </body>

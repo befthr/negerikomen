@@ -1659,7 +1659,7 @@ function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={mot
 
 /* pendukung Trakteer (bendera emas / toko) */
 let JUR=-2;
-const NAMA_DESA='Desa Komen-Komen Sejahtera'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
+const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
 function juraganIdx(){const top=supRank().filter(o=>o.rank===1);return top.length===1&&top[0].g>=2?top[0].i:-1}
 function supRank(){const n=r=>+r.donor||(r.sup?2:0);const L=RES.map((r,i)=>({r,i,g:n(r)})).filter(o=>o.r.sup||o.r.donor||NK.shopOn(o.r,TODAY));L.sort((a,b)=>b.g-a.g);let rank=0,prev=null;L.forEach(o=>{if(o.g!==prev){rank++;prev=o.g}o.rank=rank});return L}
 const MEDAL=k=>k===1?'🥇':k===2?'🥈':k===3?'🥉':'#'+k;
@@ -3269,7 +3269,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);
    ctx.fillStyle='#F2C230';ctx.fillRect(g.x-bw/2,g.y-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(g.x-bw/2,g.y-bh/2,bw,bh);
    for(let i=0;i<14;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(g.x-bw/2+i*bw/14,g.y-bh/2-T*.75,bw/14,T*.4)}
-   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${T*.8}px Poppins,sans-serif`;ctx.fillText('SELAMAT DATANG DI',g.x,g.y-T*.95);{const nm=NAMA_DESA.toUpperCase();let fs=T*1.6;ctx.font=`800 ${fs}px Poppins,sans-serif`;while(ctx.measureText(nm).width>bw*.92&&fs>T*.5){fs-=T*.05;ctx.font=`800 ${fs}px Poppins,sans-serif`}ctx.fillText(nm,g.x,g.y+T*.75)}}
+   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${T*.8}px Poppins,sans-serif`;ctx.fillText('SELAMAT DATANG DI',g.x,g.y-T*1.2);{const nm=NAMA_DESA.toUpperCase();let fs=T*1.6;ctx.font=`800 ${fs}px Poppins,sans-serif`;while(ctx.measureText(nm).width>bw*.92&&fs>T*.5){fs-=T*.05;ctx.font=`800 ${fs}px Poppins,sans-serif`}ctx.fillText(nm,g.x,g.y+T*.4)}if(NAMA_DESA_OLEH){ctx.fillStyle='#6B4527';ctx.font=`700 ${T*.55}px Poppins,sans-serif`;ctx.fillText('usulan @'+NAMA_DESA_OLEH,g.x,g.y+T*1.55)}}
   // Rental playadalahmain: toko kecil, papan neon, etalase konsol, antrean anak-anak
   {const {x,y,w,h}=D.RT;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x+8,y+10,w,h);ctx.fillStyle='#E9DFC6';ctx.fillRect(x,y,w,h);
    const bx=x+T*.8,by=y+T*.9,bw=w-T*1.6,bh=h*.62;ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(bx+6,by+8,bw,bh);ctx.fillStyle='#2B2F5E';ctx.fillRect(bx,by,bw,bh*.7);ctx.fillStyle='rgba(255,255,255,.1)';for(let i=0;i<bw;i+=T*.4)ctx.fillRect(bx+i,by,3,bh*.7);

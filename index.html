@@ -1621,9 +1621,9 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   tb.id='jtabsK';box.before(tb);pilih('semua')}
 // tab sumber loker: Pak Kades (lowongan kampung) / Umum (lowongan dari bangunan milik warga)
 {const um=el('div','jobs jumum');um.id='jobsUmum';um.hidden=true;$('jobs').after(um);
-  const src=el('div','jsrc'),lede=document.querySelector('#loker .loker-l'),LD={k:lede?lede.textContent:'',u:'Lowongan dari bangunan milik warga. Lamar langsung, bosnya yang milih!'};
+  const src=el('div','jsrc'),lede=document.querySelector('#loker .loker-l'),LD={k:lede?lede.textContent:'',u:'Loker swasta: lowongan dari bangunan milik warga. Lamar langsung, bosnya yang milih!'};
   const pk=k=>{src.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('jtabsK').hidden=$('jobs').hidden=k!=='k';um.hidden=k!=='u';if(lede)lede.textContent=LD[k]};
-  [['k','👑 Loker Pak Kades'],['u','🏠 Loker Umum']].forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.append(el('i',null,k==='k'?String(JOBS.length):'0'));b.onclick=()=>pk(k);src.append(b)});
+  [['k','🏛️ Loker Negeri'],['u','🏢 Loker Swasta']].forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.append(el('i',null,k==='k'?String(JOBS.length):'0'));b.onclick=()=>pk(k);src.append(b)});
   $('jtabsK').before(src);pk('k');
   window.renderUmum=()=>{const LW=window.LOWONGAN||{},L=BLD.filter(b=>bossOf(b)&&LW[bKey(b)]);um.innerHTML='';src.querySelector('[data-k="u"] i').textContent=String(L.length);
     if(!L.length){um.append(el('p','jempty','Belum ada lowongan dari warga. Punya bangunan? Buka lowongan lewat Kartu Komen-mu, nanti muncul di sini!'));return}

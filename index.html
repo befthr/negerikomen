@@ -953,10 +953,11 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   if(lf>0){const Lg=50*lf;[-1,1].forEach(k=>{c.save();c.translate(k*8.5,4);c.rotate(-k*.05);const f=.7+.3*Math.sin(t*30+k*2);
     E(0,Lg+16+9*f,7,13*f+8,'rgba(255,160,50,.5)');E(0,Lg+11+5*f,4.2,8*f+3,'rgba(255,250,215,.95)');
     RR(-7,0,14,Lg*.5,5,IV,1);RR(-7.5,Lg*.5-3,15,6,2,TL);RR(-6.5,Lg*.5+2,13,Lg*.5-8,5,IV,1);RR(-8,Lg-10,16,16,5,OR,1);c.restore()})}
-  // sayap genteng tampak atas: bilah berlapis mengembang di kiri-kanan punggung
-  {const buka=Math.max(lf,.55+.45*Math.max(0,Math.sin(t*.35+sd))**2),kp=Math.sin(t*(lf>0?4.2:3.2)+sd)*(lf>0?.2:.14);[-1,1].forEach(k=>{const ph=t*3.4+sd,amp=lf>0?(.55+.45*Math.max(0,Math.sin(t*.45+sd)))*lf:0;for(let i=4;i>=0;i--){const fl=Math.sin(ph-i*.42),A=-.42+i*.3*buka+kp*(1+i*.15)*(1-lf)+amp*(.38*fl-.08*i*Math.max(0,-fl)),a=k>0?A:Math.PI-A,L=(46-i*5)*(1+.12*lf)*(1-amp*.2*Math.max(0,Math.sin(ph-i*.25)));c.save();c.translate(k*6,2);c.rotate(a);
+  // sayap genteng tampak atas: di darat di belakang badan; saat terbang (kamera dari atas punggung) sayap paling depan
+  const sayap=()=>  {const buka=Math.max(lf,.55+.45*Math.max(0,Math.sin(t*.35+sd))**2),kp=Math.sin(t*(lf>0?4.2:3.2)+sd)*(lf>0?.2:.14);[-1,1].forEach(k=>{const ph=t*3.4+sd,amp=lf>0?(.55+.45*Math.max(0,Math.sin(t*.45+sd)))*lf:0;for(let i=4;i>=0;i--){const fl=Math.sin(ph-i*.42),A=-.42+i*.3*buka+kp*(1+i*.15)*(1-lf)+amp*(.38*fl-.08*i*Math.max(0,-fl)),a=k>0?A:Math.PI-A,L=(46-i*5)*(1+.3*lf)*(1-amp*.2*Math.max(0,Math.sin(ph-i*.25)));c.save();c.translate(k*(6+5*lf),2-6*lf);c.rotate(a);
       c.fillStyle=i%2?'#152142':TL;c.beginPath();c.moveTo(0,-4);c.lineTo(L,-3);c.lineTo(L+4,0);c.lineTo(L,3);c.lineTo(0,4);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
-      c.fillStyle=GD;c.fillRect(L-5,-3.2,5,6.4);c.fillStyle='rgba(158,216,255,.95)';c.fillRect(4,k>0?-3:2,L-8,1.2);c.restore()}})}
+      c.fillStyle=GD;c.fillRect(L-5,-3.2,5,6.4);c.fillStyle='rgba(158,216,255,.95)';c.fillRect(4,k>0?-3:2,L-8,1.2);c.restore()}})};
+  if(!(lf>0))sayap();
   // ransel pendorong (api menyala dari atas terlihat sebagai cahaya)
   [-6,6].forEach(x=>{const f=.6+.4*Math.sin(t*14+x);E(x,13,4.2*f+2,3*f+2,'rgba(79,184,255,.35)');E(x,11,3.4,3.4,'#AEB7C2');E(x,11,2,2,OR)});
   RR(-11,6,22,7,2,GR);
@@ -983,6 +984,7 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   RR(-8,-25,16,13,4,IV,1);RR(-8.5,-25.5,17,4,2,TL);c.fillStyle=OR;c.beginPath();c.moveTo(-6,-19);c.lineTo(0,-24);c.lineTo(6,-19);c.closePath();c.fill();
   c.strokeStyle=GD;c.lineWidth=1.6;c.beginPath();c.moveTo(-8,-22);c.lineTo(-12,-29);c.moveTo(8,-22);c.lineTo(12,-29);c.stroke();
   const bl=Math.sin(t*5+sd)>.3;E(0,-27,2.4,2.4,bl?'#FF5A4E':'#7A2A24');if(bl)E(0,-27,5,5,'rgba(255,90,78,.28)');
+  if(lf>0)sayap();
   // kucing aktif (tanpa wajah): pindah pundak ↔ helm, lompat terlihat membesar karena makin dekat ke atas
   {const k=kucingGento(t*.9+sd,[[-22,-11,0],[0,-20,0],[22,-11,0]]),sc=1+k.lomp*.35;c.save();c.translate(k.x,k.y-k.lomp*4);c.scale(sc,sc);if(k.arah)c.rotate(k.arah*Math.PI/2);if(k.lomp>0){E(0,4+k.lomp*6,4,2,'rgba(0,0,0,.18)')}}
   E(0,0,4.6,3.6,'#E07A3E');E(0,-3.6,3,2.8,'#E07A3E');c.fillStyle='#C4602A';c.beginPath();c.moveTo(-2.4,-5.4);c.lineTo(-1.6,-8);c.lineTo(-.4,-5.6);c.moveTo(.4,-5.6);c.lineTo(1.6,-8);c.lineTo(2.4,-5.4);c.fill();

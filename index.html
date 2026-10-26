@@ -3463,7 +3463,7 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   const sungai3=[[wd.x+wd.rx*.2,wd.y+wd.ry*.35],[wd.x+wd.rx*.5,wd.y+wd.ry*.8],[wd.x+wd.rx*.7,E.y1-eh*.15],[wd.x+wd.rx*.5,E.y1+T*6]];
   // sungai dari waduk mengalir terus sampai bermuara di laut Pantai Senja
   {const J=NK.JALUR,SL=S*T,ySea=(J.by1+1)*SL+T*7.4,cxP=(J.bx0+J.bx1+1)*SL/2,pan=x=>{const a=Math.abs(x-cxP)/(T*40);return a<=1?ySea+T*2*a*a:ySea+T*2+Math.min(a-1,1.3)*T*14};
-   const x0=wd.x+wd.rx*.5,ya=E.y1+T*6,x1=x0-T*3,x2=x0-T*1.5;sungai3.push([x0-T*1.2,(ya+pan(x1))/2-T*4],[x1,pan(x1)-T*5],[x2,pan(x2)+T*1.5])}
+   const x0=wd.x+wd.rx*.5,ya=E.y1+T*6,x1=x0-T*3,x2=x0-T*1.5;sungai3.push([x0-T*1.2,(ya+pan(x1))/2-T*4],[x1,pan(x1)-T*5],[x2,pan(x2)-T*.3])}
   const rumah=[];const RF=['#C4402F','#2F74B5','#2F9E6A','#8E5AA8','#E07A3E','#E58AA6','#F2C230'];const sx1=D1=>0;
   for(let r=0;r<2;r++)for(let i=0;i<22;i++){const x=E.x0+T*10+i*T*2.4;if(x<gate.x+T*7.6)continue;if(Math.abs(x-sungai1[1][0])<T*2.5)continue;rumah.push({x,y:jalanY-T*2.3-r*T*2.4,c:RF[Math.floor(R()*7)]})}
   for(let r=0;r<4;r++)for(let i=0;i<30;i++){const x=E.x0+T*24+i*T*2.4,y=jalanY+T*1.1+r*T*2.4;if(Math.abs(x-sungai1[2][0])<T*3||Math.abs(x-sungai1[1][0])<T*3||x>wd.x-wd.rx-T*3)continue;rumah.push({x,y,c:RF[Math.floor(R()*7)]})}
@@ -3563,6 +3563,8 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // waduk + bendungan + perahu
   ctx.fillStyle='#C9B98A';ctx.beginPath();ctx.ellipse(wd.x,wd.y,wd.rx+T*.7,wd.ry+T*.7,-.15,0,7);ctx.fill();
   sungai(D.sungai1,T*1.1);sungai(D.sungai2,T*.9);sungai(D.sungai3,T*.9); // sungai menembus bibir waduk → air menyatu
+  {const P=D.sungai3,[mx,my]=P[P.length-1]; // muara: air sungai melebar & menyatu dengan laut (tanpa ujung bulat)
+   [[T*2,'#7FD0D2'],[T*1.1,'#6CC3D2']].forEach(([r,c])=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(mx-T*.45,my-T*2.4);ctx.quadraticCurveTo(mx-T*.6,my-T*.6,mx-r,my+T*1.2);ctx.lineTo(mx+r,my+T*1.2);ctx.quadraticCurveTo(mx+T*.6,my-T*.6,mx+T*.45,my-T*2.4);ctx.closePath();ctx.fill()})}
   ctx.fillStyle='#2F7DB5';ctx.beginPath();ctx.ellipse(wd.x,wd.y,wd.rx,wd.ry,-.15,0,7);ctx.fill();
   ctx.fillStyle='#4C9AD3';ctx.beginPath();ctx.ellipse(wd.x-wd.rx*.1,wd.y-wd.ry*.15,wd.rx*.7,wd.ry*.6,-.15,0,7);ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=3;for(let i=0;i<16;i++){const a=i*2.4,x=wd.x+Math.cos(a)*wd.rx*.6+Math.sin(t*.6+i)*T*.4,y=wd.y+Math.sin(a*1.3)*wd.ry*.55;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+T*.3,y-T*.2,x+T*.6,y);ctx.stroke()}

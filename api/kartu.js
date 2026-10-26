@@ -213,7 +213,9 @@ async function kartuAktif() {
 // (salinan disimpan di database), lalu setiap pengecekan cukup mencari di salinan itu.
 const IGC_MAKS = 5000;
 const igGet = async url => { const r = await fetch(url); const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error('ig: ' + ((j.error && j.error.message) || r.status)); return j };
-const igUrl = (id, after) => 'https://graph.instagram.com/v21.0/' + id + '/comments?fields=text,from{username},replies.limit(50){id,text,from{username}}&limit=50' + (after ? '&after=' + encodeURIComponent(after) : '') + '&access_token=' + encodeURIComponent(IG_TOKEN);
+const igUrl = (id, after, rep = true) => 'https://graph.instagram.com/v21.0/' + id + '/comments?fields=text,from{username}' + (rep ? ',replies.limit(50){id,text,from{username}}' : '') + '&limit=50' + (after ? '&after=' + encodeURIComponent(after) : '') + '&access_token=' + encodeURIComponent(IG_TOKEN);
+// ambil komentar + balasan; kalau Instagram menolak field balasan, ulang tanpa balasan (biar pengecekan tetap jalan)
+const getC = async (id, after) => { try { return await igGet(igUrl(id, after, true)) } catch (e) { return await igGet(igUrl(id, after, false)) } };
 async function segarkanKomen() {
   if (!(await kv(['SET', 'igc:lock', '1', 'NX', 'EX', 20]))) return false;
   let media = jparse(await kv(['GET', 'igc:media']));
@@ -232,12 +234,12 @@ async function segarkanKomen() {
   const cur = jparse(await kv(['GET', 'igc:cur'])) || {};
   for (const id of media) {
     // 2 halaman pertama (kalau Instagram mengurutkan terbaru dulu) …
-    let j = await igGet(igUrl(id)); tambah(j);
-    if (j.paging && j.paging.next && j.paging.cursors) { j = await igGet(igUrl(id, j.paging.cursors.after)); tambah(j) }
+    let j = await getC(id); tambah(j);
+    if (j.paging && j.paging.next && j.paging.cursors) { j = await getC(id, j.paging.cursors.after); tambah(j) }
     // … lalu lanjut dari posisi terakhir (kalau urutannya terlama dulu), maks 6 halaman per penyegaran
     let after = cur[id] || null;
     for (let p = 0; after && p < 6; p++) {
-      const k = await igGet(igUrl(id, after)); tambah(k);
+      const k = await getC(id, after); tambah(k);
       const nx = k.paging && k.paging.next && k.paging.cursors && k.paging.cursors.after;
       if (!nx) break; after = nx;
     }
@@ -246,8 +248,8 @@ async function segarkanKomen() {
   // sekali di awal: cari komentar petunjuk @negerikomen di semua halaman (maks 20) supaya balasannya ikut terbaca
   if (!induk.size && !(await kv(['GET', 'igc:indukcari']))) {
     await kv(['SET', 'igc:indukcari', '1', 'EX', 600]);
-    for (const id of media) { let k = await igGet(igUrl(id)); tambah(k);
-      for (let p = 0; p < 20 && k.paging && k.paging.next && k.paging.cursors; p++) { k = await igGet(igUrl(id, k.paging.cursors.after)); tambah(k) } }
+    for (const id of media) { let k = await getC(id); tambah(k);
+      for (let p = 0; p < 20 && k.paging && k.paging.next && k.paging.cursors; p++) { k = await getC(id, k.paging.cursors.after); tambah(k) } }
   }
   // komentar petunjuk milik @negerikomen (biasanya di-pin): balasannya dibaca ulang tiap penyegaran,
   // karena komentar induknya sudah lewat dari halaman yang dipindai

@@ -21,7 +21,7 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
     } else {
       const raw = jparse(await kv(['HGET', 'itemplus', v.u])), kol = raw && Array.isArray(raw.own) ? raw : { own: [], pajang: [] };
-      for (const ek of ['robot', 'patromax']) if (v.items.includes(ek)) { // barang eksklusif cuma 1: kunci permanen untuk pemiliknya
+      for (const ek of ['robot', 'patromax', 'sorot']) if (v.items.includes(ek)) { // barang eksklusif cuma 1: kunci permanen untuk pemiliknya
         const p = await kv(['GET', ek + ':pemilik']);
         if (p && p !== v.u) v.items = v.items.filter(id => id !== ek); else await kv(['SET', ek + ':pemilik', v.u]);
       }

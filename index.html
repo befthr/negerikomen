@@ -3461,6 +3461,9 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   const sungai1=[[E.x0+ew*.35,M.y1-T*6],[E.x0+ew*.42,E.y0+eh*.15],[E.x0+ew*.38,E.y0+eh*.32],[wd.x-wd.rx*.8,wd.y-wd.ry*.4],[wd.x-wd.rx*.3,wd.y-wd.ry*.15]]; // ujung masuk ke dalam waduk (tertutup air waduk) biar menyatu
   const sungai2=[[E.x1-ew*.08,M.y1-T*2],[E.x1-ew*.12,E.y0+eh*.2],[E.x1-ew*.2,E.y0+eh*.38],[wd.x+wd.rx*.6,wd.y-wd.ry*.7],[wd.x+wd.rx*.25,wd.y-wd.ry*.3]];
   const sungai3=[[wd.x+wd.rx*.2,wd.y+wd.ry*.35],[wd.x+wd.rx*.5,wd.y+wd.ry*.8],[wd.x+wd.rx*.7,E.y1-eh*.15],[wd.x+wd.rx*.5,E.y1+T*6]];
+  // sungai dari waduk mengalir terus sampai bermuara di laut Pantai Senja
+  {const J=NK.JALUR,SL=S*T,ySea=(J.by1+1)*SL+T*7.4,cxP=(J.bx0+J.bx1+1)*SL/2,pan=x=>{const a=Math.abs(x-cxP)/(T*40);return a<=1?ySea+T*2*a*a:ySea+T*2+Math.min(a-1,1.3)*T*14};
+   const x0=wd.x+wd.rx*.5,ya=E.y1+T*6,x1=x0-T*3,x2=x0-T*1.5;sungai3.push([x0-T*1.2,(ya+pan(x1))/2-T*4],[x1,pan(x1)-T*5],[x2,pan(x2)+T*1.5])}
   const rumah=[];const RF=['#C4402F','#2F74B5','#2F9E6A','#8E5AA8','#E07A3E','#E58AA6','#F2C230'];const sx1=D1=>0;
   for(let r=0;r<2;r++)for(let i=0;i<22;i++){const x=E.x0+T*10+i*T*2.4;if(x<gate.x+T*7.6)continue;if(Math.abs(x-sungai1[1][0])<T*2.5)continue;rumah.push({x,y:jalanY-T*2.3-r*T*2.4,c:RF[Math.floor(R()*7)]})}
   for(let r=0;r<4;r++)for(let i=0;i<30;i++){const x=E.x0+T*24+i*T*2.4,y=jalanY+T*1.1+r*T*2.4;if(Math.abs(x-sungai1[2][0])<T*3||Math.abs(x-sungai1[1][0])<T*3||x>wd.x-wd.rx-T*3)continue;rumah.push({x,y,c:RF[Math.floor(R()*7)]})}
@@ -3488,11 +3491,16 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.fillStyle='rgba(47,94,58,.35)';pth(1.0);ctx.fill('evenodd');ctx.fillStyle='rgba(47,94,58,.6)';pth(1.04);ctx.fill('evenodd');ctx.fillStyle='#2F5E3A';pth(1.09);ctx.fill('evenodd');
    D.ring.forEach(o=>{if(!vis(o.x,o.y,T))return;const s2=o.s;if(o.k){ctx.fillStyle='#244A2C';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s2);ctx.lineTo(o.x+T*.35*s2,o.y+T*.3*s2);ctx.lineTo(o.x-T*.35*s2,o.y+T*.3*s2);ctx.closePath();ctx.fill()}else{ctx.fillStyle='#2F6B3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.42*s2,0,7);ctx.fill()}})}
   // 🏖️ Pantai Senja: ujung selatan jalur kavling Dusun Senja Awan (teluk berpasir, laut lepas di selatan)
-  {const J=NK.JALUR,SL=S*T,cx=(J.bx0+J.bx1+1)*SL/2,hw=T*40,y0=(J.by1+1)*SL+T*.6,ySea=y0+T*5,W=T*420;
+  {const J=NK.JALUR,SL=S*T,cx=(J.bx0+J.bx1+1)*SL/2,hw=T*40,yR=(J.by1+1)*SL,y0=yR+T*2.4,ySea=y0+T*5,W=T*420;
    const u=x=>(x-cx)/hw,pan=x=>{const a=Math.abs(u(x));return a<=1?ySea+T*2*a*a:ySea+T*2+Math.min(a-1,1.3)*T*14};
    const atas=x=>{const a=Math.abs(u(x));return a<=1?y0+T*6*Math.pow(a,4):pan(x)-T*1.2};
    const ombak=(x,k)=>Math.sin(x/(T*3.1)+t*.9+k)*T*.18+Math.sin(x/(T*1.3)-t*1.3+k*2)*T*.08;
    if(vis(cx,ySea+T*200,W)){const xs=[];for(let x=cx-W;x<=cx+W;x+=(Math.abs(x-cx)<T*110?T:T*4))xs.push(x);
+    // pesisir berumput (transisi alami jalan → pasir): tepi bergelombang, semak pandan & rumput pantai
+    {const gx0=cx-hw*1.25,gx1=cx+hw*1.25;ctx.fillStyle='#A9C766';ctx.beginPath();ctx.moveTo(gx0,yR+T*.5);for(let x=gx0;x<=gx1;x+=T)ctx.lineTo(x,yR+T*.5);for(let x=gx1;x>=gx0;x-=T*.5)ctx.lineTo(x,atas(x)+T*.6+Math.sin(x*.021)*T*.35+Math.sin(x*.057)*T*.2);ctx.closePath();ctx.fill();
+     for(let i=0;i<70;i++){const x=gx0+((i*1543)%1000)/1000*(gx1-gx0),y=yR+T*.9+((i*737)%1000)/1000*(atas(x)-yR-T*.6);if(!vis(x,y,T))continue;
+      if(i%4===0){ctx.fillStyle='#6E9E45';ctx.beginPath();ctx.arc(x,y,T*.32,0,7);ctx.arc(x+T*.25,y-T*.08,T*.24,0,7);ctx.fill()}
+      else{ctx.strokeStyle=i%2?'#7FA94C':'#8DB356';ctx.lineWidth=1.6;ctx.beginPath();for(let k=-2;k<=2;k++){ctx.moveTo(x+k*3,y);ctx.lineTo(x+k*5,y-T*.28)}ctx.stroke()}}}
     // pasir
     ctx.fillStyle='#EAD7A4';ctx.beginPath();xs.forEach((x,i)=>{const y=atas(x)+Math.sin(x*.013)*T*.25;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],pan(xs[i])+T*2);ctx.closePath();ctx.fill();
     ctx.fillStyle='rgba(205,175,115,.55)';ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)-T*.9;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],pan(xs[i])+T);ctx.closePath();ctx.fill();
@@ -3504,8 +3512,10 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
     for(let k=0;k<2;k++){const off=(Math.sin(t*.8+k*3)*.5+.5)*T*.7+k*T*.5;ctx.globalAlpha=k?.5:.85;ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)+off+ombak(x,k);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}ctx.globalAlpha=1;
     // riak di laut
     ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=T*.08;for(let i=0;i<26;i++){const rx=cx-hw*1.6+((i*977)%(hw*3.2)),ry=ySea+T*(4+(i*7)%16)+Math.sin(t*.6+i)*T*.3;if(!vis(rx,ry,T*2))continue;ctx.beginPath();ctx.arc(rx,ry,T*.9,Math.PI*1.15,Math.PI*1.85);ctx.stroke()}
+    // jalan setapak berpasir dari ujung jalan kampung ke pantai
+    for(let bx=J.bx0;bx<=J.bx1;bx++){const px=bx*SL;ctx.fillStyle='#E3CF98';ctx.beginPath();ctx.moveTo(px-T*.3,yR+T*.4);ctx.lineTo(px+T*.3,yR+T*.4);ctx.lineTo(px+T*.45,atas(px)+T*1.4);ctx.lineTo(px-T*.45,atas(px)+T*1.4);ctx.closePath();ctx.fill()}
     // dermaga kayu
-    const dx=cx+T*1.5,dy0=atas(dx)+T*1.4,dy1=ySea+T*8;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(dx-T*.35+T*.25,dy0+T*.3,T*.9,dy1-dy0);ctx.fillStyle='#9A6A3C';ctx.fillRect(dx-T*.45,dy0,T*.9,dy1-dy0);
+    const dx=(J.bx1+1)*SL,dy0=yR+T*.55,dy1=ySea+T*8;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(dx-T*.35+T*.25,dy0+T*.3,T*.9,dy1-dy0);ctx.fillStyle='#9A6A3C';ctx.fillRect(dx-T*.45,dy0,T*.9,dy1-dy0);
     ctx.strokeStyle='#6E4A26';ctx.lineWidth=1.5;for(let y=dy0+T*.3;y<dy1;y+=T*.3){ctx.beginPath();ctx.moveTo(dx-T*.45,y);ctx.lineTo(dx+T*.45,y);ctx.stroke()}
     ctx.fillStyle='#9A6A3C';ctx.fillRect(dx-T*1.6,dy1-T*1.2,T*3.2,T*1.2);ctx.strokeRect(dx-T*1.6,dy1-T*1.2,T*3.2,T*1.2);
     // perahu nelayan (jukung bercadik) bergoyang

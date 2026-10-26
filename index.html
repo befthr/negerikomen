@@ -164,6 +164,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .badges i .helm{width:15px;height:15px;vertical-align:-3px;margin-right:4px}
 .job .jt{flex:1;min-width:0}.job .jt b{display:block;font-family:var(--f-display);font-size:16.5px}.job .jt span{font-size:12.5px;color:var(--muted)}
 .job .chev{flex:none;width:30px;height:30px;border-radius:50%;background:#fff;border:1.5px solid #D9C98F;display:grid;place-items:center;font-size:13px;color:var(--ink);transition:transform .2s}.job[open] .chev{transform:rotate(180deg)}
+.job .jt .jst{display:table;margin-top:6px;font-size:11px;color:#6B6455}.job .jt .jst.open{color:#fff}
 .jst{font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;white-space:nowrap;background:#E6E2D3;color:#6B6455}.jst.open{background:var(--daun);color:#fff}
 .jbody{padding:0 2px 14px}.jbody p{margin:0 0 10px;font-size:14px}
 .jbody h4{margin:10px 0 4px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
@@ -1720,7 +1721,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
   const ok=typeof j.url==='string'&&/^https:\/\/(docs\.google\.com|forms\.gle)\//.test(j.url.trim());
   const closed=jobTutup(j);const dm=!!j.dm&&!closed;const tgl=j.until?new Date(j.until+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'}):'';
   const sm=document.createElement('summary');const ic=el('span','jico',j.icon==='helm'?'':(j.icon||'🔨'));if(j.icon==='helm')ic.append(helm());const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+j.title),el('span',null,j.sub||''));
-  sm.append(ic,tt,el('span','jst'+(ok||dm?' open':''),closed?'Ditutup':ok||dm?(j.until?'s/d '+new Date(j.until+'T12:00:00').getDate()+' Okt'+(j.jam?' '+j.jam.replace(':','.'):''):'Dibuka'):'Segera'),el('span','chev','▾'));d.append(sm);
+  sm.append(ic,tt);tt.append(el('span','jst'+(ok||dm?' open':''),closed?'Ditutup':ok||dm?(j.until?'s/d '+new Date(j.until+'T12:00:00').getDate()+' Okt'+(j.jam?' '+j.jam.replace(':','.'):''):'Dibuka'):'Segera'));sm.append(el('span','chev','▾'));d.append(sm);
   const bd=el('div','jbody');if(j.desc)bd.append(el('p',null,j.desc));
   [['Syarat',j.syarat],['Yang kamu dapat',j.benefit]].forEach(([h,L])=>{if(!L||!L.length)return;bd.append(el('h4',null,h));const ul=document.createElement('ul');L.forEach(t=>ul.append(el('li',null,t)));bd.append(ul)});
   if(closed){bd.append(el('p','jnote','Pendaftaran sudah ditutup. Yang terpilih diumumkan sesuai ketentuan loker.'))}
@@ -1749,7 +1750,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
     if(!L.length){um.append(el('p','jempty','Belum ada lowongan dari warga. Punya bangunan? Buka lowongan lewat Kartu Komen-mu, nanti muncul di sini!'));return}
     const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸',masjid:'🕌'};
     L.forEach(b=>{const w=LW[bKey(b)],d=el('div','job jum');const tt=el('span','jt');tt.append(el('b',null,'Dicari: '+(w.roles||[]).join(', ')),el('span',null,(b.name||'Bangunan')+' · Bos @'+bossOf(b)));
-      const hd=el('div','jumh');hd.append(el('span','jico',IC[b.type]||'🏢'),tt,el('span','jst'+(w.sisa>0?' open':''),w.sisa>0?'Sisa '+w.sisa+' slot':'Penuh'));
+      const hd=el('div','jumh');hd.append(el('span','jico',IC[b.type]||'🏢'),tt);tt.append(el('span','jst'+(w.sisa>0?' open':''),w.sisa>0?'Sisa '+w.sisa+' slot':'Penuh'));
       const row=el('div','jumr'),lm=el('button','btn gold3','📝 Lamar kerja'),lh=el('button','btn','Lihat di peta');lm.type=lh.type='button';
       lm.onclick=()=>kkLamar(b);lh.onclick=()=>{const i=BLD.indexOf(b);select({kind:'b',i});scrollMap()};row.append(lh,lm);
       d.append(hd,el('p','jnote','Kontrak '+KLBL(w.hari)+KGP(w.gaji)+' · dapat plang & lencana'),row);um.append(d)})};

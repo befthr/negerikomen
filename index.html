@@ -3540,7 +3540,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
     payung(cx-T*6,ySea-T*.6,'#C4402F');payung(cx-T*12,ySea-T*.2,'#2F74B5');payung(cx+T*7,ySea-T*.4,'#F2C230');payung(cx+T*17,ySea+T*.3,'#2E9C6A');
     {const sx=cx-T*20,sy=atas(cx-T*20)+T*1.2;if(vis(sx,sy,T*2)){ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(sx-T+T*.3,sy-T*.7+T*.3,T*2,T*1.5);ctx.fillStyle='#C99A5B';ctx.fillRect(sx-T,sy-T*.7,T*2,T*1.5);ctx.strokeStyle='#7A5230';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx-T,sy-T*.7);ctx.lineTo(sx+T,sy+T*.8);ctx.moveTo(sx+T,sy-T*.7);ctx.lineTo(sx-T,sy+T*.8);ctx.stroke()}}
    }
-   D.pantai={x:cx,y:ySea+T*3,pan,ombak,xs}}
+   D.pantai={x:cx-hw*.55,y:y0+T*2.6,pan,ombak,xs}}
   // wilayah alami: tepi bergelombang (superelips + noise) dan berbulu, bukan kotak
   const blob=(x0,y0,x1,y1,col)=>{const cx=(x0+x1)/2,cy=(y0+y1)/2,rx=(x1-x0)/2,ry=(y1-y0)/2;const sh=(g,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();for(let i=0;i<=120;i++){const t=i/120*6.2832,c=Math.cos(t),s2=Math.sin(t);
       const n=1+.1*Math.sin(t*3+cx*.003)+.07*Math.sin(t*7+cy*.002)+.04*Math.sin(t*13)+.02*Math.sin(t*29);const px=cx+Math.sign(c)*Math.pow(Math.abs(c),.75)*rx*n*g,py=cy+Math.sign(s2)*Math.pow(Math.abs(s2),.75)*ry*n*g;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill()};
@@ -3629,13 +3629,13 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    if(!window.ROBOT_OWNER||!gentoDiRumah()){ctx.save();ctx.translate(kx+kw/2,ky+kh*.58);ctx.scale(T/16,T/16);try{window.__robot2D&&window.__robot2D(t,1)}catch(e){}ctx.restore()}else{ctx.fillStyle='rgba(28,37,32,.55)';ctx.font=`800 ${T*.6}px Poppins,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🤖 GENTO lagi di rumah',kx+kw/2,ky+kh*.5);ctx.fillText('@'+window.ROBOT_OWNER,kx+kw/2,ky+kh*.5+T*.9)}
    papan(x+w/2,y-T*1.2,!window.ROBOT_OWNER?'🤖 HANGGAR GENTO · GENTO BELUM DIMILIKI':gentoDiRumah()?'🤖 HANGGAR GENTO · GENTO di rumah @'+window.ROBOT_OWNER:'🤖 GENTO milik @'+window.ROBOT_OWNER+' · lagi istirahat di hanggar',T*.62,'#F2C230','#1C2520')}
   // label
-  const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=13.5*dpr,d=dpr;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; // papan plang kayu (gaya plang dusun)
+  const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=10.5*dpr,d=dpr*.8;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; // papan plang kayu (gaya plang dusun)
    const w=ctx.measureText(tx).width+f*1.6,h=f*2.2,x0=X-w/2,y0=Y-h/2;
    ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x0+4*d,y0+5*d,w,h);ctx.fillRect(X-w*.32-2*d,y0+h,7*d,f*1.1+2*d);ctx.fillRect(X+w*.32-2*d,y0+h,7*d,f*1.1+2*d);
    ctx.fillStyle='#5A3A1E';ctx.fillRect(X-w*.32-4*d,y0+h-2*d,7*d,f*1.1);ctx.fillRect(X+w*.32-4*d,y0+h-2*d,7*d,f*1.1);
    ctx.fillStyle='#2F6B4F';ctx.fillRect(x0,y0,w,h);ctx.fillStyle='#F4EFE3';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,h-6*d);ctx.fillStyle='#2F6B4F';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,f*.32);
    ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*d;ctx.strokeRect(x0,y0,w,h);ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y+f*.15);ctx.restore()};
-  lb((M.x0+M.x1)/2,M.y1-(M.y1-M.y0)*.25,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x,wd.y,'💧 Waduk');lb((F.x0+F.x1)/2,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0],D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y+D.sawah.rows*D.sawah.h/2,'🌾 Sawah terasering');
+  lb((M.x0+M.x1)/2,M.y1-T*1.5,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x-wd.rx*.2,wd.y+wd.ry+T*2.2,'💧 Waduk');lb(F.x1-T*5,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0]+T*4,D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y-T*1.6,'🌾 Sawah terasering');
   ctx.setTransform(1,0,0,1,0,0)}
 function stdPos(){desaBangun()}
 function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {x,y,w,h}=STD;

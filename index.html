@@ -3503,11 +3503,11 @@ function kavBebas(jenis){const used=kavTerisi(),o=jalurTiles().filter(p=>!used.h
 let PDH_TIBA=new Set();
 function pindahTerapkan(){const now=Date.now(),me=(kkGet()||{}).u;let ub=false;
   Object.entries(window.PINDAH).forEach(([u,v])=>{const i=kkResIdx(u);if(i<0)return;const r=RES[i],end=v.at+v.dur*1000;
-    if(now>=end){if(r.x!==v.x||r.y!==v.y||r._tr){if(r._tr&&u===me&&!PDH_TIBA.has(u+v.at)){PDH_TIBA.add(u+v.at);setTimeout(()=>pindahSampai(r,v),300)}r.x=v.x;r.y=v.y;ub=true}r.lok=v.lok||null;r._tr=null}
+    if(now>=end){if(r.x!==v.x||r.y!==v.y||r._tr){if(r._tr&&u===me&&!PDH_TIBA.has(u+':'+v.x+','+v.y)){PDH_TIBA.add(u+':'+v.x+','+v.y);setTimeout(()=>pindahSampai(r,v),300)}r.x=v.x;r.y=v.y;ub=true}r.lok=v.lok||null;r._tr=null}
     else{if(!r._tr)ub=true;r._tr=v;r.x=v.dari.x;r.y=v.dari.y;r.lok=v.lokDari||null}});
   if(ub)dirty=true}
 setInterval(()=>{if(Object.keys(window.PINDAH).length){pindahTerapkan();dirty=true}},1000);
-function pindahSampai(r,v){kkSukses('🎉 Rumahmu udah sampai!',[v.lok?`${LOKP[v.lok].ic} ${LOKP[v.lok].n} · 💎 Warga Eksklusif`:'📍 Dusun Senja Awan, Desa Awalkomen',v.lok?'Fasilitas: '+LOKP[v.lok].f:'Kavling baru di jalur menuju Pantai Senja','Bisa pindah lagi 7 hari lagi.']);
+function pindahSampai(r,v){kkSukses('🎉 Rumahmu udah sampai!',[v.lok?`${LOKP[v.lok].ic} ${LOKP[v.lok].n} · 💎 Warga Eksklusif`:'📍 Dusun Senja Awan, Desa Awalkomen',v.lok?'Fasilitas: '+LOKP[v.lok].f:'Kavling baru di jalur menuju Pantai Senja']);
   const k=kkResIdx(r.name);if(k>=0)select({kind:'r',i:k})}
 // --- jalur kendaraan ---
 const pdhRoadX=x=>Math.round(x/(S*T))*(S*T);
@@ -3589,7 +3589,7 @@ function drawPindahan(v,t){if(!STQA)return;ctx.setTransform(v.z,0,0,v.z,v.ox,v.o
     else pdhTag(v,s.x,s.y-T*1.2,(o.via==='heli'?'🚁':'🚚')+' pulang ke markas',null)})}
 {const _ds=drawStadion;drawStadion=function(v,t){_ds(v,t);try{drawPindahan(v,t)}catch(e){console.error(e)}}}
 // --- menu & pembelian ---
-function pdhJeda(ms){const d=Math.floor(ms/864e5),h=Math.ceil((ms%864e5)/36e5);return d?`${d} hari ${h} jam`:`${h} jam`}
+function pdhJeda(ms){const jm=Math.ceil(ms/36e5),d=Math.floor(jm/24),h=jm%24;return d?(h?`${d} hari ${h} jam`:`${d} hari`):`${h} jam`}
 async function bukaPindahan(tab){tab=tab==='heli'?'heli':'truk';const body=kkModal();const k=kkGet();let c=null;
   body.append(el('p','kk-muted','Memuat…'));if(k&&k.u){const r=await kkApi('saya',null,true).catch(()=>null);c=r&&r.kartu||null}body.innerHTML='';
   const h=el('h3',null,'🚚🚁 Jasa Pindahan Pak Kades');body.append(h,el('p','kk-muted','Pindah rumah beserta semua barangnya. Rumah lama jadi kavling kosong, perjalanannya kelihatan di peta semua warga.'));
@@ -3619,7 +3619,7 @@ async function pilihKavling(p){const P=PDH[PILIH.jenis],jenis=PILIH.jenis;const 
   const u=PILIH.u;PILIH=null;const bar=$('pdhbar');if(bar)bar.remove();window.PINDAH[u]=r.pindah;pindahTerapkan();SND.play('ting',.9);
   toast(jenis==='heli'?'🚁 Helikoper berangkat jemput rumahmu! 3 menit lagi sampai.':'🚚 Telolet! Truk Titut berangkat jemput rumahmu. 30 menit lagi sampai.');
   const m=pdhMarkas(jenis);flyTo({cx:m.x,cy:m.y,zoom:clampZ(1)},900)}
-function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=T*.8;PILIH.list.forEach(p=>{const d=Math.hypot(NK.wx(p.x)-wxp,NK.wx(p.y)-wyp);if(d<bd){bd=d;best=p}});if(best)pilihKavling(best);else toast(PILIH.jenis==='heli'?'Ketuk kotak biru/kuning yang menyala':'Ketuk kotak kuning yang menyala');return true}
+function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=Math.max(T*.8,22/cam.zoom);PILIH.list.forEach(p=>{const d=Math.hypot(NK.wx(p.x)-wxp,NK.wx(p.y)-wyp);if(d<bd){bd=d;best=p}});if(best)pilihKavling(best);else toast(PILIH.jenis==='heli'?'Ketuk kotak biru/kuning yang menyala':'Ketuk kotak kuning yang menyala');return true}
   if(!STQA)return false;const D=desaBangun(),{OT,SH}=D;
   if(D.MTI&&wxp>D.MTI.x&&wxp<D.MTI.x+D.MTI.w&&wyp>D.MTI.y-T*1.3&&wyp<D.MTI.y+D.MTI.h){SND.play('pop',.8);const c=$('idmCard');if(c){c.scrollIntoView({behavior:'smooth',block:'center'})}toast('🌟 Monumen Tetangga Idaman · juara pekan lalu dipajang di sini');return true}
   if(wxp>OT.x-T&&wxp<OT.x+OT.w+T&&wyp>OT.y-T*1.6&&wyp<OT.y+OT.h+T*1.4){SND.play('pop',.8);bukaPindahan('truk');return true}

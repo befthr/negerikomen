@@ -228,7 +228,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .bsearch{width:100%;margin:2px 0 10px;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;font:500 14px var(--f-body);background:#F7F8F3;color:var(--ink)}
 #okbList{border-top:1.5px dashed #E2D6A8;margin-top:6px}#okbList li{border-bottom:1.5px dashed #E2D6A8}#okbList li:last-child{border-bottom:0}
 #okbList{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-#kryList{max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#kryTabs{margin:0 0 6px}#kryTabs small{opacity:.7;margin-left:2px}#okbList::-webkit-scrollbar{width:6px}#okbList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
+#kryList{max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#kryTabs{margin:0 0 6px}#kryTabs small,.bdesa small{opacity:.7;margin-left:2px}.bdesa{margin:0 0 8px}#okbList::-webkit-scrollbar{width:6px}#okbList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 #bList{border-top:1.5px dashed #D6DDD0;gap:0}#bList li{border-bottom:1.5px dashed #D6DDD0}#bList li:last-child{border-bottom:0}
 .bscroll{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}.bscroll::-webkit-scrollbar{width:6px}.bscroll::-webkit-scrollbar-thumb{background:#C9D1C6;border-radius:6px}
 .blist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
@@ -1259,6 +1259,12 @@ function drawUfo(x,y,t,s){
 /* Gambar seluruh dunia. v={W,H,z,ox,oy}: layar = o + dunia*z.
    w={residents,buildings,free}. o={anim(kind,i)->{s,a}, vehicles}. Mengembalikan blok aktif. */
 let ITEM_T=0,ITEM_HZ=true,ITEM_DIAM=false; // waktu animasi item pekarangan
+// motor/sepeda warga yang lagi jalan: dipisah supaya bisa digambar paling atas (di atas wilayah desa baru)
+function drawRides(res,t){res.forEach(r=>{if(!Array.isArray(r.items))return;r.items.forEach((o,oi)=>{const st=rideOf(r,o,oi,t);if(!st)return;const {x,y,ang}=st;
+    ctx.save();ctx.translate(x,y);ctx.save();ctx.rotate(ang);if(st.gas>=0){for(let q=1;q<=3;q++){ctx.fillStyle=`rgba(200,200,200,${.55-q*.15})`;ctx.beginPath();ctx.arc(-9-q*4-st.gas*3,(q%2?1:-1)*1.2,1.6+q*.9,0,7);ctx.fill()}}
+    ctx.scale(2,2);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
+    ctx.font='800 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
+    const nm='@'+String(r.name).slice(0,18);if(!(window.__SETIR&&window.__SETIR.u===r.name)){ctx.strokeText(nm,0,-11);ctx.fillText(nm,0,-11)}ctx.restore()})})}
 function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const {W,H,z,ox,oy}=v;const anim=o.anim||(()=>({s:1,a:1}));
   ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#B5C85A';ctx.fillRect(0,0,W,H);
@@ -1363,11 +1369,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
     Hr.forEach((r,q)=>run(q,r,true));Vr.forEach((r,q)=>run(q,r,false));
   }
   // warga yang punya motor/sepeda (dipajang) sesekali pergi keliling blok lalu pulang & parkir lagi, lengkap dengan namanya
-  {res.forEach(r=>{if(!Array.isArray(r.items))return;r.items.forEach((o,oi)=>{const st=rideOf(r,o,oi,t);if(!st)return;const {x,y,ang}=st;
-    ctx.save();ctx.translate(x,y);ctx.save();ctx.rotate(ang);if(st.gas>=0){for(let q=1;q<=3;q++){ctx.fillStyle=`rgba(200,200,200,${.55-q*.15})`;ctx.beginPath();ctx.arc(-9-q*4-st.gas*3,(q%2?1:-1)*1.2,1.6+q*.9,0,7);ctx.fill()}}
-    ctx.scale(2,2);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
-    ctx.font='800 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
-    const nm='@'+String(r.name).slice(0,18);if(!(window.__SETIR&&window.__SETIR.u===r.name)){ctx.strokeText(nm,0,-11);ctx.fillText(nm,0,-11)}ctx.restore()})})}
+  if(!o.noRides)drawRides(res,t);
   if(life){
     const SHIRT=['#C4502F','#2F74B5','#2E9C6A','#E2B23A','#8E5AA8','#FFFFFF'];
     blocks.forEach(([bx,by])=>{
@@ -1477,7 +1479,7 @@ function tag(x,y,name,sub,fs,strong,own,lite){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf,kucingGento};
+  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawRides,drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf,kucingGento};
 })();
 
 </script>
@@ -1755,7 +1757,21 @@ BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(
   const nm=document.createElement('b');nm.textContent=b.name||(NK.BTYPES[b.type]||{}).label||'Bangunan';
   const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?bossTxt(b,bo):'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 Diresmikan ${resmi(b.day)}`}
   bt.append(ic,nm,meta);bt.onclick=()=>{select({kind:'b',i});scrollMap()};li.append(bt);$('bList').append(li)});
-$('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,'');let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=!q||li.dataset.q.includes(q);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0};
+BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama');
+// fasilitas di desa baru (digambar terpisah di peta): ditaruh paling atas, bisa difilter per desa
+{const ke=(f)=>()=>{try{if(!DESA)desaBangun();const o=f();if(o)flyTo({cx:o.x,cy:o.y,zoom:clampZ(.5)},900);scrollMap()}catch(e){console.error(e)}};
+ const nRental=(Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).filter(x=>x&&x.type==='rental'&&!(x.until&&x.until<NK.wibToday())).length;
+ const BARU=[
+  {ic:'⚽',nm:'Stadion Desa',meta:'👑 Kepala desa · ⚽ Liga Dusun',go:()=>{bukaStadion()}},
+  {ic:'🎮',nm:'Rental playadalahmain',meta:'👑 Kepala desa · '+nRental+' karyawan',go:ke(()=>{const q=DESA.RT;return {x:q.x+q.w/2,y:q.y+q.h/2}})},
+  {ic:'🤖',nm:'Hanggar GENTO',meta:'🤖 Rumah robot GENTO',go:ke(()=>{const g=DESA.GM;return {x:g.x+g.w/2,y:g.y+g.h/2}})}];
+ const L=$('bList');BARU.slice().reverse().forEach(f=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa='baru';li.dataset.q=(f.nm+' '+f.meta+' '+NAMA_DESA).toLowerCase();
+   bt.append(el('span','ico',f.ic),el('b',null,f.nm),el('span',null,f.meta+' · 📍 '+NAMA_DESA));bt.onclick=f.go;li.append(bt);L.prepend(li)});
+ $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length+BARU.length)})`;
+ const tb=el('div','jtabs bdesa');window.B_DESA='semua';const N={semua:BLD.length+BARU.length,lama:BLD.length,baru:BARU.length};
+ [['semua','Semua'],['baru','🏞️ '+NAMA_DESA.replace(/^Desa /,'')],['lama','🏡 '+NAMA_DESA_LAMA.replace(/^Desa /,'')]].forEach(([k,t])=>{const b=el('button',k==='semua'?'on':'');b.type='button';b.dataset.k=k;b.append(t+' ',el('small',null,String(N[k])));b.onclick=()=>{window.B_DESA=k;tb.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));$('bSearch').oninput({target:$('bSearch')})};tb.append(b)});
+ $('bSearch').before(tb)}
+$('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,''),dk=window.B_DESA||'semua';let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=(!q||li.dataset.q.includes(q))&&(dk==='semua'||li.dataset.desa===dk);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0;$('bList').closest('.bscroll').scrollTop=0};
 
 /* ---------- peta ---------- */
 const cv=$('map'),ctx=cv.getContext('2d');NK.use(ctx);
@@ -1933,8 +1949,9 @@ function frame(now){
     cam.cx=fly.from.cx+(fly.to.cx-fly.from.cx)*e;cam.cy=fly.from.cy+(fly.to.cy-fly.from.cy)*e;cam.zoom=zf;if(k>=1)fly=null;dirty=true}
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
-    NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true});
+    NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true,noRides:true});
     try{drawDesa(v,reduce?0:t);drawStadion(v,reduce?0:t)}catch(e){console.error(e)}
+    try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     try{drawMalam(v,t)}catch(e){}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}

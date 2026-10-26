@@ -475,6 +475,12 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Buka <b>Kartu Komen → Ubah rumah → Jadi ruko</b> (20 Receh).</p>
       </div>
 
+      <div class="card okb" id="eksCard" hidden>
+        <h3>💎 Barang Eksklusif Kampung</h3>
+        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Cuma ada 1 di seluruh kampung. Pemiliknya dapat lencana 💎 Pemilik Eksklusif. Ketuk buat lihat rumahnya 👀</p>
+        <ul class="blist" id="eksList"></ul>
+      </div>
+
       <div class="card okb" id="okb" hidden>
         <h3 id="okbTitle">🛒 Belanja terbaru di kampung</h3>
         <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Belanja pakai Recehan di Toko Pak Kades, Dealer &amp; TB. Ketuk buat lihat rumahnya 👀</p>
@@ -671,7 +677,7 @@ const PLANG=[[-2,-2,1,1],[1,-2,0,1],[-2,1,1,0],[1,1,0,0],[-5,1,1,0]]; // ke-5 = 
 // lampu merah: di simpang jalan besar × jalan aspal/besar. Siklus 16 dtk: arah mendatar hijau 0–7, kuning 7–8, lalu arah tegak hijau 8–15, kuning 15–16.
 const adaLampu=(k,q)=>k%2===0&&q%2===0&&(k===0||q===0);
 function lampu(k,q,t,horiz){const c=((t+ih(k+40,q+40,300)*16)%16+16)%16,m=horiz?c:(c+8)%16;return m<7?'h':m<8?'k':'m'}
-let JALAN_SEG=null,JALAN_W=null;let LAMPU_POS=[],ROBOT_POS=[];
+let JALAN_SEG=null,JALAN_W=null;let LAMPU_POS=[],ROBOT_POS=[],PATRO_POS=[];
 const VS=new Map(); // posisi kendaraan (berhenti saat lampu merah / antre)
 // sungai selebar 3 petak, berkelok tanpa terputus di tepi utara kampung (di sawah): dermaga, perahu, bebek, batu & rumput tepi
 function drawSungai(tepi,vx0,vx1,t){const c=ctx,SL=S*T,W=T*3,Y0=tepi-T*3.4,yc=x=>Y0+Math.sin(x/(SL*1.7))*T*.85+Math.sin(x/(SL*.63)+1)*T*.25;
@@ -860,7 +866,7 @@ function drawHouse(r,s,a){
     ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke();
     ctx.fillStyle='#FFF7C2';ctx.beginPath();ctx.moveTo(px+4,top+2.2);ctx.lineTo(px+9,top+3.6);ctx.lineTo(px+4,top+5);ctx.closePath();ctx.fill()}
   {const IT=window.itemsPek?window.itemsPek(r):(Array.isArray(r.items)?r.items:[]);if(IT.length){ // item pekarangan: di belakang rumah (sisi yang tidak menghadap jalan)
-    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
+    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}if(o.id==='patromax')PATRO_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,r});ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
   ctx.restore();
 }
 // item tampak atas (±10 px), tanpa wajah
@@ -938,6 +944,7 @@ function drawItem2D(id,t,sd,teks,warna){t=t||0;sd=sd||0;const VC=VCOL[warna];con
   else if(id==='kucing'){jalan(.4,3.5,2.5);E(0,0,3.8,2.6,'#E07A3E');E(3.4,0,2,2,'#E07A3E');c.fillStyle='#C4602A';c.beginPath();c.moveTo(3,-1.8);c.lineTo(3.6,-3.4);c.lineTo(4.4,-1.6);c.fill();
     const tw=Math.sin(t*3+sd)*2;c.strokeStyle='#E07A3E';c.lineWidth=1.2;c.beginPath();c.moveTo(-3.5,0);c.quadraticCurveTo(-6,-2+tw,-5,-4+tw*1.5);c.stroke()}
   else if(id==='kambing'){jalan(.3,3.5,2);E(0,0,4.4,2.8,'#F4EFE3');E(4,Math.sin(t*2+sd)*.4,1.8,1.6,'#E9E2D0');c.strokeStyle='#8E5A3C';c.lineWidth=1;c.beginPath();c.moveTo(4,-1);c.lineTo(5.6,-2.6);c.moveTo(4,1);c.lineTo(5.6,2.6);c.stroke()}
+  else if(id==='patromax'){const g=.55+.2*Math.sin(t*3+sd)+.06*Math.sin(t*11+sd);E(0,0,8,8,`rgba(255,226,140,${g*.6})`);E(1.2,1.6,4.6,4.2,'rgba(30,40,20,.25)');E(0,0,4.6,4.6,'#C4402F');E(0,0,3.2,3.2,'#2F6B4F');E(0,0,2.1,2.1,'#FFF6C8');E(0,0,1,1,'#fff')}
   else if(id==='lampu'){const g=.4+.25*Math.sin(t*2+sd);E(0,0,4.5,4.5,`rgba(255,232,154,${g})`);E(0,0,2,2,'#F2C230');E(0,0,.8,.8,'#3A3A3A')}
   else if(id==='bougenville'){c.rotate(Math.sin(t*1.1+sd)*.04);E(0,0,5.2,5,'#3E7F3A');[[-2.4,-1.6,2],[1.8,-2.2,2],[2.6,1,1.8],[-1.8,2,1.8],[0,0,1.9],[-3.4,.6,1.4],[.6,3,1.4]].forEach(([x,y,r],i)=>E(x,y,r,r,['#E0569A','#F07AB4','#D63F86'][i%3]));
     const f=(t*.35+sd)%1;c.globalAlpha=1-f;E(3+f*3,2+f*4,.6,.45,'#F07AB4');c.globalAlpha=1}
@@ -1500,7 +1507,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       else if(b.type==='masjid'||b.type==='sekolah'||b.type==='pasar'||b.type==='puskesmas'){park(X+20,Y+108,0.7,false);park(X+34,Y+108,0.85,false)}
       ctx.restore()});
   }
-  ROBOT_POS=[];res.forEach((r,i)=>{const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
+  ROBOT_POS=[];PATRO_POS=[];window.__PATRO=PATRO_POS;res.forEach((r,i)=>{const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
   // tiang listrik + lampu jalan + kabel (biar kampungnya terasa nyata); hanya saat cukup dekat
   window.__TIANG=[];if(z>=.42&&JALAN_SEG){const SL=S*T,lines=new Map(),M=T*2;
     JALAN_SEG.forEach(({hz,q,sg,j})=>{if(j==='rumput')return;const w=JALAN_W[j],c0=q*SL,sides=j==='besar'?[1,-1]:[(q+sg)%2?1:-1];
@@ -1814,8 +1821,15 @@ function renderKaryawan(){const box=$('kryList');if(!box)return;const BL={jan:0}
     bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)})}
 setTimeout(()=>{try{renderKaryawan()}catch(e){console.error(e)}},0);
 // sejak kapan GENTO dimiliki: dari catatan belanja kalau ada, kalau tidak pakai tanggal tercatat
-function robotSejak(){const o=(window.BELANJA||[]).find(o=>o&&o.j==='item'&&(o.it||[]).includes('robot')&&o.at);if(o){const d=new Date(+o.at+252e5);return d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+String(d.getUTCHours()).padStart(2,'0')+'.'+String(d.getUTCMinutes()).padStart(2,'0')}return '25 Okt'}
-function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO',konsol:'🎮 playadalahmain 1.0'};
+function robotSejak(id){id=id||'robot';const o=(window.BELANJA||[]).find(o=>o&&o.j==='item'&&(o.it||[]).includes(id)&&o.at);if(o){const d=new Date(+o.at+252e5);return d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+String(d.getUTCHours()).padStart(2,'0')+'.'+String(d.getUTCMinutes()).padStart(2,'0')}return id==='robot'?'25 Okt':'baru-baru ini'}
+// barang eksklusif (cuma 1 di kampung) + lencana 💎 Pemilik Eksklusif
+const EKS_DAF=[['robot','🤖','GENTO',()=>window.ROBOT_OWNER],['patromax','🏮','Patromax',()=>window.PATRO_OWNER]];
+function eksMilik(u){u=String(u||'').toLowerCase();return EKS_DAF.filter(([id,ic,nm,ow])=>ow()&&String(ow()).toLowerCase()===u).map(([id,ic,nm])=>ic+' '+nm)}
+function renderEksklusif(){const box=$('eksList');if(!box)return;box.innerHTML='';
+  EKS_DAF.forEach(([id,ic,nm,ow])=>{const o=ow(),li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
+    bt.append(el('span','ico',ic),el('b',null,nm+(o?' · 👑 @'+o:'')),el('span',null,o?'💎 Pemilik Eksklusif · sejak '+robotSejak(id):'Belum ada pemilik · '+KK_ITEM[id].h+' Receh · siapa cepat dia dapat!'));
+    bt.onclick=()=>{if(o){const i=kkResIdx(o);if(i>=0){select({kind:'r',i});scrollMap()}}else kkBelanja('item')};li.append(bt);box.append(li)});$('eksCard').hidden=false}
+function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO',patromax:'🏮 Patromax',konsol:'🎮 playadalahmain 1.0'};
   const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'baru saja':d<3600?Math.round(d/60)+' menit lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hari lalu'};
   const L=(window.BELANJA||[]).map(o=>{let t='';if(o.j==='warna')t='🎨 Ganti warna rumah';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Buka ruko';else if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2);
     else if(o.j==='item'){const v=(o.it||[]).map(id=>KD[id]||(KK_ITEM[id]?'🛍️ '+KK_ITEM[id].n:'')).filter(Boolean);if(v.length)t=v.join(', ')}
@@ -2030,7 +2044,7 @@ function malamNow(){const d=new Date();let m=JAM_UJI?(+JAM_UJI[1]*60+ +JAM_UJI[2
   const cl=x=>Math.max(0,Math.min(1,x));const n=m>=1050?cl((m-1050)/60):m<300?1:m<360?1-(m-300)/60:0;const senja=m>=1020&&m<1140?Math.sin(cl((m-1020)/120)*Math.PI):0;return {n,senja}}
 function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&senja<=0)return false;const W=v.W,H=v.H;ctx.save();ctx.setTransform(1,0,0,1,0,0);
   if(senja>0){ctx.fillStyle=`rgba(255,128,48,${.16*senja})`;ctx.fillRect(0,0,W,H)}
-  if(n>0){ctx.fillStyle=`rgba(10,16,46,${.7*n})`;ctx.fillRect(0,0,W,H);
+  if(n>0){if((window.__PATRO||[]).length)patromaxGelap(v,t,n);else{ctx.fillStyle=`rgba(10,16,46,${.7*n})`;ctx.fillRect(0,0,W,H)}
     // lampu rumah & bangunan menyala hangat
     ctx.globalCompositeOperation='lighter';const z=v.z,T=NK.T,rr=T*.42*z,x0=-rr,y0=-rr,x1=W+rr,y1=H+rr;
     const glow=(wx,wy,r,a)=>{const x=v.ox+wx*z,y=v.oy+wy*z;if(x<x0||x>x1||y<y0||y>y1)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,196,96,${a})`);g.addColorStop(1,'rgba(255,196,96,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)};
@@ -2039,6 +2053,16 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
     // lampu jalan: cahaya putih-kuning yang jatuh ke aspal
     (window.__TIANG||[]).forEach(([x,y])=>{const X=v.ox+x*z,Y=v.oy+y*z,r=T*1.15*z;if(X<-r||X>W+r||Y<-r||Y>H+r)return;const g=ctx.createRadialGradient(X,Y,0,X,Y,r);g.addColorStop(0,`rgba(255,240,190,${.55*n})`);g.addColorStop(.35,`rgba(255,226,150,${.22*n})`);g.addColorStop(1,'rgba(255,226,150,0)');ctx.fillStyle=g;ctx.fillRect(X-r,Y-r,2*r,2*r)})}
   ctx.restore();return n>0}
+// Patromax: malam tetap gelap, tapi rumah pemilik + 4 rumah terdekat kelihatan terang (lubang di lapisan gelap + cahaya hangat berkedip)
+let PMX_C=null;const PMX_NB={};
+function pmxTetangga(r){const k=r.name;if(PMX_NB[k]&&PMX_NB[k].n===RES.length)return PMX_NB[k].l;const T=NK.T,X=NK.wx(r.x),Y=NK.wx(r.y);
+  const l=RES.filter(q=>q!==r).map(q=>[q,(NK.wx(q.x)-X)**2+(NK.wx(q.y)-Y)**2]).sort((a,b)=>a[1]-b[1]).slice(0,4).map(([q])=>[NK.wx(q.x),NK.wx(q.y)]);l.unshift([X,Y]);PMX_NB[k]={n:RES.length,l};return l}
+function patromaxGelap(v,t,n){const W=v.W,H=v.H,z=v.z,T=NK.T;if(!PMX_C)PMX_C=document.createElement('canvas');if(PMX_C.width!==W||PMX_C.height!==H){PMX_C.width=W;PMX_C.height=H}
+  const c=PMX_C.getContext('2d');c.globalCompositeOperation='source-over';c.clearRect(0,0,W,H);c.fillStyle=`rgba(10,16,46,${.7*n})`;c.fillRect(0,0,W,H);c.globalCompositeOperation='destination-out';
+  const fl=.9+.06*Math.sin(t*3)+.03*Math.sin(t*11);
+  (window.__PATRO||[]).forEach(o=>{pmxTetangga(o.r).forEach(([hx,hy],i)=>{const x=v.ox+hx*z,y=v.oy+hy*z,r=T*(i?.78:.95)*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(0,0,0,${.95*fl})`);g.addColorStop(.6,`rgba(0,0,0,${.8*fl})`);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)})});
+  ctx.drawImage(PMX_C,0,0);ctx.save();ctx.globalCompositeOperation='lighter';
+  (window.__PATRO||[]).forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,r=T*1.9*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,220,130,${.5*n*fl})`);g.addColorStop(.3,`rgba(255,200,100,${.22*n*fl})`);g.addColorStop(1,'rgba(255,200,100,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)});ctx.restore()}
 let MALAM_T=0;
 // hemat HP: peta berhenti menggambar saat tidak kelihatan di layar atau saat halaman sedang di-scroll
 let MAP_VIS=true,SCROLL_T=0;try{new IntersectionObserver(e=>{MAP_VIS=e[0].isIntersecting;if(MAP_VIS)dirty=true},{threshold:0}).observe(cv)}catch(e){}
@@ -2151,6 +2175,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Buka link ↗');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     if(r.promo&&r.promo.text){const pr=el('p','promo');pr.append(el('b',null,'📣 Promo pendukung: '),document.createTextNode(String(r.promo.text).slice(0,140)));left.append(pr);
       if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
+    {const ek=eksMilik(r.name);if(ek.length){const pe=el('p','promo');pe.append(el('b',null,'💎 Pemilik Eksklusif: '),document.createTextNode(ek.join(' · ')+' (cuma 1 di kampung)'));left.append(pe)}}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(r,s.i);acts.append(v3);
     if(Array.isArray(r.items)&&r.items.slice(0,3).some(o=>o.id==='robot')){const me=(kkGet()||{}).u===String(r.name).toLowerCase();if(me){const jb=el('button','btn gold3','🤖 Jalan-jalan pakai GENTO');jb.type='button';jb.onclick=()=>{select({kind:'r',i:s.i},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(s.i,'robot');scrollMap()};acts.append(jb)}}
     const cp=el('button','btn dark','Salin link rumahku');cp.type='button';
@@ -2586,6 +2611,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       const sc=add(B(.16,.012,.1),'#7FD8FF',0,.455,0,{emissive:'#7FD8FF',emissiveIntensity:.8});add(S(.022),'#F2C230',-.13,.46,.03);add(S(.022),'#FF5E8A',.13,.46,.03);A.push(t=>{sc.material.emissiveIntensity=.5+.4*Math.sin(t*.004+k)})}
     else if(o.id==='kucing'){const b=add(S(.25),'#E07A3E',0,.28,0);b.scale.set(1.4,.9,.9);add(S(.17),'#E07A3E',.36,.46,0);[-.08,.08].forEach(zz=>add(new T.ConeGeometry(.06,.14,4),'#E07A3E',.36,.65,zz));const t=add(C(.04,.04,.45),'#E07A3E',-.42,.42,0);t.rotation.z=.6}
     else if(o.id==='kambing'){const b=add(B(.7,.36,.36),'#F4EFE3',0,.5,0);[[-.24,-.12],[-.24,.12],[.24,-.12],[.24,.12]].forEach(([a,c])=>add(C(.04,.04,.34),'#8E7A60',a,.17,c));add(B(.24,.26,.22),'#F4EFE3',.44,.74,0);[-.06,.06].forEach(zz=>{const h=add(C(.02,.03,.22),'#8E5A3C',.4,.95,zz);h.rotation.z=.5})}
+    else if(o.id==='patromax'){q.scale.setScalar(1.5);add(C(.26,.3,.06),'#2F6B4F',0,.03,0);const tb=add(C(.22,.22,.3),'#C4402F',0,.21,0);add(C(.14,.14,.04),'#2F6B4F',0,.38,0);const gl=add(C(.13,.13,.26),'#FFF6C8',0,.53,0,{emissive:'#FFD25A',emissiveIntensity:1});add(new T.ConeGeometry(.24,.14,16),'#2F6B4F',0,.73,0);add(new T.TorusGeometry(.1,.015,6,16,Math.PI),'#3A3A3A',0,.82,0);A.push(t=>{gl.material.emissiveIntensity=.85+.25*Math.sin(t*.006+k)+.08*Math.sin(t*.03)})}
     else if(o.id==='lampu'){add(C(.04,.05,1.4),'#3A3A3A',0,.7,0);add(S(.16),'#FFE89A',0,1.48,0,{emissive:'#F2C230',emissiveIntensity:.9});add(C(.18,.12,.08),'#3A3A3A',0,1.62,0)}
     else if(o.id==='bougenville'){add(C(.06,.1,.7),'#7A5230',0,.35,0);[[0,.95,0,.42],[.3,.8,.2,.3],[-.32,.82,-.1,.3],[.1,1.2,-.15,.3]].forEach(([a,b2,c,r])=>add(S(r),'#3E7F3A',a,b2,c));
       for(let i=0;i<34;i++){const th=i*2.399,ph=Math.acos(1-2*(i+.5)/34)*.85,r=.46;const x=Math.sin(ph)*Math.cos(th)*r,z=Math.sin(ph)*Math.sin(th)*r,y=.95+Math.cos(ph)*r*.9;add(S(.1+(i%3)*.025),['#E0569A','#F07AB4','#D63F86'][i%3],x*1.1,y,z*1.1)}}
@@ -3168,7 +3194,7 @@ const w=el('div','kk-admin');w.append(el('b',null,'👑 Kepala desa: bantu warga
       const res=await kkApi('reset-jatah',{target:t},true);out.textContent=res.ok?`Jatah ganti @${res.u} sudah penuh lagi`:(res.error||'Gagal')}),out);body.append(w)}
 /* ---- Ubah rumah & item pekarangan (traktir Genteng, dikonfirmasi kades) ---- */
 const KK_ITEM={sepeda:{n:'Sepeda',h:2,k:'Kendaraan',d:'Parkir di teras, pilih warnanya'},motor:{n:'Motor',h:4,k:'Kendaraan',d:'Nangkring di teras, pilih warnanya'},ayam:{n:'Ayam',h:1,k:'Hewan',d:'Jago penjaga pekarangan'},kucing:{n:'Kucing',h:2,k:'Hewan',d:'Teman rebahan di halaman'},kambing:{n:'Kambing',h:2,k:'Hewan',d:'Embee… pekarangan jadi rame'},
-  lampu:{n:'Lampu taman',h:1,k:'Hiasan',d:'Pekarangan terang pas malam'},mangga:{n:'Pohon mangga',h:1,k:'Hiasan',d:'Pohon rindang, halaman adem'},kolam:{n:'Kolam ikan',h:2,k:'Hiasan',d:'Kolam ikan kecil di halaman'},ayunan:{n:'Ayunan',h:2,k:'Hiasan',d:'Buat santai sore-sore'},bougenville:{n:'Bougenville',h:2,k:'Hiasan',d:'Bunga pink lebat, rumah jadi cantik'},papan:{n:'Papan nama',h:2,k:'Papan nama',d:'Tulis nama rumahmu sendiri'},konsol:{n:'playadalahmain 1.0',h:4,k:'Hiburan',d:'14 mini game + ranking, bisa dipajang di pekarangan',dl:'Konsol game kampung, bisa dipajang di pekarangan rumahmu (meja + TV mini, kelihatan tetangga 👀). Isinya 14 mini game seru: Adu Penalti, Tangkap Genteng, Pancing Ikan, Racik Bakso, Kejar Ayam, Balap Karung, Layangan, Memori Genteng, Panjat Pinang, Tebak Kentongan, Lompat Karet, Pesawat Nembak, Tarik Tambang & Egrang. Skor terbaikmu masuk 🏆 ranking! Mau coba dulu? Sewa 1 hari cuma 1 Receh di Kartu Komen.'},robot:{n:'GENTO',h:22,k:'Eksklusif',d:'Tingginya 3x rumah tingkat 3! Bawa pedang! Bisa jalan-jalan, terbang, tebas, tembak mercon, dan ganti pose di 3D.'}};
+  lampu:{n:'Lampu taman',h:1,k:'Hiasan',d:'Pekarangan terang pas malam'},mangga:{n:'Pohon mangga',h:1,k:'Hiasan',d:'Pohon rindang, halaman adem'},kolam:{n:'Kolam ikan',h:2,k:'Hiasan',d:'Kolam ikan kecil di halaman'},ayunan:{n:'Ayunan',h:2,k:'Hiasan',d:'Buat santai sore-sore'},bougenville:{n:'Bougenville',h:2,k:'Hiasan',d:'Bunga pink lebat, rumah jadi cantik'},papan:{n:'Papan nama',h:2,k:'Papan nama',d:'Tulis nama rumahmu sendiri'},konsol:{n:'playadalahmain 1.0',h:4,k:'Hiburan',d:'14 mini game + ranking, bisa dipajang di pekarangan',dl:'Konsol game kampung, bisa dipajang di pekarangan rumahmu (meja + TV mini, kelihatan tetangga 👀). Isinya 14 mini game seru: Adu Penalti, Tangkap Genteng, Pancing Ikan, Racik Bakso, Kejar Ayam, Balap Karung, Layangan, Memori Genteng, Panjat Pinang, Tebak Kentongan, Lompat Karet, Pesawat Nembak, Tarik Tambang & Egrang. Skor terbaikmu masuk 🏆 ranking! Mau coba dulu? Sewa 1 hari cuma 1 Receh di Kartu Komen.'},patromax:{n:'Patromax',h:12,k:'Eksklusif',d:'Lampu gede! Pas malam rumahmu + 4 rumah tetangga terdekat ikut terang.'},robot:{n:'GENTO',h:22,k:'Eksklusif',d:'Tingginya 3x rumah tingkat 3! Bawa pedang! Bisa jalan-jalan, terbang, tebas, tembak mercon, dan ganti pose di 3D.'}};
 const KK_VW={merah:'#C4402F',biru:'#2F74B5',hijau:'#2F9E6A',kuning:'#F2C230',hitam:'#2B2B2B',putih:'#F4EFE3',pink:'#E58AA6',ungu:'#8E5AA8',oranye:'#E07A3E'};
 const KK_JENIS={warna:{ic:'🎨',n:'Ubah warna'},emas:{ic:'🚩',n:'Bendera emas'},ruko:{ic:'🏪',n:'Jadi ruko'},item:{ic:'🎁',n:'Item pekarangan'},tingkat:{ic:'🏢',n:'Rumah tingkat'}};
 // gambar item (tanpa wajah: hewan cukup bentuk & warna)
@@ -3185,6 +3211,7 @@ function kkItemSVG(id,teks,warna){const VW=KK_VW[warna]||null;const ns='http://w
     a('path',{d:'M22 20 L23 8 L30 15 Z M42 20 L41 8 L34 15 Z',fill:'#E07A3E'});a('path',{d:'M25 40 L39 40 M24 46 L40 46',stroke:'#C4602A','stroke-width':2.5,'stroke-linecap':'round'})}
   else if(id==='kambing'){a('rect',{x:12,y:28,width:32,height:18,rx:9,fill:'#F4EFE3',stroke:'#C9C2B0','stroke-width':1.5});a('path',{d:'M16 44 L16 56 M24 44 L24 56 M34 44 L34 56 M40 44 L40 56',stroke:'#8E7A60','stroke-width':3.5,'stroke-linecap':'round'});
     a('ellipse',{cx:48,cy:24,rx:8,ry:10,fill:'#F4EFE3',stroke:'#C9C2B0','stroke-width':1.5});a('path',{d:'M44 16 Q38 6 46 6 M52 16 Q58 6 50 6',fill:'none',stroke:'#8E5A3C','stroke-width':3,'stroke-linecap':'round'});a('path',{d:'M48 34 L47 40',stroke:'#D6D0BF','stroke-width':3})}
+  else if(id==='patromax'){a('circle',{cx:32,cy:24,r:17,fill:'#FFE89A',opacity:.55});a('path',{d:'M26 9 Q32 1 38 9',fill:'none',stroke:'#3A3A3A','stroke-width':2.5});a('path',{d:'M20 17 L44 17 L40 10 L24 10 Z',fill:'#2F6B4F',stroke:'#1C2520','stroke-width':2,'stroke-linejoin':'round'});a('rect',{x:23,y:17,width:18,height:16,rx:6,fill:'#FFF6C8',stroke:'#1C2520','stroke-width':2});a('ellipse',{cx:32,cy:25,rx:4,ry:5,fill:'#fff'});a('rect',{x:24,y:33,width:16,height:3.5,fill:'#2F6B4F',stroke:'#1C2520','stroke-width':1.5});a('path',{d:'M20 40 Q20 37 24 37 L40 37 Q44 37 44 40 L44 53 Q44 58 32 58 Q20 58 20 53 Z',fill:'#C4402F',stroke:'#1C2520','stroke-width':2});a('circle',{cx:32,cy:47,r:3.5,fill:'#F4EFE3',stroke:'#1C2520','stroke-width':1.5});a('rect',{x:18,y:57,width:28,height:4,rx:2,fill:'#2F6B4F',stroke:'#1C2520','stroke-width':1.8})}
   else if(id==='lampu'){a('circle',{cx:32,cy:16,r:12,fill:'#FFE89A',opacity:.6});a('rect',{x:30,y:20,width:4,height:36,fill:'#3A3A3A'});a('rect',{x:22,y:54,width:20,height:5,rx:2,fill:'#3A3A3A'});a('path',{d:'M24 18 L40 18 L36 8 L28 8 Z',fill:'#F2C230',stroke:'#3A3A3A','stroke-width':2})}
   else if(id==='bougenville'){a('path',{d:'M32 58 Q30 46 33 36 M33 44 Q24 40 20 34 M33 40 Q42 36 46 30',fill:'none',stroke:'#7A5230','stroke-width':3.5,'stroke-linecap':'round'});
     [[22,26,10,'#3E7F3A'],[42,22,10,'#3E7F3A'],[32,16,11,'#3E7F3A']].forEach(([x,y,r,c])=>a('circle',{cx:x,cy:y,r,fill:c}));
@@ -3283,7 +3310,7 @@ function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));bod
     body.append(g,...ket.map(t=>el('p','kk-note',t)),el('p','kk-muted','Semua yang kamu dapat tetap tercatat milikmu. Rumah lama nggak hilang.'));return}
   // tab item
   const own=(c.items&&c.items.own||[]).map(o=>o.id),pick=new Set(),ULANG=['papan','motor','sepeda'],wk={motor:'merah',sepeda:'hijau'};let teks='';
-  (c.items&&c.items.own||[]).forEach(o=>{if(o.warna&&wk[o.id])wk[o.id]=o.warna});const kats=[...(GENTO_ON()||own.includes('robot')?['Eksklusif']:[]),'Hiburan','Kendaraan','Hewan','Hiasan','Papan nama'];
+  (c.items&&c.items.own||[]).forEach(o=>{if(o.warna&&wk[o.id])wk[o.id]=o.warna});const kats=['Eksklusif','Hiburan','Kendaraan','Hewan','Hiasan','Papan nama'];
   if(c.pesan&&c.pesan.item)body.append(el('p','kk-note',`⏳ Pesanan item ${c.pesan.item.kode} masih menunggu kades. Pesanan baru akan menggantikannya.`));
   body.append(el('p','kk-muted','Pilih item (boleh lebih dari satu). Item tampil di pekarangan rumahmu, di peta dan di Lihat 3D.'));
   const foot=el('div','kk-total'),inp=el('input');inp.placeholder='Tulisan papan nama (maks 20 huruf)';inp.maxLength=20;inp.hidden=true;inp.oninput=()=>{teks=inp.value;upd()};
@@ -3293,16 +3320,16 @@ function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));bod
   const vbox=el('div');const vpal=()=>{vbox.innerHTML='';['motor','sepeda'].filter(id=>pick.has(id)).forEach(id=>{const w=el('div','kk-pal');w.append(el('b',null,'Warna '+KK_ITEM[id].n.toLowerCase()+': '+wk[id]));const g=el('div','kk-sw');
     Object.entries(KK_VW).forEach(([nm,hx])=>{const b=el('button');b.type='button';b.title=nm;b.setAttribute('aria-label',KK_ITEM[id].n+' '+nm);b.style.background=hx;if(nm===wk[id])b.classList.add('on');
       b.onclick=()=>{wk[id]=nm;const t=body.querySelector(`.kk-it[data-id="${id}"] svg`);if(t)t.replaceWith(kkItemSVG(id,null,nm));vpal()};g.append(b)});w.append(g);vbox.append(w)})};
-  kats.forEach(k=>{body.append(el('p','kk-sub',k));const g=el('div','kk-items');Object.entries(KK_ITEM).filter(([id,v])=>v.k===k&&(id!=='robot'||GENTO_ON()||own.includes('robot'))).forEach(([id,v])=>{
+  kats.forEach(k=>{body.append(el('p','kk-sub',k));const g=el('div','kk-items');Object.entries(KK_ITEM).filter(([id,v])=>v.k===k&&(id!=='robot'||own.includes('robot'))).forEach(([id,v])=>{
     const punya=own.includes(id)&&!ULANG.includes(id),b=el('button','kk-it'+(punya?' own':''));b.type='button';b.dataset.id=id;
-    const h=el('small');if(punya)h.textContent='✓ Punya';else{const im=el('img','kk-gico');im.src='receh.svg';im.alt='';h.append(im,v.h+'')}if(v.k==='Eksklusif'){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF · CUMA 1'));const ow=window.ROBOT_OWNER;if(id==='robot'&&ow&&ow!==String(c.u||'').toLowerCase()&&!own.includes('robot')){h.textContent='Milik @'+ow;b.disabled=true;b.classList.add('own');b._kunci=true}else if(id==='robot'&&!own.includes('robot'))b._ket=1}if(id==='konsol'&&!own.includes('konsol'))b._ket=1;
+    const h=el('small');if(punya)h.textContent='✓ Punya';else{const im=el('img','kk-gico');im.src='receh.svg';im.alt='';h.append(im,v.h+'')}if(v.k==='Eksklusif'){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF · CUMA 1'));const ow=window.ROBOT_OWNER;if(id==='patromax'){const po=window.PATRO_OWNER;if(po&&po!==String(c.u||'').toLowerCase()&&!own.includes('patromax')){h.textContent='Milik @'+po;b.disabled=true;b.classList.add('own');b._kunci=true}else if(!own.includes('patromax'))b._ket=1}if(id==='robot'&&ow&&ow!==String(c.u||'').toLowerCase()&&!own.includes('robot')){h.textContent='Milik @'+ow;b.disabled=true;b.classList.add('own');b._kunci=true}else if(id==='robot'&&!own.includes('robot'))b._ket=1}if(id==='konsol'&&!own.includes('konsol'))b._ket=1;
     b.append(id==='papan'?kkItemSVG(id,teks||null):kkItemSVG(id,null,wk[id]),el('span',null,own.includes(id)&&ULANG.includes(id)?(id==='papan'?'Ganti papan':'Ganti warna '+v.n.toLowerCase()):v.n),...(v.d&&!punya?[el('small','kk-ds',v.d)]:[]),h);if(b._ket)b.append(el('small','eks-ket','Bayar pakai Recehan, langsung jadi'));
     if(punya||b._kunci)b.disabled=true;else b.onclick=()=>{pick.has(id)?pick.delete(id):pick.add(id);b.classList.toggle('on',pick.has(id));inp.hidden=!pick.has('papan');if(!inp.hidden){inp.focus();setTimeout(()=>inp.scrollIntoView({block:'center',behavior:'smooth'}),350)}vpal();upd()};g.append(b)});
     body.append(g);if(k==='Kendaraan')body.append(vbox);if(k==='Papan nama')body.append(inp)});
   const lanjut=kkGBtn('Lanjut · ','0 Receh','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-ubah',{jenis:'item',items:[...pick],teks,warna:{motor:wk.motor,sepeda:wk.sepeda}},true);bt.disabled=false;
     if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}
-    if(res.langsung){try{SND.play('ting',.9)}catch(_){}toast(pick.has('konsol')?'🎮 playadalahmain resmi jadi milikmu! Langsung main yuk 🎉':'🤖 GENTO resmi jadi milikmu! Cek pekaranganmu 🎉');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1600);return}kkKode(body,res)});
-  function upd(){const t=[...pick].reduce((s,id)=>s+KK_ITEM[id].h,0);lanjut.lastChild.textContent=t+' Receh';{const tn=[...lanjut.childNodes].find(n=>n.nodeType===3&&/·/.test(n.nodeValue));if(tn)tn.nodeValue=pick.has('robot')||pick.has('konsol')?'Beli langsung · ':'Lanjut · '}lanjut.disabled=!t||(pick.has('papan')&&!teks.trim());
+    if(res.langsung){try{SND.play('ting',.9)}catch(_){}toast(pick.has('konsol')?'🎮 playadalahmain resmi jadi milikmu! Langsung main yuk 🎉':pick.has('patromax')?'🏮 Patromax resmi jadi milikmu! Tunggu malam, sekitar rumahmu bakal terang 🎉':'🤖 GENTO resmi jadi milikmu! Cek pekaranganmu 🎉');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1600);return}kkKode(body,res)});
+  function upd(){const t=[...pick].reduce((s,id)=>s+KK_ITEM[id].h,0);lanjut.lastChild.textContent=t+' Receh';{const tn=[...lanjut.childNodes].find(n=>n.nodeType===3&&/·/.test(n.nodeValue));if(tn)tn.nodeValue=pick.has('robot')||pick.has('konsol')||pick.has('patromax')?'Beli langsung · ':'Lanjut · '}lanjut.disabled=!t||(pick.has('papan')&&!teks.trim());
     foot.firstChild.textContent=pick.size?`${pick.size} item dipilih`:'Belum ada item dipilih';
     const pp=body.querySelector('.kk-it[data-id="papan"] svg');if(pp)pp.replaceWith(kkItemSVG('papan',teks.trim()||null))}
   foot.append(el('span'),lanjut);body.append(msg,foot);upd()}
@@ -3386,12 +3413,12 @@ function renderGoalK(n){const g=D.goalKampung,box=$('goalk');if(!g||!box||!(g.ta
   const nb=el('div','gk-num');nb.append(im,el('b',null,fmt(now)),document.createTextNode(` dari ${fmt(g.target)} Genteng · ${Math.floor(pct)}%`));box.append(top,bar,nb)}
 try{renderGoalK(0)}catch(e){}
 function renderEtalase(){const box=$('etalase');if(!box)return;box.innerHTML='';const g=el('div','eta-grid');
-  const tile=(sv,nm,h,tab,k,ds,eks)=>{const b=el('button','eta');b.type='button';sv.style.animationDelay=(k*.27%2)+'s';const hh=el('small');const im=el('img','kk-gico');im.src='receh.svg';im.alt='';hh.append(im,h);b.append(sv,el('span',null,nm),...(ds?[el('small','kk-ds',ds)]:[]),hh);if(eks){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF'));if(eks==='baru'){b.firstChild.textContent='BARU · 14 GAME';b.classList.add('baru');b.onclick=()=>kkBelanja(tab);g.append(b);return}if(window.ROBOT_OWNER){hh.textContent='👑 milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak()}else hh.append(document.createTextNode(' · cuma 1!'));b.append(el('small','eks-ket','👀 Ketuk buat lihat 3D'));b.onclick=openDemoGento}else b.onclick=()=>kkBelanja(tab);g.append(b)};
-  if(GENTO_ON())tile(kkItemSVG('robot'),KK_ITEM.robot.n,String(KK_ITEM.robot.h),'item',9,KK_ITEM.robot.d,true);
+  const tile=(sv,nm,h,tab,k,ds,eks)=>{const b=el('button','eta');b.type='button';sv.style.animationDelay=(k*.27%2)+'s';const hh=el('small');const im=el('img','kk-gico');im.src='receh.svg';im.alt='';hh.append(im,h);b.append(sv,el('span',null,nm),...(ds?[el('small','kk-ds',ds)]:[]),hh);if(eks){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF'));if(eks==='baru'){b.firstChild.textContent='BARU · 14 GAME';b.classList.add('baru');b.onclick=()=>kkBelanja(tab);g.append(b);return}const ow=window.PATRO_OWNER;if(ow){hh.textContent='👑 milik @'+ow+' · sejak '+robotSejak('patromax');b.onclick=()=>{const i=kkResIdx(ow);if(i>=0){select({kind:'r',i});scrollMap()}}}else{hh.append(document.createTextNode(' · cuma 1!'));b.append(el('small','eks-ket','🌙 Terangin 5 rumah pas malam'));b.onclick=()=>kkBelanja(tab)}}else b.onclick=()=>kkBelanja(tab);g.append(b)};
+  tile(kkItemSVG('patromax'),KK_ITEM.patromax.n,String(KK_ITEM.patromax.h),'item',9,KK_ITEM.patromax.d,'patromax');
   tile(kkItemSVG('konsol'),KK_ITEM.konsol.n,String(KK_ITEM.konsol.h),'item',8,KK_ITEM.konsol.dl,'baru');
   const rw=kkRumahMini({x:0,y:0,wall:'#F4D35E',roof:'#8E5AA8'});tile(rw,'Ubah warna','1','rumah',0,'Genteng & tembok sesukamu');
   const re=kkRumahMini({x:0,y:0,wall:'#F1E4C6',roof:'#C4402F'});const ns='http://www.w3.org/2000/svg';[['rect',{x:50,y:2,width:2.5,height:30,fill:'#5A4A3A'}],['polygon',{points:'52.5,3 63,7 52.5,11',fill:'#F2C230',stroke:'#8A6A10','stroke-width':.8}]].forEach(([t,o])=>{const e=document.createElementNS(ns,t);for(const q in o)e.setAttribute(q,o[q]);re.append(e)});tile(re,'Bendera emas','2','rumah',1,'Berkibar di atap + masuk daftar Pendukung');
-  let k=2;Object.entries(KK_ITEM).filter(([id])=>id!=='robot'&&id!=='konsol').forEach(([id,v])=>tile(kkItemSVG(id,id==='papan'?'NAMAMU':null,id==='motor'?'biru':id==='sepeda'?'pink':null),v.n,String(v.h),'item',k++,v.d,v.k==='Eksklusif'));
+  let k=2;Object.entries(KK_ITEM).filter(([id])=>id!=='robot'&&id!=='konsol'&&id!=='patromax').forEach(([id,v])=>tile(kkItemSVG(id,id==='papan'?'NAMAMU':null,id==='motor'?'biru':id==='sepeda'?'pink':null),v.n,String(v.h),'item',k++,v.d,v.k==='Eksklusif'));
   tile(kkTingkatSVG({x:0,y:0,wall:'#F4D35E',roof:'#C4402F'},2),'Rumah tingkat 2','10','rumah',k++,'Di TB Genteng Jaya Jaya Joss');tile(kkTingkatSVG({x:0,y:0,wall:'#BFE3F2',roof:'#2F74B5'},3),'Rumah tingkat 3','14','rumah',k++,'Tiap lantai boleh beda warna');
   if(RUKO_ON)tile(kkRukoMini('krem','biru'),'Ruko','20','rumah',k,'Rumahmu jadi toko 30 hari');
   const cta=el('button','btn gold eta-cta',KK_ON?'🛍️ Belanja lewat Kartu Komen':'⏳ Dibuka bareng Kartu Komen');cta.type='button';cta.onclick=()=>kkBelanja('rumah');
@@ -3412,7 +3439,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
   try{stafPlus(j.staf)}catch(e){console.error(e)}window.LOWONGAN=j.lowongan||{};try{renderUmum()}catch(e){}
-  window.ROBOT_OWNER=j.robot||null;window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
+  window.ROBOT_OWNER=j.robot||null;window.PATRO_OWNER=j.patromax||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);

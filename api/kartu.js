@@ -84,7 +84,7 @@ const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 10 : (kini >= 2 ? 4 : 14); // t
 const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
 const KONSOL_G = ['penalti', 'genteng', 'pancing', 'bakso', 'ayam', 'karung', 'layang', 'memori', 'pinang', 'kentongan', 'karet', 'pesawat', 'tambang', 'egrang'];
 const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 400, karung: 80, layang: 600, memori: 140, pinang: 40, kentongan: 80, karet: 400, pesawat: 3000, tambang: 60, egrang: 5000 };
-const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, konsol: 4, bougenville: 2 };
+const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, patromax: 12, konsol: 4, bougenville: 2 };
 const MAKS_PAJANG = 3;
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
 const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => { const h = +String(v || '').split(':')[0]; return KONTRAK_OK.includes(h) ? h : KONTRAK_HARI };
@@ -127,7 +127,7 @@ async function simpanStatus(jenis, kode, status) {
 }
 // Robot Raksasa: cuma 1 di seluruh kampung. Dipesan → dikunci 14 hari untuk pemesannya; lunas → milik permanen.
 const ROBOT = 'robot:pemilik';
-async function lepasRobot(u) { if ((await kv(['GET', ROBOT])) !== u) return; const k = await koleksi(u); if (!k.own.some(o => o.id === 'robot')) await kv(['DEL', ROBOT]) }
+async function lepasRobot(u) { for (const ek of ['robot', 'patromax']) { if ((await kv(['GET', ek + ':pemilik'])) !== u) continue; const k = await koleksi(u); if (!k.own.some(o => o.id === ek)) await kv(['DEL', ek + ':pemilik']) } }
 async function koleksi(u) { const v = jparse(await kv(['HGET', 'itemplus', u])); return v && Array.isArray(v.own) ? v : { own: [], pajang: [] } }
 const hariIni = () => { const w = new Date(Date.now() + 7 * 3600e3); return Math.round((Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - Date.UTC(2026, 9, 18)) / 864e5) };
 
@@ -292,7 +292,7 @@ export default async function handler(req, res) {
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
       for (let i = 0; i + 1 < rx.length; i += 2) { const e = jparse(rx[i + 1]); if (e && e.length) extra[rx[i]] = e }
-      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan']]);
+      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik']]);
       const tingkat = {}, atas = {}; for (let i = 0; rt && i + 1 < rt.length; i += 2) { const v = jparse(rt[i + 1]); if (v && v.lantai > 1) tingkat[rt[i]] = v.lantai; if (v && Array.isArray(v.atas)) atas[rt[i]] = v.atas }
       const jalan = {}; for (let i = 0; rj && i + 1 < rj.length; i += 2) { const v = jparse(rj[i + 1]); if (v && Date.now() - v.at < 120000) jalan[rj[i]] = v }
       const staf = {}; for (let i = 0; sp && i + 1 < sp.length; i += 2) { const v = stafAktif(jparse(sp[i + 1])); if (v.length) staf[sp[i]] = v.map(x => ({ user: x.user, role: x.role, sejak: x.sejak, until: x.until })) }
@@ -306,7 +306,7 @@ export default async function handler(req, res) {
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, patromax: pmx || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (req.method !== 'POST' && aksi !== 'saya') return res.status(405).json({ error: 'Metode tidak didukung' });
     const D = await dataKampung(req);
@@ -528,12 +528,15 @@ export default async function handler(req, res) {
           await terapkan(kv, kvMany, 'item', kode, v, true, 'otomatis');
           return res.status(200).json({ ok: true, langsung: true, kode, jenis: 'item', harga: isi.harga, kartu: await infoKartu(D, s.u) });
         }
-        if (ids.includes('robot')) { // GENTO: beli langsung pakai Recehan, sekaligus. Tidak ada pesanan menggantung → tidak ada yang bayar dobel.
-          const p = await kv(['GET', ROBOT]); if (p) return res.status(400).json({ error: 'GENTO cuma ada 1 di kampung, dan sudah dimiliki @' + p + '.' });
-          if ((info.saldo || 0) < isi.harga) return res.status(400).json({ error: `GENTO cuma bisa dibeli pakai Recehan. Recehan-mu ${info.saldo || 0} Receh, butuh ${isi.harga} Receh. Isi Recehan dulu ya!` });
-          if (!(await kv(['SET', ROBOT, s.u, 'NX']))) return res.status(400).json({ error: 'Yah, GENTO baru saja dibeli warga lain.' });
+        const ek = ['robot', 'patromax'].find(id => ids.includes(id));
+        if (ek && ids.filter(id => id === 'robot' || id === 'patromax').length > 1) return res.status(400).json({ error: 'Beli barang eksklusif satu per satu ya.' });
+        if (ek) { // barang eksklusif (GENTO / Patromax): beli langsung pakai Recehan, sekaligus. Tidak ada pesanan menggantung → tidak ada yang bayar dobel.
+          const KEY = ek + ':pemilik', NM = ek === 'robot' ? 'GENTO' : 'Patromax';
+          const p = await kv(['GET', KEY]); if (p) return res.status(400).json({ error: NM + ' cuma ada 1 di kampung, dan sudah dimiliki @' + p + '.' });
+          if ((info.saldo || 0) < isi.harga) return res.status(400).json({ error: `${NM} cuma bisa dibeli pakai Recehan. Recehan-mu ${info.saldo || 0} Receh, butuh ${isi.harga} Receh. Isi Recehan dulu ya!` });
+          if (!(await kv(['SET', KEY, s.u, 'NX']))) return res.status(400).json({ error: 'Yah, ' + NM + ' baru saja dibeli warga lain.' });
           const after = await kv(['HINCRBY', 'saldo', s.u, -isi.harga]);
-          if (after < 0) { await kvMany([['HINCRBY', 'saldo', s.u, isi.harga], ['DEL', ROBOT]]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
+          if (after < 0) { await kvMany([['HINCRBY', 'saldo', s.u, isi.harga], ['DEL', KEY]]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
           const A2 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = 'ITEM-'; for (let i = 0; i < 4; i++) kode += A2[crypto.randomInt(A2.length)];
           const v = { u: s.u, jenis: 'item', ...isi, bayar: isi.harga, trk: [{ nama: 'saldo', qty: isi.harga, at: Date.now() }], at: Date.now(), status: 'menunggu' };
           await kvMany([['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -isi.harga, ket: kode })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
@@ -542,7 +545,7 @@ export default async function handler(req, res) {
         }
       }
       const lama = await kv(['GET', jenis + ':user:' + s.u]); if (lama) { await simpanStatus(jenis, lama, 'diganti'); await kv(['SREM', jenis + ':antre', lama]) }
-      if (jenis === 'item' && !isi.items.includes('robot')) await lepasRobot(s.u);
+      if (jenis === 'item' && !isi.items.includes('robot') && !isi.items.includes('patromax')) await lepasRobot(s.u);
       const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = JENIS[jenis].awal + '-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];
       await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ u: s.u, jenis, ...isi, at: Date.now(), status: 'menunggu' }), ...EXP(jenis)],
         ['SET', jenis + ':user:' + s.u, kode, ...EXP(jenis)], ['SADD', jenis + ':antre', kode]]);

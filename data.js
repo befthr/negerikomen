@@ -2571,7 +2571,7 @@ window.NK_DATA = {
   { "name": "muhammad.djio", "x": 20, "y": 2, "day": 7, "roof": "biru", "wall": "hijau" },
   { "name": "m.sholihin62510", "x": 80, "y": 7, "day": 7, "nick": "Sholihin", "wall": "hijau" },
   { "name": "h6avenly____", "x": 79, "y": 8, "day": 7, "roof": "putih", "wall": "hitam" },
-  { "name": "fiksbg", "x": 76, "y": 4, "day": 7, "nick": "Fikri", "roof": "oranye", "wall": "putih" },
+  { "name": "fiksbg", "x": 76, "y": 4, "day": 7, "nick": "Fikri", "roof": "merah", "wall": "putih" },
   { "name": "imrn_a.b8", "x": 82, "y": 10, "day": 7, "nick": "Imron", "roof": "merah" },
   { "name": "tftzain_", "x": 77, "y": 4, "day": 7, "nick": "Zain", "roof": "abu-abu" },
   { "name": "dyka____keknya", "x": 80, "y": 8, "day": 7, "nick": "Dayka", "roof": "hitam", "wall": "putih" },
@@ -2958,7 +2958,8 @@ window.NK_DATA = {
   { "name": "eyyll90", "x": 22, "y": 82, "day": 8, "nick": "Ella", "roof": "putih", "wall": "merah muda" },
   { "name": "aries_mkf", "x": 78, "y": 76, "day": 8, "nick": "Vano", "roof": "biru", "wall": "abu-abu" },
   { "name": "dgttr01", "x": 10, "y": 72, "day": 8, "nick": "Febri", "roof": "merah", "wall": "putih" },
-  { "name": "fara.shitamaullida_", "x": 22, "y": 84, "day": 8, "nick": "Fara", "roof": "ungu muda", "wall": "krem" }
+  { "name": "fara.shitamaullida_", "x": 22, "y": 84, "day": 8, "nick": "Fara", "roof": "ungu muda", "wall": "krem" },
+  { "name": "salsabila86150", "x": 71, "y": 82, "day": 8, "nick": "Acaa" }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1, "staff": [{"user":"muhhusainalfathaly_","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"},{"user":"mandre.js","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"}] },

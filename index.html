@@ -3057,7 +3057,24 @@ function kkPublik(){try{renderEtalase()}catch(e){}document.querySelectorAll('[da
 kkPublik();
 const KK_IG='https://www.instagram.com/negerikomen/';
 function kkTgl(iso){const d=new Date(Date.parse(iso)+7*3600e3);return isNaN(d)?'hari Senin':d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
-function kkGet(){if(BOS_QA())return {u:'lembarpeta',t:'qa-simulasi'};try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
+/* 🧪 MODE UJI rilis Hari 9 (?qa9=…): semua aksi disimulasikan di perangkat ini, tidak menyentuh database. Login otomatis sebagai @lembarpeta, Recehan 30. Perjalanan dipercepat: Truk 90 dtk, Heli 30 dtk. */
+const QA9=(()=>{try{return new URLSearchParams(location.search).get('qa9')}catch(e){return null}})();
+const QS={saldo:30,tiket:{truk:0,heli:0},jedaSampai:0,pindahKu:null,rx:{},rxSudah:{}};
+function qaKasar(t){const K=['anjing','anjir','bangsat','bajingan','kontol','memek','ngentot','goblok','tolol','bego','tai','asu','babi','jancok','kampret','brengsek','bodoh','idiot','fuck','shit'];const n=String(t||'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4|@/g,'a').replace(/5/g,'s');const w=n.replace(/[^a-z\s]/g,' ').split(/\s+/).map(x=>x.replace(/(.)\1+/g,'$1'));const r=n.replace(/[^a-z]/g,'').replace(/(.)\1+/g,'$1');return w.some(x=>K.includes(x))||['anjing','kontol','memek','ngentot','bangsat','goblok'].some(k=>r.includes(k))}
+function qaKartu(){return {u:'lembarpeta',nick:'Lembar Peta (uji)',nomor:1320,hari:5,saldo:QS.saldo,tiket:{...QS.tiket},pindahJeda:Math.max(0,QS.jedaSampai-Date.now()),pindahKu:QS.pindahKu,items:{own:[],pajang:[]},pesan:{},bangunan:[],jatah:{total:3,terpakai:0,sisa:3},reset:new Date(Date.now()+7*864e5).toISOString(),admin:false,tingkat:1,versi:1,dipakai:0,kabarLamar:[],emas:false}}
+async function qa9Api(aksi,b){await new Promise(z=>setTimeout(z,250));const ok=x=>Object.assign({ok:true,kartu:qaKartu()},x||{}),no=(e,x)=>Object.assign({ok:false,error:e},x||{});
+  if(aksi==='saya')return {ok:true,kartu:qaKartu()};
+  if(aksi==='pindah-beli'){const h=PDH[b.jenis]&&PDH[b.jenis].h;if(!h)return no('Jenis tiket tidak dikenal');if(QS.saldo<h)return no('Recehan belum cukup. Butuh '+h+' Receh.');QS.saldo-=h;QS.tiket[b.jenis]++;return ok()}
+  if(aksi==='pindah'){const j=b.jenis;if(QS.tiket[j]<1)return no('Kamu belum punya tiket.');if(QS.jedaSampai>Date.now())return no('Kamu baru pindah. Bisa pindah lagi 7 hari lagi.');
+    if(kavTerisi().has(b.x+','+b.y))return no('Yah, kavling itu baru saja dipesan warga lain. Pilih yang lain ya.');const i=kkResIdx('lembarpeta'),r=RES[i],ek=desaBangun().EKS.find(e=>e.x===b.x&&e.y===b.y);
+    QS.tiket[j]--;const v={x:b.x,y:b.y,lok:ek?ek.lok:null,via:j,at:Date.now(),dur:j==='heli'?30:90,dari:r._tr?{x:r._tr.dari.x,y:r._tr.dari.y}:{x:r.x,y:r.y},lokDari:r.lok||null};QS.pindahKu=v;QS.jedaSampai=Date.now()+7*864e5;return ok({pindah:v})}
+  if(aksi==='reaksi'){const t=String(b.target).toLowerCase();if(QS.rxSudah[t])return no('Kamu sudah kasih reaksi ke rumah ini hari ini. Besok lagi ya!');const p=String(b.pesan||'').trim().slice(0,80);
+    if(p&&/(https?:|www\.|\.(com|id|net)\b|@\w)/i.test(p))return no('Pesan nggak boleh berisi link atau mention.',{kode:'pesan'});if(p&&qaKasar(p))return no('Pesanmu ada kata yang kurang sopan. Ganti kata-katanya, atau kirim reaksi tanpa pesan ya 🙏',{kode:'kasar'});
+    const o=QS.rx[t]||(QS.rx[t]={n:{mantap:0,genteng:0,tetangga:0},tamu:0,buku:[]});o.n[b.r]++;o.tamu++;o.buku.unshift({u:'lembarpeta',r:b.r,pesan:p||null,at:Date.now()});QS.rxSudah[t]=b.r;
+    const I=window.IDAMAN;const k=I.findIndex(x=>x.u===t);if(k>=0)I[k].poin+=RXD[b.r].p;else I.push({u:t,poin:RXD[b.r].p});I.sort((a,c)=>c.poin-a.poin);window.IDAMAN=I.slice(0,3);renderIdaman();return {ok:true}}
+  return no('(mode uji) aksi '+aksi+' tidak disimulasikan')}
+function qaRxInfo(u){const o=QS.rx[u]||{n:{mantap:2,genteng:1,tetangga:1},tamu:3,buku:[{u:'ryukaarvellacevana',r:'tetangga',pesan:'Mau dong tetanggaan sama kamu!',at:Date.now()-3e5},{u:'scnydpi',r:'genteng',pesan:'Gentengnya cakep bang',at:Date.now()-9e5},{u:'dhafageka',r:'mantap',pesan:null,at:Date.now()-2e6}]};QS.rx[u]=o;return {...o,sudah:QS.rxSudah[u]||null}}
+function kkGet(){if(BOS_QA()||QA9)return {u:'lembarpeta',t:'qa-simulasi'};try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
 function kkSet(v){try{v?localStorage.setItem('nk_kartu',JSON.stringify(v)):localStorage.removeItem('nk_kartu')}catch(e){}}
 // ===== mode simulasi bos (link #bos-qa): coba jadi bos yang buka lowongan, terima/tolak pelamar, kirim bonus. Semua cuma di perangkat ini, tidak ke server.
 const BOS_QA=()=>/bos-qa/i.test(location.hash);let BQ=null;
@@ -3080,7 +3097,7 @@ async function bqApi(aksi,body){const q=bqInit(),b=q.b,ok=x=>Object.assign({ok:t
     return {ok:false,error:'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri.'}}
   if(aksi==='bonus'){const n=Math.floor(+body.n),kr=b.staf.find(x=>x.user===String(body.target||'').toLowerCase());if(kr&&kr.gaji>0)return {ok:false,error:'Karyawan ini sudah digaji tetap. Bonus cuma buat karyawan sukarela.'};if(!(n>=1&&n<=3))return {ok:false,error:'Bonus 1–3 Receh.'};if(n>q.saldo)return {ok:false,error:'Recehan-mu belum cukup buat bonus '+n+' Receh.'};q.saldo-=n;return ok()}
   return ok({daftar:[],list:[],lowongan:{},staf:{}})}
-async function kkApi(aksi,body,auth){if(BOS_QA()&&aksi!=='pilihan')return bqApi(aksi,body||{});const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
+async function kkApi(aksi,body,auth){if(BOS_QA()&&aksi!=='pilihan')return bqApi(aksi,body||{});if(QA9&&aksi!=='pilihan')return qa9Api(aksi,body||{});const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
   const k=kkGet();if(auth&&k)o.headers.Authorization='Bearer '+k.t;
   let r,j;try{r=await fetch('/api/kartu?aksi='+aksi,o);j=await r.json()}catch(e){return {ok:false,error:'Internet lagi lemot. Coba lagi ya.'}}
   if(r.status===401&&auth){kkSet(null)}return Object.assign({ok:r.ok},j)}
@@ -3492,7 +3509,7 @@ let JALUR_T=null;function jalurTiles(){if(JALUR_T)return JALUR_T;const J=NK.JALU
 function kavTerisi(){const s=new Set();RES.forEach(r=>{if(!r._tr)s.add(r.x+','+r.y)});Object.values(window.PINDAH).forEach(v=>s.add(v.x+','+v.y));return s}
 function kavBebas(jenis){const used=kavTerisi(),o=jalurTiles().filter(p=>!used.has(p.x+','+p.y)).map(p=>({...p,lok:null}));if(jenis==='heli')desaBangun().EKS.forEach(e=>{if(!used.has(e.x+','+e.y))o.push(e)});return o}
 let PDH_TIBA=new Set();
-function pindahTerapkan(){const now=Date.now(),me=(kkGet()||{}).u;let ub=false;
+function pindahTerapkan(){const now=Date.now(),me=(kkGet()||{}).u;let ub=false;if(QA9){Object.assign(window.PINDAH,QS.lain||{});if(QS.pindahKu)window.PINDAH.lembarpeta=QS.pindahKu}
   Object.entries(window.PINDAH).forEach(([u,v])=>{const i=kkResIdx(u);if(i<0)return;const r=RES[i],end=v.at+v.dur*1000;
     if(now>=end){if(r.x!==v.x||r.y!==v.y||r._tr){if(r._tr&&u===me&&!PDH_TIBA.has(u+':'+v.x+','+v.y)){PDH_TIBA.add(u+':'+v.x+','+v.y);setTimeout(()=>pindahSampai(r,v),300)}r.x=v.x;r.y=v.y;ub=true}r.lok=v.lok||null;r._tr=null}
     else{if(!r._tr)ub=true;r._tr=v;r.x=v.dari.x;r.y=v.dari.y;r.lok=v.lokDari||null}});
@@ -3507,7 +3524,7 @@ function pdhPoly(P,u){let L=0;const d=[];for(let i=0;i<P.length-1;i++){const l=M
 const pdhE=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
 function pdhMarkas(f){const D=desaBangun();return f==='heli'?{x:D.SH.x,y:D.SH.y}:{x:D.OT.x+D.OT.w/2,y:D.OT.y+D.OT.h+T*.4}}
 /* status kendaraan saat ini: {x,y,ang,bawa(0..1 rumah terangkat),fase,teks,lift} */
-function pdhStatus(u,v,now){const f=v.via,tau=(now-v.at)/1000,B=pdhMarkas(f),A={x:NK.wx(v.dari.x),y:NK.wx(v.dari.y)},Z={x:NK.wx(v.x),y:NK.wx(v.y)};
+function pdhStatus(u,v,now){const f=v.via,tau=(now-v.at)/1000*((f==='heli'?180:1800)/(v.dur||1)),B=pdhMarkas(f),A={x:NK.wx(v.dari.x),y:NK.wx(v.dari.y)},Z={x:NK.wx(v.x),y:NK.wx(v.y)};
   if(f==='truk'){const ax=pdhRoadX(A.x),zx=pdhRoadX(Z.x);const p1=[B,{x:B.x,y:0},{x:ax,y:0},{x:ax,y:A.y},A],p2=[A,{x:ax,y:A.y},{x:ax,y:0},{x:zx,y:0},{x:zx,y:Z.y},Z];
     if(tau<180)return {...pdhPoly(p1,tau/180),bawa:0,fase:'jemput'};
     if(tau<300){const p=pdhPoly(p1,1);return {...p,ang:p2.length?pdhPoly(p2,0).ang:0,bawa:Math.min(1,(tau-180)/100),fase:'angkut'}}
@@ -3619,6 +3636,14 @@ function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=Math.max(T*.8,22/cam.zoom)
   // ketuk truk/heli yang sedang jalan
   const now=Date.now();for(const [u,o] of Object.entries(window.PINDAH)){const s=pdhStatus(u,o,now);if(s&&Math.hypot(s.x-wxp,s.y-(o.via==='heli'?T*1.6*(s.lift||0):0)-wyp)<T*1.3){toast(`${o.via==='heli'?'🚁':'🚚'} ${now<o.at+o.dur*1000?'Lagi mindahin rumah @'+u+' · ⏳ '+pdhSisa(o,now)+' lagi':'Pulang ke markas'}`);return true}}
   return false}
+if(QA9)setTimeout(()=>{const n=Date.now(),G=desaBangun().EKS.find(e=>e.lok==='gunung');toast('🧪 MODE UJI (cuma di perangkatmu, tidak tersimpan). Login sebagai @lembarpeta · 30 Receh · Truk 90 dtk, Heli 30 dtk');
+  if(QA9==='eks'||QA9==='jalan'){QS.lain=QA9==='eks'?{scnydpi:{x:114,y:44,lok:'gerbang',via:'heli',at:n-9e5,dur:180,dari:{x:7,y:44}},dhafageka:{x:145,y:87,lok:'waduk',via:'heli',at:n-9e5,dur:180,dari:{x:46,y:23}},nnditmla:{x:G.x,y:G.y,lok:'gunung',via:'heli',at:n-9e5,dur:180,dari:{x:40,y:40}},'genter0.25':{x:21,y:121,lok:'pantai',via:'heli',at:n-9e5,dur:180,dari:{x:53,y:62}}}
+    :{'alvaro.kenzie.a':{x:28,y:83,lok:null,via:'truk',at:n-6e5,dur:1800,dari:{x:38,y:77}},ryukaarvellacevana:{x:23,y:121,lok:'pantai',via:'heli',at:n-7e4,dur:180,dari:{x:48,y:50}}};window.PINDAH_LOG=Object.entries(QS.lain).map(([u,o])=>({u,via:o.via,lok:o.lok,at:o.at}));pindahTerapkan();
+    scrollMap();if(QA9==='eks'){const k=kkResIdx('genter0.25');if(k>=0)select({kind:'r',i:k})}else{const s2=pdhStatus('ryukaarvellacevana',QS.lain.ryukaarvellacevana,Date.now());flyTo({cx:s2.x,cy:s2.y,zoom:clampZ(.6)},900)}}
+  else if(QA9==='truk'||QA9==='heli')bukaPindahan(QA9);
+  else if(QA9==='reaksi'){const k=kkResIdx('ryukaarvellacevana');if(k>=0){select({kind:'r',i:k});setTimeout(()=>{const b=$('result');if(b)b.scrollIntoView({block:'start',behavior:'smooth'})},600)}}
+  else if(QA9==='idaman'){window.IDAMAN=[{u:'ryukaarvellacevana',poin:31},{u:'scnydpi',poin:22},{u:'lembarpeta',poin:9}];renderIdaman();scrollMap();const m=desaBangun().MTI;flyTo({cx:m.x+m.w/2,cy:m.y+m.h/2,zoom:clampZ(1)},900)}
+  dirty=true},2600);
 window.__PDH={o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
 
 /* ===== 👍 Reaksi Rumah + 📖 Buku Tamu + 🌟 Tetangga Idaman ===== */
@@ -3632,7 +3657,7 @@ function reaksiBox(r){const w=el('div','rx'),row=el('div','rx-row'),st=el('div',
     bk.innerHTML='';if(info&&info.buku.length)info.buku.forEach(o=>{const d=el('div'),av=el('span','av');const k2=kkResIdx(o.u);av.style.background=k2>=0?NK.roofHex(RES[k2]):'#ccc';const tx=el('span'),a=el('a',null,'@'+o.u);a.onclick=()=>{if(k2>=0)select({kind:'r',i:k2})};
       tx.append(a,document.createTextNode(' '),rxIc(o.r));tx.lastChild.style.cssText='display:inline';const im=tx.querySelector('img');if(im)im.style.cssText='width:14px;height:14px;vertical-align:-2px';if(o.pesan)tx.append(el('i',null,'💬 '+o.pesan));d.append(av,tx);bk.append(d)});
     else bk.append(el('p','kk-muted','Belum ada tamu. Jadilah yang pertama mampir!'))};
-  const muat=()=>fetch('/api/kartu?aksi=reaksi-info&u='+encodeURIComponent(r.name),{headers:(kkGet()||{}).t?{Authorization:'Bearer '+kkGet().t}:{}}).then(x=>x.ok?x.json():null).then(j=>{if(j&&j.n){info=j;render()}}).catch(()=>{});
+  const muat=()=>QA9?Promise.resolve(qaRxInfo(String(r.name).toLowerCase())).then(j=>{info=j;render()}):fetch('/api/kartu?aksi=reaksi-info&u='+encodeURIComponent(r.name),{headers:(kkGet()||{}).t?{Authorization:'Bearer '+kkGet().t}:{}}).then(x=>x.ok?x.json():null).then(j=>{if(j&&j.n){info=j;render()}}).catch(()=>{});
   w.append(row,st,bk);render();muat();if(self)w.append(el('p','kk-muted','Ini rumahmu. Warga lain yang bisa kasih reaksi di sini.'));return w}
 function reaksiKirim(r,k,selesai){const me=(kkGet()||{}).u;if(!me){toast('Ambil Kartu Komen dulu buat kasih reaksi: cari rumahmu, klik, lalu 🔑 Kartu Komen');return}
   if(me===String(r.name).toLowerCase()){toast('Nggak bisa kasih reaksi ke rumah sendiri 😄');return}
@@ -3640,7 +3665,7 @@ function reaksiKirim(r,k,selesai){const me=(kkGet()||{}).u;if(!me){toast('Ambil 
   const ta=el('textarea');ta.maxLength=80;ta.rows=2;ta.placeholder='Tulis pesan buat Buku Tamu (boleh kosong, maks 80 huruf)';const msg=el('p','kk-msg');const row=el('div','kk-row');
   const kirim=async(tanpa)=>{row.querySelectorAll('button').forEach(x=>x.disabled=true);const res=await kkApi('reaksi',{target:r.name,r:k,pesan:tanpa?'':ta.value},true);row.querySelectorAll('button').forEach(x=>x.disabled=false);
     if(!res.ok){msg.className='kk-msg err';msg.textContent=res.error||'Gagal';if(res.kode==='kasar'||res.kode==='pesan'){if(!row.querySelector('.rx-tp'))row.append(kkBtn('Kirim tanpa pesan','sm rx-tp',()=>kirim(true)))}return}
-    o.remove();SND.play('ting',.9);setTimeout(()=>fetch('/api/kartu?aksi=pilihan&r='+Date.now()).then(x=>x.ok?x.json():null).then(j=>{if(j&&j.idaman){window.IDAMAN=j.idaman;window.IDAMAN_LALU=j.idamanLalu||[];renderIdaman();dirty=true}}).catch(()=>{}),800);toast(`${k==='genteng'?'🧱':RXD[k].ic} Terkirim! @${r.name} dapat +${RXD[k].p} poin Tetangga Idaman`.replace('🧱','👏'));selesai&&selesai()};
+    o.remove();SND.play('ting',.9);if(!QA9)setTimeout(()=>fetch('/api/kartu?aksi=pilihan&r='+Date.now()).then(x=>x.ok?x.json():null).then(j=>{if(j&&j.idaman){window.IDAMAN=j.idaman;window.IDAMAN_LALU=j.idamanLalu||[];renderIdaman();dirty=true}}).catch(()=>{}),800);toast(`${k==='genteng'?'🧱':RXD[k].ic} Terkirim! @${r.name} dapat +${RXD[k].p} poin Tetangga Idaman`.replace('🧱','👏'));selesai&&selesai()};
   row.append(kkBtn('Batal','sm',()=>o.remove()),kkBtn('Kirim','sm gold3',()=>kirim(false)));b.append(h,el('p','kk-muted','1 reaksi per rumah per hari. Pesan yang kasar otomatis ditolak.'),ta,msg,row);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);setTimeout(()=>ta.focus(),50)}
 window.IDAMAN=[];window.IDAMAN_LALU=[];
 function renderIdaman(){const box=$('idmList'),card=$('idmCard');if(!box||!card)return;box.innerHTML='';const L=window.IDAMAN||[];
@@ -3677,7 +3702,7 @@ function kkPindahBox(body,c){const w=el('div','kk-kol');w.append(el('b',null,'�
   const row=el('div','kk-row');row.append(kkBtn('🚚 Truk Titut · 3 Receh','sm',()=>bukaPindahan('truk')),kkBtn('🚁 Helikoper · 8 Receh','sm gold3',()=>bukaPindahan('heli')));w.append(row);body.append(w)}
 
 // segarkan perjalanan pindahan & GENTO tiap 30 detik (biar pindahan warga lain kelihatan tanpa muat ulang)
-setInterval(()=>{if(document.hidden)return;fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;window.PINDAH=j.pindah||{};window.PINDAH_LOG=j.pindahLog||[];try{pindahTerapkan()}catch(e){}if(!window.__GENTO_QA)window.GENTO_MODE=j.gento||null;dirty=true}).catch(()=>{})},30000);
+setInterval(()=>{if(document.hidden)return;if(!QA9)fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.pilihan)return;window.PINDAH=j.pindah||{};window.PINDAH_LOG=j.pindahLog||[];try{pindahTerapkan()}catch(e){}if(!window.__GENTO_QA)window.GENTO_MODE=j.gento||null;dirty=true}).catch(()=>{})},30000);
 // mode uji GENTO keluyuran (cuma di perangkat sendiri): ?gento=main (lagi main) · ?gento=pulang (main sebentar lalu disuruh pulang)
 {const gm=(new URLSearchParams(location.search).get('gento')||'').toLowerCase();if(gm==='main'||gm==='pulang'||gm==='pemilik'){window.__GENTO_QA=gm;const T0=Date.now();
   window.GENTO_MODE=gm==='main'?{m:'main',at:T0-20000}:gm==='pulang'?{m:'pulang',at:T0+15000,dari:{m:'main',at:T0-60000}}:{m:'pulang',at:T0-1000};
@@ -3831,7 +3856,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
   try{stafPlus(j.staf)}catch(e){console.error(e)}window.LOWONGAN=j.lowongan||{};try{renderUmum()}catch(e){}
-  window.IDAMAN=j.idaman||[];window.IDAMAN_LALU=j.idamanLalu||[];try{renderIdaman()}catch(e){}window.PINDAH=j.pindah||{};window.PINDAH_LOG=j.pindahLog||[];try{pindahTerapkan()}catch(e){}window.ROBOT_OWNER=j.robot||null;if(!window.__GENTO_QA)window.GENTO_MODE=j.gento||null;window.PATRO_OWNER=j.patromax||null;window.SOROT_OWNER=j.sorot||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
+  if(!QA9){window.IDAMAN=j.idaman||[];window.IDAMAN_LALU=j.idamanLalu||[];try{renderIdaman()}catch(e){}window.PINDAH=j.pindah||{};window.PINDAH_LOG=j.pindahLog||[];}try{pindahTerapkan()}catch(e){}window.ROBOT_OWNER=j.robot||null;if(!window.__GENTO_QA)window.GENTO_MODE=j.gento||null;window.PATRO_OWNER=j.patromax||null;window.SOROT_OWNER=j.sorot||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);

@@ -2055,14 +2055,15 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
   ctx.restore();return n>0}
 // Patromax: malam tetap gelap, tapi rumah pemilik + 4 rumah terdekat kelihatan terang (lubang di lapisan gelap + cahaya hangat berkedip)
 let PMX_C=null;const PMX_NB={};
-function pmxTetangga(r){const k=r.name;if(PMX_NB[k]&&PMX_NB[k].n===RES.length)return PMX_NB[k].l;const T=NK.T,X=NK.wx(r.x),Y=NK.wx(r.y);
-  const l=RES.filter(q=>q!==r).map(q=>[q,(NK.wx(q.x)-X)**2+(NK.wx(q.y)-Y)**2]).sort((a,b)=>a[1]-b[1]).slice(0,4).map(([q])=>[NK.wx(q.x),NK.wx(q.y)]);l.unshift([X,Y]);PMX_NB[k]={n:RES.length,l};return l}
-function patromaxGelap(v,t,n){const W=v.W,H=v.H,z=v.z,T=NK.T;if(!PMX_C)PMX_C=document.createElement('canvas');if(PMX_C.width!==W||PMX_C.height!==H){PMX_C.width=W;PMX_C.height=H}
+function patromaxGelap(v,t,n){const W=v.W,H=v.H,z=v.z,T=NK.T,PP=window.__PATRO||[];if(!PMX_C)PMX_C=document.createElement('canvas');if(PMX_C.width!==W||PMX_C.height!==H){PMX_C.width=W;PMX_C.height=H}
   const c=PMX_C.getContext('2d');c.globalCompositeOperation='source-over';c.clearRect(0,0,W,H);c.fillStyle=`rgba(10,16,46,${.7*n})`;c.fillRect(0,0,W,H);c.globalCompositeOperation='destination-out';
-  const fl=.9+.06*Math.sin(t*3)+.03*Math.sin(t*11);
-  (window.__PATRO||[]).forEach(o=>{pmxTetangga(o.r).forEach(([hx,hy],i)=>{const x=v.ox+hx*z,y=v.oy+hy*z,r=T*(i?.78:.95)*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(0,0,0,${.95*fl})`);g.addColorStop(.6,`rgba(0,0,0,${.8*fl})`);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)})});
-  ctx.drawImage(PMX_C,0,0);ctx.save();ctx.globalCompositeOperation='lighter';
-  (window.__PATRO||[]).forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,r=T*1.9*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,220,130,${.5*n*fl})`);g.addColorStop(.3,`rgba(255,200,100,${.22*n*fl})`);g.addColorStop(1,'rgba(255,200,100,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)});ctx.restore()}
+  const fl=1+.035*Math.sin(t*3)+.02*Math.sin(t*11),RAD=T*3.4*fl;
+  // satu lingkaran cahaya besar & lembut (terang penuh di tengah, memudar alami ke tepi)
+  PP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,r=RAD*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(.45,'rgba(0,0,0,.95)');g.addColorStop(.7,'rgba(0,0,0,.6)');g.addColorStop(.88,'rgba(0,0,0,.22)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)});
+  ctx.drawImage(PMX_C,0,0);ctx.save();
+  PP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,r=RAD*z;if(x<-r||x>W+r||y<-r||y>H+r)return;
+    ctx.globalCompositeOperation='multiply';let g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgb(255,238,200)');g.addColorStop(.7,'rgb(255,226,180)');g.addColorStop(1,'rgb(255,255,255)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);
+    ctx.globalCompositeOperation='lighter';const r2=r*.55;g=ctx.createRadialGradient(x,y,0,x,y,r2);g.addColorStop(0,`rgba(255,214,120,${.5*n})`);g.addColorStop(.35,`rgba(255,200,100,${.2*n})`);g.addColorStop(1,'rgba(255,200,100,0)');ctx.fillStyle=g;ctx.fillRect(x-r2,y-r2,2*r2,2*r2)});ctx.restore()}
 let MALAM_T=0;
 // hemat HP: peta berhenti menggambar saat tidak kelihatan di layar atau saat halaman sedang di-scroll
 let MAP_VIS=true,SCROLL_T=0;try{new IntersectionObserver(e=>{MAP_VIS=e[0].isIntersecting;if(MAP_VIS)dirty=true},{threshold:0}).observe(cv)}catch(e){}

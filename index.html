@@ -450,7 +450,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <ol class="steps">
           <li><div><b>Follow @negerikomen</b><span>Follower = warga resmi. Yang unfollow, rumahnya digusur.</span></div></li>
           <li><div><b>Komen di video terbaru</b><span>Tulis nama, warna genteng, dan warna tembok. Contoh: “Budi, genteng merah, tembok biru”.</span></div></li>
-          <li><div><b>Ikut tantangan kepala desa</b><span>Tiap episode ada tantangan baru: voting bangunan, nama dusun, sampai misteri di peta. Usulan dengan like terbanyak jadi kenyataan di kampung!</span></div></li>
+          <li><div><b>Ikut tantangan kepala desa</b><span>Sesekali Pak Kades kasih tantangan acak: voting bangunan, kuis, kontes, nama dusun, sampai misteri di peta. Pantau terus videonya, usulan dengan like terbanyak bisa jadi kenyataan di kampung!</span></div></li>
         </ol>
         <a class="btn dark" href="https://www.instagram.com/negerikomen/" target="_blank" rel="noopener">Buka Instagram @negerikomen</a>
         <p class="note">Rumahmu muncul di episode berikutnya. Update tiap hari jam 19.00 WIB.</p>
@@ -2829,9 +2829,30 @@ function kkPublik(){try{renderEtalase()}catch(e){}document.querySelectorAll('[da
 kkPublik();
 const KK_IG='https://www.instagram.com/negerikomen/';
 function kkTgl(iso){const d=new Date(Date.parse(iso)+7*3600e3);return isNaN(d)?'hari Senin':d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getUTCMonth()]+' '+d.getUTCFullYear()}
-function kkGet(){try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
+function kkGet(){if(BOS_QA())return {u:'lembarpeta',t:'qa-simulasi'};try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
 function kkSet(v){try{v?localStorage.setItem('nk_kartu',JSON.stringify(v)):localStorage.removeItem('nk_kartu')}catch(e){}}
-async function kkApi(aksi,body,auth){const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
+// ===== mode simulasi bos (link #bos-qa): coba jadi bos yang buka lowongan, terima/tolak pelamar, kirim bonus. Semua cuma di perangkat ini, tidak ke server.
+const BOS_QA=()=>/bos-qa/i.test(location.hash);let BQ=null;
+function bqInit(){if(BQ)return BQ;const b=(typeof BLD!=='undefined'?BLD:[]).find(x=>x.type==='tk')||(typeof BLD!=='undefined'?BLD:[]).find(x=>['penginapan','sekolah','puskesmas'].includes(x.type))||{type:'tk',name:'TK Simulasi',x:0,y:0};
+  const ROLES={penginapan:['Resepsionis','Satpam','Pelayan','Tukang Kebun'],sekolah:['Guru','Satpam','Penjaga Kantin','Tukang Kebun'],puskesmas:['Perawat','Satpam','Petugas Apotek','Petugas Kebersihan'],tk:['Guru TK','Satpam','Penjaga Kantin']};
+  BQ={saldo:20,b:{buka:false,pelamar:[],seen:0,key:b.type+'@'+b.x+','+b.y,name:b.name||'Bangunan',type:b.type,roles:ROLES[b.type]||['Karyawan'],maks:3,staf:[],kontrak:30,gaji:0,pilihanKontrak:[7,14,30]}};return BQ}
+function bqKartu(){const q=bqInit();return {u:'lembarpeta',bangunan:[q.b],nick:'Bos Simulasi',saldo:q.saldo,jatah:{total:1,terpakai:0,sisa:1},reset:new Date(Date.now()+7*864e5).toISOString(),admin:false,items:{own:[],pajang:[]},pesan:{},tingkat:1,versi:1,dipakai:0,kabarLamar:[]}}
+async function bqApi(aksi,body){const q=bqInit(),b=q.b,ok=x=>Object.assign({ok:true,kartu:bqKartu()},x||{});
+  if(aksi==='lowongan'){if(body.buka&&b.staf.length>=b.maks)return {ok:false,error:'Karyawanmu sudah 3 (penuh).'};b.buka=!!body.buka;if(b.buka){b.kontrak=+body.hari||30;b.gaji=+body.gaji||0;
+      const W=(typeof RES!=='undefined'?RES:[]).slice(40,400).filter(r=>r&&r.name),pick=k=>W[Math.floor(Math.random()*W.length)]||{name:'warga'+k},alasan=['Aku sabar sama bocil 😆','Rajin komen tiap hari!','Mau belajar kerja di kampung','Adikku banyak, udah biasa ngurus'];
+      setTimeout(()=>{if(!b.buka)return;for(let k=0;k<3;k++){const r=pick(k);if(b.pelamar.some(x=>x.user===r.name)||b.staf.some(x=>x.user===r.name))continue;b.pelamar.push({user:r.name,role:b.roles[k%b.roles.length],pesan:alasan[k%alasan.length],at:Date.now()+k})}
+        toast('📝 (simulasi) 3 pelamar baru masuk! Buka lagi Kartu Komen-mu');try{if(document.querySelector('#kk'))kkBuka('lembarpeta')}catch(e){}},2500)}
+    else b.pelamar=[];return ok()}
+  if(aksi==='staf'){const t=String(body.target||'').toLowerCase();
+    if(body.op==='tolak'){b.pelamar=b.pelamar.filter(x=>x.user!==t);return ok()}
+    if(body.op==='tambah'){if(b.staf.length>=b.maks)return {ok:false,error:'Karyawan sudah penuh.'};const lam=b.pelamar.find(x=>x.user===t),hari=+body.hari||b.kontrak||30,gaji=body.gaji!=null?+body.gaji:b.gaji,pek=hari===7?1:hari===14?2:4,setor=gaji*pek;
+      if(setor>q.saldo)return {ok:false,error:'Recehan-mu belum cukup buat setor gaji '+setor+' Receh.'};q.saldo-=setor;
+      const until=new Date(Date.now()+252e5+hari*864e5).toISOString().slice(0,10);b.staf.push({user:t,role:body.role||(lam&&lam.role)||b.roles[0],until,gaji,pekan:pek,dibayar:gaji?1:0,at:Date.now()});b.pelamar=b.pelamar.filter(x=>x.user!==t);
+      const penuh=b.staf.length>=b.maks;if(penuh){b.buka=false;b.pelamar=[]}return ok({penuh})}
+    return {ok:false,error:'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri.'}}
+  if(aksi==='bonus'){const n=Math.floor(+body.n);if(n>q.saldo)return {ok:false,error:'Recehan-mu belum cukup buat bonus '+n+' Receh.'};q.saldo-=n;return ok()}
+  return ok({daftar:[],list:[],lowongan:{},staf:{}})}
+async function kkApi(aksi,body,auth){if(BOS_QA()&&aksi!=='pilihan')return bqApi(aksi,body||{});const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
   const k=kkGet();if(auth&&k)o.headers.Authorization='Bearer '+k.t;
   let r,j;try{r=await fetch('/api/kartu?aksi='+aksi,o);j=await r.json()}catch(e){return {ok:false,error:'Internet lagi lemot. Coba lagi ya.'}}
   if(r.status===401&&auth){kkSet(null)}return Object.assign({ok:r.ok},j)}
@@ -2998,6 +3019,7 @@ function kkDurasi(v){const d=document.createElement('select');d.className='kk-se
 function kkStaf(body,c,b){const IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'}[b.type]||'🏢';
   const kb=el('div','kk-game on kk-staf');const gh=el('div','kk-gh');gh.append(el('b',null,IC+' Karyawan '+b.name),el('span','kk-soon',b.staf.length+'/'+b.maks));kb.append(gh);
   kb.append(el('p','kk-muted','Kamu bosnya! Atur sendiri siapa yang kerja di '+b.name+'.'));
+  if(BOS_QA())kb.append(Object.assign(el('p','kk-qa','🧪 Mode simulasi bos: kamu pura-pura jadi bos '+b.name+'. Semua cuma di perangkat ini, nggak tersimpan & nggak ngubah data asli. Recehan simulasi: '+(c.saldo||0)+' Receh.'),{style:'background:#E9F1FF;border:2px dashed #2F74B5;border-radius:12px;padding:8px 10px;font-size:13px;margin:6px 0'}));
   const inf=document.createElement('details');inf.className='kk-info';inf.open=!b.buka&&!b.staf.length&&!(b.pelamar||[]).length;const sm=document.createElement('summary');sm.append(el('b',null,'📌 Info wajib dibaca'));inf.append(sm);const il=el('ul');
   ['Karyawan wajib sudah jadi warga Negeri Komen','Maksimal '+b.maks+' karyawan','Karyawan dapat plang di rumahnya, lencana, dan namanya tercatat di info '+b.name,'Pilih upahnya: 💰 GAJI TETAP 1–3 Receh/pekan (disetor penuh di awal saat karyawan diterima: 7 hari = 1 pekan, 2 pekan = 2, 1 bulan = 4, lalu cair otomatis tiap pekan) atau 🎁 BONUS BEBAS (tanpa setoran, kasih Receh kapan saja lewat tombol 🎁)','Lama kontrak kamu yang pilih: 7 hari, 2 pekan, atau 1 bulan. Selesai otomatis, lalu kamu bisa cari karyawan lagi. Karyawan tidak bisa diberhentikan sebelum kontraknya habis, jadi pilih yang serius ya','Cara milih bebas: buka lowongan (warga melamar dari peta) atau langsung tunjuk orangnya','Kalau karyawan sudah 3, lowongan otomatis ditutup'].forEach(t=>il.append(el('li',null,t)));
   inf.append(il);kb.append(inf);
@@ -3032,7 +3054,7 @@ const ak=el('div','kk-sa');if(!x.gaji)ak.append(sel2,bo);li.append(nm,ak);ul.app
   else kb.append(el('p','kk-note','Sudah '+b.maks+' karyawan (maksimal). Slot kosong lagi saat ada kontrak yang selesai.'));
   // urutan: kabar pelamar baru → pelamar → lowongan → karyawan → tambah → info (dilipat)
   if(b.staf.length){const h=el('b','kk-sh','👷 Karyawan ('+b.staf.length+'/'+b.maks+')');kb.insertBefore(h,kb.querySelector(':scope > .kk-sl'))}
-  const q=c=>kb.querySelector(':scope > '+c);[q('.kk-gh'),q('.kk-muted'),q('.kk-plbaru'),q('.kk-pl'),q('.kk-lw'),q('.kk-sh'),q('.kk-sl'),q('.kk-sf'),q('.kk-note'),q('.kk-info')].filter(Boolean).forEach(n=>kb.append(n));
+  const q=c=>kb.querySelector(':scope > '+c);[q('.kk-gh'),q('.kk-qa'),q('.kk-muted'),q('.kk-plbaru'),q('.kk-pl'),q('.kk-lw'),q('.kk-sh'),q('.kk-sl'),q('.kk-sf'),q('.kk-note'),q('.kk-info')].filter(Boolean).forEach(n=>kb.append(n));
   body.append(kb)}
 function kkYakin(judul,isi,ya,bahaya){return new Promise(ok=>{const o=el('div','kk-yakin'),b=el('div','kk-yk');b.append(el('b',null,judul),el('p',null,isi));
   const r=el('div','kk-row'),t=kkBtn('Tidak','',()=>tutup(false)),y=kkBtn(ya||'Ya','gold3'+(bahaya?' merah':''),()=>tutup(true));r.append(t,y);b.append(r);o.append(b);
@@ -3691,6 +3713,7 @@ new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{c
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
   if(/^kartu=/.test(q)){KK_ON=true;kkPublik();kkTerimaLink(q.slice(6));return}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
+  if(q.toLowerCase()==='bos-qa'){setTimeout(()=>{toast('🧪 Mode simulasi bos: kamu jadi bos sebuah bangunan');kkBuka('lembarpeta')},600);return}
   if(q.toLowerCase()==='loker'||q.toLowerCase()==='loker-qa'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
   if(/^(contoh-?ruko|ruko)$/i.test(q)){openDemoRuko();return}
   if(GENTO_ON()&&/^(contoh-?)?(gento|robot)$/i.test(q)){openDemoGento();return}

@@ -399,7 +399,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="stats">
         <div class="stat day"><b id="sDay">1</b><span>Hari ke</span></div>
         <div class="stat"><b id="sWarga">1</b><span>Warga</span></div>
-        <div class="stat free"><b id="sFree">50</b><span>Kavling kosong</span></div>
+        <div class="stat free"><b id="sFree">∞</b><span>Kavling kosong</span></div>
         <div class="stat"><b id="sBld">2</b><span>Bangunan</span></div>
       </div>
       <p class="domain-baru" style="margin:10px 0 0;padding:8px 12px;border:1.5px dashed #C9B98A;border-radius:12px;background:#FFF8E6;font-size:13px;line-height:1.45;text-align:center">🔗 Alamat baru, lebih gampang diingat: <b>negerikomen.my.id</b></p>
@@ -1607,7 +1607,7 @@ const ICON={tb:'🧱',tk:'🧸',warung:'🏪',warkop:'☕',masjid:'🕌',lapanga
 $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
 $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
-$('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent=fmt(FREE_N);$('sBld').textContent=fmt(BLD.length);
+$('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent='∞';$('sFree').title='Kavling selalu ada: tiap warga baru pasti dapat rumah';$('sBld').textContent=fmt(BLD.length);
 const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_LAMA='Desa Awalkomen'; // desa pertama (kampung lama)
 const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
 function showGoal(){if(!(Number.isFinite(D.followers)&&D.target))return;

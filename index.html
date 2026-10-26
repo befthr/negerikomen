@@ -906,7 +906,7 @@ function gCore(now,M,hx,hy,u){
   else if(M&&M.dari)return gCore(now,M.dari,hx,hy,u);
   const ph=sh(String(u))%G_CY,c=Math.floor((now+ph)/G_CY),st=c*G_CY-ph;if(M&&st<gCmdEnd(M))return null;
   return gRoam(now-st-G_HOME,2*G_LEG,c*13+sh(String(u))%997,hx,hy)}
-function gentoPos(hx,hy,u,ms){if(window.__GENTO_DIAM)return null;const now=(ms==null?Date.now():ms)/1000,M=window.GENTO_MODE||null;
+function gentoPos(hx,hy,u,ms){if(window.__GENTO_DIAM)return null;if(!(window.NK_DATA&&window.NK_DATA.gentoMain)&&!window.__GENTO_QA)return null;const now=(ms==null?Date.now():ms)/1000,M=window.GENTO_MODE||null;
   const a=gCore(now,M,hx,hy,u);if(!a||!(a.lf>0))return null;const b=gCore(now+.2,M,hx,hy,u)||{x:hx,y:hy};
   const dx=b.x-a.x,dy=b.y-a.y;a.ang=Math.hypot(dx,dy)>.05?Math.atan2(dy,dx):-Math.PI/2;return a}
 window.__gentoPos=gentoPos;
@@ -3400,7 +3400,7 @@ function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...i
     jl.append(kkBtn(id==='motor'?'🛵 Keliling naik motor':'🚲 Keliling naik sepeda','sm gold3',async e=>{if(!paj.includes(id)){msg.textContent=`Pajang dulu ${id}-mu (ketuk kotaknya di bawah).`;msg.className='kk-msg err';return}
       e.target.disabled=true;const r=await kkApi('jalan',{id},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
       const k=kkResIdx(c.u);if(k>=0){RES[k].jalan={id,at:r.at};kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.6);if(window.NK_DATA&&window.NK_DATA.setir)mulaiSetir(k,id);else IKUT={i:k,id,sampai:Date.now()+(id==='motor'?40:56)*1000};scrollMap()}toast(id==='motor'?'Brumm! Motormu berangkat keliling kampung 🛵':'Kring kring! Sepedamu berangkat keliling kampung 🚲')}))});
-  if(it.own.some(o=>o.id==='robot')){const gLuar=()=>{const p=(window.__ROBOT||[]).find(o=>o.u===c.u);return !!(p&&p.roam&&!p.roam.pulang)};
+  if(it.own.some(o=>o.id==='robot')&&((window.NK_DATA&&window.NK_DATA.gentoMain)||window.__GENTO_QA)){const gLuar=()=>{const p=(window.__ROBOT||[]).find(o=>o.u===c.u);return !!(p&&p.roam&&!p.roam.pulang)};
     const gb=kkBtn(gLuar()?'🏠 Suruh GENTO pulang':'🛸 Suruh GENTO main','sm gold3',async e=>{if(!paj.includes('robot')){msg.textContent='Pajang dulu GENTO-mu (ketuk kotaknya di bawah).';msg.className='kk-msg err';return}
       const m=gLuar()?'pulang':'main';e.target.disabled=true;const r=await kkApi('gento',{m},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
       window.GENTO_MODE=r.mode;dirty=true;const k=kkResIdx(c.u);if(k>=0){kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(Math.min(cam.zoom,.9),.5);scrollMap()}
@@ -3419,6 +3419,13 @@ function kkItemLokal(u,list){const i=kkResIdx(u);if(i<0)return;RES[i].items=list
 {const pu=(new URLSearchParams(location.search).get('sorot')||'').replace(/^@/,'').toLowerCase();if(pu){const pas=()=>{const i=kkResIdx(pu);if(i<0)return;const l=(RES[i].items||[]).filter(o=>(o&&o.id||o)!=='sorot');RES[i].items=[{id:'sorot'},...l].slice(0,3);dirty=true};setTimeout(pas,1500);setTimeout(pas,5000);setTimeout(()=>{try{toast('Mode uji Lampu Sorot 🔦 (cuma terlihat di perangkatmu)')}catch(e){}},1600)}}
 // mode uji Patromax (cuma di perangkat sendiri): ?patromax=username&jam=21:00
 {const pu=(new URLSearchParams(location.search).get('patromax')||'').replace(/^@/,'').toLowerCase();if(pu){const pas=()=>{const i=kkResIdx(pu);if(i<0)return;const l=(RES[i].items||[]).filter(o=>(o&&o.id||o)!=='patromax');RES[i].items=[{id:'patromax'},...l].slice(0,3);dirty=true};setTimeout(pas,1500);setTimeout(pas,5000);setTimeout(()=>{try{toast('Mode uji Patromax 🏮 (cuma terlihat di perangkatmu)')}catch(e){}},1600)}}
+// mode uji GENTO keluyuran (cuma di perangkat sendiri): ?gento=main (lagi main) · ?gento=pulang (main sebentar lalu disuruh pulang)
+{const gm=(new URLSearchParams(location.search).get('gento')||'').toLowerCase();if(gm==='main'||gm==='pulang'){window.__GENTO_QA=gm;const T0=Date.now();
+  window.GENTO_MODE=gm==='main'?{m:'main',at:T0-20000}:{m:'pulang',at:T0+15000,dari:{m:'main',at:T0-60000}};
+  const pas=()=>{const ow=window.ROBOT_OWNER||'ryukaarvellacevana',i=kkResIdx(ow);if(i<0)return;window.ROBOT_OWNER=ow;const l=(RES[i].items||[]).filter(o=>(o&&o.id||o)!=='robot');RES[i].items=[{id:'robot'},...l].slice(0,3);dirty=true};
+  setTimeout(pas,1500);setTimeout(pas,5000);let ikut=true;['pointerdown','wheel'].forEach(ev=>cv.addEventListener(ev,()=>{ikut=false},{passive:true}));
+  setTimeout(()=>{try{toast(gm==='main'?'Mode uji GENTO main 🛸 (cuma di perangkatmu). Kamera ngikutin GENTO, geser peta buat lepas.':'Mode uji GENTO disuruh pulang 🏠 (15 detik lagi). Kamera ngikutin GENTO.')}catch(e){};cam.zoom=.7},1700);
+  setInterval(()=>{if(!ikut)return;const p=(window.__ROBOT||[]).find(o=>o.u===window.ROBOT_OWNER);if(p){cam.cx=p.x;cam.cy=p.y;dirty=true}},60)}}
 // popup Ubah rumah: tab Rumah & tab Item
 function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));body.append(el('h3',null,'🏠 Ubah rumah'));
   const tb=el('div','kk-tabs');[['rumah','🏠 Rumah'],['item','🎁 Item']].forEach(([k,t])=>{const b=el('button',k===tab?'on':'',t);b.type='button';b.onclick=()=>kkUbah(body,c,i,k);tb.append(b)});body.append(tb);
@@ -3564,7 +3571,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
   try{stafPlus(j.staf)}catch(e){console.error(e)}window.LOWONGAN=j.lowongan||{};try{renderUmum()}catch(e){}
-  window.ROBOT_OWNER=j.robot||null;window.GENTO_MODE=j.gento||null;window.PATRO_OWNER=j.patromax||null;window.SOROT_OWNER=j.sorot||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
+  window.ROBOT_OWNER=j.robot||null;if(!window.__GENTO_QA)window.GENTO_MODE=j.gento||null;window.PATRO_OWNER=j.patromax||null;window.SOROT_OWNER=j.sorot||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);

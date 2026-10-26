@@ -2624,6 +2624,7 @@ window.NK_DATA = {
   { "u": "panjulsnrlax", "from": "2026-10-20 17:21", "to": "2026-10-20 22:34", "g": 2, "note": "imbang 2 Genteng dengan Maharaja Cyno" },
   { "u": "genter0.25", "from": "2026-10-20 22:34", "to": "2026-10-21 20:22", "g": 11 },
   { "u": "dhafageka", "from": "2026-10-21 20:22", "to": "2026-10-25", "g": 20 },
-  { "u": "ryukaarvellacevana", "from": "2026-10-25", "g": 22, "note": "nyalip @dhafageka" }
+  { "u": "ryukaarvellacevana", "from": "2026-10-25", "to": "2026-10-26 11:30", "g": 22, "note": "nyalip @dhafageka" },
+  { "u": "scnydpi", "from": "2026-10-26 11:30", "g": 24, "note": "nyalip @ryukaarvellacevana" }
  ]
 };

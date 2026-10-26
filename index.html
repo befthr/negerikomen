@@ -3497,8 +3497,10 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    const ombak=(x,k)=>Math.sin(x/(T*3.1)+t*.9+k)*T*.18+Math.sin(x/(T*1.3)-t*1.3+k*2)*T*.08;
    if(vis(cx,ySea+T*200,W)){const xs=[];for(let x=cx-W;x<=cx+W;x+=(Math.abs(x-cx)<T*110?T:T*4))xs.push(x);
     // pesisir berumput (transisi alami jalan → pasir): tepi bergelombang, semak pandan & rumput pantai
-    {const gx0=cx-hw*1.25,gx1=cx+hw*1.25;ctx.fillStyle='#A9C766';ctx.beginPath();ctx.moveTo(gx0,yR+T*.5);for(let x=gx0;x<=gx1;x+=T)ctx.lineTo(x,yR+T*.5);for(let x=gx1;x>=gx0;x-=T*.5)ctx.lineTo(x,atas(x)+T*.6+Math.sin(x*.021)*T*.35+Math.sin(x*.057)*T*.2);ctx.closePath();ctx.fill();
-     for(let i=0;i<70;i++){const x=gx0+((i*1543)%1000)/1000*(gx1-gx0),y=yR+T*.9+((i*737)%1000)/1000*(atas(x)-yR-T*.6);if(!vis(x,y,T))continue;
+    {const sw=(J.bx1-J.bx0+1)*SL/2+T*.6,DD=T*12,gx0=cx-sw-DD,gx1=cx+sw+DD,bawah=x=>atas(x)+T*.6+Math.sin(x*.021)*T*.35+Math.sin(x*.057)*T*.2;
+     const atasG=x=>{const d=Math.abs(x-cx)-sw;if(d<=0)return yR+T*.5;const k=Math.min(1,d/DD),e=k*k*(3-2*k);return yR+T*.5+(bawah(x)-yR-T*.5)*e+Math.sin(x*.05)*T*.4*(1-e)*e};
+     ctx.fillStyle='#A9C766';ctx.beginPath();for(let x=gx0;x<=gx1;x+=T*.5){x===gx0?ctx.moveTo(x,atasG(x)):ctx.lineTo(x,atasG(x))}for(let x=gx1;x>=gx0;x-=T*.5)ctx.lineTo(x,bawah(x));ctx.closePath();ctx.fill();
+     for(let i=0;i<70;i++){const x=gx0+((i*1543)%1000)/1000*(gx1-gx0),tg=atasG(x),hb=bawah(x)-tg;if(hb<T*.9)continue;const y=tg+T*.4+((i*737)%1000)/1000*(hb-T*.8);if(!vis(x,y,T))continue;
       if(i%4===0){ctx.fillStyle='#6E9E45';ctx.beginPath();ctx.arc(x,y,T*.32,0,7);ctx.arc(x+T*.25,y-T*.08,T*.24,0,7);ctx.fill()}
       else{ctx.strokeStyle=i%2?'#7FA94C':'#8DB356';ctx.lineWidth=1.6;ctx.beginPath();for(let k=-2;k<=2;k++){ctx.moveTo(x+k*3,y);ctx.lineTo(x+k*5,y-T*.28)}ctx.stroke()}}}
     // pasir

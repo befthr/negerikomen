@@ -138,6 +138,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .btn.soon{background:#E6E2D3;border-color:#E6E2D3;color:#6B6455;cursor:default}
 @keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(242,194,48,0)}30%,70%{box-shadow:0 0 0 8px rgba(242,194,48,.6)}}
 .loker.flash,.join.flash{animation:flash 1.2s ease 2}
+.stat b.inf svg{display:block;height:.78em;width:auto;margin:.1em 0 .12em}
 .nkm-fab{position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:55;background:#F2C230;color:var(--ink);border:2.5px solid var(--ink);border-radius:16px;padding:9px 14px;font:800 14px/1 inherit;font-family:inherit;box-shadow:0 4px 0 var(--ink);cursor:pointer}
 .nkm-fab{transition:opacity .2s}.nkm-fab:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 .nkm{position:fixed;inset:0;z-index:58;background:rgba(16,22,18,.5);display:flex;align-items:flex-end;justify-content:center}.nkm[hidden]{display:none}
@@ -399,7 +400,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
       <div class="stats">
         <div class="stat day"><b id="sDay">1</b><span>Hari ke</span></div>
         <div class="stat"><b id="sWarga">1</b><span>Warga</span></div>
-        <div class="stat free"><b id="sFree">∞</b><span>Kavling kosong</span></div>
+        <div class="stat free"><b id="sFree" class="inf"><svg viewBox="0 0 64 30" aria-label="tak terbatas"><path d="M16 4C8.5 4 4 9.2 4 15s4.5 11 12 11c9 0 13-11 16-11s7 11 16 11c7.5 0 12-5.2 12-11S55.5 4 48 4c-9 0-13 11-16 11S25 4 16 4z" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round"/></svg></b><span>Kavling tersedia</span></div>
         <div class="stat"><b id="sBld">2</b><span>Bangunan</span></div>
       </div>
       <p class="domain-baru" style="margin:10px 0 0;padding:8px 12px;border:1.5px dashed #C9B98A;border-radius:12px;background:#FFF8E6;font-size:13px;line-height:1.45;text-align:center">🔗 Alamat baru, lebih gampang diingat: <b>negerikomen.my.id</b></p>
@@ -1607,7 +1608,7 @@ const ICON={tb:'🧱',tk:'🧸',warung:'🏪',warkop:'☕',masjid:'🕌',lapanga
 $('kicker').textContent=`Hari ke-${D.day} · update tiap hari 19.00 WIB`;
 $('tagDay').textContent=`Hari ke-${D.day}`;
 $('tagWarga').textContent=`${fmt(RES.length+1)} warga`;
-$('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').textContent='∞';$('sFree').title='Kavling selalu ada: tiap warga baru pasti dapat rumah';$('sBld').textContent=fmt(BLD.length);
+$('sDay').textContent=D.day;$('sWarga').textContent=fmt(RES.length+1);$('sFree').title='Kavling selalu ada: tiap warga baru pasti dapat rumah';$('sBld').textContent=fmt(BLD.length);
 const NAMA_DESA='Desa Komen-Komen Sejahtera';const NAMA_DESA_LAMA='Desa Awalkomen'; // desa pertama (kampung lama)
 const NAMA_DESA_OLEH='alifrmnxhrn'; // usulan @alifrmnxhrn, like terbanyak (43) di komen Hari 6
 function showGoal(){if(!(Number.isFinite(D.followers)&&D.target))return;

@@ -365,6 +365,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .tt-warn{display:flex;align-items:center;gap:10px;background:#C4402F;color:#fff;padding:10px 14px;font-size:14px;line-height:1.4;position:relative;z-index:60}.tt-warn[hidden]{display:none}.tt-warn a{color:#FFE68A;font-weight:800}.tt-warn .tt-ic{font-size:20px;flex:none}.tt-warn span:nth-child(2){flex:1}.tt-warn button{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-weight:800;cursor:pointer}@media(min-width:760px){.tt-warn{justify-content:center;font-size:15px}.tt-warn span:nth-child(2){flex:0 1 auto}}
 .pwa-g{position:fixed;inset:0;z-index:99999;background:rgba(20,28,24,.55);display:grid;place-items:center;padding:16px}.pwa-c{position:relative;background:#FBF6E3;border:3px solid #1C2520;border-radius:22px;box-shadow:0 8px 0 #1C2520;max-width:380px;width:100%;padding:20px 20px 18px;color:#1C2520}.pwa-c img{width:54px;height:54px;border-radius:14px;border:2px solid #1C2520}.pwa-c h3{margin:10px 0 8px;font-size:19px}.pwa-c ol{margin:0;padding-left:20px;font-size:14.5px;line-height:1.55}.pwa-c li{margin-bottom:6px}.pwa-c p{font-size:12.5px;color:#4a554f;background:#fff;border:1.5px dashed #C9B98A;border-radius:12px;padding:8px 10px;margin:10px 0 0}.pwa-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:26px;cursor:pointer;color:#1C2520}.pwa-ok{display:block;width:100%;margin-top:12px;padding:10px;border:2.5px solid #1C2520;border-radius:14px;background:#F2C230;font-weight:800;font-size:15px;cursor:pointer}
 .app-btn{display:none;align-items:center;gap:12px;margin:12px 0 2px;padding:12px 14px;border-radius:16px;border:2px solid var(--ink);background:linear-gradient(135deg,#2F6B4F,#3E8E68);color:#fff;box-shadow:0 4px 0 var(--ink);position:relative;overflow:hidden}.app-btn.on{display:flex}.app-btn:after{content:'';position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:rgba(242,194,48,.18)}.app-btn img{width:52px;height:52px;border-radius:13px;border:2px solid #fff;flex:none;animation:appgoyang 2.4s ease-in-out infinite}.app-t{flex:1;min-width:0;position:relative;z-index:1}.app-t b{display:block;font-size:15px}.app-t span{display:block;font-size:12px;opacity:.9;line-height:1.35;margin-top:2px}.app-btn button{flex:none;position:relative;z-index:1;border:2px solid var(--ink);background:#F2C230;color:var(--ink);font:inherit;font-weight:800;font-size:14px;padding:9px 16px;border-radius:999px;box-shadow:0 3px 0 var(--ink);cursor:pointer}@keyframes appgoyang{0%,100%{transform:rotate(0)}10%{transform:rotate(-8deg)}20%{transform:rotate(8deg)}30%{transform:rotate(0)}}@media(prefers-reduced-motion:reduce){.app-btn img{animation:none}}
+.gento-btn{font:800 13px Poppins,sans-serif;padding:3px 10px;border:2px solid #1C2520;border-radius:999px;background:#F2C230;color:#1C2520;cursor:pointer;vertical-align:1px;white-space:nowrap}.gento-btn:disabled{opacity:.6}
 </style>
 </head>
 <body>
@@ -949,14 +950,18 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   c.save();c.fillStyle='rgba(20,28,24,.28)';c.beginPath();c.moveTo(-15,6);c.lineTo(15,6);c.lineTo(74,62);c.lineTo(48,76);c.closePath();c.fill();E(62,69,16,9,'rgba(20,28,24,.28)',.8);c.restore();
   c.rotate(sw);
   // sayap genteng tampak atas: bilah berlapis mengembang di kiri-kanan punggung
-  {const buka=Math.max(lf,.55+.45*Math.max(0,Math.sin(t*.35+sd))**2),kp=Math.sin(t*(lf>0?14:3.2)+sd)*(lf>0?.22:.14);[-1,1].forEach(k=>{for(let i=4;i>=0;i--){const a=k*(.35+i*.3*buka+kp*(1+i*.15)),L=(46-i*5)*(1+.12*lf);c.save();c.translate(k*6,8);c.rotate(a+Math.PI/2*k);
+  {const buka=Math.max(lf,.55+.45*Math.max(0,Math.sin(t*.35+sd))**2),kp=Math.sin(t*(lf>0?4.2:3.2)+sd)*(lf>0?.2:.14);[-1,1].forEach(k=>{for(let i=4;i>=0;i--){const a=k*(.35+i*.3*buka+kp*(1+i*.15)),L=(46-i*5)*(1+.12*lf);c.save();c.translate(k*6,8);c.rotate(a+Math.PI/2*k);
       c.fillStyle=i%2?'#152142':TL;c.beginPath();c.moveTo(0,-4);c.lineTo(L,-3);c.lineTo(L+4,0);c.lineTo(L,3);c.lineTo(0,4);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
       c.fillStyle=GD;c.fillRect(L-5,-3.2,5,6.4);c.fillStyle='rgba(158,216,255,.95)';c.fillRect(4,k>0?2:-3,L-8,1.2);c.restore()}})}
+  // terbang ala superman: dua kaki lurus ke belakang, api dari telapak sepatu
+  if(lf>0){const Lg=34*lf;[-1,1].forEach(k=>{c.save();c.translate(k*5.5,8);c.rotate(-k*.06);const f=.7+.3*Math.sin(t*30+k*2);
+    E(0,Lg+9+6*f,3.6,8*f+5,'rgba(255,160,50,.5)');E(0,Lg+6+3*f,2.2,5*f+2,'rgba(255,250,215,.95)');
+    RR(-3.5,0,7,Lg,3,IV,1);RR(-3.9,Lg*.42,7.8,3,1.5,TL);RR(-4.3,Lg-7,8.6,9,3,OR,1);c.restore()})}
   // ransel pendorong (api menyala dari atas terlihat sebagai cahaya)
   [-6,6].forEach(x=>{const f=.6+.4*Math.sin(t*14+x);E(x,13,4.2*f+2,3*f+2,'rgba(79,184,255,.35)');E(x,11,3.4,3.4,'#AEB7C2');E(x,11,2,2,OR)});
   RR(-11,6,22,7,2,GR);
   // kaki ujung
-  RR(-13,8,8,8,2,GR);RR(5,8,8,8,2,GR);E(-9,15,3,1.6,OR);E(9,15,3,1.6,OR);
+  if(lf<.3){RR(-13,8,8,8,2,GR);RR(5,8,8,8,2,GR);E(-9,15,3,1.6,OR);E(9,15,3,1.6,OR)}
   // lengan kiri (pegang pedang) & kanan (meriam), kepalan siap
   RR(-28,-6,8,16,3,IV,1);RR(-28.5,2,9,7,2,OR);E(-24,15,4.4,4.4,GR);
   {const sa=-.85;c.save();c.translate(-24,15);c.rotate(sa);c.fillStyle='#E8EEF4';c.beginPath();c.moveTo(-2,0);c.lineTo(2,0);c.lineTo(2,-30);c.lineTo(0,-35);c.lineTo(-2,-30);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
@@ -2259,7 +2264,11 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       const u=safeUrl(sh.url);if(u){const a=el('a','btn gent','Buka link ↗');a.href=u;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     if(r.promo&&r.promo.text){const pr=el('p','promo');pr.append(el('b',null,'📣 Promo pendukung: '),document.createTextNode(String(r.promo.text).slice(0,140)));left.append(pr);
       if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
-    {const ek=eksMilik(r.name);if(ek.length){const pe=el('p','promo');pe.append(el('b',null,'💎 Pemilik Eksklusif: '),document.createTextNode(ek.join(' · ')+' (cuma 1 di kampung)'));left.append(pe)}}
+    {const ek=eksMilik(r.name);if(ek.length){const pe=el('p','promo');pe.append(el('b',null,'💎 Pemilik Eksklusif: '),document.createTextNode(ek.join(' · ')+' (cuma 1 di kampung)'));left.append(pe);
+      const me=(kkGet()||{}).u,own=String(window.ROBOT_OWNER||'').toLowerCase()===String(r.name).toLowerCase(),ok=(window.NK_DATA&&window.NK_DATA.gentoMain)||window.__GENTO_QA;
+      if(own&&ok&&(me===r.name||window.__GENTO_QA==='pemilik')&&(r.items||[]).some(o=>(o&&o.id||o)==='robot')){const gb=el('button','gento-btn');gb.type='button';
+        const tx=()=>{gb.textContent=gentoLuar(r.name)?'🏠 Suruh GENTO pulang':'🛸 Suruh GENTO main'},upd=()=>{if(!gb.isConnected){clearInterval(iv);return}tx()};tx();const iv=setInterval(upd,500);
+        gb.onclick=async()=>{gb.disabled=true;await gentoSuruh(r.name,gentoLuar(r.name)?'pulang':'main');gb.disabled=false;upd()};pe.append(document.createTextNode(' '),gb)}}}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(r,s.i);acts.append(v3);
     if(Array.isArray(r.items)&&r.items.slice(0,3).some(o=>o.id==='robot')){const me=(kkGet()||{}).u===String(r.name).toLowerCase();if(me){const jb=el('button','btn gold3','🤖 Jalan-jalan pakai GENTO');jb.type='button';jb.onclick=()=>{select({kind:'r',i:s.i},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(s.i,'robot');scrollMap()};acts.append(jb)}}
     const cp=el('button','btn dark','Salin link rumahku');cp.type='button';
@@ -3409,9 +3418,8 @@ function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...i
       const k=kkResIdx(c.u);if(k>=0){RES[k].jalan={id,at:r.at};kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.6);if(window.NK_DATA&&window.NK_DATA.setir)mulaiSetir(k,id);else IKUT={i:k,id,sampai:Date.now()+(id==='motor'?40:56)*1000};scrollMap()}toast(id==='motor'?'Brumm! Motormu berangkat keliling kampung 🛵':'Kring kring! Sepedamu berangkat keliling kampung 🚲')}))});
   if(it.own.some(o=>o.id==='robot')&&((window.NK_DATA&&window.NK_DATA.gentoMain)||window.__GENTO_QA)){const gLuar=()=>{const p=(window.__ROBOT||[]).find(o=>o.u===c.u);return !!(p&&p.roam&&!p.roam.pulang)};
     const gb=kkBtn(gLuar()?'🏠 Suruh GENTO pulang':'🛸 Suruh GENTO main','sm gold3',async e=>{if(!paj.includes('robot')){msg.textContent='Pajang dulu GENTO-mu (ketuk kotaknya di bawah).';msg.className='kk-msg err';return}
-      const m=gLuar()?'pulang':'main';e.target.disabled=true;const r=await kkApi('gento',{m},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
-      window.GENTO_MODE=r.mode;dirty=true;const k=kkResIdx(c.u);if(k>=0){kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(Math.min(cam.zoom,.9),.5);scrollMap()}
-      toast(m==='main'?'🛸 GENTO terbang main-main! Semua warga bisa lihat. Bisa disuruh pulang kapan aja.':'🏠 GENTO terbang pulang ke rumahmu (istirahat 1 jam).')});
+      const m=gLuar()?'pulang':'main';e.target.disabled=true;const ok=await gentoSuruh(c.u,m);e.target.disabled=false;if(!ok)return;
+      const k=kkResIdx(c.u);if(k>=0){kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(Math.min(cam.zoom,.9),.5);scrollMap()}});
     jl.append(gb)}
   if(it.own.some(o=>o.id==='robot'))jl.append(kkBtn('🤖 Jalan-jalan pakai GENTO','sm gold3',()=>{if(!paj.includes('robot')){msg.textContent='Pajang dulu GENTO-mu (ketuk kotaknya di bawah).';msg.className='kk-msg err';return}const k=kkResIdx(c.u);if(k<0)return;kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(k,'robot');scrollMap();toast('GENTO berangkat jalan-jalan! 🤖')}));
   if(jl.childNodes.length)w.append(jl);
@@ -3426,19 +3434,17 @@ function kkItemLokal(u,list){const i=kkResIdx(u);if(i<0)return;RES[i].items=list
 {const pu=(new URLSearchParams(location.search).get('sorot')||'').replace(/^@/,'').toLowerCase();if(pu){const pas=()=>{const i=kkResIdx(pu);if(i<0)return;const l=(RES[i].items||[]).filter(o=>(o&&o.id||o)!=='sorot');RES[i].items=[{id:'sorot'},...l].slice(0,3);dirty=true};setTimeout(pas,1500);setTimeout(pas,5000);setTimeout(()=>{try{toast('Mode uji Lampu Sorot 🔦 (cuma terlihat di perangkatmu)')}catch(e){}},1600)}}
 // mode uji Patromax (cuma di perangkat sendiri): ?patromax=username&jam=21:00
 {const pu=(new URLSearchParams(location.search).get('patromax')||'').replace(/^@/,'').toLowerCase();if(pu){const pas=()=>{const i=kkResIdx(pu);if(i<0)return;const l=(RES[i].items||[]).filter(o=>(o&&o.id||o)!=='patromax');RES[i].items=[{id:'patromax'},...l].slice(0,3);dirty=true};setTimeout(pas,1500);setTimeout(pas,5000);setTimeout(()=>{try{toast('Mode uji Patromax 🏮 (cuma terlihat di perangkatmu)')}catch(e){}},1600)}}
+function gentoLuar(u){const p=(window.__ROBOT||[]).find(o=>o.u===u);return !!(p&&p.roam&&!p.roam.pulang)}
+async function gentoSuruh(u,m){let mode;if(window.__GENTO_QA){const L=window.GENTO_MODE;mode={m,at:Date.now(),...(L?{dari:{m:L.m,at:L.at}}:{})}}
+  else{const r=await kkApi('gento',{m},true);if(!r.ok){toast(r.error||'Gagal');return false}mode=r.mode}
+  window.GENTO_MODE=mode;dirty=true;toast(m==='main'?'🛸 GENTO terbang main-main! Semua warga bisa lihat. Bisa disuruh pulang kapan aja.':'🏠 GENTO terbang pulang ke rumahmu (istirahat 1 jam).');return true}
 // mode uji GENTO keluyuran (cuma di perangkat sendiri): ?gento=main (lagi main) · ?gento=pulang (main sebentar lalu disuruh pulang)
 {const gm=(new URLSearchParams(location.search).get('gento')||'').toLowerCase();if(gm==='main'||gm==='pulang'||gm==='pemilik'){window.__GENTO_QA=gm;const T0=Date.now();
   window.GENTO_MODE=gm==='main'?{m:'main',at:T0-20000}:gm==='pulang'?{m:'pulang',at:T0+15000,dari:{m:'main',at:T0-60000}}:{m:'pulang',at:T0-1000};
-  if(gm==='pemilik'){const bx=document.createElement('div');bx.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;background:#fff;border:3px solid #1C2520;border-radius:18px;padding:10px 12px;box-shadow:0 5px 0 #1C2520;font:700 13px Poppins,sans-serif;text-align:center;max-width:92vw';
-    const ttl=document.createElement('div');ttl.textContent='🧪 Uji tombol pemilik GENTO (cuma di perangkatmu)';ttl.style.marginBottom='8px';const btn=document.createElement('button');btn.type='button';btn.className='btn sm gold3';btn.style.cssText='font:800 15px Poppins,sans-serif;padding:10px 16px;border:3px solid #1C2520;border-radius:14px;background:#F2C230;cursor:pointer';
-    const luar=()=>{const p=(window.__ROBOT||[]).find(o=>o.u===window.ROBOT_OWNER);return !!(p&&p.roam&&!p.roam.pulang)};
-    const upd=()=>{btn.textContent=luar()?'🏠 Suruh GENTO pulang':'🛸 Suruh GENTO main'};setInterval(upd,400);upd();
-    btn.onclick=()=>{const m=luar()?'pulang':'main',L=window.GENTO_MODE;window.GENTO_MODE={m,at:Date.now(),...(L?{dari:{m:L.m,at:L.at}}:{})};ikut=true;dirty=true;
-      toast(m==='main'?'🛸 GENTO terbang main-main! Semua warga bisa lihat. Bisa disuruh pulang kapan aja.':'🏠 GENTO terbang pulang ke rumahmu (istirahat 1 jam).')};
-    bx.append(ttl,btn);setTimeout(()=>document.body.append(bx),1500)}
+  if(gm==='pemilik')setTimeout(()=>{const k=kkResIdx(window.ROBOT_OWNER||'ryukaarvellacevana');if(k>=0)select({kind:'r',i:k},{instant:true})},2600);
   const pas=()=>{const ow=window.ROBOT_OWNER||'ryukaarvellacevana',i=kkResIdx(ow);if(i<0)return;window.ROBOT_OWNER=ow;const l=(RES[i].items||[]).filter(o=>(o&&o.id||o)!=='robot');if((RES[i].items||[])[0]&&(RES[i].items[0].id||RES[i].items[0])==='robot')return;RES[i].items=[{id:'robot'},...l].slice(0,3);dirty=true};
   setTimeout(pas,1500);setInterval(pas,1500);let ikut=true;['pointerdown','wheel'].forEach(ev=>cv.addEventListener(ev,()=>{ikut=false},{passive:true}));
-  setTimeout(()=>{try{toast(gm==='main'?'Mode uji GENTO main 🛸 (cuma di perangkatmu). Kamera ngikutin GENTO, geser peta buat lepas.':gm==='pemilik'?'Mode uji tombol pemilik GENTO 🧪. Pencet tombol di bawah.':'Mode uji GENTO disuruh pulang 🏠 (15 detik lagi). Kamera ngikutin GENTO.')}catch(e){};cam.zoom=.7},1700);
+  setTimeout(()=>{try{toast(gm==='main'?'Mode uji GENTO main 🛸 (cuma di perangkatmu). Kamera ngikutin GENTO, geser peta buat lepas.':gm==='pemilik'?'Mode uji tombol pemilik GENTO 🧪. Tombolnya ada di info rumah, sebelah tulisan Pemilik Eksklusif.':'Mode uji GENTO disuruh pulang 🏠 (15 detik lagi). Kamera ngikutin GENTO.')}catch(e){};cam.zoom=.7},1700);
   setInterval(()=>{if(!ikut)return;const p=(window.__ROBOT||[]).find(o=>o.u===window.ROBOT_OWNER);if(p){cam.cx=p.x;cam.cy=p.y;dirty=true}},60)}}
 // popup Ubah rumah: tab Rumah & tab Item
 function kkUbah(body,c,i,tab){body.innerHTML='';kkBack(body,kkKeKartu(body));body.append(el('h3',null,'🏠 Ubah rumah'));

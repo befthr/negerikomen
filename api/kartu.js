@@ -37,6 +37,17 @@ function diJalurK(x, y) { const bx = Math.floor((x - KC) / KS), by = Math.floor(
   const lx = md(x - KC, KS), ly = md(y - KC, KS); return lx >= 1 && lx <= 5 && ly >= 1 && ly <= 5 && (lx === 1 || lx === 5 || ly === 1 || ly === 5) }
 const eksDi = (x, y) => EKS.find(e => e.x === x && e.y === y) || null;
 async function pindahSemua() { const a = await kv(['HGETALL', 'pindah']) || [], o = {}; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o[a[i]] = v } return o }
+// ===== Reaksi Rumah + Buku Tamu + Tetangga Idaman =====
+const RX = { mantap: 1, genteng: 2, tetangga: 3 }; // poin mingguan Tetangga Idaman
+const hariWIB = (now = Date.now()) => { const w = new Date(now + 7 * 3600e3); return w.getUTCFullYear() + '-' + String(w.getUTCMonth() + 1).padStart(2, '0') + '-' + String(w.getUTCDate()).padStart(2, '0') };
+const KASAR = ['anjing','anjg','anjir','anjrit','bangsat','bajingan','babi','kontol','kntl','memek','mmk','ngentot','entot','ngewe','jancok','jancuk','jancik','asu','goblok','goblog','tolol','bego','idiot','kampret','tai','taik','brengsek','pantek','puki','pukimak','lonte','pelacur','sundal','perek','bencong','jembut','peler','toket','sange','colmek','coli','bokep','porno','bugil','telanjang','fuck','fck','shit','bitch','dick','pussy','asshole','nigga','nigger','kafir','bunuh','mampus','modar','setan','iblis','bodoh','dongo','cupu','sialan','keparat','laknat','bacot','bacod','tetek','pepek','itil','silit'];
+const KASAR_SUB = ['anjing','goblok','tolol','brengsek','kampret','pantek','lonte','kontol','memek','ngentot','bangsat','bajingan','pukimak','jancok','jancuk','ngewe','pelacur','jembut','colmek','bokep','pepek'];
+function pesanKasar(t) { const n = String(t || '').toLowerCase().replace(/[0@4]/g, m => ({ '0': 'o', '@': 'a', '4': 'a' })[m]).replace(/1|!/g, 'i').replace(/3/g, 'e').replace(/5|\$/g, 's').replace(/7/g, 't').replace(/(.)\1{2,}/g, '$1$1');
+  const kata = n.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean).map(w => w.replace(/(.)\1+/g, '$1')); const rapat = n.replace(/[^a-z]/g, '').replace(/(.)\1+/g, '$1');
+  return kata.some(w => KASAR.includes(w)) || KASAR_SUB.some(k => rapat.includes(k.replace(/(.)\1+/g, '$1'))) }
+async function papanIdaman(w0) { const [p, t] = await kvMany([['HGETALL', 'rx:w:' + w0 + ':p'], ['HGETALL', 'rx:w:' + w0 + ':t']]); const P = {}, Tm = {};
+  for (let i = 0; p && i + 1 < p.length; i += 2) P[p[i]] = +p[i + 1] || 0; for (let i = 0; t && i + 1 < t.length; i += 2) Tm[t[i]] = +t[i + 1] || 0;
+  return Object.keys(P).filter(u => P[u] > 0).sort((a, b) => P[b] - P[a] || (Tm[a] || 0) - (Tm[b] || 0)).slice(0, 3).map(u => ({ u, poin: P[u] })) }
 async function tiketKu(u) { const [t, h] = await kv(['HMGET', 'tiket', u + ':truk', u + ':heli']) || []; return { truk: +t || 0, heli: +h || 0 } }
 async function heliTerjual() { const a = await kv(['HGETALL', 'tiket']) || []; let n = 0; for (let i = 0; i + 1 < a.length; i += 2) if (String(a[i]).endsWith(':heli')) n += Math.max(0, +a[i + 1] || 0); return n }
 
@@ -319,7 +330,15 @@ export default async function handler(req, res) {
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), patromax: pmx || null, sorot: srt || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5), patromax: pmx || null, sorot: srt || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+    }
+    if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
+      const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });
+      const [n, hr, log] = await kvMany([['HGETALL', 'rx:n:' + t], ['HGET', 'rx:hari:' + hariWIB(), t], ['LRANGE', 'rx:log:' + t, 0, 29]]); const N = { mantap: 0, genteng: 0, tetangga: 0 };
+      for (let i = 0; n && i + 1 < n.length; i += 2) N[n[i]] = +n[i + 1] || 0;
+      let sudah = null; const ss = await sesi(req).catch(() => null); if (ss) sudah = await kv(['GET', 'rx:d:' + hariWIB() + ':' + ss.u + ':' + t]);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ n: N, tamu: +hr || 0, buku: (log || []).map(jparse).filter(Boolean), sudah: sudah || null });
     }
     if (req.method !== 'POST' && aksi !== 'saya') return res.status(405).json({ error: 'Metode tidak didukung' });
     const D = await dataKampung(req);
@@ -653,6 +672,19 @@ export default async function handler(req, res) {
       await kvMany([['HINCRBY', 'donasi', t, n], ['LPUSH', 'saldo:log:' + t, JSON.stringify({ at: Date.now(), n, ket: 'kades' })], ['LTRIM', 'saldo:log:' + t, 0, 49]]);
       if (body.hapus) await kv(['LREM', 'trk:tanpakode', 1, String(body.hapus)]);
       return res.status(200).json({ ok: true, u: t, saldo });
+    }
+    if (aksi === 'reaksi') { // {target, r: mantap|genteng|tetangga, pesan?} · 1x per rumah per hari, tidak ke rumah sendiri
+      const t = cleanU(body.target), r = String(body.r || ''); if (!RX[r]) return res.status(400).json({ error: 'Reaksi tidak dikenal' });
+      if (!warga(D, t)) return res.status(404).json({ error: 'Rumah tidak ditemukan' }); if (t === s.u) return res.status(400).json({ error: 'Nggak bisa kasih reaksi ke rumah sendiri 😄' });
+      if (!warga(D, s.u) && s.u !== OWNER) return res.status(403).json({ error: 'Cuma warga yang bisa kasih reaksi.' });
+      let pesan = String(body.pesan || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+      if (pesan && /(https?:|www\.|\.(com|id|net|org|ly|co)\b|@\w)/i.test(pesan)) return res.status(400).json({ error: 'Pesan nggak boleh berisi link atau mention.', kode: 'pesan' });
+      if (pesan && pesanKasar(pesan)) return res.status(400).json({ error: 'Pesanmu ada kata yang kurang sopan. Ganti kata-katanya, atau kirim reaksi tanpa pesan ya 🙏', kode: 'kasar' });
+      const day = hariWIB(); if (!(await kv(['SET', 'rx:d:' + day + ':' + s.u + ':' + t, r, 'NX', 'EX', 2 * 864e2]))) return res.status(429).json({ error: 'Kamu sudah kasih reaksi ke rumah ini hari ini. Besok lagi ya!' });
+      const w0 = awalMinggu(), now = Date.now();
+      await kvMany([['HINCRBY', 'rx:n:' + t, r, 1], ['HINCRBY', 'rx:hari:' + day, t, 1], ['EXPIRE', 'rx:hari:' + day, 3 * 864e2], ['HINCRBY', 'rx:w:' + w0 + ':p', t, RX[r]], ['HSET', 'rx:w:' + w0 + ':t', t, String(now)], ['EXPIRE', 'rx:w:' + w0 + ':p', 40 * 864e2], ['EXPIRE', 'rx:w:' + w0 + ':t', 40 * 864e2],
+        ['LPUSH', 'rx:log:' + t, JSON.stringify({ u: s.u, r, pesan: pesan || null, at: now })], ['LTRIM', 'rx:log:' + t, 0, 99]]);
+      return res.status(200).json({ ok: true });
     }
     if (aksi === 'pindah-beli') { // beli tiket Jasa Pindahan pakai Receh
       const j = String(body.jenis || ''); const P = PINDAH[j]; if (!P) return res.status(400).json({ error: 'Jenis tiket tidak dikenal' });

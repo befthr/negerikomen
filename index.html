@@ -949,14 +949,14 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   // bayangan panjang = robotnya tinggi sekali
   c.save();c.fillStyle='rgba(20,28,24,.28)';c.beginPath();c.moveTo(-15,6);c.lineTo(15,6);c.lineTo(74,62);c.lineTo(48,76);c.closePath();c.fill();E(62,69,16,9,'rgba(20,28,24,.28)',.8);c.restore();
   c.rotate(sw);
+  // terbang ala superman: dua kaki lurus ke belakang (di bawah sayap), api dari telapak sepatu
+  if(lf>0){const Lg=40*lf;[-1,1].forEach(k=>{c.save();c.translate(k*8,6);c.rotate(-k*.05);const f=.7+.3*Math.sin(t*30+k*2);
+    E(0,Lg+13+8*f,6,11*f+7,'rgba(255,160,50,.5)');E(0,Lg+9+4*f,3.6,7*f+3,'rgba(255,250,215,.95)');
+    RR(-6,0,12,Lg*.5,4,IV,1);RR(-6.5,Lg*.5-2,13,5,2,TL);RR(-5.5,Lg*.5+2,11,Lg*.5-6,4,IV,1);RR(-7,Lg-8,14,13,4,OR,1);c.restore()})}
   // sayap genteng tampak atas: bilah berlapis mengembang di kiri-kanan punggung
   {const buka=Math.max(lf,.55+.45*Math.max(0,Math.sin(t*.35+sd))**2),kp=Math.sin(t*(lf>0?4.2:3.2)+sd)*(lf>0?.2:.14);[-1,1].forEach(k=>{for(let i=4;i>=0;i--){const a=k*(.35+i*.3*buka+kp*(1+i*.15)),L=(46-i*5)*(1+.12*lf);c.save();c.translate(k*6,8);c.rotate(a+Math.PI/2*k);
       c.fillStyle=i%2?'#152142':TL;c.beginPath();c.moveTo(0,-4);c.lineTo(L,-3);c.lineTo(L+4,0);c.lineTo(L,3);c.lineTo(0,4);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
       c.fillStyle=GD;c.fillRect(L-5,-3.2,5,6.4);c.fillStyle='rgba(158,216,255,.95)';c.fillRect(4,k>0?2:-3,L-8,1.2);c.restore()}})}
-  // terbang ala superman: dua kaki lurus ke belakang, api dari telapak sepatu
-  if(lf>0){const Lg=34*lf;[-1,1].forEach(k=>{c.save();c.translate(k*5.5,8);c.rotate(-k*.06);const f=.7+.3*Math.sin(t*30+k*2);
-    E(0,Lg+9+6*f,3.6,8*f+5,'rgba(255,160,50,.5)');E(0,Lg+6+3*f,2.2,5*f+2,'rgba(255,250,215,.95)');
-    RR(-3.5,0,7,Lg,3,IV,1);RR(-3.9,Lg*.42,7.8,3,1.5,TL);RR(-4.3,Lg-7,8.6,9,3,OR,1);c.restore()})}
   // ransel pendorong (api menyala dari atas terlihat sebagai cahaya)
   [-6,6].forEach(x=>{const f=.6+.4*Math.sin(t*14+x);E(x,13,4.2*f+2,3*f+2,'rgba(79,184,255,.35)');E(x,11,3.4,3.4,'#AEB7C2');E(x,11,2,2,OR)});
   RR(-11,6,22,7,2,GR);

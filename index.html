@@ -2668,7 +2668,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       // jarum tekanan (bulatan depan tabung) + gagang pompa di samping tabung
       add(C(.06,.06,.02),'#F4EFE3',0,.24,.215).rotation.x=Math.PI/2;const jr=add(B(.006,.045,.006),'#1C2520',0,.24,.228);
       add(C(.034,.034,.26),'#2F6B4F',-.2,.19,.17);add(C(.042,.042,.03),'#1C2520',-.2,.33,.17);const pg=new T.Group();pg.position.set(-.2,.28,.17);q.add(pg);{const m1=new T.Mesh(C(.014,.014,.2),M('#B8B8B8',{metalness:.6,roughness:.3}));m1.position.y=.1;pg.add(m1);const m2=new T.Mesh(B(.15,.035,.035),M('#C4402F'));m2.position.y=.21;pg.add(m2);[-.075,.075].forEach(x=>{const k2=new T.Mesh(S(.022),M('#1C2520'));k2.position.set(x,.21,0);pg.add(k2)})}
-      let pl=null;try{pl=new T.PointLight('#FFC870',1.4,7);pl.position.set(0,.55,0);q.add(pl)}catch(e){}
+      let pl=null;try{const gc=document.createElement('canvas');gc.width=gc.height=128;const gx=gc.getContext('2d'),gg=gx.createRadialGradient(64,64,0,64,64,64);gg.addColorStop(0,'rgba(255,214,120,.9)');gg.addColorStop(.5,'rgba(255,200,100,.35)');gg.addColorStop(1,'rgba(255,200,100,0)');gx.fillStyle=gg;gx.fillRect(0,0,128,128);pl=new T.Mesh(new T.PlaneGeometry(2,2),new T.MeshBasicMaterial({map:new T.CanvasTexture(gc),transparent:true,depthWrite:false,blending:T.AdditiveBlending,fog:false,toneMapped:false}));pl.rotation.x=-Math.PI/2;pl.position.y=.02;q.add(pl)}catch(e){}
       // laron (malam): titik-titik kecil bersayap mengitari kaca
       const LR=[],lgeo=new T.SphereGeometry(.014,5,4);for(let n=0;n<16;n++){const m=new T.Mesh(lgeo,new T.MeshBasicMaterial({color:n%3?'#5A3A1E':'#8A6A3A',fog:false}));m.scale.set(1.8,.6,1);m.userData={r:.17+Math.random()*.16,h:.42+Math.random()*.32,w:(1.5+Math.random()*2.5)*(Math.random()<.5?-1:1),f:Math.random()*6.3};q.add(m);LR.push(m)}
       const UAP=[];let at=-1e9;const lama=g.userData.tembak;
@@ -2678,7 +2678,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
         let on=mlm?1:0,pump=0;
         if(!mlm){if(dt<1.3){pump=Math.abs(Math.sin(dt*Math.PI*2.4))}if(dt>1.1&&dt<4.4)on=Math.min(1,(dt-1.1)*3)*Math.min(1,(4.4-dt)*2)}
         pg.position.y=.28-pump*.13;jr.rotation.z=-(mlm?.9:Math.min(1.2,dt<4.4?dt*.9:0))+.6;
-        const fl=.9+.08*Math.sin(t*.006+k)+.04*Math.sin(t*.03);gl.material.emissiveIntensity=on*fl;gl.material.color.set(on>.3?'#FFF6C8':'#E4EEF0');if(pl)pl.intensity=1.4*on*fl;
+        const fl=.9+.08*Math.sin(t*.006+k)+.04*Math.sin(t*.03);gl.material.emissiveIntensity=on*fl;gl.material.color.set(on>.3?'#FFF6C8':'#E4EEF0');if(pl){pl.visible=on>.02;pl.material.opacity=Math.min(1,on*fl)}
         // uap tipis saat dipompa
         if(!mlm&&dt<1.4&&UAP.length<14&&Math.random()<.4){const m=new T.Mesh(lgeo,new T.MeshBasicMaterial({color:'#FFFFFF',transparent:true,opacity:.7,fog:false,depthWrite:false}));m.position.set(.05,.68,0);m.userData={t0:now,vx:(Math.random()-.5)*.1};q.add(m);UAP.push(m)}
         for(let n=UAP.length-1;n>=0;n--){const m=UAP[n],u=(now-m.userData.t0)/1000;m.position.y=.68+u*.35;m.position.x+=m.userData.vx*.016;m.scale.setScalar(2+u*6);m.material.opacity=Math.max(0,.6-u*.5);if(u>1.2){q.remove(m);m.material.dispose();UAP.splice(n,1)}}

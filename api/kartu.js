@@ -689,6 +689,7 @@ export default async function handler(req, res) {
     if (aksi === 'pindah-beli') { // beli tiket Jasa Pindahan pakai Receh
       const j = String(body.jenis || ''); const P = PINDAH[j]; if (!P) return res.status(400).json({ error: 'Jenis tiket tidak dikenal' });
       if (!warga(D, s.u)) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa pindah.' });
+      if ((await tiketKu(s.u))[j] >= 1) return res.status(400).json({ error: 'Kamu masih punya tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') + '. Pakai dulu buat pindah ya!' });
       if (j === 'heli') { const all = await pindahSemua(), terisi = new Set(Object.values(all).filter(v => v.lok).map(v => v.x + ',' + v.y)), sisa = EKS.filter(e => !terisi.has(e.x + ',' + e.y)).length;
         if (await heliTerjual() >= sisa) return res.status(400).json({ error: 'Tiket Helikoper lagi habis: semua kavling eksklusif sudah ada yang pesan.' }) }
       const after = await kv(['HINCRBY', 'saldo', s.u, -P.harga]);

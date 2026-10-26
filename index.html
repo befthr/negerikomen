@@ -378,7 +378,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .pdh-ul{list-style:none;padding:0;margin:8px 0;font-size:14px}.pdh-ul li{margin:4px 0}.pdh-harga{display:inline-flex;align-items:center;gap:6px;background:#1C2520;color:#F2C230;font-weight:800;border-radius:999px;padding:4px 14px 4px 10px}.pdh-harga img{width:22px;height:22px}
 .pdh-eks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.pdh-eks div{border:2px solid #1C2520;border-radius:12px;padding:8px;background:#fff;font-size:12.5px;display:flex;flex-direction:column;gap:2px}.pdh-eks small{color:#C4502F;font-weight:700}
 .pdh-st{font-size:14px;margin:6px 0}.pdh-log{margin-top:12px;font-size:13px;border-top:2px dashed #ccc;padding-top:8px;display:flex;flex-direction:column;gap:3px}
-.pdh-bar{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99;background:#1C2520;color:#F2C230;font:800 13px Poppins,sans-serif;border-radius:16px;padding:8px 10px 8px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 5px 0 rgba(0,0,0,.3);max-width:94vw}.pdh-bar .btn{flex:none}
+.pdh-bar{position:fixed;left:50%;top:12px;border:3px solid #F2C230;transform:translateX(-50%);z-index:99;background:#1C2520;color:#F2C230;font:800 13px Poppins,sans-serif;border-radius:16px;padding:8px 10px 8px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 5px 0 rgba(0,0,0,.3);max-width:94vw}.pdh-bar .btn{flex:none}
 .gento-btn{font:800 13px Poppins,sans-serif;padding:3px 10px;border:2px solid #1C2520;border-radius:999px;background:#F2C230;color:#1C2520;cursor:pointer;vertical-align:1px;white-space:nowrap}.gento-btn:disabled{opacity:.6}.gento-pop{position:fixed;z-index:9999;transform:translate(-50%,-100%);background:#fff;border:3px solid #1C2520;border-radius:16px;padding:8px 12px;box-shadow:0 5px 0 #1C2520;display:flex;flex-direction:column;align-items:center;gap:5px;font:700 13px Poppins,sans-serif;white-space:nowrap}.gento-pop small{color:#C4502F;font-weight:600;margin-top:-4px}
 </style>
 </head>
@@ -2039,7 +2039,7 @@ function select(s,opts={}){
 function scrollMap(){if(window.innerWidth<=920)$('search').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}
 
 /* label dengan penghindar tabrakan */
-function drawLabels(v,t){
+function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   const z=v.z,toS=(x,y)=>[v.ox+NK.wx(x)*z,v.oy+NK.wx(y)*z],hs=T*z/dpr,fs=Math.round(13*dpr),fsS=Math.round(10.5*dpr); // fsS: label ringkas (bukan yang dipilih)
   const placed=[];const fits=r=>!placed.some(p=>r.x<p.x+p.w&&r.x+r.w>p.x&&r.y<p.y+p.h&&r.y+r.h>p.y);
   const measure=(name,sub,fs)=>{ctx.font=`700 ${fs}px Figtree`;let w=ctx.measureText(name).width;if(sub){ctx.font=`500 ${fs*.78}px Figtree`;w=Math.max(w,ctx.measureText(sub).width)}
@@ -2202,6 +2202,7 @@ function frame(now){
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}
     try{drawMalam(v,t)}catch(e){}
+    try{if(PILIH)drawPilih(v,reduce?0:t)}catch(e){console.error(e)}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
     drawLabels(v,reduce?0:t);dirty=false;
@@ -3064,7 +3065,7 @@ function qaKasar(t){const K=['anjing','anjir','bangsat','bajingan','kontol','mem
 function qaKartu(){return {u:'lembarpeta',nick:'Lembar Peta (uji)',nomor:1320,hari:5,saldo:QS.saldo,tiket:{...QS.tiket},pindahJeda:Math.max(0,QS.jedaSampai-Date.now()),pindahKu:QS.pindahKu,items:{own:[],pajang:[]},pesan:{},bangunan:[],jatah:{total:3,terpakai:0,sisa:3},reset:new Date(Date.now()+7*864e5).toISOString(),admin:false,tingkat:1,versi:1,dipakai:0,kabarLamar:[],emas:false}}
 async function qa9Api(aksi,b){await new Promise(z=>setTimeout(z,250));const ok=x=>Object.assign({ok:true,kartu:qaKartu()},x||{}),no=(e,x)=>Object.assign({ok:false,error:e},x||{});
   if(aksi==='saya')return {ok:true,kartu:qaKartu()};
-  if(aksi==='pindah-beli'){const h=PDH[b.jenis]&&PDH[b.jenis].h;if(!h)return no('Jenis tiket tidak dikenal');if(QS.saldo<h)return no('Recehan belum cukup. Butuh '+h+' Receh.');QS.saldo-=h;QS.tiket[b.jenis]++;return ok()}
+  if(aksi==='pindah-beli'){const h=PDH[b.jenis]&&PDH[b.jenis].h;if(!h)return no('Jenis tiket tidak dikenal');if(QS.tiket[b.jenis]>=1)return no('Kamu masih punya tiket. Pakai dulu buat pindah ya!');if(QS.saldo<h)return no('Recehan belum cukup. Butuh '+h+' Receh.');QS.saldo-=h;QS.tiket[b.jenis]++;return ok()}
   if(aksi==='pindah'){const j=b.jenis;if(QS.tiket[j]<1)return no('Kamu belum punya tiket.');if(QS.jedaSampai>Date.now())return no('Kamu baru pindah. Bisa pindah lagi 7 hari lagi.');
     if(kavTerisi().has(b.x+','+b.y))return no('Yah, kavling itu baru saja dipesan warga lain. Pilih yang lain ya.');const i=kkResIdx('lembarpeta'),r=RES[i],ek=desaBangun().EKS.find(e=>e.x===b.x&&e.y===b.y);
     QS.tiket[j]--;const v={x:b.x,y:b.y,lok:ek?ek.lok:null,via:j,at:Date.now(),dur:j==='heli'?30:90,dari:r._tr?{x:r._tr.dari.x,y:r._tr.dari.y}:{x:r.x,y:r.y},lokDari:r.lok||null};QS.pindahKu=v;QS.jedaSampai=Date.now()+7*864e5;return ok({pindah:v})}
@@ -3579,12 +3580,21 @@ function drawFasilitas(r,t){const X=NK.wx(r.x),Y=NK.wx(r.y),D=desaBangun(),rf=NK
     ctx.fillStyle='#C4502F';ctx.fillRect(bx-T*1.05,by,T*2.1,T*.12);ctx.fillStyle='#1C2520';ctx.font=`800 ${T*.17}px Poppins,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Selamat datang! — @'+String(r.name).slice(0,16),bx,by+T*.34)}
   else if(r.lok==='pantai'){try{ctx.save();ctx.translate(X+T*1.15,Y+T*.1);ctx.scale(.55,.55);NK.ladangHewan.kelapa(0,0,t,r.x);ctx.restore()}catch(e){ctx.restore()}ctx.strokeStyle='#C49A5A';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X+T*.75,Y+T*.1);ctx.quadraticCurveTo(X+T*1.2,Y+T*.45,X+T*1.6,Y+T*.12);ctx.stroke();ctx.fillStyle='rgba(226,69,60,.8)';ctx.beginPath();ctx.moveTo(X+T*.8,Y+T*.15);ctx.quadraticCurveTo(X+T*1.2,Y+T*.5,X+T*1.55,Y+T*.17);ctx.quadraticCurveTo(X+T*1.2,Y+T*.38,X+T*.8,Y+T*.15);ctx.fill();
     const w=new Date(Date.now()+7*3600e3),m=w.getUTCHours()*60+w.getUTCMinutes()+(window.__MALAM_PAKSA&&window.__MALAM_PAKSA.senja?1e5:0);if((m>=1050&&m<=1095)||m>1e5){const g=ctx.createRadialGradient(X,Y,T*.3,X,Y,T*3);g.addColorStop(0,'rgba(255,150,60,.45)');g.addColorStop(1,'rgba(255,120,40,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y,T*3,0,7);ctx.fill()}}}
+function drawPilih(v,t){  {/* mode pilih lokasi: peta digelapkan, cuma kavling yang bisa ditempati yang menyala */
+   const pul=.5+.5*Math.sin((t||0)*4);ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='rgba(10,16,12,.74)';ctx.fillRect(0,0,v.W,v.H);ctx.restore();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);
+   PILIH.list.forEach(p=>{const X=NK.wx(p.x),Y=NK.wx(p.y),c=p.lok?'79,184,255':'242,194,48';const g=ctx.createRadialGradient(X,Y,T*.2,X,Y,T*1.1);g.addColorStop(0,`rgba(${c},${.55+.3*pul})`);g.addColorStop(1,`rgba(${c},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y,T*1.1,0,7);ctx.fill();
+     ctx.fillStyle=`rgb(${c})`;ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(X-T*.4,Y-T*.4,T*.8,T*.8,7);ctx.fill();ctx.stroke();
+     ctx.font=`${T*.42}px 'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.lok?LOKP[p.lok].ic:'📍',X,Y+1)});
+   // label kelompok (ukuran layar biar kebaca)
+   const grp={};PILIH.list.forEach(p=>{const k=p.lok||'jalur';(grp[k]=grp[k]||[]).push(p)});
+   Object.entries(grp).forEach(([k,L])=>{const xs=L.map(p=>NK.wx(p.x)),ys=L.map(p=>NK.wx(p.y));const cx=(Math.min(...xs)+Math.max(...xs))/2,ty=Math.min(...ys)-T*1.4;
+     pdhTag(v,cx,ty,k==='jalur'?'📍 Jalur Senja Awan · '+L.length+' kavling':LOKP[k].ic+' '+LOKP[k].n+' · '+L.length+' 💎',k==='jalur'?'kavling biasa':LOKP[k].f,k==='jalur'?'#F2C230':'#CFE8F7')});
+   {const i=kkResIdx(PILIH.u);if(i>=0){const r=RES[i],X=NK.wx(r.x),Y=NK.wx(r.y);ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([8,6]);ctx.beginPath();ctx.arc(X,Y,T*.9,0,7);ctx.stroke();ctx.setLineDash([]);NK.drawHouse(r,1,1);pdhTag(v,X,Y-T*1,'🏠 Rumahmu sekarang',null,'#fff')}}}
+}
 function drawPindahan(v,t){if(!STQA)return;ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);const now=Date.now(),D=desaBangun();try{drawMarkas(v,t)}catch(e){}try{drawMonumen(v,t)}catch(e){}
   // warga di kavling eksklusif (di luar grid kampung): fasilitas + rumah
   {const RP=window.__ROBOT||[],n0=RP.length;RES.forEach(r=>{if(!r.lok||r._tr)return;try{drawFasilitas(r,t||0)}catch(e){}NK.drawHouse(r,1,1)});if(RP.length>n0&&window.__GAMBAR_ROBOT)try{window.__GAMBAR_ROBOT(RP.slice(n0))}catch(e){}}
   // mode pilih kavling: kavling bebas menyala
-  if(PILIH){const pul=.55+.45*Math.sin((t||0)*4);PILIH.list.forEach(p=>{const X=NK.wx(p.x),Y=NK.wx(p.y);ctx.fillStyle=p.lok?`rgba(79,184,255,${.35+.3*pul})`:`rgba(242,194,48,${.35+.3*pul})`;ctx.strokeStyle='#1C2520';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(X-T*.42,Y-T*.42,T*.84,T*.84,6);ctx.fill();ctx.stroke();
-    if(p.lok){ctx.font=`${T*.42}px 'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(LOKP[p.lok].ic,X,Y)}})}
   // perjalanan yang sedang berlangsung
   Object.entries(window.PINDAH).forEach(([u,o])=>{const s=pdhStatus(u,o,now);const i=kkResIdx(u),r=i>=0?RES[i]:null;
     const end=o.at+o.dur*1000;if(now<end){const X=NK.wx(o.x),Y=NK.wx(o.y);ctx.strokeStyle='#C4502F';ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.strokeRect(X-T*.42,Y-T*.42,T*.84,T*.84);ctx.setLineDash([]);
@@ -3611,16 +3621,18 @@ async function bukaPindahan(tab){tab=tab==='heli'?'heli':'truk';const body=kkMod
   else{const tk=(c.tiket||{})[tab]||0,jd=c.pindahJeda||0;const st=el('p','pdh-st');st.append(el('b',null,`🎫 Tiket ${P.n}-mu: ${tk}`),document.createTextNode(` · Receh-mu: ${c.saldo||0}`));body.append(st);
     if(c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000){const pk=c.pindahKu;const p=el('p','pdh-st');p.textContent=`📦 Rumahmu lagi diangkut ${pk.via==='heli'?'Helikoper':'Truk Titut'} · ⏳ ${pdhSisa(pk,Date.now())} lagi`;body.append(p)}
     else if(jd>0)body.append(el('p','pdh-st','⏳ Bisa pindah lagi '+pdhJeda(jd)+' lagi'));
-    act.append(kkBtn(`🎫 Beli tiket · ${P.h} Receh`,tk?'':'gold3',async e=>{const bt=e.currentTarget;if(!await kkYakin(`Beli tiket ${P.n}?`,`${P.h} Receh dari Recehan-mu. Tiket tidak kedaluwarsa, pakai kapan aja.`,'Ya, beli'))return;bt.disabled=true;const r=await kkApi('pindah-beli',{jenis:tab},true);bt.disabled=false;
+    if(tk<1)act.append(kkBtn(`🎫 Beli tiket · ${P.h} Receh`,'gold3',async e=>{const bt=e.currentTarget;if(!await kkYakin(`Beli tiket ${P.n}?`,`${P.h} Receh dari Recehan-mu. Tiket tidak kedaluwarsa, pakai kapan aja.`,'Ya, beli'))return;bt.disabled=true;const r=await kkApi('pindah-beli',{jenis:tab},true);bt.disabled=false;
       if(!r.ok){msg.className='kk-msg err';msg.textContent=r.error||'Gagal';if(/Recehan belum cukup/.test(r.error||'')){const tr=kkBtn('Traktir Genteng buat isi Receh','sm',()=>{const u=(window.NK_DATA&&window.NK_DATA.trakteer&&window.NK_DATA.trakteer.url)||'https://trakteer.id/negerikomen';window.open(u,'_blank')});msg.append(document.createElement('br'),tr)}return}
       toast('🎫 Tiket '+P.n+' masuk! Sekarang pilih kavling tujuanmu.');bukaPindahan(tab)}));
-    if(tk>0&&jd<=0&&!(c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000))act.append(kkBtn('📍 Pilih kavling & berangkat','gold3',()=>{kkTutup();mulaiPilih(tab,c.u)}));
+    const jalanKu=c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000;
+    if(tk>=1){const ub=kkBtn(jalanKu?'📦 Rumahmu lagi diangkut…':jd>0?'⏳ Tiket bisa dipakai '+pdhJeda(jd)+' lagi':`🚀 Gunakan tiket untuk pindah`,'gold3 pdh-pakai',()=>{kkTutup();mulaiPilih(tab,c.u)});if(jalanKu||jd>0)ub.disabled=true;act.append(ub);
+      body.append(el('p','kk-muted','Kamu sudah punya tiket. Pakai dulu, baru bisa beli lagi.'))}
     body.append(act,msg)}
   if(window.PINDAH_LOG.length){const lg=el('div','pdh-log');lg.append(el('b',null,'🚚 Pindahan terbaru'));window.PINDAH_LOG.slice(0,6).forEach(o=>{const li=el('div');li.textContent=`${o.via==='heli'?'🚁':'🚚'} @${o.u} → ${o.lok?LOKP[o.lok].ic+' '+LOKP[o.lok].n:'📍 Jalur Senja Awan'}`;lg.append(li)});body.append(lg)}}
 function mulaiPilih(jenis,u){const list=kavBebas(jenis);if(!list.length){toast('Kavling tujuan lagi penuh');return}PILIH={jenis,u,list};dirty=true;
-  let bar=$('pdhbar');if(bar)bar.remove();bar=el('div','pdh-bar');bar.id='pdhbar';bar.append(el('span',null,jenis==='heli'?'🚁 Ketuk kavling tujuan: 💎 biru = eksklusif, kuning = jalur Senja Awan':'🚚 Ketuk kavling kuning tujuanmu di jalur Senja Awan'),kkBtn('Batal','sm',()=>{PILIH=null;bar.remove();dirty=true}));document.body.append(bar);
+  let bar=$('pdhbar');if(bar)bar.remove();bar=el('div','pdh-bar');bar.id='pdhbar';{const sp=el('span');sp.append(el('b',null,'📍 PILIH LOKASI BARU'),document.createElement('br'),document.createTextNode('Ketuk kotak yang menyala'));bar.append(sp)}bar.append(kkBtn('Batal','sm',()=>{PILIH=null;bar.remove();dirty=true}));document.body.append(bar);
   scrollMap();const xs=list.map(p=>NK.wx(p.x)),ys=list.map(p=>NK.wx(p.y)),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  flyTo({cx:(x0+x1)/2,cy:(y0+y1)/2,zoom:clampZ(Math.min(cw/(x1-x0+T*8),ch/(y1-y0+T*8)))},900)}
+  flyTo({cx:(x0+x1)/2,cy:(y0+y1)/2,zoom:clampZ(Math.min(cw/(x1-x0+T*8),ch/(y1-y0+T*8))*.85)},900)}
 async function pilihKavling(p){const P=PDH[PILIH.jenis],jenis=PILIH.jenis;const tujuan=p.lok?`${LOKP[p.lok].ic} ${LOKP[p.lok].n} (💎 eksklusif)`:'📍 Jalur Senja Awan, Dusun Senja Awan';
   if(!await kkYakin('Pindah ke sini?',`${tujuan}\n${P.ic} ${P.n} · ${P.wkt} perjalanan · pakai 1 tiket.\nRumah lamamu jadi kavling kosong. Pindahan ini permanen, bisa pindah lagi 7 hari lagi.`,'Ya, berangkat!'))return;
   const r=await kkApi('pindah',{jenis,x:p.x,y:p.y},true);if(!r.ok){toast(r.error||'Gagal');if(/dipesan|ada rumahnya/.test(r.error||'')){PILIH.list=PILIH.list.filter(q=>!(q.x===p.x&&q.y===p.y));dirty=true}return}

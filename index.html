@@ -2652,7 +2652,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       // laron (malam): titik-titik kecil bersayap mengitari kaca
       const LR=[],lgeo=new T.SphereGeometry(.014,5,4);for(let n=0;n<16;n++){const m=new T.Mesh(lgeo,new T.MeshBasicMaterial({color:n%3?'#5A3A1E':'#8A6A3A',fog:false}));m.scale.set(1.8,.6,1);m.userData={r:.17+Math.random()*.16,h:.42+Math.random()*.32,w:(1.5+Math.random()*2.5)*(Math.random()<.5?-1:1),f:Math.random()*6.3};q.add(m);LR.push(m)}
       const UAP=[];let at=-1e9;const lama=g.userData.tembak;
-      const malam=()=>{try{return malamNow().n>.5}catch(e){return false}};g.userData.pmx=malam()?'laron':'pompa';
+      const malam=()=>{if(window.__PMX_MALAM!=null)return window.__PMX_MALAM;try{return malamNow().n>.5}catch(e){return false}};g.userData.pmx=malam()?'laron':'pompa';
       g.userData.tembak=()=>{if(lama)lama();at=performance.now();g.userData.pmx=malam()?'laron':'pompa';try{SND.play('ting',.45)}catch(e){}};
       A.push(t=>{const now=performance.now(),dt=(now-at)/1000,mlm=malam();
         let on=mlm?1:0,pump=0;
@@ -3799,13 +3799,18 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(v3s)v3s.stop();
   const rd=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true,preserveDrawingBuffer:true});rd.setPixelRatio(dpr);rd.shadowMap.enabled=true;rd.shadowMap.type=T.PCFSoftShadowMap;
   const scn=new T.Scene();const cam=new T.PerspectiveCamera(35,1,.1,100);
-  scn.add(new T.HemisphereLight('#FFFFFF','#6E8F4A',.5));const sun=new T.DirectionalLight('#FFF2D6',.75);sun.position.set(5,9,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
+  window.__PMX_MALAM=null;cv.parentElement.style.background='';const hemi=new T.HemisphereLight('#FFFFFF','#6E8F4A',.5);scn.add(hemi);const sun=new T.DirectionalLight('#FFF2D6',.75);sun.position.set(5,9,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
   Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6});scn.add(sun);
   let {g,flag}=bd0?build3DB(bd0):build3D(r);scn.add(g);
   {const gb=$('v3gaya');gb.hidden=!g.userData.gaya;gb.onclick=()=>{if(!g.userData.gaya)return;const n=g.userData.gaya();gb.textContent='🕺 '+n;auto=false}}
   {const fb=$('v3fly');fb.hidden=!g.userData.terbang;let fc=0;fb.onclick=()=>{if(!g.userData.terbang||Date.now()<fc)return;fc=Date.now()+6800;auto=false;g.userData.terbang()}}
   {const sb=$('v3slash');sb.hidden=!g.userData.tebas;let cd=0;sb.onclick=()=>{if(!g.userData.tebas||Date.now()<cd)return;cd=Date.now()+1100;auto=false;g.userData.tebas()}}
   {const fb=$('v3fire');fb.hidden=!g.userData.tembak;const PX={pompa:['🔧','Pompa patromax'],laron:['🦋','Usir laron']}[g.userData.pmx];fb.textContent=PX?PX[0]:'💥';fb.title=fb.ariaLabel=PX?PX[1]:'Tembak mercon';fb.style.background=PX?(g.userData.pmx==='pompa'?'#2F6B4F':'#5A3A1E'):'';let cd=0;fb.onclick=()=>{if(!g.userData.tembak||Date.now()<cd)return;cd=Date.now()+2700;g.userData.tembak();fb.disabled=true;setTimeout(()=>fb.disabled=false,2700)}}
+  // Patromax: pratinjau siang/malam (malam = langit gelap, lampu nyala + laron)
+  if(g.userData.pmx){const box=cv.parentElement,fb=$('v3fire');const set=m=>{window.__PMX_MALAM=m;hemi.intensity=m?.16:.5;hemi.color.set(m?'#8FA3D9':'#FFFFFF');sun.intensity=m?.1:.75;box.style.background=m?'linear-gradient(#0B1330,#1F2C5C 70%,#2B3A6B)':'';g.userData.pmx=m?'laron':'pompa';
+      const PX={pompa:['🔧','Pompa patromax','#2F6B4F'],laron:['🦋','Usir laron','#5A3A1E']}[g.userData.pmx];fb.textContent=PX[0];fb.title=fb.ariaLabel=PX[1];fb.style.background=PX[2];tg.textContent=m?'☀️ Lihat siang':'🌙 Lihat malam'};
+    const tg=kkBtn('🌙 Lihat malam','gold3',()=>set(!(window.__PMX_MALAM!=null?window.__PMX_MALAM:g.userData.pmx==='laron')));tg.classList.add('pmx-tg');
+    const w=el('div','kk-game on');w.append(el('p','kk-muted',"🏮 Patromax beda siang & malam: siang dipompa, malam nyala terang + dikerubungi laron. Coba lihat!"),tg);$('v3demo').prepend(w);set(g.userData.pmx==='laron')}
   let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;
   // kamera menyesuaikan tinggi rumah/bangunan supaya atap & menara tidak terpotong (juga di gambar Bagikan)
   const D0=dist;let ctrY=1.3,fitD=D0;
@@ -3877,7 +3882,7 @@ function showCard(blob,r){const f=new File([blob],'rumah-'+r.name.replace(/[^\w.
   SND.play('ting',.5)}
 $('v3pvx').onclick=()=>{$('v3pv').hidden=true};$('v3pv').addEventListener('click',e=>{if(e.target===$('v3pv'))$('v3pv').hidden=true});
 let V3BACK=null; // 3D dibuka dari Kartu Komen → tombol kembali ke kartu
-function close3D(){$('v3').hidden=true;if(v3s){v3s.stop();v3s=null}const f=V3BACK;V3BACK=null;if(f)f()}
+function close3D(){$('v3').hidden=true;window.__PMX_MALAM=null;if(v3s){v3s.stop();v3s=null}const f=V3BACK;V3BACK=null;if(f)f()}
 $('v3x').onclick=close3D;$('v3').addEventListener('click',e=>{if(e.target===$('v3'))close3D()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('v3').hidden)close3D()});
 
 

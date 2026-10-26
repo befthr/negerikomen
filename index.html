@@ -372,6 +372,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .rx-pop textarea{width:100%;box-sizing:border-box;border:2px solid #1C2520;border-radius:10px;padding:8px;font:inherit;margin:8px 0 2px}
 .idm{border:2px solid #8A5A00;background:linear-gradient(150deg,#FFF8DC,#FFE9A8);box-shadow:0 4px 0 #8A5A00}.idm-hd{display:flex;gap:10px;align-items:flex-start}.idm-hd>span{font-size:30px}.idm-hd h3{margin:0}.idm-hd p{margin:2px 0 0;font-size:12.5px}
 .idm-list{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:6px}.idm-list li button{width:100%;display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #1C2520;border-radius:12px;padding:7px 10px;font:700 14px Poppins,sans-serif;cursor:pointer;text-align:left}.idm-list .md{font-size:22px}.idm-list .pt{margin-left:auto;color:#C4502F;font-weight:800}
+.kk-jasa{border:2px solid #1C2520;border-radius:16px;padding:10px 12px;margin:12px 0;background:#FFFDF6}.kk-jasa>b{display:block;margin-bottom:6px}.kj-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px dashed #ddd}.kj-ic{width:34px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;font-size:24px}.kj-ic svg{width:34px;height:34px}
+.kj-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}.kj-tx small{color:#5a6a60;font-size:12px}.kj-b{flex:none;min-width:84px}.kj-st{font-size:12.5px;margin:4px 0 0}
 .pdh-card{border:3px solid #1C2520;border-radius:18px;background:#FFF6D8;padding:14px 16px;margin:10px 0;box-shadow:0 5px 0 #1C2520}.pdh-card.heli{background:#E3F2FB}.pdh-card>b{font-size:20px}.pdh-ic{font-size:34px;float:right}
 .pdh-ul{list-style:none;padding:0;margin:8px 0;font-size:14px}.pdh-ul li{margin:4px 0}.pdh-harga{display:inline-flex;align-items:center;gap:6px;background:#1C2520;color:#F2C230;font-weight:800;border-radius:999px;padding:4px 14px 4px 10px}.pdh-harga img{width:22px;height:22px}
 .pdh-eks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.pdh-eks div{border:2px solid #1C2520;border-radius:12px;padding:8px;background:#fff;font-size:12.5px;display:flex;flex-direction:column;gap:2px}.pdh-eks small{color:#C4502F;font-weight:700}
@@ -3160,17 +3162,7 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(!c.admin){const punyaK=(c.items&&c.items.own||[]).some(o=>o.id==='konsol');
     // pemilik konsol: kotak main di atas, tepat di bawah Recehan
     const sw=!punyaK&&c.sewaKonsol&&c.sewaKonsol>Date.now();
-    if(!punyaK&&i>=0){const kb=el('div','kk-game'+(sw?' on':''));const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));kb.append(gh);
-      const jam=t=>new Date(t).toLocaleString('id-ID',{weekday:'short',hour:'2-digit',minute:'2-digit'});
-      if(sw)kb.append(el('p','kk-muted',`🎟️ Sewa aktif sampai ${jam(c.sewaKonsol)}. Skormu ikut 🏆 ranking. Mau main selamanya? Beli 4 Receh.`),kkBtn('🎮 Main sekarang','gold3',()=>{kkTutup();bukaKonsol(false)}),kkBtn('🛒 Beli selamanya · 4 Receh','',()=>kkUbah(body,c,i,'item')));
-      else{kb.append(el('p','kk-muted','14 mini game seru! Sewa 1 hari 1 Receh, atau beli 4 Receh buat dimiliki selamanya. Skor terbaikmu ikut 🏆 ranking!'));
-        if((c.saldo||0)<1){kb.append(el('p','kk-note','Recehan-mu masih 0. Sewa & beli cuma bisa pakai Recehan, isi dulu yuk!'),
-          kkBtn('🎟️ Sewa 1 hari · 1 Receh','kk-off',()=>{toast('Butuh 1 Receh. Isi Recehan dulu ya!');kkIsiSaldo(body,c)}),kkBtn('🛒 Beli selamanya · 4 Receh','kk-off',()=>{toast('Butuh 4 Receh. Isi Recehan dulu ya!');kkIsiSaldo(body,c)}),kkBtn('🪙 Isi Recehan','gold3',()=>kkIsiSaldo(body,c)))}
-        else kb.append(kkBtn('🎟️ Sewa 1 hari · 1 Receh','gold3',async e=>{const bt=e.currentTarget;if(!await kkYakin('Sewa playadalahmain?','1 Receh untuk main 24 jam (14 mini game). Skor terbaikmu ikut ranking.','Ya, sewa'))return;bt.disabled=true;const r2=await kkApi('sewa-konsol',{},true);bt.disabled=false;if(!r2.ok){toast(r2.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast('🎮 Sewa aktif 24 jam. Selamat main!');kkTampil(body,r2.kartu)}),kkBtn('🛒 Beli selamanya · 4 Receh','',()=>kkUbah(body,c,i,'item')))}
-      body.append(kb)}
-    if(punyaK){const kb=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));
-      kb.append(gh,el('p','kk-muted','14 mini game di perangkatmu. Skor terbaikmu otomatis masuk 🏆 Ranking pemilik!'),kkBtn('🎮 Main sekarang','gold3',()=>{kkTutup();bukaKonsol(false)}));
-      body.append(kb)}
+    if(i>=0)kkJasaBox(body,c,i,punyaK,sw);
     // riwayat mini game (umum) tetap di bawah
     const NG={penalti:'⚽ Adu Penalti',genteng:'🏠 Tangkap Genteng',pancing:'🎣 Pancing Ikan',bakso:'🍜 Racik Bakso',ayam:'🐔 Kejar Ayam',karung:'🥔 Balap Karung',layang:'🪁 Layangan',memori:'🃏 Memori Genteng'};
     let H=[];if(punyaK||sw)for(const g in NG){try{(JSON.parse(localStorage.getItem('kns_h_'+g)||'[]')||[]).forEach(o=>H.push({g,...o}))}catch(e){}}H=H.filter(o=>o.at).sort((a,b)=>b.at-a.at).slice(0,5);
@@ -3451,7 +3443,6 @@ function kkBagianUbah(body,c,i){const P=c.pesan||{warna:c.minta?{jenis:'warna',.
   const ub=kkBtn('','gold3 kk-ubah',()=>kkUbah(body,c,i,'rumah'));{const im=el('img','kk-gico');im.src='genteng.png';im.alt='';ub.append(im,document.createTextNode('Ubah rumah'))}
   const aksi=el('div','kk-aksi'),gr=body.querySelector('.kk-gratis');const P0=body.querySelector('.kk-wait');
   if(gr)aksi.append(gr);aksi.append(ub);if(P0)body.insertBefore(aksi,P0);else body.append(aksi);
-  try{kkPindahBox(body,c)}catch(e){}
   const it=c.items||{own:[],pajang:[]};if(it.own.length)kkKoleksi(body,c,i)}
 function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...it.pajang];
   w.append(el('b',null,'🎁 Koleksi item'),el('p','kk-muted',`Pilih maksimal 3 untuk dipajang di pekarangan. Yang lain tetap milikmu.`));
@@ -3667,6 +3658,19 @@ function kkTiketAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'�
   [['truk','🚚 +1 Truk'],['heli','🚁 +1 Helikoper']].forEach(([j,t])=>row.append(kkBtn(t,'sm gold3',async e=>{const L=ta.value.trim();if(!L)return;if(!await kkYakin('Kasih tiket?',`${t} ke: ${L}`,'Ya, kirim'))return;e.target.disabled=true;const r=await kkApi('tiket-hadiah',{target:L,jenis:j,n:1},true);e.target.disabled=false;
     msg.className='kk-msg'+(r.ok?'':' err');msg.textContent=r.ok?`✅ Terkirim ke ${r.dapat.length} warga`+(r.bukan.length?` · ⚠️ bukan warga: ${r.bukan.join(', ')}`:''):(r.error||'Gagal')})));
   w.append(ta,row,msg);body.append(w)}
+function kkJasaBox(body,c,i,punyaK,sw){const w=el('div','kk-jasa');w.append(el('b',null,'🧰 Jasa & Sewaan'));const t=c.tiket||{};
+  const jalan=c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000;
+  const row=(ic,nm,ket,btn)=>{const r=el('div','kj-row'),tx=el('div','kj-tx');tx.append(el('b',null,nm),el('small',null,ket));const icn=el('span','kj-ic');if(typeof ic==='string')icn.textContent=ic;else icn.append(ic);r.append(icn,tx,btn);w.append(r)};
+  const rb=(t2,cls,fn)=>{const b=kkBtn(t2,'sm '+(cls||''),fn);b.classList.add('kj-b');return b};
+  row('🚚','Truk Titut',(t.truk?`🎫 ${t.truk} tiket · `:'')+'pindah rumah · 30 mnt',rb(t.truk?'Pakai':'3 Receh',t.truk?'gold3':'',()=>bukaPindahan('truk')));
+  row('🚁','Helikoper',(t.heli?`🎫 ${t.heli} tiket · `:'')+'ke kavling 💎 eksklusif · 3 mnt',rb(t.heli?'Pakai':'8 Receh',t.heli?'gold3':'',()=>bukaPindahan('heli')));
+  if(jalan)w.append(el('p','kj-st',`📦 Rumahmu lagi diangkut · ⏳ ${pdhSisa(c.pindahKu,Date.now())} lagi`));
+  const ks=kkItemSVG('konsol');
+  if(punyaK)row(ks,'playadalahmain','14 mini game · punyamu selamanya',rb('🎮 Main','gold3',()=>{kkTutup();bukaKonsol(false)}));
+  else if(sw)row(ks,'playadalahmain','Sewa aktif s/d '+new Date(c.sewaKonsol).toLocaleString('id-ID',{weekday:'short',hour:'2-digit',minute:'2-digit'}),rb('🎮 Main','gold3',()=>{kkTutup();bukaKonsol(false)}));
+  else row(ks,'playadalahmain','14 mini game · sewa 1 hari',rb('1 Receh','',async e=>{const bt=e.currentTarget;if((c.saldo||0)<1){toast('Butuh 1 Receh. Isi Recehan dulu ya!');kkIsiSaldo(body,c);return}
+    if(!await kkYakin('Sewa playadalahmain?','1 Receh untuk main 24 jam (14 mini game). Skor terbaikmu ikut ranking. Mau punya selamanya? Beli 4 Receh di Ubah rumah → Item.','Ya, sewa'))return;bt.disabled=true;const r2=await kkApi('sewa-konsol',{},true);bt.disabled=false;if(!r2.ok){toast(r2.error||'Gagal');return}try{SND.play('ting',.8)}catch(_){}toast('🎮 Sewa aktif 24 jam. Selamat main!');kkTampil(body,r2.kartu)}));
+  body.append(w)}
 function kkPindahBox(body,c){const w=el('div','kk-kol');w.append(el('b',null,'🚚🚁 Jasa Pindahan'));const t=c.tiket||{};
   w.append(el('p','kk-muted',`🎫 Tiket Truk Titut: ${t.truk||0} · Helikoper: ${t.heli||0}`+(c.pindahJeda>0?` · ⏳ bisa pindah lagi ${pdhJeda(c.pindahJeda)} lagi`:'')));
   if(c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000)w.append(el('p','kk-muted',`📦 Rumahmu lagi diangkut · ⏳ ${pdhSisa(c.pindahKu,Date.now())} lagi`));

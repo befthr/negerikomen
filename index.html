@@ -3298,15 +3298,22 @@ function kkKode(body,res){const j=res.jenis||'warna',h=res.harga||1;body.innerHT
   body.append(row)}
 // pintu belanja: dari etalase / toko di peta → Kartu Komen → Ubah rumah
 // Loker Negeri lewat web (Kartu Komen)
-async function lamarNegeri(j){if(!KK_ON){toast('Lamar lewat web dibuka bareng Kartu Komen');return}
-  const k=kkGet();if(!k||!k.u){toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}return}
-  const body=kkModal();body.append(el('h3',null,'📝 Lamar: '+j.title),el('p','kk-muted','Melamar sebagai @'+k.u));
-  const cek=await kkApi('lamar-negeri',{job:j.id,cek:true},true);if(!cek.ok){body.append(el('p','kk-note',cek.error||'Gagal memuat'));return}
+// mode simulasi (link #loker-qa): coba alur lamar tanpa menyimpan apa pun ke server
+const LOKER_QA=()=>/loker-qa/i.test(location.hash);
+async function lamarQA(aksi,b){const K='nkqa_lamar_'+b.job,ada=(()=>{try{return JSON.parse(sessionStorage.getItem(K)||'null')}catch(e){return null}})();
+  if(b.cek)return {ok:true,sudah:!!ada,lamaran:ada};
+  const pesan=String(b.pesan||'').trim();if(pesan.length<5)return {ok:false,error:'Tulis alasanmu dulu ya.'};if(!b.follow)return {ok:false,error:'Centang dulu kalau sudah follow IG & subscribe YouTube @lembarpeta.'};
+  try{sessionStorage.setItem(K,JSON.stringify({pesan,follow:true,at:Date.now()}))}catch(e){}return {ok:true,ulang:!!ada}}
+async function lamarNegeri(j){const QA=LOKER_QA();if(!KK_ON&&!QA){toast('Lamar lewat web dibuka bareng Kartu Komen');return}
+  const api=QA?lamarQA:kkApi;
+  const k=QA?{u:'tes_warga'}:kkGet();if(!k||!k.u){toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}return}
+  const body=kkModal();body.append(el('h3',null,'📝 Lamar: '+j.title),el('p','kk-muted','Melamar sebagai @'+k.u));if(QA)body.append(el('p','kk-note','🧪 Mode simulasi: lamaran ini TIDAK dikirim ke Pak Kades. Coba-coba sepuasnya!'));
+  const cek=await api('lamar-negeri',{job:j.id,cek:true},true);if(!cek.ok){body.append(el('p','kk-note',cek.error||'Gagal memuat'));return}
   if(cek.sudah)body.append(el('p','kk-note','✅ Kamu sudah melamar. Kirim lagi kalau mau ganti alasanmu.'));
   const ta=el('textarea');ta.maxLength=200;ta.rows=4;ta.placeholder='Kenapa kamu cocok jadi '+j.title.replace(/ playadalahmain$/,'')+'? (maks 200 huruf)';ta.style.cssText='width:100%;box-sizing:border-box;border:2px solid #1C2520;border-radius:12px;padding:10px;font-family:inherit;font-size:14px;margin:6px 0';if(cek.lamaran)ta.value=cek.lamaran.pesan||'';
   const lb=el('label');lb.style.cssText='display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin:6px 0 10px';const cb=el('input');cb.type='checkbox';lb.append(cb,el('span',null,'Aku sudah follow IG & subscribe YouTube @lembarpeta (Pak Kades bisa minta bukti screenshot ke calon terpilih)'));
   const msg=el('p','kk-msg');
-  body.append(ta,lb,kkBtn('Kirim lamaran','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('lamar-negeri',{job:j.id,pesan:ta.value,follow:cb.checked},true);bt.disabled=false;
+  body.append(ta,lb,kkBtn('Kirim lamaran','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await api('lamar-negeri',{job:j.id,pesan:ta.value,follow:cb.checked},true);bt.disabled=false;
     if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkTutup();kkSukses(res.ulang?'✅ Lamaran diperbarui!':'🎉 Lamaran terkirim!',['Lamaranmu untuk '+j.title+' sudah masuk ke Pak Kades.','Yang terpilih diumumkan sesuai ketentuan loker. Semoga beruntung! 🍀'])}),msg)}
 async function kkBelanja(tab){if(!KK_ON){toast('Toko Pak Kades dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!');return}
   const k=kkGet();if(!k||!k.u){toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}return}
@@ -3684,7 +3691,7 @@ new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{c
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
   if(/^kartu=/.test(q)){KK_ON=true;kkPublik();kkTerimaLink(q.slice(6));return}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}
-  if(q.toLowerCase()==='loker'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
+  if(q.toLowerCase()==='loker'||q.toLowerCase()==='loker-qa'){const c=$('loker');const f=c.querySelector('details');if(f)f.open=true;c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400);return}
   if(/^(contoh-?ruko|ruko)$/i.test(q)){openDemoRuko();return}
   if(GENTO_ON()&&/^(contoh-?)?(gento|robot)$/i.test(q)){openDemoGento();return}
   if(/^b-/i.test(q)){const bi=BLD.findIndex(b=>bslug(b)===q.toLowerCase());if(bi>=0){select({kind:'b',i:bi});scrollMap();return}}

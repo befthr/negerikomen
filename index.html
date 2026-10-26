@@ -2071,7 +2071,7 @@ function uiSetir(){const old=$('setir');if(old)old.remove();const s=SETIR,u=el('
 document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();belok(m)}else if(e.key===' '){e.preventDefault();boostSetir()}else if((e.key==='x'||e.key==='X')&&SETIR&&SETIR.rb){e.preventDefault();tebasSetir()}else if(e.key==='Shift'){e.preventDefault();SETIR&&SETIR.rb?terbangSetir():boostSetir()}else if(e.key==='Escape')selesaiSetir()});
 // siang-malam ikut jam WIB: mulai gelap 17.30, gelap penuh 18.30, terang lagi 05.00-06.00 (uji: ?jam=19:00)
 const JAM_UJI=(new URLSearchParams(location.search).get('jam')||'').match(/^(\d{1,2})[:.](\d{2})$/);
-function malamNow(){const d=new Date();let m=JAM_UJI?(+JAM_UJI[1]*60+ +JAM_UJI[2]):(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440;m+=JAM_UJI?0:d.getUTCSeconds()/60;
+function malamNow(){if(window.__MALAM_PAKSA)return {n:1,senja:0};const d=new Date();let m=JAM_UJI?(+JAM_UJI[1]*60+ +JAM_UJI[2]):(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440;m+=JAM_UJI?0:d.getUTCSeconds()/60;
   const cl=x=>Math.max(0,Math.min(1,x));const n=m>=1050?cl((m-1050)/60):m<300?1:m<360?1-(m-300)/60:0;const senja=m>=1020&&m<1140?Math.sin(cl((m-1020)/120)*Math.PI):0;return {n,senja}}
 function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&senja<=0)return false;const W=v.W,H=v.H;ctx.save();ctx.setTransform(1,0,0,1,0,0);
   if(senja>0){ctx.fillStyle=`rgba(255,128,48,${.16*senja})`;ctx.fillRect(0,0,W,H)}
@@ -3510,6 +3510,14 @@ function GENTO_ON(){return !!(window.NK_DATA&&window.NK_DATA.gento)}
 function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]:null;
   open3D(me?Object.assign({},me,{demo:'ufo',nick:'UFO Nyasar di atas rumah @'+me.name}):{demo:'ufo',name:'ufonyasar',nick:'UFO Nyasar 🛸',x:0,y:0,wall:'krem',roof:'merah'},me?i:0);
   setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,window.UFO_KE?(window.UFO_KE===1?'🥇 Selamat, kamu penemu pertama! ':`🎉 Selamat, kamu penemu ke-${window.UFO_KE}! `)+'Bagikan momen langka ini 📸':'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
+// pratinjau di peta: malam sebentar, Patromax dipasang (cuma di layar ini) di rumah pemilik / rumahmu / contoh
+let PMX_PV=null;
+function pratinjauPatromaxPeta(){const ow=window.PATRO_OWNER,me=(kkGet()||{}).u;let u=ow||me||'lembarpeta';let i=kkResIdx(u);if(i<0){u='lembarpeta';i=kkResIdx(u)}if(i<0)i=0;
+  if(PMX_PV){clearTimeout(PMX_PV.t);PMX_PV.selesai()}
+  const r=RES[i],asli=r.items,punya=(asli||[]).some(o=>(o&&o.id||o)==='patromax');if(!punya)r.items=[{id:'patromax'},...(asli||[])].slice(0,3);
+  window.__MALAM_PAKSA=true;dirty=true;close3D();select({kind:'r',i},{instant:true});cam.zoom=Math.max(cam.zoom,1.15);scrollMap();
+  toast(ow?'🌙 Pratinjau malam · Patromax milik @'+ow:me?'🌙 Pratinjau malam · begini rumahmu kalau punya Patromax':'🌙 Pratinjau malam · contoh rumah dengan Patromax');
+  PMX_PV={selesai:()=>{window.__MALAM_PAKSA=false;if(!punya)r.items=asli;dirty=true;PMX_PV=null}};PMX_PV.t=setTimeout(()=>{PMX_PV&&PMX_PV.selesai();try{toast('☀️ Pratinjau selesai')}catch(e){}},15000)}
 function openDemoPatromax(){open3D({demo:'patromax',name:'contohpatromax',nick:'Patromax',x:0,y:0,wall:'krem',roof:'merah',items:[{id:'patromax'}]},0)}
 function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Hanggar GENTO',x:0,y:0,wall:'putih',roof:'biru',tingkat:2,items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
@@ -3810,7 +3818,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(g.userData.pmx){const box=cv.parentElement,fb=$('v3fire');const set=m=>{window.__PMX_MALAM=m;hemi.intensity=m?.16:.5;hemi.color.set(m?'#8FA3D9':'#FFFFFF');sun.intensity=m?.1:.75;box.style.background=m?'linear-gradient(#0B1330,#1F2C5C 70%,#2B3A6B)':'';g.userData.pmx=m?'laron':'pompa';
       const PX={pompa:['🔧','Pompa patromax','#2F6B4F'],laron:['🦋','Usir laron','#5A3A1E']}[g.userData.pmx];fb.textContent=PX[0];fb.title=fb.ariaLabel=PX[1];fb.style.background=PX[2];tg.textContent=m?'☀️ Lihat siang':'🌙 Lihat malam'};
     const tg=kkBtn('🌙 Lihat malam','gold3',()=>set(!(window.__PMX_MALAM!=null?window.__PMX_MALAM:g.userData.pmx==='laron')));tg.classList.add('pmx-tg');
-    const w=el('div','kk-game on');w.append(el('p','kk-muted',"🏮 Patromax beda siang & malam: siang dipompa, malam nyala terang + dikerubungi laron. Coba lihat!"),tg);$('v3demo').prepend(w);set(g.userData.pmx==='laron')}
+    const pv=kkBtn('🗺️ Lihat malam di peta (pamer ke tetangga!)','gold3',()=>pratinjauPatromaxPeta());const w=el('div','kk-game on');w.append(el('p','kk-muted',"🏮 Patromax beda siang & malam: siang dipompa, malam nyala terang + dikerubungi laron, dan sekitar rumahmu ikut terang di peta. Coba lihat!"),tg,pv);$('v3demo').prepend(w);set(g.userData.pmx==='laron')}
   let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;
   // kamera menyesuaikan tinggi rumah/bangunan supaya atap & menara tidak terpotong (juga di gambar Bagikan)
   const D0=dist;let ctrY=1.3,fitD=D0;

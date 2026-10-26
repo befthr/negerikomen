@@ -3629,7 +3629,12 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    if(!window.ROBOT_OWNER||!gentoDiRumah()){ctx.save();ctx.translate(kx+kw/2,ky+kh*.58);ctx.scale(T/16,T/16);try{window.__robot2D&&window.__robot2D(t,1)}catch(e){}ctx.restore()}else{ctx.fillStyle='rgba(28,37,32,.55)';ctx.font=`800 ${T*.6}px Poppins,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🤖 GENTO lagi di rumah',kx+kw/2,ky+kh*.5);ctx.fillText('@'+window.ROBOT_OWNER,kx+kw/2,ky+kh*.5+T*.9)}
    papan(x+w/2,y-T*1.2,!window.ROBOT_OWNER?'🤖 HANGGAR GENTO · GENTO BELUM DIMILIKI':gentoDiRumah()?'🤖 HANGGAR GENTO · GENTO di rumah @'+window.ROBOT_OWNER:'🤖 GENTO milik @'+window.ROBOT_OWNER+' · lagi istirahat di hanggar',T*.62,'#F2C230','#1C2520')}
   // label
-  const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=14*dpr;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(tx).width+f*1.1,h=f*1.9;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(X-w/2,Y-h/2,w,h,f*.5);ctx.fill();ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*dpr;ctx.stroke();ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y);ctx.restore()};
+  const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=13.5*dpr,d=dpr;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; // papan plang kayu (gaya plang dusun)
+   const w=ctx.measureText(tx).width+f*1.6,h=f*2.2,x0=X-w/2,y0=Y-h/2;
+   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x0+4*d,y0+5*d,w,h);ctx.fillRect(X-w*.32-2*d,y0+h,7*d,f*1.1+2*d);ctx.fillRect(X+w*.32-2*d,y0+h,7*d,f*1.1+2*d);
+   ctx.fillStyle='#5A3A1E';ctx.fillRect(X-w*.32-4*d,y0+h-2*d,7*d,f*1.1);ctx.fillRect(X+w*.32-4*d,y0+h-2*d,7*d,f*1.1);
+   ctx.fillStyle='#2F6B4F';ctx.fillRect(x0,y0,w,h);ctx.fillStyle='#F4EFE3';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,h-6*d);ctx.fillStyle='#2F6B4F';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,f*.32);
+   ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*d;ctx.strokeRect(x0,y0,w,h);ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y+f*.15);ctx.restore()};
   lb((M.x0+M.x1)/2,M.y1-(M.y1-M.y0)*.25,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x,wd.y,'💧 Waduk');lb((F.x0+F.x1)/2,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0],D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y+D.sawah.rows*D.sawah.h/2,'🌾 Sawah terasering');
   ctx.setTransform(1,0,0,1,0,0)}
 function stdPos(){desaBangun()}

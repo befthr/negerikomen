@@ -2367,7 +2367,7 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:0},o||{}));
   const box=(w,h,d,c,x,y,z)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;g.add(m);return m};
   // tanah
-  const ground=new T.Mesh(new T.CylinderGeometry(4.2,4.4,.3,40),M('#8DBE5A'));ground.position.y=-.15;ground.receiveShadow=true;g.add(ground);
+  const ground=new T.Mesh(new T.CylinderGeometry(5.8,6,.3,48),M('#8DBE5A'));ground.position.y=-.15;ground.receiveShadow=true;g.add(ground);
   box(1.2,.04,2.2,'#C9B48A',0,.02,2.5);
   let wall=NK.wallHex(r),roof=NK.roofHex(r);
   if(NK.shopOn(r)&&r.rukoCol){wall=NK.wallHex({wall:r.rukoCol.wall,x:r.x,y:r.y});roof=NK.roofHex({roof:r.rukoCol.roof,x:r.x,y:r.y})}
@@ -2381,7 +2381,7 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
     box(.6,1,.06,'#5A3A1E',0,1.83,1.17);[-1,1].forEach(x=>box(.55,.5,.06,'#BFE3F2',x,2.2,1.17));
     for(let k=0;k<5;k++)box(.7,.08,.28,'#7A5230',0,.2+k*.25,1.5+(4-k)*.25);
     for(let k=-1.6;k<=1.6;k+=.4)box(.06,.5,.06,'#5A3A1E',k,1.55,1.38);box(3.3,.06,.06,'#5A3A1E',0,1.8,1.38);
-    treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
+    treeS(-4.4,-2.9,1.1);treeS(4.3,2.7,.8);return {g,flag:flagS()}}
   if(r.style==='globe'){ // rumah globe: tiang kayu + bola dunia miring + cincin meridian emas + pintu
     const wood='#8A5A2E';box(2.6,.3,2.6,'#6B4527',0,.15,0);
     const ped=new T.Mesh(new T.CylinderGeometry(.75,1.05,1.1,20),M(wood));ped.position.y=.85;ped.castShadow=true;g.add(ped);
@@ -2395,14 +2395,14 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
     const ax=new T.Mesh(new T.CylinderGeometry(.05,.05,R*2+.7,8),M('#D4A72C'));gl.add(ax);
     [[.0,.45],[.0,-.45]].forEach(([la,lo])=>{const p=new T.Vector3(Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)).multiplyScalar(R*1.0);
       const wdw=new T.Mesh(new T.CircleGeometry(.22,18),M('#BFE3F2',{side:T.DoubleSide}));wdw.position.copy(p);wdw.lookAt(p.clone().multiplyScalar(2));gl.add(wdw)});
-    treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
+    treeS(-4.4,-2.9,1.1);treeS(4.3,2.7,.8);return {g,flag:flagS()}}
   if(r.style==='serigala'){
     const U=NK.uniqCol(r),gr=M(U.fur),gd=M(U.ear),wt=M('#D6D9DC');
     const head=new T.Mesh(new T.SphereGeometry(1.6,24,18),gr);head.scale.set(1,.95,1);head.position.set(0,1.55,0);head.castShadow=true;g.add(head);
     const sn=new T.Mesh(new T.BoxGeometry(1.2,.9,1.4),wt);sn.position.set(0,1.05,1.35);sn.castShadow=true;g.add(sn);
     [-0.8,0.8].forEach(x=>{const e=new T.Mesh(new T.ConeGeometry(.45,1.1,4),gd);e.position.set(x,3.15,-.1);e.rotation.z=x<0?.25:-.25;e.castShadow=true;g.add(e)});
     box(.6,.8,.06,'#3A2A1E',0,.4,2.02);
-    treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
+    treeS(-4.4,-2.9,1.1);treeS(4.3,2.7,.8);return {g,flag:flagS()}}
   if(r.style==='victorian'){
     const trim='#F3E8D2';
     box(3.2,.35,2.6,'#8A8F94',0,.18,0);
@@ -2415,7 +2415,7 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
     const rf=new T.Mesh(rg,M(roof));rf.position.y=3.75;rf.castShadow=true;g.add(rf);
     const dm=new T.Mesh(new T.CylinderGeometry(.3,.3,.12,16,1,false,0,Math.PI),M(trim));dm.rotation.x=Math.PI/2;dm.position.set(.3,4.3,1.12);g.add(dm);
     box(.35,1.4,.35,trim,1.3,4.6,-.7);
-    treeS(-3,-1.6,1.1);treeS(2.9,1.8,.8);return {g,flag:flagS()}}
+    treeS(-4.4,-2.9,1.1);treeS(4.3,2.7,.8);return {g,flag:flagS()}}
   if(NK.shopOn(r)){ // ruko 2 lantai
     box(3.3,1.7,2.6,'#EDE7DA',0,.85,0);
     box(2.2,1.25,.05,'#9FD3E6',-.35,.75,1.31,{metalness:.2,roughness:.15});box(.06,1.25,.07,'#555',.3,.75,1.33);box(2.25,.06,.07,'#555',-.35,1.38,1.33);
@@ -2429,7 +2429,7 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
     box(1.2,.04,1.4,'#C9B48A',0,.02,2.4);
     const tree=(x,z,s)=>{const t=new T.Mesh(new T.CylinderGeometry(.08*s,.12*s,.8*s,8),M('#7A5230'));t.position.set(x,.4*s,z);t.castShadow=true;g.add(t);
       const c=new T.Mesh(new T.SphereGeometry(.6*s,16,12),M('#4F8F3E'));c.position.set(x,1.05*s,z);c.castShadow=true;g.add(c)};
-    tree(-3,-1.6,1.1);tree(2.9,1.8,.8);
+    tree(-4.4,-2.9,1.1);tree(4.3,2.7,.8);
     let flag=null;const p=new T.Mesh(new T.CylinderGeometry(.04,.04,2.4,8),M('#5A4A3A'));p.position.set(1.4,4.6,-.9);p.castShadow=true;g.add(p);
     const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.1,roughness:.5,emissive:'#8A6A00',emissiveIntensity:.55}));flag.position.set(1.85,5.5,-.9);g.add(flag);flag.userData.base=fg.attributes.position.array.slice();
     return {g,flag}}
@@ -2448,7 +2448,7 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
   // pohon & semak
   const tree=(x,z,s)=>{const t=new T.Mesh(new T.CylinderGeometry(.08*s,.12*s,.8*s,8),M('#7A5230'));t.position.set(x,.4*s,z);t.castShadow=true;g.add(t);
     const c=new T.Mesh(new T.SphereGeometry(.6*s,16,12),M('#4F8F3E'));c.position.set(x,1.05*s,z);c.castShadow=true;g.add(c)};
-  tree(-3,-1.6,1.1);tree(2.9,1.8,.8);
+  tree(-4.4,-2.9,1.1);tree(4.3,2.7,.8);
   [[-2.3,2.2],[2.4,-2.4],[-1.8,-2.8]].forEach(([x,z])=>{const b=new T.Mesh(new T.SphereGeometry(.35,12,10),M('#5E9E46'));b.position.set(x,.25,z);b.castShadow=true;g.add(b)});
   let flag=null;
   if(r.juragan){ // juragan genteng: mahkota emas di atap, pagar emas, karpet merah
@@ -2647,7 +2647,7 @@ function robot3D(g,A,M){const T=THREE,R=new T.Group();R.position.set(-1.7,0,-3.2
       tail.rotation.z=Math.sin(s*(k.diam?2.6:9))*.7;tail.rotation.x=k.diam?0:.6}})}
 function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={items:[{id:'papan',teks:r.kerja.papan,prop:r.kerja.prop},...(r.kerja.prop==='rental'&&!(r.items||[]).some(o=>o.id==='konsol')?[{id:'konsol'}]:[]),...(Array.isArray(r.items)?r.items:[])].slice(0,3)};if(!Array.isArray(r.items)||!r.items.length)return;const T=THREE;
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8},o||{}));
-  const SLOT=[[-2.5,1.3,.5],[2.6,-.2,-.6],[-2.4,-.4,1.2]];
+  const SLOT=[[-3.4,1.9,.5],[3.6,-.4,-.6],[-3.7,-.9,1.2]];
   const A=g.userData.anim||(g.userData.anim=[]);
   r.items.slice(0,3).forEach((o,k)=>{const q=new T.Group();const [x,z,ry]=SLOT[k];q.position.set(x,0,z);q.rotation.y=ry;g.add(q);
     const VC={merah:'#C4402F',biru:'#2F74B5',hijau:'#2F9E6A',kuning:'#F2C230',hitam:'#2B2B2B',putih:'#F4EFE3',pink:'#E58AA6',ungu:'#8E5AA8',oranye:'#E07A3E'}[o.warna];
@@ -3861,7 +3861,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
       const PX={pompa:['🔧','Pompa patromax','#2F6B4F'],laron:['🦋','Usir laron','#5A3A1E'],sorot:['🔦','Tes lampu sorot','#123B66']}[g.userData.pmx||'sorot'];fb.textContent=PX[0];fb.title=fb.ariaLabel=PX[1];fb.style.background=PX[2];tg.textContent=m?'☀️ Lihat siang':'🌙 Lihat malam'};
     const tg=kkBtn('🌙 Lihat malam','gold3',()=>set(!window.__PMX_MALAM));tg.classList.add('pmx-tg');const idP=g.userData.pmx?'patromax':'sorot';
     const pv=kkBtn('🗺️ Lihat malam di peta (pamer ke tetangga!)','gold3',()=>pratinjauPatromaxPeta(idP));const w=el('div','kk-game on');w.append(el('p','kk-muted',idP==='patromax'?"🏮 Patromax beda siang & malam: siang dipompa, malam nyala terang + dikerubungi laron, dan sekitar rumahmu ikut terang di peta. Coba lihat!":"🔦 Lampu Sorot nyala pas malam: berkas cahayanya nembak ke langit dan @username pemilik terpampang di awan, kelihatan se-kampung. Coba lihat!"),tg,pv);$('v3demo').prepend(w);let m0=false;try{m0=malamNow().n>.5}catch(e){}set(m0)}
-  let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;
+  let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:17.5,auto=true,drag=null,raf=0,live=true;
   // kamera menyesuaikan tinggi rumah/bangunan supaya atap & menara tidak terpotong (juga di gambar Bagikan)
   const D0=dist;let ctrY=1.3,fitD=D0;
   const fit=()=>{const b=new T.Box3().setFromObject(g),h=Math.max(0,b.max.y);ctrY=Math.max(1.3,h*.45);

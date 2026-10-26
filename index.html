@@ -1883,7 +1883,7 @@ if(AWARDS.length){$('award').hidden=false;
 /* kalender kejutan: petunjuk misterius tiap hari, terbuka jam 19.00 saat fiturnya dirilis (buka:true diisi saat deploy rilis) */
 const KEJUTAN=[
   {d:'2026-10-26',ic:'🏞️',q:'Kampung lama akhirnya punya nama…',n:'Gerbang Desa Awalkomen',buka:true},
-  {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan'},
+  {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan',buka:true},
   {d:'2026-10-28',ic:'🔍',q:'Pak Kades menyembunyikan sesuatu di peta…',n:'Harta Karun Harian'},
   {d:'2026-10-29',ic:'📺',q:'Ada yang mau siaran…',n:'TV Komen Nasional'},
   {d:'2026-10-30',ic:'🎈',q:'Lihat ke langit malam nanti…',n:'Balon Genteng'},
@@ -2237,7 +2237,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
   const bi=BLD.findIndex(b=>{const w=b.w||3;return tx>=b.x&&tx<b.x+w&&ty>=b.y&&ty<b.y+w});if(bi>=0)return select({kind:'b',i:bi});
   if(FREE.some(p=>p.x===tx&&p.y===ty))toast('Kavling kosong. Follow dan komen supaya ini jadi rumahmu.');
-  else{const [jbx,jby]=NK.blockOf(tx,ty),lx=NK.mod(tx-C,S),ly=NK.mod(ty-C,S);if(NK.diJalur(jbx,jby)&&lx&&ly&&(lx===1||lx===5||ly===1||ly===5)&&!RES.some(r=>r.x===tx&&r.y===ty))toast('🏖️ Kavling jalur Senja Awan, menuju Pantai Senja. Belum dibuka, pantau videonya!')}
+  else{const [jbx,jby]=NK.blockOf(tx,ty),lx=NK.mod(tx-C,S),ly=NK.mod(ty-C,S);if(NK.diJalur(jbx,jby)&&lx&&ly&&(lx===1||lx===5||ly===1||ly===5)&&!RES.some(r=>r.x===tx&&r.y===ty))toast('🏖️ Kavling jalur Senja Awan · tujuan 🚚 Truk Titut. Ketuk Omah Titut di gerbang desa baru buat pindah ke sini!')}
 }
 $('zin').onclick=()=>zoomAt(cw/2,ch/2,1.5);$('zout').onclick=()=>zoomAt(cw/2,ch/2,1/1.5);
 $('zhome').onclick=()=>{sel=null;$('result').hidden=true;flyTo(homeView(),700);try{history.replaceState(null,'',location.pathname)}catch(e){}};
@@ -3624,6 +3624,7 @@ function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=T*.8;PILIH.list.forEach(p=
   if(D.MTI&&wxp>D.MTI.x&&wxp<D.MTI.x+D.MTI.w&&wyp>D.MTI.y-T*1.3&&wyp<D.MTI.y+D.MTI.h){SND.play('pop',.8);const c=$('idmCard');if(c){c.scrollIntoView({behavior:'smooth',block:'center'})}toast('🌟 Monumen Tetangga Idaman · juara pekan lalu dipajang di sini');return true}
   if(wxp>OT.x-T&&wxp<OT.x+OT.w+T&&wyp>OT.y-T*1.6&&wyp<OT.y+OT.h+T*1.4){SND.play('pop',.8);bukaPindahan('truk');return true}
   if(Math.hypot(wxp-SH.x,wyp-SH.y)<SH.r+T*.6||(Math.abs(wxp-SH.x)<T*4&&Math.abs(wyp-(SH.y-SH.r-T*.9))<T*.7)){SND.play('pop',.8);bukaPindahan('heli');return true}
+  {const e=D.EKS.find(e=>Math.hypot(NK.wx(e.x)-wxp,NK.wx(e.y)-wyp)<T*.6);if(e&&!RES.some(r=>r.x===e.x&&r.y===e.y&&!r._tr)){const o=LOKP[e.lok];toast(`💎 Kavling eksklusif ${o.ic} ${o.n} · ${o.f}. Pindah ke sini pakai 🚁 Helikoper (ketuk Sarang Helikoper)`);return true}}
   // ketuk truk/heli yang sedang jalan
   const now=Date.now();for(const [u,o] of Object.entries(window.PINDAH)){const s=pdhStatus(u,o,now);if(s&&Math.hypot(s.x-wxp,s.y-(o.via==='heli'?T*1.6*(s.lift||0):0)-wyp)<T*1.3){toast(`${o.via==='heli'?'🚁':'🚚'} ${now<o.at+o.dur*1000?'Lagi mindahin rumah @'+u+' · ⏳ '+pdhSisa(o,now)+' lagi':'Pulang ke markas'}`);return true}}
   return false}

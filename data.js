@@ -4,8 +4,8 @@
 window.NK_DATA = {
  "version": 1,
  "account": "negerikomen",
- "day": 8,
- "updated": "2026-10-26",
+ "day": 9,
+ "updated": "2026-10-27",
  "kavling": 1650,
  "followers": 3264,
  "target": 1000,
@@ -34,7 +34,7 @@ window.NK_DATA = {
  "goalKampung": { "judul": "Bantu Kepala Desa Bangun Negeri Komen", "target": 100, "awal": 0 },
  "setir": true,
  "gento": true,
- "gentoMain": false,
+ "gentoMain": true,
  "gaji": { "default": 2, "warung": 2, "satpam": 2, "bakso": 2, "padang": 2, "marbot": 2, "proyek": 2 },
  "dusun": [{"nama":"SukaMaju","oleh":"zildjian.video"}, {"nama":"Perjuangan","oleh":"_kykoo.12"}, {"nama":"Senja Awan","oleh":"4hmad_3devc"}, {"nama":"dimsumentaii","oleh":"eriinvm_"}, {"nama":"Rosavelle","oleh":"dainosssss"}],
  "residents": [
@@ -2962,7 +2962,8 @@ window.NK_DATA = {
   { "name": "fara.shitamaullida_", "x": 22, "y": 84, "day": 8, "nick": "Fara", "roof": "ungu muda", "wall": "krem" },
   { "name": "salsabila86150", "x": 71, "y": 82, "day": 8, "nick": "Acaa" },
   { "name": "yayamentaii", "x": 74, "y": 78, "day": 8 },
-  { "name": "vanzzxy21", "x": 72, "y": 82, "day": 8, "nick": "Vanzzxxy", "roof": "biru", "wall": "putih" }
+  { "name": "vanzzxy21", "x": 72, "y": 82, "day": 8, "nick": "Vanzzxxy", "roof": "biru", "wall": "putih" },
+  { "name": "checkameviton6", "x": 53, "y": 88, "day": 9, "nick": "Tatang", "roof": "abu-abu", "wall": "abu-abu" }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1, "staff": [{"user":"muhhusainalfathaly_","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"},{"user":"mandre.js","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"}] },

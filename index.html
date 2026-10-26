@@ -880,12 +880,36 @@ function drawHouse(r,s,a){
     ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke();
     ctx.fillStyle='#FFF7C2';ctx.beginPath();ctx.moveTo(px+4,top+2.2);ctx.lineTo(px+9,top+3.6);ctx.lineTo(px+4,top+5);ctx.closePath();ctx.fill()}
   {const IT=window.itemsPek?window.itemsPek(r):(Array.isArray(r.items)?r.items:[]);if(IT.length){ // item pekarangan: di belakang rumah (sisi yang tidak menghadap jalan)
-    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}if(o.id==='patromax'){/* berdiri di samping/belakang rumah, menghadap halaman dalam blok, tidak menutupi rumah */let px,py;if(!horiz){px=-dx*(w/2+15);py=h/2}else if(dy>0){px=0;py=-h/2-8}else{px=0;py=h/2+64}PATRO_POS.push({x:wx(r.x)+px*s,y:wx(r.y)+py*s,s:s*a,sd:ih(r.x,r.y,78)*9,r});return}if(o.id==='sorot'){let px,py;if(!horiz){px=-dx*(w/2+14);py=-h/2+4}else if(dy>0){px=w/2+2;py=-h/2-6}else{px=w/2+2;py=h/2+16}SOROT_POS.push({x:wx(r.x)+px*s,y:wx(r.y)+py*s,s:s*a,sd:ih(r.x,r.y,79)*9,r});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
+    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){const hx=wx(r.x)+x*s,hy=wx(r.y)+y*s,G=gentoPos(hx,hy,r.name);ROBOT_POS.push(G?{x:G.x,y:G.y,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name,roam:G}:{x:hx,y:hy,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}if(o.id==='patromax'){/* berdiri di samping/belakang rumah, menghadap halaman dalam blok, tidak menutupi rumah */let px,py;if(!horiz){px=-dx*(w/2+15);py=h/2}else if(dy>0){px=0;py=-h/2-8}else{px=0;py=h/2+64}PATRO_POS.push({x:wx(r.x)+px*s,y:wx(r.y)+py*s,s:s*a,sd:ih(r.x,r.y,78)*9,r});return}if(o.id==='sorot'){let px,py;if(!horiz){px=-dx*(w/2+14);py=-h/2+4}else if(dy>0){px=w/2+2;py=-h/2-6}else{px=w/2+2;py=h/2+16}SOROT_POS.push({x:wx(r.x)+px*s,y:wx(r.y)+py*s,s:s*a,sd:ih(r.x,r.y,79)*9,r});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
   ctx.restore();
 }
 // item tampak atas (±10 px), tanpa wajah
 // jadwal motor/sepeda ala GTA jadul: parkir di pekarangan → keluar ke jalan, keliling kampung lewat persimpangan acak → pulang lewat jalan yang sama → parkir.
 // Motor lebih cepat & sesekali ngegas; sepeda santai. Mengembalikan null kalau sedang parkir, atau {x,y,ang,gas}.
+/* GENTO keluyuran: terbang main ke beberapa titik lalu pulang. Posisi dihitung dari jam (sama di semua perangkat).
+   Otomatis tiap 10 menit (5,5 mnt di rumah, ±3,5 mnt main). Pemilik bisa "suruh main" (30 mnt) / "suruh pulang" (diam di rumah 1 jam) → window.GENTO_MODE {m,at,dari} */
+const G_FLY=25,G_MAIN=65,G_LEG=G_FLY+G_MAIN,G_CY=600,G_HOME=330,G_LAND=3;
+const gEase=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+function gSpot(seed,k,hx,hy){if(k<0)return {x:hx,y:hy};const a=ih(seed,k,91)*6.2832,d=T*(14+ih(seed,k,92)*34),L=T*47;return {x:Math.max(-L,Math.min(L,hx+Math.cos(a)*d)),y:Math.max(-L,Math.min(T*66,hy+Math.sin(a)*d))}}
+function gRoam(tau,dur,seed,hx,hy){if(tau<0)return null;
+  if(tau<dur){const k=Math.floor(tau/G_LEG),q=tau-k*G_LEG,A=gSpot(seed,k-1,hx,hy),B=gSpot(seed,k,hx,hy);
+    if(q<G_FLY){const u=gEase(q/G_FLY);return {x:A.x+(B.x-A.x)*u,y:A.y+(B.y-A.y)*u,lf:k===0?Math.min(1,q/G_LAND):1}}
+    const w=q-G_FLY,e=Math.min(1,w/4,(G_MAIN-w)/4);return {x:B.x+Math.sin(w*.9)*T*2.2*e,y:B.y+Math.sin(w*1.8)*T*1.1*e,lf:1,main:1}}
+  const w=tau-dur,P=gSpot(seed,Math.floor(dur/G_LEG)-1,hx,hy);
+  if(w<G_FLY){const u=gEase(w/G_FLY);return {x:P.x+(hx-P.x)*u,y:P.y+(hy-P.y)*u,lf:1,pulang:1}}
+  if(w<G_FLY+G_LAND)return {x:hx,y:hy,lf:1-(w-G_FLY)/G_LAND,pulang:1};return null}
+function gCmdEnd(M){if(!M)return -1;const t=M.at/1000;return M.m==='main'?t+1800+G_FLY+G_LAND:t+3600}
+function gCore(now,M,hx,hy,u){
+  if(M&&now>=M.at/1000){const t0=M.at/1000;
+    if(M.m==='main'){const tau=now-t0;if(tau<1800+G_FLY+G_LAND)return gRoam(tau,1800,Math.floor(t0)%100000+7,hx,hy)}
+    else{const Q=gCore(t0,M.dari||null,hx,hy,u),w=now-t0;if(Q&&Q.lf>0){const D=20;if(w<D){const v=gEase(w/D);return {x:Q.x+(hx-Q.x)*v,y:Q.y+(hy-Q.y)*v,lf:1,pulang:1}}if(w<D+G_LAND)return {x:hx,y:hy,lf:1-(w-D)/G_LAND,pulang:1}}}}
+  else if(M&&M.dari)return gCore(now,M.dari,hx,hy,u);
+  const ph=sh(String(u))%G_CY,c=Math.floor((now+ph)/G_CY),st=c*G_CY-ph;if(M&&st<gCmdEnd(M))return null;
+  return gRoam(now-st-G_HOME,2*G_LEG,c*13+sh(String(u))%997,hx,hy)}
+function gentoPos(hx,hy,u,ms){if(window.__GENTO_DIAM)return null;const now=(ms==null?Date.now():ms)/1000,M=window.GENTO_MODE||null;
+  const a=gCore(now,M,hx,hy,u);if(!a||!(a.lf>0))return null;const b=gCore(now+.2,M,hx,hy,u)||{x:hx,y:hy};
+  const dx=b.x-a.x,dy=b.y-a.y;a.ang=Math.hypot(dx,dy)>.05?Math.atan2(dy,dx):-Math.PI/2;return a}
+window.__gentoPos=gentoPos;
 function rideOf(r,o,oi,t){if(o.id!=='motor'&&o.id!=='sepeda')return null;{const SV=window.__SETIR;if(SV&&SV.u===r.name){if(SV.id!==o.id)return null;return SV.on?{x:SV.x,y:SV.y,ang:SV.ang,gas:SV.gas}:null}}
   // satu warga cuma bisa naik satu kendaraan: kalau kendaraan lain miliknya sedang dipakai, yang ini parkir di rumah
   if(r.jalan&&r.jalan.id!==o.id&&(Date.now()-r.jalan.at)/1000<(r.jalan.id==='motor'?40:56))return null;
@@ -1521,7 +1545,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       else if(b.type==='masjid'||b.type==='sekolah'||b.type==='pasar'||b.type==='puskesmas'){park(X+20,Y+108,0.7,false);park(X+34,Y+108,0.85,false)}
       ctx.restore()});
   }
-  ROBOT_POS=[];PATRO_POS=[];window.__PATRO=PATRO_POS;SOROT_POS=[];window.__SOROT=SOROT_POS;res.forEach((r,i)=>{const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
+  ROBOT_POS=[];window.__ROBOT=ROBOT_POS;PATRO_POS=[];window.__PATRO=PATRO_POS;SOROT_POS=[];window.__SOROT=SOROT_POS;res.forEach((r,i)=>{const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
   // tiang listrik + lampu jalan + kabel (biar kampungnya terasa nyata); hanya saat cukup dekat
   window.__TIANG=[];if(z>=.42&&JALAN_SEG){const SL=S*T,lines=new Map(),M=T*2;
     JALAN_SEG.forEach(({hz,q,sg,j})=>{if(j==='rumput')return;const w=JALAN_W[j],c0=q*SL,sides=j==='besar'?[1,-1]:[(q+sg)%2?1:-1];
@@ -1567,7 +1591,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
     RR(-2.5,-55,5,4,1,'#2F6B4F');c.strokeStyle='#3A3A3A';c.lineWidth=1.6;c.beginPath();c.arc(0,-53,6,Math.PI*1.05,Math.PI*1.95);c.stroke();
     if(mn>.3){c.fillStyle='#4A3018';for(let n=0;n<9;n++){const a=t*(1.4+n*.23)*(n%2?1:-1)+n*1.7,rr=12+(n*5)%11;c.globalAlpha=.85;c.beginPath();c.ellipse(Math.cos(a)*rr,-36+Math.sin(a)*rr*.6,1.6,.9+.5*Math.abs(Math.sin(t*30+n)),a,0,7);c.fill()}c.globalAlpha=1}
     ctx.restore()});
-  ROBOT_POS.forEach(o=>{ctx.save();const SV=window.__SETIR,jl=SV&&SV.id==='robot'&&SV.u===o.u;if(jl){const lf=SV.lift||0;if(lf>0){ctx.fillStyle=`rgba(20,28,24,${.22*lf})`;ctx.beginPath();ctx.ellipse(SV.x+30*lf,SV.y+34*lf,28,16,0,0,7);ctx.fill()}ctx.translate(SV.x-6*lf,SV.y-14*lf);ctx.rotate(SV.ang+Math.PI/2);const lk=lf>0?0:Math.sin((t||0)*9)*.04,sc=1.3*(1+.3*lf);ctx.scale(sc*(1+lk),sc*(1-lk));o.lf=lf;if(lf>0){[-6,6].forEach(x=>{const f=.7+.3*Math.sin((t||0)*30+x);ctx.fillStyle='rgba(79,184,255,.55)';ctx.beginPath();ctx.ellipse(x,22,4,10*f+6,0,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.ellipse(x,18,2,5*f+2,0,0,7);ctx.fill()})}}else{ctx.translate(o.x,o.y);ctx.scale(o.s*1.3,o.s*1.3)}drawRobot2D(t||0,o.sd,o.lf||0);
+  ROBOT_POS.forEach(o=>{ctx.save();const SV0=window.__SETIR,jl0=SV0&&SV0.id==='robot'&&SV0.u===o.u,SV=jl0?SV0:(o.roam?{x:o.roam.x,y:o.roam.y,ang:o.roam.ang,lift:o.roam.lf}:null),jl=!!SV;if(jl){const lf=SV.lift||0;if(lf>0){ctx.fillStyle=`rgba(20,28,24,${.22*lf})`;ctx.beginPath();ctx.ellipse(SV.x+30*lf,SV.y+34*lf,28,16,0,0,7);ctx.fill()}ctx.translate(SV.x-6*lf,SV.y-14*lf);ctx.rotate(SV.ang+Math.PI/2);const lk=lf>0?0:Math.sin((t||0)*9)*.04,sc=1.3*(1+.3*lf);ctx.scale(sc*(1+lk),sc*(1-lk));o.lf=lf;if(lf>0){[-6,6].forEach(x=>{const f=.7+.3*Math.sin((t||0)*30+x);ctx.fillStyle='rgba(79,184,255,.55)';ctx.beginPath();ctx.ellipse(x,22,4,10*f+6,0,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.ellipse(x,18,2,5*f+2,0,0,7);ctx.fill()})}}else{ctx.translate(o.x,o.y);ctx.scale(o.s*1.3,o.s*1.3)}drawRobot2D(t||0,o.sd,o.lf||0);
     // mercon di peta (tampak atas): roket meluncur lalu DUAR jadi lingkaran percikan warna-warni
     const M2=(window.MERCON||{})[o.u];if(M2){const u=(performance.now()-M2)/1000;
       if(u<.8){const k=u/.8;ctx.fillStyle='#FFE38A';ctx.beginPath();ctx.arc(24+k*40,-20-k*30,2.5+k*2,0,7);ctx.fill();ctx.fillStyle='rgba(255,176,58,.35)';ctx.beginPath();ctx.arc(24+k*40,-20-k*30,6+k*3,0,7);ctx.fill()}
@@ -1995,6 +2019,7 @@ function drawLabels(v,t){
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.short||b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
+  {const RB=(window.__ROBOT||[]).find(o=>o.roam&&!(window.__SETIR&&window.__SETIR.u===o.u));if(RB)tryTag(v.ox+RB.roam.x*z,v.oy+RB.roam.y*z-22*dpr,'🤖 GENTO milik @'+RB.u,RB.roam.pulang?'lagi pulang ke rumah':'lagi main-main',true,true,true)}
   if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true,true);
     // 4 rumah terdekat di depan/belakang kendaraan tetap diberi nama, biar tahu lagi lewat rumah siapa
     RES.map(r=>({r,d:Math.hypot(NK.wx(r.x)-W_.x,NK.wx(r.y)-W_.y)})).filter(o=>o.d<T*6&&o.r.name!==W_.u).sort((a,b)=>a.d-b.d).slice(0,12).reduce((n,{r})=>{if(n>=4)return n;const p0=placed.length,[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy),'@'+r.name,'',false);return n+(placed.length>p0?1:0)},0)}
@@ -3375,6 +3400,12 @@ function kkKoleksi(body,c,i){const it=c.items,w=el('div','kk-kol');let paj=[...i
     jl.append(kkBtn(id==='motor'?'🛵 Keliling naik motor':'🚲 Keliling naik sepeda','sm gold3',async e=>{if(!paj.includes(id)){msg.textContent=`Pajang dulu ${id}-mu (ketuk kotaknya di bawah).`;msg.className='kk-msg err';return}
       e.target.disabled=true;const r=await kkApi('jalan',{id},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
       const k=kkResIdx(c.u);if(k>=0){RES[k].jalan={id,at:r.at};kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.6);if(window.NK_DATA&&window.NK_DATA.setir)mulaiSetir(k,id);else IKUT={i:k,id,sampai:Date.now()+(id==='motor'?40:56)*1000};scrollMap()}toast(id==='motor'?'Brumm! Motormu berangkat keliling kampung 🛵':'Kring kring! Sepedamu berangkat keliling kampung 🚲')}))});
+  if(it.own.some(o=>o.id==='robot')){const gLuar=()=>{const p=(window.__ROBOT||[]).find(o=>o.u===c.u);return !!(p&&p.roam&&!p.roam.pulang)};
+    const gb=kkBtn(gLuar()?'🏠 Suruh GENTO pulang':'🛸 Suruh GENTO main','sm gold3',async e=>{if(!paj.includes('robot')){msg.textContent='Pajang dulu GENTO-mu (ketuk kotaknya di bawah).';msg.className='kk-msg err';return}
+      const m=gLuar()?'pulang':'main';e.target.disabled=true;const r=await kkApi('gento',{m},true);e.target.disabled=false;if(!r.ok){toast(r.error||'Gagal');return}
+      window.GENTO_MODE=r.mode;dirty=true;const k=kkResIdx(c.u);if(k>=0){kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(Math.min(cam.zoom,.9),.5);scrollMap()}
+      toast(m==='main'?'🛸 GENTO terbang main-main! Semua warga bisa lihat. Bisa disuruh pulang kapan aja.':'🏠 GENTO terbang pulang ke rumahmu (istirahat 1 jam).')});
+    jl.append(gb)}
   if(it.own.some(o=>o.id==='robot'))jl.append(kkBtn('🤖 Jalan-jalan pakai GENTO','sm gold3',()=>{if(!paj.includes('robot')){msg.textContent='Pajang dulu GENTO-mu (ketuk kotaknya di bawah).';msg.className='kk-msg err';return}const k=kkResIdx(c.u);if(k<0)return;kkTutup();select({kind:'r',i:k},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(k,'robot');scrollMap();toast('GENTO berangkat jalan-jalan! 🤖')}));
   if(jl.childNodes.length)w.append(jl);
   it.own.forEach(o=>{const b=el('button','kk-it'+(paj.includes(o.id)?' on':''));b.type='button';b.append(kkItemSVG(o.id,o.teks,o.warna),el('span',null,KK_ITEM[o.id]?KK_ITEM[o.id].n+(o.warna?' '+o.warna:''):o.id));
@@ -3533,7 +3564,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.ruko||{}).forEach(([u,c])=>{const i=kkResIdx(u);if(i>=0){RES[i].rukoCol=c;dirty=true}});
   Object.entries(j.tingkat||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i>=0&&+n>(+RES[i].tingkat||1)){RES[i].tingkat=+n;dirty=true}});
   try{stafPlus(j.staf)}catch(e){console.error(e)}window.LOWONGAN=j.lowongan||{};try{renderUmum()}catch(e){}
-  window.ROBOT_OWNER=j.robot||null;window.PATRO_OWNER=j.patromax||null;window.SOROT_OWNER=j.sorot||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
+  window.ROBOT_OWNER=j.robot||null;window.GENTO_MODE=j.gento||null;window.PATRO_OWNER=j.patromax||null;window.SOROT_OWNER=j.sorot||null;try{renderEksklusif()}catch(e){}window.BELANJA=j.belanja||[];try{renderBelanjaFeed()}catch(e){}try{renderEtalase()}catch(e){}if(sel&&sel.kind==='b'){try{showResult(sel)}catch(e){}}
   Object.entries(j.atas||{}).forEach(([u,a])=>{const i=kkResIdx(u);if(i>=0&&Array.isArray(a)){RES[i].atas=a;dirty=true}});
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);

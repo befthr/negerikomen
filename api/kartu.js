@@ -292,7 +292,7 @@ export default async function handler(req, res) {
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
       for (let i = 0; i + 1 < rx.length; i += 2) { const e = jparse(rx[i + 1]); if (e && e.length) extra[rx[i]] = e }
-      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx, srt] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik'], ['GET', 'sorot:pemilik']]);
+      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx, srt, gmd] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik'], ['GET', 'sorot:pemilik'], ['GET', 'robot:mode']]);
       const tingkat = {}, atas = {}; for (let i = 0; rt && i + 1 < rt.length; i += 2) { const v = jparse(rt[i + 1]); if (v && v.lantai > 1) tingkat[rt[i]] = v.lantai; if (v && Array.isArray(v.atas)) atas[rt[i]] = v.atas }
       const jalan = {}; for (let i = 0; rj && i + 1 < rj.length; i += 2) { const v = jparse(rj[i + 1]); if (v && Date.now() - v.at < 120000) jalan[rj[i]] = v }
       const staf = {}; for (let i = 0; sp && i + 1 < sp.length; i += 2) { const v = stafAktif(jparse(sp[i + 1])); if (v.length) staf[sp[i]] = v.map(x => ({ user: x.user, role: x.role, sejak: x.sejak, until: x.until })) }
@@ -306,7 +306,7 @@ export default async function handler(req, res) {
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, patromax: pmx || null, sorot: srt || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, patromax: pmx || null, sorot: srt || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (req.method !== 'POST' && aksi !== 'saya') return res.status(405).json({ error: 'Metode tidak didukung' });
     const D = await dataKampung(req);
@@ -640,6 +640,15 @@ export default async function handler(req, res) {
       await kvMany([['HINCRBY', 'donasi', t, n], ['LPUSH', 'saldo:log:' + t, JSON.stringify({ at: Date.now(), n, ket: 'kades' })], ['LTRIM', 'saldo:log:' + t, 0, 49]]);
       if (body.hapus) await kv(['LREM', 'trk:tanpakode', 1, String(body.hapus)]);
       return res.status(200).json({ ok: true, u: t, saldo });
+    }
+    if (aksi === 'gento') { // pemilik GENTO: suruh main (terbang keliling ±30 mnt) / suruh pulang (istirahat di rumah 1 jam). Posisi dihitung di perangkat dari jam.
+      const m = String(body.m || ''); if (m !== 'main' && m !== 'pulang') return res.status(400).json({ error: 'Perintah tidak dikenal' });
+      const pem = await kv(['GET', 'robot:pemilik']); if (String(pem || '').toLowerCase() !== s.u) return res.status(403).json({ error: 'Ini bukan GENTO-mu.' });
+      const kol = await koleksi(s.u); if (!kol.pajang.includes('robot')) return res.status(400).json({ error: 'Pajang dulu GENTO-mu di pekarangan.' });
+      if (!(await kv(['SET', 'gento:cd', '1', 'NX', 'EX', 8]))) return res.status(429).json({ error: 'Sebentar ya, GENTO baru aja dapat perintah.' });
+      const lama = jparse(await kv(['GET', 'robot:mode'])); const mode = { m, at: Date.now(), ...(lama ? { dari: { m: lama.m, at: lama.at } } : {}) };
+      await kv(['SET', 'robot:mode', JSON.stringify(mode), 'EX', 3 * 864e2]);
+      return res.status(200).json({ ok: true, mode });
     }
     if (aksi === 'jalan') { // pemilik motor/sepeda menyuruh kendaraannya keliling kampung sekarang (jeda 60 detik)
       const id = String(body.id || ''); if (id !== 'motor' && id !== 'sepeda') return res.status(400).json({ error: 'Kendaraan tidak dikenal' });

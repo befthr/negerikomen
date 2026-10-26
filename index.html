@@ -1885,6 +1885,7 @@ const DSN_Q=[0,1,2,3].map(k=>{const e=k%2,s2=k>1;const x0=e?0:BB.x0,x1=e?BB.x1:0
 {const bx=(DSN_BELAH-C)*T-T/2,a=DSN_Q[2];a.x0=bx;a.cx=(a.x0+a.x1)/2;const xs=RES.filter(r=>dsnOf(r.x,r.y)===4).map(r=>NK.wx(r.x)),x0b=xs.length?Math.max(BB.x0,Math.min(...xs)-T):BB.x0;DSN_Q.push({x0:x0b,x1:bx,y0:0,y1:BB.y1,cx:(x0b+bx)/2,cy:BB.y1/2})}
 const dsnNama=k=>{const A=(window.NK_DATA&&Array.isArray(window.NK_DATA.dusun))?window.NK_DATA.dusun:[];const D=A[k];const o=D&&typeof D==='object';return {nama:String((o?D.nama:D)||'').trim(),oleh:o&&D.oleh?String(D.oleh).replace(/^@/,''):''}};
 const dsnLabel=k=>dsnNama(k).nama||('Dusun '+DSN_NO[k]);
+const lokasiEl=(x,y)=>{const k=dsnOf(x,y),nm=dsnNama(k).nama;const p=el('p','lokasi');p.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;width:auto;max-width:none';[`📍 Dusun ${nm||DSN_NO[k]}, ${NAMA_DESA_LAMA}`].forEach(t=>{const c=el('span',null,t);c.style.cssText='display:inline-block;width:auto;flex:none;font-size:12.5px;font-weight:700;background:#F4EFE3;border:1.5px solid #1C2520;border-radius:999px;padding:2px 10px';p.append(c)});return p};
 const PLANG_POS=[[-2,-2],[1,-2],[-2,1],[1,1],[-5,1]].map(([bx,by])=>{const ix=C+bx*S+2,iy=C+by*S+2;return {x:NK.wx(ix)-T/2+1.5*T,y:NK.wx(iy)-T/2+1.35*T}});
 function drawDusunSel(v,t){const k=sel.k,q=DSN_Q[k],z=v.z,X=x=>v.ox+x*z,Y=y=>v.oy+y*z;ctx.save();ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='rgba(20,28,24,.5)';DSN_Q.forEach((o,i)=>{if(i!==k)ctx.fillRect(X(o.x0),Y(o.y0),(o.x1-o.x0)*z,(o.y1-o.y0)*z)});
@@ -2133,7 +2134,7 @@ function resX(){const x=el('button','resx','✕');x.type='button';x.setAttribute
 function showResult(s){const box=$('result');box.className='result';box.innerHTML='';box.hidden=false;
   const left=el('div');let acts=el('div','acts');
   if(s.kind==='r'){const r=RES[s.i];left.append(el('h2',null,'@'+r.name),
-      el('p',null,[r.nick,`Warga #${s.i+2}`,'🏡 '+dsnLabel(dsnOf(r.x,r.y))+', '+NAMA_DESA_LAMA,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):''].filter(Boolean).join(' · ')));
+      el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):''].filter(Boolean).join(' · ')));left.append(lokasiEl(r.x,r.y));
     {const pk=perksOf(r);if(pk.length){const bd=el('div','badges perks');pk.forEach(t=>bd.append(perkEl(t)));left.append(bd)}}
     if(NK.jobOn(r)){const bd=el('div','badges');const t=el('i',null,'');t.append(helm(),document.createTextNode('Tukang Proyek'+(r.job.until?' · s/d '+new Date(r.job.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')));bd.append(t);left.append(bd)}
     {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}    if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,120)))}
@@ -2171,7 +2172,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
   else if(s.kind==='o'){left.append(el('h2',null,'@negerikomen'),el('p',null,'Kepala desa · warga #1 · sudah di sini sejak hari pertama'));
     if(KK_ON){const mine=(kkGet()||{}).u==='negerikomen';const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kades':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka('negerikomen');acts.append(kb)}}
   else{const b=BLD[s.i],bo=bossOf(b),st=staffOf(b);left.append(el('h2',null,b.name||'Bangunan'),
-      el('p',null,[(NK.BTYPES[b.type]||{}).label,'📅 Diresmikan '+resmi(b.day)+' (hari ke-'+(b.day||1)+')'].filter(Boolean).join(' · ')));
+      el('p',null,[(NK.BTYPES[b.type]||{}).label,'📅 Diresmikan '+resmi(b.day)+' (hari ke-'+(b.day||1)+')'].filter(Boolean).join(' · ')));{const w=b.w||3;left.append(lokasiEl(b.x+(w-1)/2,b.y+(w-1)/2))}
     const sf=el('div','staff');sf.append(el('p',null,''));const goRes=u=>{const a=el('a','who',(u==='negerikomen'?'Kepala desa ':'')+'@'+u);a.href='#'+encodeURIComponent(u);a.onclick=e=>{e.preventDefault();if(u==='negerikomen'){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===u);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')};return a};
     sf.firstChild.append(el('b',null,WAKAF(b)&&bo?'🤲 Diwakafkan oleh: ':'👑 Bos: '),goRes(bo||'negerikomen'));if(bo&&!WAKAF(b))sf.firstChild.append(document.createTextNode(' (pengusul & pemenang voting)'));
     const kp=el('p',null,'');kp.append(el('b',null,`👷 Karyawan (${st.length}): `));

@@ -3846,9 +3846,13 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();
     const hb=histBox(r,look=>{want=look;if(swap)swap(look)},mine&&V3BACK?{onPakai:n=>kkPakai(i,n),jatah:async()=>{const r2=await kkApi('saya',null,true);return r2.ok?{sisa:r2.kartu.jatah.sisa,reset:r2.kartu.reset}:null}}:{});if(hb)$('v3demo').append(hb)}
   try{await loadThree()}catch(e){$('v3load').textContent='Gagal memuat 3D. Coba lagi nanti.';return}
-  const T=THREE,cv=$('v3c'),dpr=Math.min(2,window.devicePixelRatio||1);
+  const T=THREE,dpr=Math.min(2,window.devicePixelRatio||1);let cv=$('v3c');
   if(v3s)v3s.stop();
-  const rd=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:false,preserveDrawingBuffer:true});rd.setPixelRatio(dpr);rd.shadowMap.enabled=true;rd.shadowMap.type=T.PCFSoftShadowMap;
+  // SATU renderer dipakai ulang: tiap buka 3D tidak bikin konteks WebGL baru (HP membatasi jumlah konteks → 3D pucat/putih setelah sering dibuka)
+  let rd=window.__V3RD;if(rd&&rd.__lost){rd=null;window.__V3RD=null}
+  if(!rd){if(cv.__dipakai){const nc=cv.cloneNode(false);cv.replaceWith(nc);cv=nc}cv.__dipakai=true;
+    rd=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:false,preserveDrawingBuffer:true});window.__V3RD=rd;
+    cv.addEventListener('webglcontextlost',e=>{e.preventDefault();rd.__lost=true},false)}else cv=rd.domElement;rd.setPixelRatio(dpr);rd.shadowMap.enabled=true;rd.shadowMap.type=T.PCFSoftShadowMap;
   const scn=new T.Scene();const cam=new T.PerspectiveCamera(35,1,.1,100);
   // langit digambar di scene (kanvas buram) → tidak ada piksel tembus ke latar halaman (bug pucat/transparan di sebagian HP)
   const langit=(a,b,c2)=>{const k=document.createElement('canvas');k.width=2;k.height=256;const x=k.getContext('2d'),gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,a);gr.addColorStop(.7,b);gr.addColorStop(1,c2||b);x.fillStyle=gr;x.fillRect(0,0,2,256);return new T.CanvasTexture(k)};
@@ -3885,7 +3889,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     rd.render(scn,cam);raf=requestAnimationFrame(loop)};
   raf=requestAnimationFrame(loop);$('v3load').hidden=true;
   const onR=()=>size();window.addEventListener('resize',onR);
-  v3s={stop(){live=false;cancelAnimationFrame(raf);window.removeEventListener('resize',onR);rd.dispose()}};
+  v3s={stop(){live=false;cancelAnimationFrame(raf);window.removeEventListener('resize',onR);try{scn.traverse(o=>{if(o.geometry)o.geometry.dispose();const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];ms.forEach(m=>{if(m.map)m.map.dispose();m.dispose()})});[SKY_SIANG,SKY_MALAM].forEach(t=>t.dispose());rd.renderLists.dispose()}catch(e){}}};
   $('v3save').onclick=async()=>{const btn=$('v3save');btn.disabled=true;
     const keep={dist,pitch};try{dist=Math.max(dist,fitD);pitch=Math.min(.6,Math.max(.25,pitch));place();
       rd.setPixelRatio(1);rd.setSize(1080,1080,false);cam.aspect=1;cam.updateProjectionMatrix();rd.render(scn,cam);

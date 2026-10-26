@@ -3683,17 +3683,30 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
    const dekatSungai=(x,y)=>[sungai1,sungai2,sungai3].some(P=>{for(let i=0;i<P.length-1;i++)if(dSeg(x,y,P[i],P[i+1])<T*2.6)return true;return false});
    const dekatWaduk=(x,y)=>{const c=Math.cos(.15),sn=Math.sin(.15),dx=x-wd.x,dy=y-wd.y,rx=dx*c-dy*sn,ry=dx*sn+dy*c;return Math.hypot(rx/(wd.rx+T*2),ry/(wd.ry+T*2))<1};
    for(let i=rumah.length-1;i>=0;i--){const h=rumah[i],cx=h.x+T*.7,cy=h.y+T*.55;if(dekatSungai(cx,cy)||dekatWaduk(cx,cy))rumah.splice(i,1)}}
+  // 💎 50 kavling eksklusif (tujuan Helikoper): 11 dekat gerbang, 12 pinggir waduk, 12 atas gunung, 15 tepi pantai. Posisi grid bulat (sama dengan kavling.json di server)
+  const EKS=[];{const g=(x,y,lok)=>EKS.push({x:C+Math.round(x/T),y:C+Math.round(y/T),lok});
+   const gr=[];for(let i=0;i<22&&gr.length<11;i++){const x=E.x0+T*10+i*T*2.4;if(x<gate.x+T*7.6)continue;gr.push([x+T*.7,jalanY-T*2.3+T*.55])}
+   for(let i=0;i<22&&gr.length<11;i++){const x=E.x0+T*10+i*T*2.4;if(x<gate.x+T*7.6)continue;gr.push([x+T*.7,jalanY-T*4.7+T*.55])}
+   gr.slice(0,11).forEach(([x,y])=>g(x,y,'gerbang'));
+   const wr=rumah.filter(h=>Math.hypot(h.x-wd.x,h.y-wd.y)<Math.max(wd.rx,wd.ry)+T*5).slice(0,12);wr.forEach(h=>g(h.x+T*.7,h.y+T*.55,'waduk'));
+   const hf=hills.filter(h=>h.y>M.y1-T*12&&h.x<E.x1).sort((a,b)=>a.x-b.x).slice(0,6);hf.forEach(h=>{g(h.x-T*1.6,h.y-T*.6,'gunung');g(h.x+T*1.6,h.y+T*.4,'gunung')});
+   for(let k=0;k<15;k++)EKS.push({x:13+k*2,y:121,lok:'pantai'});
+   for(let i=rumah.length-1;i>=0;i--){const h=rumah[i];if(EKS.some(e=>Math.hypot(NK.wx(e.x)-(h.x+T*.7),NK.wx(e.y)-(h.y+T*.55))<T*1.6))rumah.splice(i,1)}}
+  // markas Jasa Pindahan: 🚚 Omah Titut (dekat gerbang) & 🚁 Sarang Helikoper (dekat waduk)
+  const OT={x:gate.x-T*3.4,y:jalanY-T*7.6,w:T*6.4,h:T*4.4},SH={x:wd.x-wd.rx-T*7,y:wd.y+wd.ry*.55,r:T*3.4};
   STD.w=T*16;STD.h=T*10;STD.x=E.x0+T*6;STD.y=jalanY+T*5;
   const sawah={x:E.x0+T*4,y:STD.y+STD.h+T*5,cols:14,rows:10,w:T*2.8,h:T*2};
   // pohon tersebar di desa baru, menghindari jalan, rumah, stadion, sawah, waduk
   const GM={x:E.x0+T*12,y:jalanY-T*18,w:T*13,h:T*10},RT={x:E.x0+T*.5,y:jalanY-T*16,w:T*9.5,h:T*7.5};
   const kos=(x,y)=>!((x>RT.x-T*2&&x<RT.x+RT.w+T*2&&y>RT.y-T*3&&y<RT.y+RT.h+T)||(x>GM.x-T*3&&x<GM.x+GM.w+T*3&&y>GM.y-T*4&&y<GM.y+GM.h+T*2)||Math.abs(y-jalanY)<T*6.5||(x>STD.x-T*2&&x<STD.x+STD.w+T*2&&y>STD.y-T*3&&y<STD.y+STD.h+T*2)||(x>sawah.x-T&&x<sawah.x+sawah.cols*sawah.w+T&&y>sawah.y-T*2&&y<sawah.y+sawah.rows*sawah.h+T)||Math.hypot((x-wd.x)/(wd.rx+T*4),(y-wd.y)/(wd.ry+T*4))<1||(y>jalanY&&y<jalanY+T*11&&x>E.x0+T*22&&x<wd.x-wd.rx));
   for(let i=0;i<700;i++){const x=E.x0+R()*ew,y=E.y0+R()*eh;if(kos(x,y))trees.push({x,y,s:.9+R()*.6,k:R()<.45})}
+  // kavling eksklusif & markas pindahan bebas pohon
+  for(let i=trees.length-1;i>=0;i--){const o=trees[i];if(EKS.some(e=>Math.hypot(NK.wx(e.x)-o.x,NK.wx(e.y)-o.y)<T*2.2)||(o.x>OT.x-T*1.5&&o.x<OT.x+OT.w+T*1.5&&o.y>OT.y-T*2&&o.y<OT.y+OT.h+T)||Math.hypot(o.x-SH.x,o.y-SH.y)<SH.r+T*2)trees.splice(i,1)}
   // tepi dunia alami: cincin hutan lebat berbentuk tidak beraturan mengelilingi seluruh peta
   const W0={x0:F.x0-T*2,x1:E.x1+T*14,y0:M.y0-T*2,y1:E.y1+T*12};const wc={x:(W0.x0+W0.x1)/2,y:(W0.y0+W0.y1)/2,rx:(W0.x1-W0.x0)/2,ry:(W0.y1-W0.y0)/2};
   const tepiR=a=>1+.07*Math.sin(a*3+.7)+.05*Math.sin(a*7+2)+.03*Math.sin(a*15);
   const ring=[];for(let i=0;i<2600;i++){const a=R()*6.2832,d=tepiR(a)*(.93+R()*.5);ring.push({x:wc.x+Math.cos(a)*wc.rx*d*1.05,y:wc.y+Math.sin(a)*wc.ry*d*1.05,s:1.1+R()*.7,k:R()<.6})}
-  DESA={wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
+  DESA={EKS,OT,SH,wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
 function papan(cx,cy,teks,fs,fg,bg,pad){ctx.font=`800 ${fs}px Poppins,'Noto Color Emoji',sans-serif`;const w=ctx.measureText(teks).width+(pad||fs*1.2),h=fs*2;ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(cx-w/2,cy-h/2,w,h,fs*.35);ctx.fill();ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(teks,cx,cy+fs*.05)}
 function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {E,M,F,wd}=D;
   const VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z,vis=(x,y,r)=>x+r>VX0&&x-r<VX1&&y+r>VY0&&y-r<VY1;

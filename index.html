@@ -2429,6 +2429,17 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
   // tanah
   const ground=new T.Mesh(new T.CylinderGeometry(5.8,6,.3,48),M('#8DBE5A'));ground.position.y=-.15;ground.receiveShadow=true;g.add(ground);
   box(1.2,.04,2.2,'#C9B48A',0,.02,2.5);
+  // 💎 kavling eksklusif: tanah 3D ikut lokasinya (pantai = setengah pasir setengah laut, waduk = rumput + air waduk + dermaga, gunung = kebun teh + gunung, gerbang = paving + baliho)
+  if(r.lok){const seg=(z0,col,y,op)=>{const a0=Math.acos(Math.min(.99,z0/5.95)),sh=new T.Shape();sh.moveTo(Math.sin(a0)*5.95,-z0);sh.absarc(0,0,5.95,-Math.PI/2+a0,-Math.PI/2-a0,true);sh.closePath();const m=new T.Mesh(new T.ShapeGeometry(sh,32),M(col,op?{transparent:true,opacity:op}:{}));m.rotation.x=-Math.PI/2;m.position.y=y;m.receiveShadow=true;g.add(m);return m};
+   if(r.lok==='pantai'){ground.material.color.set('#E8D3A0');const w=seg(3,'#4FA3D1',.012);seg(3.6,'#2F7FB8',.016);seg(2.75,'#F7F3E8',.008,.85);
+     const pal=(x,z)=>{const tr=new T.Mesh(new T.CylinderGeometry(.07,.11,2.2,8),M('#8A6A44'));tr.position.set(x,1.1,z);tr.rotation.z=.12;tr.castShadow=true;g.add(tr);for(let i=0;i<6;i++){const d=new T.Mesh(new T.BoxGeometry(1.1,.04,.28),M('#3E8F3A'));d.position.set(x+.13+Math.cos(i)*.5,2.2,z+Math.sin(i)*.5);d.rotation.y=-i;d.rotation.z=-.35;g.add(d)}};pal(-3.6,-.6);pal(3.7,.3);
+     const A=g.userData.anim||(g.userData.anim=[]);A.push(t=>{w.position.y=.012+Math.sin(t*.002)*.01})}
+   else if(r.lok==='waduk'){ground.material.color.set('#86B957');seg(3,'#5DA9D6',.012);box(.8,.08,2.6,'#8A5A2E',2.4,.06,3.9);const bt=box(.7,.22,1.4,'#F4EFE3',3.3,.1,4.4);const bt2=box(.5,.08,1,NK.roofHex(r),3.3,.24,4.4);
+     const A=g.userData.anim||(g.userData.anim=[]);A.push(t=>{const k=Math.sin(t*.0016)*.04;bt.position.y=.1+k;bt2.position.y=.24+k})}
+   else if(r.lok==='gunung'){ground.material.color.set('#7FA85A');for(let i=0;i<4;i++)for(let j=0;j<6;j++){const b2=new T.Mesh(new T.SphereGeometry(.22,8,6),M(i%2?'#4E9A3F':'#5DAA4A'));b2.scale.y=.6;b2.position.set(-3.4+j*.55,.12,1.4+i*.55);g.add(b2)}
+     [[-4,-7,3.2],[1,-8,4],[5,-6.5,2.8]].forEach(([x,z,h])=>{const c=new T.Mesh(new T.ConeGeometry(h*.9,h,7),M('#6E8F6A'));c.position.set(x,h/2-.2,z);g.add(c);const sn=new T.Mesh(new T.ConeGeometry(h*.3,h*.33,7),M('#F4F6F8'));sn.position.set(x,h-.2-h*.165+.02,z);g.add(sn)})}
+   else if(r.lok==='gerbang'){ground.material.color.set('#C9BFAE');const cv=document.createElement('canvas');cv.width=512;cv.height=160;const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,512,160);c.fillStyle='#C4502F';c.fillRect(0,0,512,30);c.fillStyle='#1C2520';c.font='800 40px Poppins,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('Selamat datang!',256,78);c.font='700 30px Poppins,sans-serif';c.fillText('— @'+String(r.name).slice(0,20),256,124);
+     const tx=new T.CanvasTexture(cv);const bb=new T.Mesh(new T.PlaneGeometry(2.6,.82),new T.MeshBasicMaterial({map:tx}));bb.position.set(3.2,2.1,2.6);bb.rotation.y=-.5;g.add(bb);[-1.15,1.15].forEach(dx=>{const p=new T.Mesh(new T.CylinderGeometry(.05,.05,1.8,8),M('#6B5B45'));p.position.set(3.2+dx*Math.cos(.5),.9,2.6+dx*Math.sin(.5));g.add(p)})}}
   let wall=NK.wallHex(r),roof=NK.roofHex(r);
   if(NK.shopOn(r)&&r.rukoCol){wall=NK.wallHex({wall:r.rukoCol.wall,x:r.x,y:r.y});roof=NK.roofHex({roof:r.rukoCol.roof,x:r.x,y:r.y})}
   const treeS=(x,z,s)=>{const t=new T.Mesh(new T.CylinderGeometry(.08*s,.12*s,.8*s,8),M('#7A5230'));t.position.set(x,.4*s,z);t.castShadow=true;g.add(t);const c=new T.Mesh(new T.SphereGeometry(.6*s,16,12),M('#4F8F3E'));c.position.set(x,1.05*s,z);c.castShadow=true;g.add(c)};
@@ -3601,7 +3612,7 @@ function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=T*.8;PILIH.list.forEach(p=
   // ketuk truk/heli yang sedang jalan
   const now=Date.now();for(const [u,o] of Object.entries(window.PINDAH)){const s=pdhStatus(u,o,now);if(s&&Math.hypot(s.x-wxp,s.y-(o.via==='heli'?T*1.6*(s.lift||0):0)-wyp)<T*1.3){toast(`${o.via==='heli'?'🚁':'🚚'} ${now<o.at+o.dur*1000?'Lagi mindahin rumah @'+u+' · ⏳ '+pdhSisa(o,now)+' lagi':'Pulang ke markas'}`);return true}}
   return false}
-window.__PDH={eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
+window.__PDH={o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
 function kkPindahBox(body,c){const w=el('div','kk-kol');w.append(el('b',null,'🚚🚁 Jasa Pindahan'));const t=c.tiket||{};
   w.append(el('p','kk-muted',`🎫 Tiket Truk Titut: ${t.truk||0} · Helikoper: ${t.heli||0}`+(c.pindahJeda>0?` · ⏳ bisa pindah lagi ${pdhJeda(c.pindahJeda)} lagi`:'')));
   if(c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000)w.append(el('p','kk-muted',`📦 Rumahmu lagi diangkut · ⏳ ${pdhSisa(c.pindahKu,Date.now())} lagi`));

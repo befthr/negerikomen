@@ -1218,6 +1218,9 @@ function kelapa0(x,y,t,seed){const sw=Math.sin(t*.9+seed*6)*.08;ctx.fillStyle='r
   ctx.fillStyle='#6B4A2B';ctx.beginPath();ctx.arc(0,0,2.4,0,7);ctx.fill();ctx.fillStyle='#8A6A2E';[[1.6,1.4],[-1.4,1.6],[.2,-1.8]].forEach(([a,b])=>{ctx.beginPath();ctx.arc(a,b,1.3,0,7);ctx.fill()});ctx.restore()}
 const _LKw=f=>(x,y,...a)=>{ctx.save();ctx.translate(x,y);ctx.scale(LK,LK);f(0,0,...a);ctx.restore()};
 const bebekJalan=_LKw(bebekJalan0),burungTerbang=_LKw(burungTerbang0),saung=_LKw(saung0),jerami=_LKw(jerami0),kelapa=_LKw(kelapa0);
+function kucing(x,y,t,seed){const tidur=seed<.4,d=seed<.7?1:-1,c=seed<.25?'#E8A04A':seed<.5?'#3A3A3A':seed<.75?'#F2EEE4':'#9A8670';ctx.save();ctx.translate(x,y);ctx.scale(d*LK*.8,LK*.8);bayang(0,0,4.6,3);ctx.fillStyle=c;
+  if(tidur){ctx.beginPath();ctx.arc(0,0,3.6,0,7);ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(0,0,4.6,.4,2);ctx.stroke()}
+  else{ctx.beginPath();ctx.ellipse(0,0,4.6,2.6,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(4.6,-.4,2.1,0,7);ctx.fill();ctx.beginPath();ctx.moveTo(4,-2.2);ctx.lineTo(4.6,-3.8);ctx.lineTo(5.4,-2.2);ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-4.4,0);ctx.quadraticCurveTo(-7,-1+Math.sin(t*3+seed*9)*2,-7.6,-3);ctx.stroke()}ctx.restore()}
 // isi satu petak sawah di luar kampung: hewan / saung / petani, dipilih acak tetap per petak
 function ladang(bx,by,t){const x0=bx*S*T+T/2,y0=by*S*T+T/2,s=(S-1)*T,r=ih(bx,by,501),P=(a,b)=>[x0+s*a,y0+s*b],h=k=>ih(bx,by,510+k);
   if(h(0)<.3){const [a,b]=P(h(1)<.5?.06:.94,h(2)<.5?.06:.94);kelapa(a,b,t,h(3))}
@@ -1228,7 +1231,8 @@ function ladang(bx,by,t){const x0=bx*S*T+T/2,y0=by*S*T+T/2,s=(S-1)*T,r=ih(bx,by,
   else if(r<.5){const [a,b]=P(.25+h(25)*.2,.25+h(26)*.2);saung(a,b);for(let k=0;k<3;k++){const [c,d]=P(.45+h(27+k)*.4,.45+h(30+k)*.4);kambing(c,d,t,h(33+k))}}
   else if(r<.6){const [a,b]=P(.3,.35);saung(a,b);[[.6,.6],[.7,.45],[.55,.75]].forEach(([c,d],k)=>{if(h(36+k)<.7){const [e,f]=P(c,d);jerami(e,f)}})}
   else if(r<.67){for(let k=0;k<3;k++){const [a,b]=P(.25+k*.22,.5+Math.sin(k)*.08);farmer(a,b,h(40+k))}}
-  else if(r<.72){const [a,b]=P(.5,.5);drawScarecrow(a,b,t,.12);for(let k=0;k<4;k++){const ang=t*.6+k*1.6,[c,d]=P(.5,.5);burungTerbang(c+Math.cos(ang)*s*.3,d+Math.sin(ang)*s*.22-6,t,k)}}}
+  else if(r<.72){const [a,b]=P(.5,.5);drawScarecrow(a,b,t,.12);for(let k=0;k<4;k++){const ang=t*.6+k*1.6,[c,d]=P(.5,.5);burungTerbang(c+Math.cos(ang)*s*.3,d+Math.sin(ang)*s*.22-6,t,k)}}
+  else if(r<.78){const [a,b]=P(.4+h(44)*.2,.5);kite(a,b,t,['#C4502F','#2F74B5','#8E5AA8','#2E9C6A'][Math.floor(h(45)*4)],'#F2C230',h(46));person(a-10,b+40,'#E2B23A',0)}}
 function kite(x,y,t,c1,c2,seed){
   const a=Math.sin(t*1.3+seed*7)*0.25,dx=Math.sin(t*0.7+seed)*8;
   ctx.save();ctx.translate(x+dx,y);
@@ -1296,6 +1300,22 @@ function drawUfo(x,y,t,s){
 /* Gambar seluruh dunia. v={W,H,z,ox,oy}: layar = o + dunia*z.
    w={residents,buildings,free}. o={anim(kind,i)->{s,a}, vehicles}. Mengembalikan blok aktif. */
 let ITEM_T=0,ITEM_HZ=true,ITEM_DIAM=false; // waktu animasi item pekarangan
+// langit: awan berarak (bayangannya jatuh ke tanah) + sesekali pesawat lewat bawa spanduk
+function drawLangit(v,t){const {W,H,z,ox,oy}=v,dp=window.devicePixelRatio||1,zw=z/dp,al=zw<.45?1:zw>1.5?.12:1-(zw-.45)/1.05*.88;
+  ctx.setTransform(z,0,0,z,ox,oy);const vx0=-ox/z,vx1=(W-ox)/z,vy0=-oy/z,vy1=(H-oy)/z,G=T*24;
+  for(let gx=Math.floor((vx0-G)/G);gx<=Math.ceil((vx1+G)/G);gx++)for(let gy=Math.floor((vy0-G)/G);gy<=Math.ceil(vy1/G);gy++){if(ih(gx,gy,901)>.55)continue;
+    const cx=gx*G+((ih(gx,gy,903)*G+t*7)%G),cy=gy*G+ih(gx,gy,905)*G,sc=.8+ih(gx,gy,907)*.9,blob=(dx,dy,col,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();[[0,0,1],[-.9,.15,.72],[.95,.12,.78],[-.35,-.45,.7],[.45,-.38,.66]].forEach(([a2,b,r])=>{const X=cx+dx+a2*T*2.6*sc,Y=cy+dy+b*T*2.2*sc,R=r*T*2.4*sc;ctx.moveTo(X+R,Y);ctx.arc(X,Y,R,0,6.2832)});ctx.fill()};
+    blob(T*5,T*6,'#1C2520',.07*al);blob(0,0,'#FFFFFF',.5*al)}
+  ctx.globalAlpha=1;
+  // pesawat: tiap 150 detik lewat 22 detik, ukuran tetap di layar
+  const per=150,tg=Date.now()/1000,ph=((tg%per)+per)%per;if(ph<22){const k=ph/22;ctx.setTransform(dp,0,0,dp,0,0);const w=W/dp,h=H/dp,px=-160+k*(w+320),py=h*.22+Math.sin(k*3)*12;
+    ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(px+30,py+60,22,6,0,0,7);ctx.fill();
+    ctx.strokeStyle='#6B6455';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px-20,py);ctx.lineTo(px-38,py+2);ctx.stroke();
+    ctx.font='800 11px sans-serif';const tx='negerikomen.my.id',tw=ctx.measureText(tx).width+16;ctx.fillStyle='#F2C230';ctx.strokeStyle='#1C2520';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(px-38,py-8);ctx.lineTo(px-38-tw,py-6+Math.sin(t*6)*2);ctx.lineTo(px-38-tw,py+10+Math.sin(t*6)*2);ctx.lineTo(px-38,py+12);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tx,px-38-tw/2,py+2+Math.sin(t*6));
+    ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#1C2520';ctx.beginPath();ctx.ellipse(px,py,20,5,0,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(px-4,py);ctx.lineTo(px-10,py-14);ctx.lineTo(px-2,py-14);ctx.lineTo(px+6,py);ctx.lineTo(px-2,py+14);ctx.lineTo(px-10,py+14);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px-17,py);ctx.lineTo(px-22,py-7);ctx.lineTo(px-18,py-7);ctx.lineTo(px-13,py);ctx.fill();ctx.stroke();ctx.fillStyle='#C4402F';ctx.fillRect(px+8,py-2,6,4)}
+  ctx.setTransform(1,0,0,1,0,0)}
 // motor/sepeda warga yang lagi jalan: dipisah supaya bisa digambar paling atas (di atas wilayah desa baru)
 function drawRides(res,t){res.forEach(r=>{if(!Array.isArray(r.items))return;r.items.forEach((o,oi)=>{const st=rideOf(r,o,oi,t);if(!st)return;const {x,y,ang}=st;
     ctx.save();ctx.translate(x,y);ctx.save();ctx.rotate(ang);if(st.gas>=0){for(let q=1;q<=3;q++){ctx.fillStyle=`rgba(200,200,200,${.55-q*.15})`;ctx.beginPath();ctx.arc(-9-q*4-st.gas*3,(q%2?1:-1)*1.2,1.6+q*.9,0,7);ctx.fill()}}
@@ -1419,13 +1439,16 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       if(ih(bx,by,97)<0.7)for(let c=0;c<2;c++){const tx=C+bx*S+2+Math.floor(ih(bx,by,101+c)*3),ty=C+by*S+2+Math.floor(ih(bx,by,103+c)*3);
         if(used.has(key(tx,ty)))continue;
         chicken(wx(tx)+Math.sin(t*0.6+c*3+bx)*T*0.25,wx(ty)+Math.cos(t*0.5+c*2+by)*T*0.2,t,ih(bx,by,107+c))}
+      if(ih(bx,by,151)<.75)for(let c=0;c<2;c++){const tx=C+bx*S+1+Math.floor(ih(bx,by,153+c)*(S-2)),ty=C+by*S+1+Math.floor(ih(bx,by,157+c)*(S-2));if(used.has(key(tx,ty)))continue;
+        const sd=ih(bx,by,161+c);kucing(wx(tx)+(sd<.4?0:Math.sin(t*.25+c+bx)*T*.3),wx(ty)+T*.42,t,sd)}
     });
     const seen=new Set();let farmers=0;
     blocks.forEach(([bx,by])=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const nx=bx+dx,ny=by+dy,k2=nx+','+ny;
       if(act.has(k2)||seen.has(k2)||farmers>=6)return;seen.add(k2);if(ih(nx,ny,113)>0.45)return;farmers++;
       farmer(nx*S*T+T*(1+ih(nx,ny,127)*3.5)+Math.sin(t*0.3+nx)*4,ny*S*T+T*(1+ih(nx,ny,131)*3.5),ih(nx,ny,137))}));
     // sawah & ladang di luar kampung: hewan, saung, petani (cuma petak yang kelihatan)
-    if(z>.1)for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(act.has(bx+','+by))continue;ladang(bx,by,t)}
+    {let mb=0;act.forEach(k=>{const y=+k.split(',')[1];if(y<mb)mb=y});
+    if(z>.1)for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(act.has(bx+','+by)||by===mb-1)continue;ladang(bx,by,t)}}
     // kawanan burung lewat di atas sawah
     if(z>.1)for(let k=0;k<3;k++){const span=(vx1-vx0)+T*20,px=vx0-T*10+(((t*28+k*977)%span)+span)%span,py=vy0+(k+.6)/3.4*(vy1-vy0)+Math.sin(t*.4+k)*T;for(let j=0;j<5;j++)burungTerbang(px-Math.abs(j-2)*9,py+(j-2)*8,t,k+j)}
   }
@@ -1520,7 +1543,7 @@ function tag(x,y,name,sub,fs,strong,own,lite){
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
 return {wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
-  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawRides,ladangHewan:{kerbau,sapi,kambing,bangau,bebekJalan,burungTerbang,saung,jerami,kelapa,farmer},drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf,kucingGento};
+  nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawRides,drawLangit,ladangHewan:{kerbau,sapi,kambing,bangau,bebekJalan,burungTerbang,saung,jerami,kelapa,farmer},drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf,kucingGento};
 })();
 
 </script>
@@ -1997,6 +2020,7 @@ function frame(now){
     NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:true,noRides:true});
     try{drawDesa(v,reduce?0:t);drawStadion(v,reduce?0:t)}catch(e){console.error(e)}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
+    try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}
     try{drawMalam(v,t)}catch(e){}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}

@@ -967,13 +967,11 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   RR(-28,-6,8,16,3,IV,1);RR(-28.5,2,9,7,2,OR);
   // pedang digenggam: gagang tembus kepalan, pelindung di atas kepalan, kepalan menutup gagang
   {const sa=-.85;c.save();c.translate(-24,15);c.rotate(sa);
-   if(lf<=0){c.fillStyle='#5A3A22';c.fillRect(-1.6,-6,3.2,13);E(0,8,2.4,2.4,GD)}
+   /* pov dari atas: gagang tertutup lengan */
    c.fillStyle='#E8EEF4';c.beginPath();c.moveTo(-2,-8);c.lineTo(2,-8);c.lineTo(2,-37);c.lineTo(0,-42);c.lineTo(-2,-37);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
-   c.fillStyle='#4FB8FF';c.fillRect(-.5,-36,1,27);if(!(lf>0))RR(-6,-9,12,3.4,1.5,OR,1);
-   if(lf>0){}/* terbang (pov atas punggung): kepalan & gagang tidak terlihat, cuma bilah pedang */
-   else{RR(-5,-5.5,10,9,3.5,GR,1);c.strokeStyle='rgba(255,255,255,.35)';c.lineWidth=.8;c.beginPath();[-2.2,0,2.2].forEach(y=>{c.moveTo(1.2,y-1.2);c.lineTo(4.6,y-1.2)});c.stroke();
-   c.fillStyle=GR;c.beginPath();c.ellipse(-4.6,-1,1.8,2.6,0,0,7);c.fill()}c.restore()}
-  RR(20,-4,8,16,3,IV,1);RR(19.5,4,9,7,2,OR);if(!(lf>0)){E(24,15,4.4,4.4,GR);RR(26,2,4,12,1.5,OR)}
+   c.fillStyle='#4FB8FF';c.fillRect(-.5,-36,1,27);
+   c.restore()}
+  RR(20,-4,8,16,3,IV,1);RR(19.5,4,9,7,2,OR);
   // badan + dada
   RR(-19,-12,38,20,6,IV,1);RR(-19.5,-12.5,39,6,3,TL);
   RR(-3,-12,6,20,2,OR);[-1,1].forEach(k=>{RR(k*9-5,-3,10,6,2,TL);c.fillStyle='#F4F6F8';for(let q=0;q<3;q++)c.fillRect(k*9-4,-2+q*1.7,8,.6)});

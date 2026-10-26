@@ -2788,6 +2788,10 @@ function histOf(r){const d0=+r.day||1,ev=[],B=r.base||{},S=r._asli||r; // S = ta
   (r.history||[]).filter(h=>h&&h.x).forEach(h=>{const look=Object.assign({},V[V.length-1].look);LOOK.forEach(k=>{if(k in h)look[k]=h[k]});
     if(!sameLook(look,V[V.length-1].look))V.push({day:Math.max(+h.day||d0,d0),lines:[String(h.note||'🎨 Ganti warna').slice(0,100)],look,h:1})});
   for(let k=V.length-1;k>0;k--)if(sameLook(V[k].look,V[k-1].look))V.splice(k,1);
+  // tingkat rumah per versi (dari catatan belanja): versi lama tampil sesuai lantai waktu itu; barang, bendera & mahkota tetap
+  {const un=String(r.name).toLowerCase(),D0=Date.UTC(2026,9,18)/864e5,cur=Math.max(1,Math.min(3,+r.tingkat||1));
+   const P=(window.BELANJA||[]).filter(o=>o&&o.j==='tingkat'&&o.at&&String(o.u||'').toLowerCase()===un).map(o=>({d:Math.floor((+o.at+252e5)/864e5)-D0,l:+o.l||2}));
+   V.forEach((v,k)=>{if(k===V.length-1){v.tk=cur;return}const nx=V[k+1].day;let t=1;P.forEach(p=>{if(p.d<nx)t=Math.max(t,p.l)});v.tk=Math.min(t,cur)})}
   return V}
 function aktifOf(r){return r._pilih!=null?r._pilih:histOf(r).length-1}
 /* opts: {onPakai(n)->Promise<bool>} untuk pemilik kartu: tombol "Pakai versi ini" */
@@ -2800,7 +2804,7 @@ function histBox(r,onPick,opts={}){const V=histOf(r);if(V.length<2)return null;l
   const jatahTx=async()=>{if(!opts.jatah)return;const jt=await opts.jatah();if(!jt)return;jl.hidden=false;jl.innerHTML='';const bar=el('span','rh-bar');for(let k=0;k<3;k++)bar.append(el('i',k<jt.sisa?'on':''));jl.append(el('span',null,'🔁 Jatah ganti'),bar,el('b',null,`${jt.sisa}/3`));if(jt.sisa<3)jl.append(el('small',null,'penuh lagi '+kkTgl(jt.reset)))};jatahTx();
   const show=pick=>{const v=V[n],now=n===V.length-1;lab.textContent=`Versi ${n+1}/${V.length} · `+(now?'Sekarang':resmi(v.day));
     desc.textContent=(n===akt?'✅ Dipakai · ':'')+(now?`Sejak ${resmi(v.day)} · `:'')+v.lines.join(' · ');desc.title=desc.textContent;
-    pv.disabled=n===0;nx.disabled=now;pk.hidden=!opts.onPakai||n===akt;cf.hidden=true;cf.innerHTML='';if(pick)onPick(v.look)};
+    pv.disabled=n===0;nx.disabled=now;pk.hidden=!opts.onPakai||n===akt;cf.hidden=true;cf.innerHTML='';if(pick)onPick({...v.look,_tk:v.tk})};
   const go=d=>e=>{e.stopPropagation();const m=n+d;if(m<0||m>=V.length)return;n=m;show(true);try{SND.play('pop',.5)}catch(_){}};
   pv.onclick=go(-1);nx.onclick=go(1);
   pk.onclick=async e=>{e.stopPropagation();pk.hidden=true;cf.hidden=false;cf.textContent='Mengecek jatah…';
@@ -3609,7 +3613,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
       const blob=await makeCard(cv,r,i,bd0);dist=keep.dist;pitch=keep.pitch;rd.setPixelRatio(dpr);size();showCard(blob,bd0?{name:String(bd0.name||'bangunan').toLowerCase().replace(/\s+/g,'-')}:r)}
     catch(e){toast('Gagal bikin gambar. Coba lagi ya.')}finally{dist=keep.dist;pitch=keep.pitch;btn.disabled=false}};
   swap=look=>{scn.remove(g);g.traverse(o=>{if(o.geometry)o.geometry.dispose()});
-    const rr={...r};LOOK.forEach(k=>{if(look[k]==null)delete rr[k];else rr[k]=look[k]});({g,flag}=build3D(rr));scn.add(g);fit()};if(want)swap(want);
+    const rr={...r};LOOK.forEach(k=>{if(look[k]==null)delete rr[k];else rr[k]=look[k]});if(look._tk!=null)rr.tingkat=look._tk;({g,flag}=build3D(rr));scn.add(g);fit()};if(want)swap(want);
   SND.play('ting',.6)}
 
 /* kartu rumah untuk dibagikan (1080x1920, cocok untuk Story) */

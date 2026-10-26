@@ -2458,8 +2458,8 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
     for(let k=0;k<5;k++){const a=k/5*Math.PI*2,sp=new T.Mesh(new T.ConeGeometry(.1,.32,8),gold);sp.position.set(Math.cos(a)*.38,4.03+dH,Math.sin(a)*.38);g.add(sp);
       const jw=new T.Mesh(new T.SphereGeometry(.05,8,6),M('#C4402F',{roughness:.3}));jw.position.set(Math.cos(a)*.43,3.75+dH,Math.sin(a)*.43);g.add(jw)}
     box(1.2,.03,2.2,'#B8322A',0,.05,2.5);
-    for(let k=-4;k<=4;k++){[[-3.3,null],[3.3,null]].forEach(([x])=>{const pz=k*.7;const post=new T.Mesh(new T.BoxGeometry(.1,.55,.1),gold);post.position.set(x,.28,pz);g.add(post)})}
-    [-3.3,3.3].forEach(x=>{const rail=new T.Mesh(new T.BoxGeometry(.06,.06,5.7),gold);rail.position.set(x,.5,0);g.add(rail)});
+    for(let k=-4;k<=4;k++){[[-4.95,null],[4.95,null]].forEach(([x])=>{const pz=k*.68;const post=new T.Mesh(new T.BoxGeometry(.1,.55,.1),gold);post.position.set(x,.28,pz);g.add(post)})}
+    [-4.95,4.95].forEach(x=>{const rail=new T.Mesh(new T.BoxGeometry(.06,.06,5.5),gold);rail.position.set(x,.5,0);g.add(rail)});
   }
   if(r.sup||NK.shopOn(r)){const p=new T.Mesh(new T.CylinderGeometry(.04,.04,2.4,8),M('#5A4A3A'));p.position.set(1.7,3.2+dH,-1.1);p.castShadow=true;g.add(p);
     const fg=new T.PlaneGeometry(.9,.5,10,1);flag=new T.Mesh(fg,M('#F2C230',{side:T.DoubleSide,metalness:.1,roughness:.5,emissive:'#8A6A00',emissiveIntensity:.55}));flag.position.set(2.15,4.1+dH,-1.1);g.add(flag);flag.userData.base=fg.attributes.position.array.slice()}

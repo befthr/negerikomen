@@ -2154,7 +2154,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     BLD.forEach(b=>{const w=(window.LOWONGAN||{})[bKey(b)];if(bossOf(b)===r.name&&w&&w.pelamar&&(kkGet()||{}).u===r.name){const pb=el('button','btn gold3','📝 '+w.pelamar+' pelamar di '+(b.name||'bangunanmu'));pb.type='button';pb.onclick=()=>kkBuka(r.name);acts.append(pb)}});
     BLD.forEach(b=>{if(bossOf(b)===r.name&&(kkGet()||{}).u!==r.name&&(window.LOWONGAN||{})[bKey(b)]){const lb=el('button','btn gold3','📝 Lamar kerja di '+(b.name||'sini'));lb.type='button';lb.onclick=()=>kkLamar(b);acts.append(lb)}})}
   else if(s.kind==='d'){const k=s.k,nm=dsnNama(k),n=RES.filter(r=>dsnOf(r.x,r.y)===k).length,nb=BLD.filter(b=>{const w=b.w||3;return dsnOf(b.x+(w-1)/2,b.y+(w-1)/2)===k}).length;
-    left.append(el('h2',null,'🏡 '+(nm.nama||('Dusun '+DSN_NO[k]))),el('p',null,[nm.nama?`Dusun ${DSN_NO[k]}`:'',`${n} warga`,`${nb} bangunan`].filter(Boolean).join(' · ')),
+    left.append(el('h2',null,'🏡 '+(nm.nama||('Dusun '+DSN_NO[k]))),el('p',null,[nm.nama?`Dusun ${DSN_NO[k]}`:'',`📍 ${NAMA_DESA_LAMA}`,`${n} warga`,`${nb} bangunan`].filter(Boolean).join(' · ')),
       el('p',null,nm.nama?(nm.oleh?`Nama usulan @${nm.oleh}, dipilih warga lewat like terbanyak.`:'Nama pilihan warga.'):'Belum punya nama. Usulkan nama dusun di komen video terbaru @negerikomen. Like terbanyak jadi namanya!'))}
   else if(s.kind==='q'){box.className='result quest';const q=QUEST;left.append(el('h2',null,`Kamu menemukan ${q.name}! 🛸`),
       el('p',null,'Cepat! 20 penemu pertama dapat Recehan: 🥇 10 Receh · 🥈🥉 5 · ke-4–10 dapat 3 · ke-11–20 dapat 1.'));

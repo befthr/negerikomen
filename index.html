@@ -251,6 +251,20 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 #bList{border-top:1.5px dashed #D6DDD0;gap:0}#bList li{border-bottom:1.5px dashed #D6DDD0}#bList li:last-child{border-bottom:0}
 .bscroll{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}.bscroll::-webkit-scrollbar{width:6px}.bscroll::-webkit-scrollbar-thumb{background:#C9D1C6;border-radius:6px}
 .blist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.eksc{position:relative;overflow:hidden;border:2px solid #1C4E80;background:linear-gradient(150deg,#EAF6FF 0%,#CFEAFF 45%,#E9F1FF 70%,#D7F3FF 100%);box-shadow:0 4px 0 #1C4E80}
+.eksc::before{content:"";position:absolute;inset:-40% -10%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.75) 50%,transparent 60%);animation:eksKilau 5s ease-in-out infinite;pointer-events:none}
+@keyframes eksKilau{0%,60%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+.eksc-hd{position:relative;display:flex;gap:12px;align-items:center;margin-bottom:12px}.eksc-hd h3{margin:0;font-size:17px;color:#123B66;letter-spacing:0;text-transform:none}.eksc-hd p{margin:2px 0 0;font-size:13px;color:#2D5378;line-height:1.4}
+.eksc-gem{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:linear-gradient(145deg,#7FD3FF,#2F8FE0);border:2px solid #1C4E80;box-shadow:0 3px 0 #1C4E80,inset 0 2px 0 rgba(255,255,255,.6)}
+.eksc-list{position:relative;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.eksc-it button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;font:inherit;color:var(--ink);background:#fff;border:2px solid #1C4E80;border-radius:16px;padding:10px 12px;cursor:pointer;box-shadow:0 3px 0 #1C4E80;transition:transform .12s}
+.eksc-it button:active{transform:translateY(2px);box-shadow:0 1px 0 #1C4E80}
+.eksc-it.kosong button{background:linear-gradient(90deg,#FFFBEA,#fff)}
+.eksc-ic{flex:none;width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#FFFFFF,#BFE6FF 70%);border:2px solid #1C4E80}.eksc-ic svg{width:46px;height:46px}
+.eksc-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.eksc-tx b{font-size:16px;line-height:1.2}.eksc-tx small{font-size:12px;color:#5B6860}
+.eksc-own,.eksc-free{align-self:flex-start;font-size:12.5px;font-weight:800;border-radius:999px;padding:2px 9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eksc-own{background:#123B66;color:#fff}.eksc-free{background:#F2C230;color:#1C2520}
+.eksc-3d{flex:none;font-size:12px;font-weight:800;color:#123B66;background:#DDF0FF;border:1.5px solid #1C4E80;border-radius:999px;padding:4px 9px}
 .blist button{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;text-align:left;font:inherit;background:none;border:0;border-radius:10px;padding:8px;cursor:pointer;color:var(--ink)}
 .blist button:hover{background:var(--field)}
 .blist .ico{grid-row:span 2;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;background:var(--field);border:1px solid var(--line)}
@@ -475,10 +489,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <p class="note" id="tokoNote">Mau rumahmu jadi toko selama 30 hari? Buka <b>Kartu Komen → Ubah rumah → Jadi ruko</b> (20 Receh).</p>
       </div>
 
-      <div class="card okb" id="eksCard" hidden>
-        <h3>💎 Barang Eksklusif Kampung</h3>
-        <p class="empty" style="margin:-4px 0 10px;font-size:13.5px">Cuma ada 1 di seluruh kampung. Pemiliknya dapat lencana 💎 Pemilik Eksklusif. Ketuk buat lihat rumahnya 👀</p>
-        <ul class="blist" id="eksList"></ul>
+      <div class="card eksc" id="eksCard" hidden>
+        <div class="eksc-hd"><span class="eksc-gem">💎</span><div><h3>Barang Eksklusif Kampung</h3><p>Cuma ada <b>1</b> di seluruh kampung · pemiliknya dapat lencana <b>💎 Pemilik Eksklusif</b></p></div></div>
+        <ul class="eksc-list" id="eksList"></ul>
       </div>
 
       <div class="card okb" id="okb" hidden>
@@ -866,7 +879,7 @@ function drawHouse(r,s,a){
     ctx.strokeStyle='#8A6A10';ctx.lineWidth=1;ctx.stroke();
     ctx.fillStyle='#FFF7C2';ctx.beginPath();ctx.moveTo(px+4,top+2.2);ctx.lineTo(px+9,top+3.6);ctx.lineTo(px+4,top+5);ctx.closePath();ctx.fill()}
   {const IT=window.itemsPek?window.itemsPek(r):(Array.isArray(r.items)?r.items:[]);if(IT.length){ // item pekarangan: di belakang rumah (sisi yang tidak menghadap jalan)
-    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}if(o.id==='patromax'){PATRO_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,78)*9,r});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
+    IT.slice(0,3).forEach((o,k)=>{if(rideOf(r,o,k,ITEM_T))return;const off=(k-1)*11,bk=19.5;const x=-dx*bk+(horiz?off:0),y=-dy*bk+(horiz?0:off);if(o.id==='robot'){ROBOT_POS.push({x:wx(r.x)+x*s,y:wx(r.y)+y*s,s:s*a,sd:ih(r.x,r.y,77)*9,u:r.name});return}if(o.id==='patromax'){/* berdiri di samping/belakang rumah, menghadap halaman dalam blok, tidak menutupi rumah */let px,py;if(!horiz){px=-dx*(w/2+15);py=h/2}else if(dy>0){px=0;py=-h/2-8}else{px=0;py=h/2+64}PATRO_POS.push({x:wx(r.x)+px*s,y:wx(r.y)+py*s,s:s*a,sd:ih(r.x,r.y,78)*9,r});return}ctx.save();ctx.translate(x,y);ITEM_HZ=horiz;drawItem2D(o.id,ITEM_T,ih(r.x,r.y,20+k)*20,o.teks,o.warna);ctx.restore()})}}
   ctx.restore();
 }
 // item tampak atas (±10 px), tanpa wajah
@@ -1840,9 +1853,12 @@ function robotSejak(id){id=id||'robot';const o=(window.BELANJA||[]).find(o=>o&&o
 const EKS_DAF=[['robot','🤖','GENTO',()=>window.ROBOT_OWNER],['patromax','🏮','Patromax',()=>window.PATRO_OWNER]];
 function eksMilik(u){u=String(u||'').toLowerCase();return EKS_DAF.filter(([id,ic,nm,ow])=>ow()&&String(ow()).toLowerCase()===u).map(([id,ic,nm])=>ic+' '+nm)}
 function renderEksklusif(){const box=$('eksList');if(!box)return;box.innerHTML='';
+  EKS_DAF.forEach(([id,ic,nm,ow])=>{const o=ow(),li=el('li','eksc-it'+(o?' milik':' kosong')),bt=document.createElement('button');bt.type='button';
+    const ik=el('span','eksc-ic');ik.append(kkItemSVG(id));const tx=el('span','eksc-tx');tx.append(el('b',null,nm),o?el('span','eksc-own','👑 @'+o):el('span','eksc-free','✨ Belum ada pemilik'),el('small',null,o?'💎 Pemilik Eksklusif · sejak '+robotSejak(id):KK_ITEM[id].h+' Receh · siapa cepat dia dapat!'));
+    bt.append(ik,tx,el('span','eksc-3d','👀 3D'));bt.onclick=()=>{id==='robot'?openDemoGento():openDemoPatromax()};li.append(bt);box.append(li)});$('eksCard').hidden=false;return;
   EKS_DAF.forEach(([id,ic,nm,ow])=>{const o=ow(),li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     bt.append(el('span','ico',ic),el('b',null,nm+(o?' · 👑 @'+o:'')),el('span',null,o?'💎 Pemilik Eksklusif · sejak '+robotSejak(id):'Belum ada pemilik · '+KK_ITEM[id].h+' Receh · siapa cepat dia dapat!'));
-    bt.onclick=()=>{if(o){const i=kkResIdx(o);if(i>=0){select({kind:'r',i});scrollMap()}}else kkBelanja('item')};li.append(bt);box.append(li)});$('eksCard').hidden=false}
+    bt.onclick=()=>{id==='robot'?openDemoGento():openDemoPatromax()};bt.append(el('span',null,'👀 Ketuk buat lihat 3D'));li.append(bt);box.append(li)});$('eksCard').hidden=false}
 function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO',patromax:'🏮 Patromax',konsol:'🎮 playadalahmain 1.0'};
   const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'baru saja':d<3600?Math.round(d/60)+' menit lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hari lalu'};
   const L=(window.BELANJA||[]).map(o=>{let t='';if(o.j==='warna')t='🎨 Ganti warna rumah';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Buka ruko';else if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2);
@@ -2073,9 +2089,9 @@ function patromaxGelap(v,t,n){const W=v.W,H=v.H,z=v.z,T=NK.T,PP=window.__PATRO||
   const c=PMX_C.getContext('2d');c.globalCompositeOperation='source-over';c.clearRect(0,0,W,H);c.fillStyle=`rgba(10,16,46,${.7*n})`;c.fillRect(0,0,W,H);c.globalCompositeOperation='destination-out';
   const fl=1+.035*Math.sin(t*3)+.02*Math.sin(t*11),RAD=T*3.6*fl;
   // satu lingkaran cahaya besar & lembut (terang penuh di tengah, memudar alami ke tepi)
-  PP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,r=RAD*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(.45,'rgba(0,0,0,.95)');g.addColorStop(.7,'rgba(0,0,0,.6)');g.addColorStop(.88,'rgba(0,0,0,.22)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)});
+  PP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+(o.y-26*(o.s||1))*z,r=RAD*z;if(x<-r||x>W+r||y<-r||y>H+r)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(.45,'rgba(0,0,0,.95)');g.addColorStop(.7,'rgba(0,0,0,.6)');g.addColorStop(.88,'rgba(0,0,0,.22)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)});
   ctx.drawImage(PMX_C,0,0);ctx.save();
-  PP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,r=RAD*z;if(x<-r||x>W+r||y<-r||y>H+r)return;
+  PP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+(o.y-26*(o.s||1))*z,r=RAD*z;if(x<-r||x>W+r||y<-r||y>H+r)return;
     ctx.globalCompositeOperation='multiply';let g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgb(255,238,200)');g.addColorStop(.7,'rgb(255,226,180)');g.addColorStop(1,'rgb(255,255,255)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);
     ctx.globalCompositeOperation='lighter';const r2=r*.55;g=ctx.createRadialGradient(x,y,0,x,y,r2);g.addColorStop(0,`rgba(255,214,120,${.5*n})`);g.addColorStop(.35,`rgba(255,200,100,${.2*n})`);g.addColorStop(1,'rgba(255,200,100,0)');ctx.fillStyle=g;ctx.fillRect(x-r2,y-r2,2*r2,2*r2)});ctx.restore()}
 let MALAM_T=0;
@@ -2626,7 +2642,14 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       const sc=add(B(.16,.012,.1),'#7FD8FF',0,.455,0,{emissive:'#7FD8FF',emissiveIntensity:.8});add(S(.022),'#F2C230',-.13,.46,.03);add(S(.022),'#FF5E8A',.13,.46,.03);A.push(t=>{sc.material.emissiveIntensity=.5+.4*Math.sin(t*.004+k)})}
     else if(o.id==='kucing'){const b=add(S(.25),'#E07A3E',0,.28,0);b.scale.set(1.4,.9,.9);add(S(.17),'#E07A3E',.36,.46,0);[-.08,.08].forEach(zz=>add(new T.ConeGeometry(.06,.14,4),'#E07A3E',.36,.65,zz));const t=add(C(.04,.04,.45),'#E07A3E',-.42,.42,0);t.rotation.z=.6}
     else if(o.id==='kambing'){const b=add(B(.7,.36,.36),'#F4EFE3',0,.5,0);[[-.24,-.12],[-.24,.12],[.24,-.12],[.24,.12]].forEach(([a,c])=>add(C(.04,.04,.34),'#8E7A60',a,.17,c));add(B(.24,.26,.22),'#F4EFE3',.44,.74,0);[-.06,.06].forEach(zz=>{const h=add(C(.02,.03,.22),'#8E5A3C',.4,.95,zz);h.rotation.z=.5})}
-    else if(o.id==='patromax'){q.scale.setScalar(4.2);add(C(.26,.3,.06),'#2F6B4F',0,.03,0);const tb=add(C(.22,.22,.3),'#C4402F',0,.21,0);add(C(.14,.14,.04),'#2F6B4F',0,.38,0);const gl=add(C(.13,.13,.26),'#FFF6C8',0,.53,0,{emissive:'#FFD25A',emissiveIntensity:1});add(new T.ConeGeometry(.24,.14,16),'#2F6B4F',0,.73,0);add(new T.TorusGeometry(.1,.015,6,16,Math.PI),'#3A3A3A',0,.82,0);A.push(t=>{gl.material.emissiveIntensity=.85+.25*Math.sin(t*.006+k)+.08*Math.sin(t*.03)})}
+    else if(o.id==='patromax'){q.scale.setScalar(4.2);add(C(.26,.3,.06),'#2F6B4F',0,.03,0);const tb=add(C(.22,.22,.3),'#C4402F',0,.21,0);add(C(.14,.14,.04),'#2F6B4F',0,.38,0);const gl=add(C(.13,.13,.26),'#FFF6C8',0,.53,0,{emissive:'#FFD25A',emissiveIntensity:1});add(new T.ConeGeometry(.24,.14,16),'#2F6B4F',0,.73,0);add(new T.TorusGeometry(.1,.015,6,16,Math.PI),'#3A3A3A',0,.82,0);{const P=[],geo=new T.SphereGeometry(.035,6,5),COL=['#FFC21A','#FF7A00','#FF3D00','#FFE066','#E8290B','#FF9F1C'];let at=-1e9,ada=false;const lama=g.userData.tembak;
+      g.userData.api=true;g.userData.tembak=()=>{if(lama)lama();at=performance.now();ada=false;try{SND.play('ting',.5)}catch(e){}};
+      A.push(()=>{const dt=(performance.now()-at)/1000;if(dt<1.6&&!ada){ada=true;P.forEach(m=>{q.remove(m);m.material.dispose()});P.length=0;
+          for(let i=0;i<130;i++){const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:COL[i%COL.length],transparent:true,opacity:1,fog:false,depthWrite:false,toneMapped:false}));const a=Math.random()*Math.PI*2,sp=.28+Math.random()*.5,up=.05+Math.random()*.35;
+            m.userData={v:new T.Vector3(Math.cos(a)*sp,up,Math.sin(a)*sp),d:Math.random()*.25,s:.6+Math.random()*1.2};m.position.set(0,.62,0);m.visible=false;q.add(m);P.push(m)}}
+        if(!P.length)return;if(dt>2){P.forEach(m=>{q.remove(m);m.material.dispose()});P.length=0;return}
+        P.forEach(m=>{const u=dt-m.userData.d;if(u<0)return;m.visible=true;const v=m.userData.v;m.position.set(v.x*u,.62+v.y*u-.18*u*u,v.z*u);const k=Math.max(0,1-u/1.3);m.material.opacity=Math.min(1,k*1.4);m.material.color.lerp(new T.Color(u>.7?'#7A2A10':'#FF5A00'),.02);m.scale.setScalar(m.userData.s*(1.4*k+.3))})})}
+    try{const pl=new T.PointLight('#FFC870',1.4,7);pl.position.set(0,.55,0);q.add(pl);A.push(t=>{pl.intensity=1.2+.3*Math.sin(t*.006+k)})}catch(e){}A.push(t=>{gl.material.emissiveIntensity=.85+.25*Math.sin(t*.006+k)+.08*Math.sin(t*.03)})}
     else if(o.id==='lampu'){add(C(.04,.05,1.4),'#3A3A3A',0,.7,0);add(S(.16),'#FFE89A',0,1.48,0,{emissive:'#F2C230',emissiveIntensity:.9});add(C(.18,.12,.08),'#3A3A3A',0,1.62,0)}
     else if(o.id==='bougenville'){add(C(.06,.1,.7),'#7A5230',0,.35,0);[[0,.95,0,.42],[.3,.8,.2,.3],[-.32,.82,-.1,.3],[.1,1.2,-.15,.3]].forEach(([a,b2,c,r])=>add(S(r),'#3E7F3A',a,b2,c));
       for(let i=0;i<34;i++){const th=i*2.399,ph=Math.acos(1-2*(i+.5)/34)*.85,r=.46;const x=Math.sin(ph)*Math.cos(th)*r,z=Math.sin(ph)*Math.sin(th)*r,y=.95+Math.cos(ph)*r*.9;add(S(.1+(i%3)*.025),['#E0569A','#F07AB4','#D63F86'][i%3],x*1.1,y,z*1.1)}}
@@ -3430,7 +3453,7 @@ function renderGoalK(n){const g=D.goalKampung,box=$('goalk');if(!g||!box||!(g.ta
   const nb=el('div','gk-num');nb.append(im,el('b',null,fmt(now)),document.createTextNode(` dari ${fmt(g.target)} Genteng · ${Math.floor(pct)}%`));box.append(top,bar,nb)}
 try{renderGoalK(0)}catch(e){}
 function renderEtalase(){const box=$('etalase');if(!box)return;box.innerHTML='';const g=el('div','eta-grid');
-  const tile=(sv,nm,h,tab,k,ds,eks)=>{const b=el('button','eta');b.type='button';sv.style.animationDelay=(k*.27%2)+'s';const hh=el('small');const im=el('img','kk-gico');im.src='receh.svg';im.alt='';hh.append(im,h);b.append(sv,el('span',null,nm),...(ds?[el('small','kk-ds',ds)]:[]),hh);if(eks){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF'));if(eks==='baru'){b.firstChild.textContent='BARU · 14 GAME';b.classList.add('baru');b.onclick=()=>kkBelanja(tab);g.append(b);return}const ow=window.PATRO_OWNER;if(ow){hh.textContent='👑 milik @'+ow+' · sejak '+robotSejak('patromax');b.onclick=()=>{const i=kkResIdx(ow);if(i>=0){select({kind:'r',i});scrollMap()}}}else{hh.append(document.createTextNode(' · cuma 1!'));b.append(el('small','eks-ket','🌙 Terangin 5 rumah pas malam'));b.onclick=()=>kkBelanja(tab)}}else b.onclick=()=>kkBelanja(tab);g.append(b)};
+  const tile=(sv,nm,h,tab,k,ds,eks)=>{const b=el('button','eta');b.type='button';sv.style.animationDelay=(k*.27%2)+'s';const hh=el('small');const im=el('img','kk-gico');im.src='receh.svg';im.alt='';hh.append(im,h);b.append(sv,el('span',null,nm),...(ds?[el('small','kk-ds',ds)]:[]),hh);if(eks){b.classList.add('eks');b.prepend(el('em','eks-tag','EKSKLUSIF'));if(eks==='baru'){b.firstChild.textContent='BARU · 14 GAME';b.classList.add('baru');b.onclick=()=>kkBelanja(tab);g.append(b);return}const ow=window.PATRO_OWNER;if(ow){hh.textContent='👑 milik @'+ow+' · sejak '+robotSejak('patromax')}else hh.append(document.createTextNode(' · cuma 1!'));b.append(el('small','eks-ket','👀 Ketuk buat lihat 3D'));b.onclick=openDemoPatromax}else b.onclick=()=>kkBelanja(tab);g.append(b)};
   tile(kkItemSVG('patromax'),KK_ITEM.patromax.n,String(KK_ITEM.patromax.h),'item',9,KK_ITEM.patromax.d,'patromax');
   tile(kkItemSVG('konsol'),KK_ITEM.konsol.n,String(KK_ITEM.konsol.h),'item',8,KK_ITEM.konsol.dl,'baru');
   const rw=kkRumahMini({x:0,y:0,wall:'#F4D35E',roof:'#8E5AA8'});tile(rw,'Ubah warna','1','rumah',0,'Genteng & tembok sesukamu');
@@ -3472,6 +3495,7 @@ function GENTO_ON(){return !!(window.NK_DATA&&window.NK_DATA.gento)}
 function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]:null;
   open3D(me?Object.assign({},me,{demo:'ufo',nick:'UFO Nyasar di atas rumah @'+me.name}):{demo:'ufo',name:'ufonyasar',nick:'UFO Nyasar 🛸',x:0,y:0,wall:'krem',roof:'merah'},me?i:0);
   setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,window.UFO_KE?(window.UFO_KE===1?'🥇 Selamat, kamu penemu pertama! ':`🎉 Selamat, kamu penemu ke-${window.UFO_KE}! `)+'Bagikan momen langka ini 📸':'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
+function openDemoPatromax(){open3D({demo:'patromax',name:'contohpatromax',nick:'Patromax',x:0,y:0,wall:'krem',roof:'merah',items:[{id:'patromax'}]},0)}
 function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Hanggar GENTO',x:0,y:0,wall:'putih',roof:'biru',tingkat:2,items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
@@ -3738,6 +3762,9 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   if(r&&r.demo==='rental'){isiRental($('v3demo'))}
   if(r&&r.demo==='gento'){const ow=window.ROBOT_OWNER;const d=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('robot'),el('b',null,ow?'GENTO':'GENTO · 22 Receh'));d.append(gh);
     if(ow)d.append(el('p','kk-muted','Dimiliki @'+ow+' sejak '+robotSejak()+'. Cuma ada 1 di kampung!'));else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Siapa cepat, dia dapat!'),el('p','kk-note','ℹ️ Yang kamu beli: robot GENTO, muncul di pekarangan rumahmu & bisa kamu ajak jalan-jalan. Hanggar ini milik desa, bukan rumah.'),kkBtn('🛒 Beli GENTO · 22 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
+  if(r&&r.demo==='patromax'){const ow=window.PATRO_OWNER;const d=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('patromax'),el('b',null,ow?'Patromax':'Patromax · 12 Receh'));d.append(gh);
+    if(ow){d.append(el('p','kk-muted','Dimiliki @'+ow+' sejak '+robotSejak('patromax')+'. Cuma ada 1 di kampung!'),kkBtn('🏠 Lihat rumah @'+ow,'gold3',()=>{close3D();const i=kkResIdx(ow);if(i>=0){select({kind:'r',i});scrollMap()}}))}
+    else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Pas malam, rumahmu + tetangga sekitar ikut terang!'),el('p','kk-note','ℹ️ Ini contoh rumah. Patromax-nya berdiri di pekarangan rumahmu, setinggi ±2x rumah.'),kkBtn('🛒 Beli Patromax · 12 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
   if(r&&r.demo==='konsol'){const mg=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));
     mg.append(gh,el('p','kk-muted','Begini tampilannya di Kartu Komen pemilik. 14 mini game, skor terbaik masuk 🏆 Ranking pemilik!'),kkBtn('🎮 Main sekarang','gold3',()=>bukaKonsol(true)));$('v3demo').append(mg)}
   if(r&&r.demo===true){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
@@ -3747,7 +3774,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
-  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?NAMA_DESA+' · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak():'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?NAMA_DESA+' · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak():'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo==='patromax'?(window.PATRO_OWNER?'👑 Milik @'+window.PATRO_OWNER+' · sejak '+robotSejak('patromax'):'Lampu eksklusif · cuma 1 di kampung · 12 Receh'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();
@@ -3763,7 +3790,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   {const gb=$('v3gaya');gb.hidden=!g.userData.gaya;gb.onclick=()=>{if(!g.userData.gaya)return;const n=g.userData.gaya();gb.textContent='🕺 '+n;auto=false}}
   {const fb=$('v3fly');fb.hidden=!g.userData.terbang;let fc=0;fb.onclick=()=>{if(!g.userData.terbang||Date.now()<fc)return;fc=Date.now()+6800;auto=false;g.userData.terbang()}}
   {const sb=$('v3slash');sb.hidden=!g.userData.tebas;let cd=0;sb.onclick=()=>{if(!g.userData.tebas||Date.now()<cd)return;cd=Date.now()+1100;auto=false;g.userData.tebas()}}
-  {const fb=$('v3fire');fb.hidden=!g.userData.tembak;let cd=0;fb.onclick=()=>{if(!g.userData.tembak||Date.now()<cd)return;cd=Date.now()+2700;g.userData.tembak();fb.disabled=true;setTimeout(()=>fb.disabled=false,2700)}}
+  {const fb=$('v3fire');fb.hidden=!g.userData.tembak;fb.textContent=g.userData.api?'🔥':'💥';fb.title=fb.ariaLabel=g.userData.api?'Semburkan api patromax':'Tembak mercon';let cd=0;fb.onclick=()=>{if(!g.userData.tembak||Date.now()<cd)return;cd=Date.now()+2700;g.userData.tembak();fb.disabled=true;setTimeout(()=>fb.disabled=false,2700)}}
   let yaw=-.6,pitch=.45,dist=bd0&&bd0.type==='tugu'?16:bd0||NK.shopOn(r)?14:12,auto=true,drag=null,raf=0,live=true;
   // kamera menyesuaikan tinggi rumah/bangunan supaya atap & menara tidak terpotong (juga di gambar Bagikan)
   const D0=dist;let ctrY=1.3,fitD=D0;
@@ -3805,7 +3832,7 @@ async function makeCard(src,r,i,bd0){try{await document.fonts.ready}catch(e){}
   if(JG){c.lineWidth=28;c.strokeStyle='#D4A72C';c.strokeRect(14,14,W-28,H-28);c.lineWidth=6;c.strokeStyle='#1C2520';c.strokeRect(36,36,W-72,H-72)}
   c.fillStyle='#1C2520';c.textAlign='center';c.font=`700 34px ${FB}`;c.fillText('N E G E R I   K O M E N',W/2,JG?100:150);
   c.font=`800 76px ${FD}`;if(JG){c.font=`800 38px ${FB}`;c.fillStyle='#8A5A00';c.fillText('👑 JURAGAN GENTENG 👑',W/2,150);c.fillStyle='#1C2520';c.font=`800 76px ${FD}`}
-  c.fillText(bd0?'Bangunan kampung':r&&r.demo==='gento'?'Robot Eksklusif':'Rumahku di kampung',W/2,250);
+  c.fillText(bd0?'Bangunan kampung':r&&r.demo==='gento'?'Robot Eksklusif':r&&r.demo==='patromax'?'Lampu Eksklusif':'Rumahku di kampung',W/2,250);
   /* gambar 3D */
   const X=60,Y=320,S=960;c.save();rr(c,X,Y,S,S,40);c.clip();const sg=c.createLinearGradient(0,Y,0,Y+S);sg.addColorStop(0,'#DDEBF2');sg.addColorStop(.7,'#F5F7F1');c.fillStyle=sg;c.fillRect(X,Y,S,S);
   c.drawImage(src,X,Y,S,S);

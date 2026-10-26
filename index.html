@@ -975,8 +975,8 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
 
   // badan + dada
   RR(-19,-12,38,28,6,IV,1);RR(-19.5,-12.5,39,6,3,TL);RR(-15,11,30,4,2,TL);
-  if(lf>0){/* terbang: kamera dari atas punggung → yang terlihat ransel pendorong (sama dengan 3D), bukan dada */
-   RR(-11,-9,22,20,5,TL,1);RR(-11.5,-9.5,23,4,2,OR);[-5.5,5.5].forEach(x=>{const f=.7+.3*Math.sin(t*26+x);E(x,17+5*f,3.4,7*f+4,'rgba(79,184,255,.45)');E(x,15+2*f,2,4*f+2,'rgba(220,245,255,.95)');RR(x-3.2,4,6.4,10,2.5,'#AEB7C2',1);E(x,14,2.6,1.4,OR)})}
+  if(true){/* kamera dari atas punggung (terbang & di darat) → yang terlihat ransel pendorong (sama dengan 3D), bukan dada */
+   RR(-11,-9,22,20,5,TL,1);RR(-11.5,-9.5,23,4,2,OR);[-5.5,5.5].forEach(x=>{const f=.7+.3*Math.sin(t*26+x);if(lf>0){E(x,17+5*f,3.4,7*f+4,'rgba(79,184,255,.45)');E(x,15+2*f,2,4*f+2,'rgba(220,245,255,.95)')}RR(x-3.2,4,6.4,10,2.5,'#AEB7C2',1);E(x,14,2.6,1.4,OR)})}
   else{  RR(-3,-12,6,20,2,OR);[-1,1].forEach(k=>{RR(k*9-5,-3,10,6,2,TL);c.fillStyle='#F4F6F8';for(let q=0;q<3;q++)c.fillRect(k*9-4,-2+q*1.7,8,.6)});
   const pu=.6+.4*Math.sin(t*3+sd);E(0,4,3.2,3.2,'#9ED8FF');E(0,4,5.5*pu,5.5*pu,'rgba(79,184,255,.3)');}
   // bahu berlapis teal + list oranye

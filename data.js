@@ -2943,7 +2943,22 @@ window.NK_DATA = {
   { "name": "alamsyahhhh_iky", "x": 88, "y": 55, "day": 8, "wall": "hijau" },
   { "name": "innahcxx__", "x": 88, "y": 46, "day": 8, "nick": "Bainah", "roof": "biru" },
   { "name": "rapp4a_", "x": 64, "y": 84, "day": 8, "nick": "Bambang", "roof": "coklat" },
-  { "name": "gg_friggin_ez", "x": 88, "y": 56, "day": 8 }
+  { "name": "gg_friggin_ez", "x": 88, "y": 56, "day": 8 },
+  { "name": "rama_p3nd0", "x": 86, "y": 61, "day": 8, "nick": "Rama", "roof": "oranye", "wall": "merah muda" },
+  { "name": "will_7sin", "x": 16, "y": 79, "day": 8, "nick": "Pexsarty", "roof": "merah muda", "wall": "putih" },
+  { "name": "zahhh___02", "x": 74, "y": 79, "day": 8, "nick": "Rara", "roof": "hitam", "wall": "putih" },
+  { "name": "l.faaal", "x": 58, "y": 88, "day": 8, "nick": "Sabiq", "roof": "oranye", "wall": "putih" },
+  { "name": "hanzz_prime13", "x": 86, "y": 59, "day": 8, "nick": "Ojan", "roof": "biru", "wall": "hijau muda" },
+  { "name": "princes_sayy", "x": 5, "y": 64, "day": 8, "nick": "Rara", "roof": "merah", "wall": "biru" },
+  { "name": "ajrii_aj", "x": 88, "y": 54, "day": 8, "nick": "Jrii", "roof": "merah", "wall": "putih" },
+  { "name": "ora_mikiri0", "x": 56, "y": 88, "day": 8, "nick": "Yadi", "roof": "merah", "wall": "putih" },
+  { "name": "i.dndaii", "x": 10, "y": 71, "day": 8, "nick": "Al", "roof": "hitam", "wall": "putih" },
+  { "name": "7catazz", "x": 86, "y": 62, "day": 8, "nick": "Limzz", "roof": "biru", "wall": "kuning" },
+  { "name": "rzlmaulln", "x": 82, "y": 70, "day": 8, "nick": "Zal", "roof": "biru", "wall": "putih" },
+  { "name": "eyyll90", "x": 22, "y": 82, "day": 8, "nick": "Ella", "roof": "putih", "wall": "merah muda" },
+  { "name": "aries_mkf", "x": 78, "y": 76, "day": 8, "nick": "Vano", "roof": "biru", "wall": "abu-abu" },
+  { "name": "dgttr01", "x": 10, "y": 72, "day": 8, "nick": "Febri", "roof": "merah", "wall": "putih" },
+  { "name": "fara.shitamaullida_", "x": 22, "y": 84, "day": 8, "nick": "Fara", "roof": "ungu muda", "wall": "krem" }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1, "staff": [{"user":"muhhusainalfathaly_","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"},{"user":"mandre.js","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"}] },

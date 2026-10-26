@@ -2959,7 +2959,8 @@ window.NK_DATA = {
   { "name": "aries_mkf", "x": 78, "y": 76, "day": 8, "nick": "Vano", "roof": "biru", "wall": "abu-abu" },
   { "name": "dgttr01", "x": 10, "y": 72, "day": 8, "nick": "Febri", "roof": "merah", "wall": "putih" },
   { "name": "fara.shitamaullida_", "x": 22, "y": 84, "day": 8, "nick": "Fara", "roof": "ungu muda", "wall": "krem" },
-  { "name": "salsabila86150", "x": 71, "y": 82, "day": 8, "nick": "Acaa" }
+  { "name": "salsabila86150", "x": 71, "y": 82, "day": 8, "nick": "Acaa" },
+  { "name": "yayamentaii", "x": 74, "y": 78, "day": 8 }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1, "staff": [{"user":"muhhusainalfathaly_","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"},{"user":"mandre.js","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"}] },

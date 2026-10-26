@@ -1959,7 +1959,7 @@ window.NK_DATA = {
   { "name": "bold.espressoo", "x": 40, "y": 7, "day": 7, "roof": "merah", "wall": "biru" },
   { "name": "anomali.suka123", "x": 82, "y": 43, "day": 7 },
   { "name": "_resaww_", "x": 77, "y": 28, "day": 7, "nick": "Reisa", "roof": "merah muda", "wall": "putih" },
-  { "name": "scnydpi", "x": 7, "y": 44, "day": 7, "nick": "Dopi" },
+  { "name": "scnydpi", "x": 7, "y": 44, "day": 7 },
   { "name": "flow_pent", "x": 8, "y": 38, "day": 7, "nick": "Mujahid" },
   { "name": "nuniyyy43", "x": 22, "y": 16, "day": 7, "nick": "Nuniyyy", "roof": "krem", "wall": "merah muda" },
   { "name": "abbasy.saputro", "x": 43, "y": 8, "day": 7, "nick": "Abbas", "roof": "hitam", "wall": "oranye" },

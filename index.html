@@ -3848,8 +3848,11 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   try{await loadThree()}catch(e){$('v3load').textContent='Gagal memuat 3D. Coba lagi nanti.';return}
   const T=THREE,cv=$('v3c'),dpr=Math.min(2,window.devicePixelRatio||1);
   if(v3s)v3s.stop();
-  const rd=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true,preserveDrawingBuffer:true});rd.setPixelRatio(dpr);rd.shadowMap.enabled=true;rd.shadowMap.type=T.PCFSoftShadowMap;
+  const rd=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:false,preserveDrawingBuffer:true});rd.setPixelRatio(dpr);rd.shadowMap.enabled=true;rd.shadowMap.type=T.PCFSoftShadowMap;
   const scn=new T.Scene();const cam=new T.PerspectiveCamera(35,1,.1,100);
+  // langit digambar di scene (kanvas buram) → tidak ada piksel tembus ke latar halaman (bug pucat/transparan di sebagian HP)
+  const langit=(a,b,c2)=>{const k=document.createElement('canvas');k.width=2;k.height=256;const x=k.getContext('2d'),gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,a);gr.addColorStop(.7,b);gr.addColorStop(1,c2||b);x.fillStyle=gr;x.fillRect(0,0,2,256);return new T.CanvasTexture(k)};
+  const SKY_SIANG=langit('#DDEBF2','#F5F7F1'),SKY_MALAM=langit('#0B1330','#1F2C5C','#2B3A6B');scn.background=SKY_SIANG;
   window.__PMX_MALAM=null;cv.parentElement.style.background='';const hemi=new T.HemisphereLight('#FFFFFF','#6E8F4A',.5);scn.add(hemi);const sun=new T.DirectionalLight('#FFF2D6',.75);sun.position.set(5,9,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
   Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6});scn.add(sun);
   let {g,flag}=bd0?build3DB(bd0):build3D(r);scn.add(g);
@@ -3858,7 +3861,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
   {const sb=$('v3slash');sb.hidden=!g.userData.tebas;let cd=0;sb.onclick=()=>{if(!g.userData.tebas||Date.now()<cd)return;cd=Date.now()+1100;auto=false;g.userData.tebas()}}
   {const fb=$('v3fire');fb.hidden=!g.userData.tembak;const PX={pompa:['🔧','Pompa patromax'],laron:['🦋','Usir laron']}[g.userData.pmx];fb.textContent=PX?PX[0]:'💥';fb.title=fb.ariaLabel=PX?PX[1]:'Tembak mercon';fb.style.background=PX?(g.userData.pmx==='pompa'?'#2F6B4F':'#5A3A1E'):'';let cd=0;fb.onclick=()=>{if(!g.userData.tembak||Date.now()<cd)return;cd=Date.now()+2700;g.userData.tembak();fb.disabled=true;setTimeout(()=>fb.disabled=false,2700)}}
   // Patromax: pratinjau siang/malam (malam = langit gelap, lampu nyala + laron)
-  if(g.userData.pmx||g.userData.srt){const box=cv.parentElement,fb=$('v3fire');const set=m=>{window.__PMX_MALAM=m;hemi.intensity=m?.16:.5;hemi.color.set(m?'#8FA3D9':'#FFFFFF');sun.intensity=m?.1:.75;box.style.background=m?'linear-gradient(#0B1330,#1F2C5C 70%,#2B3A6B)':'';if(g.userData.pmx)g.userData.pmx=m?'laron':'pompa';
+  if(g.userData.pmx||g.userData.srt){const box=cv.parentElement,fb=$('v3fire');const set=m=>{window.__PMX_MALAM=m;scn.background=m?SKY_MALAM:SKY_SIANG;hemi.intensity=m?.16:.5;hemi.color.set(m?'#8FA3D9':'#FFFFFF');sun.intensity=m?.1:.75;box.style.background=m?'linear-gradient(#0B1330,#1F2C5C 70%,#2B3A6B)':'';if(g.userData.pmx)g.userData.pmx=m?'laron':'pompa';
       const PX={pompa:['🔧','Pompa patromax','#2F6B4F'],laron:['🦋','Usir laron','#5A3A1E'],sorot:['🔦','Tes lampu sorot','#123B66']}[g.userData.pmx||'sorot'];fb.textContent=PX[0];fb.title=fb.ariaLabel=PX[1];fb.style.background=PX[2];tg.textContent=m?'☀️ Lihat siang':'🌙 Lihat malam'};
     const tg=kkBtn('🌙 Lihat malam','gold3',()=>set(!window.__PMX_MALAM));tg.classList.add('pmx-tg');const idP=g.userData.pmx?'patromax':'sorot';
     const pv=kkBtn('🗺️ Lihat malam di peta (pamer ke tetangga!)','gold3',()=>pratinjauPatromaxPeta(idP));const w=el('div','kk-game on');w.append(el('p','kk-muted',idP==='patromax'?"🏮 Patromax beda siang & malam: siang dipompa, malam nyala terang + dikerubungi laron, dan sekitar rumahmu ikut terang di peta. Coba lihat!":"🔦 Lampu Sorot nyala pas malam: berkas cahayanya nembak ke langit dan @username pemilik terpampang di awan, kelihatan se-kampung. Coba lihat!"),tg,pv);$('v3demo').prepend(w);let m0=false;try{m0=malamNow().n>.5}catch(e){}set(m0)}

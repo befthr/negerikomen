@@ -3358,6 +3358,8 @@ async function lamarNegeri(j){const QA=LOKER_QA();if(!KK_ON&&!QA){toast('Lamar l
   const msg=el('p','kk-msg');
   body.append(ta,lb,kkBtn('Kirim lamaran','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await api('lamar-negeri',{job:j.id,pesan:ta.value,follow:cb.checked},true);bt.disabled=false;
     if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}kkTutup();kkSukses(res.ulang?'✅ Lamaran diperbarui!':'🎉 Lamaran terkirim!',['Lamaranmu untuk '+j.title+' sudah masuk ke Pak Kades.','Yang terpilih diumumkan sesuai ketentuan loker. Semoga beruntung! 🍀'])}),msg)}
+window.nkKartu=function(){const k=kkGet();if(k&&k.u){kkBuka(k.u);return}
+  toast('Cari rumahmu dulu, ketuk rumahnya, lalu pencet Kartu Komen 🔑');const q=$('q');if(q){scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{try{q.focus({preventScroll:true})}catch(e){}},450)}};
 async function kkBelanja(tab){if(!KK_ON){toast('Toko Pak Kades dibuka bareng Kartu Komen. Pantau Instagram @negerikomen!');return}
   const k=kkGet();if(!k||!k.u){toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}return}
   const body=kkModal();body.append(el('p','kk-muted','Memuat kartu…'));const res=await kkApi('saya',null,true);if(!res.ok){body.innerHTML='';kkIntro(body,k.u,res.error);return}
@@ -3773,10 +3775,10 @@ window.addEventListener('hashchange',fromLink);
 <div class="nkm" id="nkm" hidden><div class="nkm-s" role="dialog" aria-label="Menu"><div class="gr"></div><h4>Mau ke mana?</h4><div id="nkmList"></div></div></div>
 <script>
 (function(){const fab=document.getElementById('nkmFab'),m=document.getElementById('nkm'),L=document.getElementById('nkmList');
-const IT=[['🔍','Cari rumahku','Ketik nama / @username','q'],['🏠','Cara jadi warga','3 langkah, gratis','caraWarga'],['🎁','Kalender Kejutan','Fitur baru tiap malam','kejutan','BARU'],['📢','Loker','Lowongan kerja di kampung','loker'],['🪪','Kartu Komen','Masuk pakai @username','#kk'],['🧱','Traktir & Toko Pak Kades','Genteng, Receh, belanja','trak'],['🏛️','Fasilitas kampung','Cari bangunan & bosnya','bSearch'],['🆕','Warga baru','Daftar warga terbaru','newList']];
+const IT=[['🔍','Cari rumahku','Ketik nama / @username','q'],['📢','Loker','Lowongan kerja di kampung','loker'],['🆕','Warga baru','Daftar warga terbaru','newList'],['🏛️','Fasilitas kampung','Cari bangunan & bosnya','bSearch'],['🏠','Cara jadi warga','3 langkah, gratis','caraWarga'],['🧱','Traktir & Toko Pak Kades','Genteng, Receh, belanja','trak'],['🎁','Kalender Kejutan','Fitur baru tiap malam','kejutan','BARU'],['🪪','Kartu Komen','Buka kartumu / cara ambil kartu','#kk']];
 function tutup(){m.hidden=true}
 function ke(id){tutup();
- if(id==='#kk'){try{kkBuka()}catch(e){}return}
+ if(id==='#kk'){try{window.nkKartu()}catch(e){console.error(e)}return}
  const t=document.getElementById(id);if(!t)return;
  if(id==='q'){scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{try{t.focus({preventScroll:true})}catch(e){}},350);return}
  const c=t.closest('.card')||t;c.scrollIntoView({behavior:'smooth',block:'start'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400)}

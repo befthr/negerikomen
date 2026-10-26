@@ -2647,7 +2647,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       const gl=add(C(.13,.13,.26),'#FFF6C8',0,.53,0,{emissive:'#FFD25A',emissiveIntensity:1});add(S(.045),'#FFFFFF',0,.53,0);add(new T.ConeGeometry(.24,.14,16),'#2F6B4F',0,.73,0);add(new T.TorusGeometry(.1,.015,6,16,Math.PI),'#3A3A3A',0,.82,0);
       // jarum tekanan (bulatan depan tabung) + gagang pompa di samping tabung
       add(C(.06,.06,.02),'#F4EFE3',0,.24,.215).rotation.x=Math.PI/2;const jr=add(B(.006,.045,.006),'#1C2520',0,.24,.228);
-      const pg=new T.Group();pg.position.set(.25,.2,0);q.add(pg);{const m1=new T.Mesh(C(.012,.012,.26),M('#8A8A8A'));m1.position.y=.13;pg.add(m1);const m2=new T.Mesh(B(.09,.02,.02),M('#1C2520'));m2.position.y=.27;pg.add(m2)}
+      add(C(.034,.034,.26),'#2F6B4F',-.2,.19,.17);add(C(.042,.042,.03),'#1C2520',-.2,.33,.17);const pg=new T.Group();pg.position.set(-.2,.28,.17);q.add(pg);{const m1=new T.Mesh(C(.014,.014,.2),M('#B8B8B8',{metalness:.6,roughness:.3}));m1.position.y=.1;pg.add(m1);const m2=new T.Mesh(B(.15,.035,.035),M('#C4402F'));m2.position.y=.21;pg.add(m2);[-.075,.075].forEach(x=>{const k2=new T.Mesh(S(.022),M('#1C2520'));k2.position.set(x,.21,0);pg.add(k2)})}
       let pl=null;try{pl=new T.PointLight('#FFC870',1.4,7);pl.position.set(0,.55,0);q.add(pl)}catch(e){}
       // laron (malam): titik-titik kecil bersayap mengitari kaca
       const LR=[],lgeo=new T.SphereGeometry(.014,5,4);for(let n=0;n<16;n++){const m=new T.Mesh(lgeo,new T.MeshBasicMaterial({color:n%3?'#5A3A1E':'#8A6A3A',fog:false}));m.scale.set(1.8,.6,1);m.userData={r:.17+Math.random()*.16,h:.42+Math.random()*.32,w:(1.5+Math.random()*2.5)*(Math.random()<.5?-1:1),f:Math.random()*6.3};q.add(m);LR.push(m)}
@@ -2657,7 +2657,7 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       A.push(t=>{const now=performance.now(),dt=(now-at)/1000,mlm=malam();
         let on=mlm?1:0,pump=0;
         if(!mlm){if(dt<1.3){pump=Math.abs(Math.sin(dt*Math.PI*2.4))}if(dt>1.1&&dt<4.4)on=Math.min(1,(dt-1.1)*3)*Math.min(1,(4.4-dt)*2)}
-        pg.position.y=.2-pump*.1;jr.rotation.z=-(mlm?.9:Math.min(1.2,dt<4.4?dt*.9:0))+.6;
+        pg.position.y=.28-pump*.13;jr.rotation.z=-(mlm?.9:Math.min(1.2,dt<4.4?dt*.9:0))+.6;
         const fl=.9+.08*Math.sin(t*.006+k)+.04*Math.sin(t*.03);gl.material.emissiveIntensity=on*fl;gl.material.color.set(on>.3?'#FFF6C8':'#E4EEF0');if(pl)pl.intensity=1.4*on*fl;
         // uap tipis saat dipompa
         if(!mlm&&dt<1.4&&UAP.length<14&&Math.random()<.4){const m=new T.Mesh(lgeo,new T.MeshBasicMaterial({color:'#FFFFFF',transparent:true,opacity:.7,fog:false,depthWrite:false}));m.position.set(.05,.68,0);m.userData={t0:now,vx:(Math.random()-.5)*.1};q.add(m);UAP.push(m)}
@@ -3512,13 +3512,13 @@ function openUfo3D(){const k=kkGet(),i=k?kkResIdx(k.u):-1,me=i>=0&&RES[i]?RES[i]
   setTimeout(()=>{const d=$('v3demo');if(d&&!d.querySelector('.ufo-share')){const b=el('div','ufo-share');b.append(el('b',null,window.UFO_KE?(window.UFO_KE===1?'🥇 Selamat, kamu penemu pertama! ':`🎉 Selamat, kamu penemu ke-${window.UFO_KE}! `)+'Bagikan momen langka ini 📸':'📸 Bagikan momen langka ini!'),el('p',null,'Pencet Bagikan, simpan gambarnya, terus upload ke Story dan tag @negerikomen. UFO cuma muncul sebentar, jarang-jarang lho 👀'));d.prepend(b)}},60)}
 // pratinjau di peta: malam sebentar, Patromax dipasang (cuma di layar ini) di rumah pemilik / rumahmu / contoh
 let PMX_PV=null;
-function pratinjauPatromaxPeta(){const ow=window.PATRO_OWNER,me=(kkGet()||{}).u;let u=ow||me||'lembarpeta';let i=kkResIdx(u);if(i<0){u='lembarpeta';i=kkResIdx(u)}if(i<0)i=0;
+function pratinjauPatromaxPeta(){const ow=window.PATRO_OWNER,me=null;let u=ow||'lembarpeta';let i=kkResIdx(u);if(i<0){u='lembarpeta';i=kkResIdx(u)}if(i<0)i=0;
   if(PMX_PV){clearTimeout(PMX_PV.t);PMX_PV.selesai()}
   const r=RES[i],asli=r.items,punya=(asli||[]).some(o=>(o&&o.id||o)==='patromax');if(!punya)r.items=[{id:'patromax'},...(asli||[])].slice(0,3);
   window.__MALAM_PAKSA=true;dirty=true;close3D();select({kind:'r',i},{instant:true});cam.zoom=Math.max(cam.zoom,1.15);scrollMap();
-  toast(ow?'🌙 Pratinjau malam · Patromax milik @'+ow:me?'🌙 Pratinjau malam · begini rumahmu kalau punya Patromax':'🌙 Pratinjau malam · contoh rumah dengan Patromax');
+  toast(ow?'🌙 Pratinjau malam · Patromax milik @'+ow:'🌙 Pratinjau malam · contoh Patromax di rumah @lembarpeta');
   PMX_PV={selesai:()=>{window.__MALAM_PAKSA=false;if(!punya)r.items=asli;dirty=true;PMX_PV=null}};PMX_PV.t=setTimeout(()=>{PMX_PV&&PMX_PV.selesai();try{toast('☀️ Pratinjau selesai')}catch(e){}},15000)}
-function openDemoPatromax(){open3D({demo:'patromax',name:'contohpatromax',nick:'Patromax',x:0,y:0,wall:'krem',roof:'merah',items:[{id:'patromax'}]},0)}
+function openDemoPatromax(){const i=kkResIdx('lembarpeta'),b=i>=0?RES[i]:{x:0,y:0,wall:'krem',roof:'merah'};open3D({...b,items:[{id:'patromax'}],demo:'patromax',name:'contohpatromax',nick:'Patromax'},0)}
 function openDemoGento(){open3D({demo:'gento',name:'contohgento',nick:'Hanggar GENTO',x:0,y:0,wall:'putih',roof:'biru',tingkat:2,items:[{id:'robot'}]},0)}
 function openDemoRuko(){open3D({demo:true,name:'tokokamu',nick:'Toko Kamu',x:0,y:0,wall:'krem',roof:'biru',sup:true,shop:{name:'TOKO KAMU',until:'2099-12-31'}},0)}
 document.querySelectorAll('.demoRuko').forEach(b=>b.onclick=openDemoRuko);
@@ -3787,7 +3787,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     if(ow)d.append(el('p','kk-muted','Dimiliki @'+ow+' sejak '+robotSejak()+'. Cuma ada 1 di kampung!'));else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Siapa cepat, dia dapat!'),el('p','kk-note','ℹ️ Yang kamu beli: robot GENTO, muncul di pekarangan rumahmu & bisa kamu ajak jalan-jalan. Hanggar ini milik desa, bukan rumah.'),kkBtn('🛒 Beli GENTO · 22 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
   if(r&&r.demo==='patromax'){const ow=window.PATRO_OWNER;const d=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('patromax'),el('b',null,ow?'Patromax':'Patromax · 12 Receh'));d.append(gh);
     if(ow){d.append(el('p','kk-muted','Dimiliki @'+ow+' sejak '+robotSejak('patromax')+'. Cuma ada 1 di kampung!'),kkBtn('🏠 Lihat rumah @'+ow,'gold3',()=>{close3D();const i=kkResIdx(ow);if(i>=0){select({kind:'r',i});scrollMap()}}))}
-    else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Pas malam, rumahmu + tetangga sekitar ikut terang!'),el('p','kk-note','ℹ️ Ini contoh rumah. Patromax-nya berdiri di pekarangan rumahmu, setinggi ±2x rumah.'),kkBtn('🛒 Beli Patromax · 12 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
+    else d.append(el('p','kk-muted','Cuma ada 1 di kampung dan belum ada pemiliknya. Pas malam, rumahmu + tetangga sekitar ikut terang!'),el('p','kk-note','ℹ️ Contoh: Patromax di rumah @lembarpeta. Punyamu nanti berdiri di pekarangan rumahmu sendiri, setinggi ±2x rumah.'),kkBtn('🛒 Beli Patromax · 12 Receh','gold3',()=>{close3D();kkBelanja('item')}));$('v3demo').append(d)}
   if(r&&r.demo==='konsol'){const mg=el('div','kk-game on');const gh=el('div','kk-gh');gh.append(kkItemSVG('konsol'),el('b',null,'playadalahmain 1.0'));
     mg.append(gh,el('p','kk-muted','Begini tampilannya di Kartu Komen pemilik. 14 mini game, skor terbaik masuk 🏆 Ranking pemilik!'),kkBtn('🎮 Main sekarang','gold3',()=>bukaKonsol(true)));$('v3demo').append(mg)}
   if(r&&r.demo===true){const d=el('div','dshop');const im=el('img');im.src='contoh-toko.jpg';im.alt='Contoh foto produk';const tx=el('div');
@@ -3797,7 +3797,7 @@ async function open3D(r,i,bd0){const W=$('v3');W.hidden=false;$('v3load').hidden
     const goU=(t,fn)=>{const i=el('i','go',t+' ›');i.title='Lihat';i.onclick=e=>{e.stopPropagation();close3D();fn()};return i};
     bd.append(goU(bo?bossTxt(bd0,bo):'🏗️ Dibangun oleh kepala desa',()=>{if(!bo){select({kind:'o'});scrollMap();return}const k=RES.findIndex(x=>x.name===bo);if(k>=0){select({kind:'r',i:k});scrollMap()}else toast('Rumahnya belum ada di peta')}));
     if(bd0.type!=='tugu')bd.append(st.length?el('i',null,`👷 ${st.length} karyawan`):goU('👷 Belum ada karyawan',()=>{location.hash='loker';fromLink()}))}
-  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?NAMA_DESA+' · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak():'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo==='patromax'?(window.PATRO_OWNER?'👑 Milik @'+window.PATRO_OWNER+' · sejak '+robotSejak('patromax'):'Lampu eksklusif · cuma 1 di kampung · 12 Receh'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
+  else{$('v3name').textContent=r.demo?r.nick:(r.nick?r.nick+' · ':'')+'@'+r.name;$('v3sub').textContent=r.demo==='ufo'?'Momen langka! UFO Nyasar cuma muncul sebentar malam ini 🛸':r.demo==='rental'?NAMA_DESA+' · sewa 1 Receh/hari atau beli 4 Receh':r.demo==='konsol'?'🎮 playadalahmain 1.0 di pekarangan · 4 Receh':r.demo==='gento'?(window.ROBOT_OWNER?'👑 Milik @'+window.ROBOT_OWNER+' · sejak '+robotSejak():'Robot eksklusif · cuma 1 di kampung · 22 Receh · coba tekan Tembak mercon!'):r.demo==='patromax'?(window.PATRO_OWNER?'👑 Milik @'+window.PATRO_OWNER+' · sejak '+robotSejak('patromax'):'Lampu eksklusif · cuma 1 di kampung · 12 Receh · contoh di rumah @lembarpeta'):r.demo?'Contoh ruko · paket Buka Usaha (20 Receh)':`Warga #${i+2} · pindah hari ke-${r.day||1}`;}
   if(!bd0)perksOf(r).forEach(t=>bd.append(perkEl(t)));if(!bd0&&NK.jobOn(r))bd.append(el('i',null,'Tukang Proyek'));
   let swap=null,want=null; // riwayat rumah: ganti tampilan rumah 3D (bendera & mahkota tetap)
   if(!bd0&&!r.demo){const mine=KK_ON&&(kkGet()||{}).u===String(r.name).toLowerCase();

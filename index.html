@@ -1317,14 +1317,15 @@ function drawLangit(v,t){const {W,H,z,ox,oy}=v,dp=window.devicePixelRatio||1,zw=
     const cx=gx*G+((ih(gx,gy,903)*G+t*7)%G),cy=gy*G+ih(gx,gy,905)*G,sc=.8+ih(gx,gy,907)*.9,blob=(dx,dy,col,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();[[0,0,1],[-.9,.15,.72],[.95,.12,.78],[-.35,-.45,.7],[.45,-.38,.66]].forEach(([a2,b,r])=>{const X=cx+dx+a2*T*2.6*sc,Y=cy+dy+b*T*2.2*sc,R=r*T*2.4*sc;ctx.moveTo(X+R,Y);ctx.arc(X,Y,R,0,6.2832)});ctx.fill()};
     blob(T*5,T*6,'#1C2520',.07*al);blob(0,0,'#FFFFFF',.5*al)}
   ctx.globalAlpha=1;
-  // pesawat: tiap 150 detik lewat 22 detik, ukuran tetap di layar
-  const per=150,tg=Date.now()/1000,ph=((tg%per)+per)%per;if(ph<22){const k=ph/22;ctx.setTransform(dp,0,0,dp,0,0);const w=W/dp,h=H/dp,px=-160+k*(w+320),py=h*.22+Math.sin(k*3)*12;
-    ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(px+30,py+60,22,6,0,0,7);ctx.fill();
-    ctx.strokeStyle='#6B6455';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px-20,py);ctx.lineTo(px-38,py+2);ctx.stroke();
-    ctx.font='800 11px sans-serif';const tx='negerikomen.my.id',tw=ctx.measureText(tx).width+16;ctx.fillStyle='#F2C230';ctx.strokeStyle='#1C2520';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(px-38,py-8);ctx.lineTo(px-38-tw,py-6+Math.sin(t*6)*2);ctx.lineTo(px-38-tw,py+10+Math.sin(t*6)*2);ctx.lineTo(px-38,py+12);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tx,px-38-tw/2,py+2+Math.sin(t*6));
-    ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#1C2520';ctx.beginPath();ctx.ellipse(px,py,20,5,0,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(px-4,py);ctx.lineTo(px-10,py-14);ctx.lineTo(px-2,py-14);ctx.lineTo(px+6,py);ctx.lineTo(px-2,py+14);ctx.lineTo(px-10,py+14);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(px-17,py);ctx.lineTo(px-22,py-7);ctx.lineTo(px-18,py-7);ctx.lineTo(px-13,py);ctx.fill();ctx.stroke();ctx.fillStyle='#C4402F';ctx.fillRect(px+8,py-2,6,4)}
+  // pesawat: tiap 150 detik lewat 22 detik di atas kampung (koordinat dunia, ikut digeser/di-zoom seperti benda lain)
+  const per=150,tg=Date.now()/1000,ph=((tg%per)+per)%per;if(ph<22){const k=ph/22,lap=Math.floor(tg/per),X0=-S*T*14,X1=S*T*16,px=X0+k*(X1-X0),py=((lap%5)-2)*S*T*2.4+Math.sin(k*3)*T,u=T/14;
+    if(px>vx0-T*30&&px<vx1+T*10&&py>vy0-T*10&&py<vy1+T*10){ctx.save();ctx.translate(px,py);ctx.scale(u,u);
+    ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(30,60,22,6,0,0,7);ctx.fill();
+    ctx.strokeStyle='#6B6455';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-20,0);ctx.lineTo(-38,2);ctx.stroke();
+    ctx.font='800 11px sans-serif';const tx='negerikomen.my.id',tw=ctx.measureText(tx).width+16,wv=Math.sin(t*6)*2;ctx.fillStyle='#F2C230';ctx.strokeStyle='#1C2520';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-38,-8);ctx.lineTo(-38-tw,-6+wv);ctx.lineTo(-38-tw,10+wv);ctx.lineTo(-38,12);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tx,-38-tw/2,2+wv/2);
+    ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#1C2520';ctx.beginPath();ctx.ellipse(0,0,20,5,0,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-4,0);ctx.lineTo(-10,-14);ctx.lineTo(-2,-14);ctx.lineTo(6,0);ctx.lineTo(-2,14);ctx.lineTo(-10,14);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-17,0);ctx.lineTo(-22,-7);ctx.lineTo(-18,-7);ctx.lineTo(-13,0);ctx.fill();ctx.stroke();ctx.fillStyle='#C4402F';ctx.fillRect(8,-2,6,4);ctx.restore()}}
   ctx.setTransform(1,0,0,1,0,0)}
 // motor/sepeda warga yang lagi jalan: dipisah supaya bisa digambar paling atas (di atas wilayah desa baru)
 function drawRides(res,t){res.forEach(r=>{if(!Array.isArray(r.items))return;r.items.forEach((o,oi)=>{const st=rideOf(r,o,oi,t);if(!st)return;const {x,y,ang}=st;
@@ -1460,7 +1461,8 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
     {let mb=0;act.forEach(k=>{const y=+k.split(',')[1];if(y<mb)mb=y});
     if(z>.1)for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(act.has(bx+','+by)||by===mb-1)continue;ladang(bx,by,t)}}
     // kawanan burung lewat di atas sawah
-    if(z>.1)for(let k=0;k<3;k++){const span=(vx1-vx0)+T*20,px=vx0-T*10+(((t*28+k*977)%span)+span)%span,py=vy0+(k+.6)/3.4*(vy1-vy0)+Math.sin(t*.4+k)*T;for(let j=0;j<5;j++)burungTerbang(px-Math.abs(j-2)*9,py+(j-2)*8,t,k+j)}
+    if(z>.1)for(let k=0;k<4;k++){const span=S*T*30,px=-S*T*14+(((t*28+k*977)%span)+span)%span,py=(k-1.5)*S*T*3.2+Math.sin(t*.4+k)*T; // kawanan burung terbang di koordinat dunia (tidak ikut layar)
+      if(px<vx0-T*4||px>vx1+T*4||py<vy0-T*4||py>vy1+T*4)continue;for(let j=0;j<5;j++)burungTerbang(px-Math.abs(j-2)*9*LK,py+(j-2)*8*LK,t,k+j)}
   }
   if(life){ // pengunjung di bangunan: orang duduk makan + motor/mobil parkir
     const SH2=['#C4502F','#2F74B5','#2E9C6A','#E2B23A','#8E5AA8','#FFFFFF','#E58AA6'];

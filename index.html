@@ -660,7 +660,7 @@ function jenisJalan(hz,q,sg){if(q===0)return 'besar';if(q%2===0)return 'aspal';c
 // plang dusun: 4 dusun dibelah dua jalan besar; papan besar di tiap dusun (nama dari data.js "dusun", kosong = belum ada nama)
 let DUSUN=[];
 function drawPlang(cx,cy,nama,oleh){const c=ctx,w=T*2.9,h=T*(oleh?1.85:1.5);
-  c.fillStyle='#5A3A1E';c.fillRect(cx-w*.36-4,cy+h/2-4,8,T*.7);c.fillRect(cx+w*.36-4,cy+h/2-4,8,T*.7);
+  [cx-w*.36,cx+w*.36].forEach(px=>{const gy=cy+h/2-4+T*.7;c.fillStyle='rgba(90,60,30,.45)';c.beginPath();c.ellipse(px,gy,9,3.2,0,0,7);c.fill()});c.fillStyle='#5A3A1E';c.fillRect(cx-w*.36-4,cy+h/2-4,8,T*.7);c.fillRect(cx+w*.36-4,cy+h/2-4,8,T*.7);
   c.fillStyle='#2F6B4F';c.fillRect(cx-w/2,cy-h/2,w,h);c.fillStyle='#F4EFE3';c.fillRect(cx-w/2+4,cy-h/2+4,w-8,h-8);c.strokeStyle='#1C2520';c.lineWidth=3;c.strokeRect(cx-w/2,cy-h/2,w,h);
   c.fillStyle='#2F6B4F';c.fillRect(cx-w/2+4,cy-h/2+4,w-8,T*.22);
   if(nama){c.fillStyle='#1C2520';c.textAlign='center';c.textBaseline='middle';let fs=T*.5;do{c.font=`800 ${fs}px sans-serif`;fs-=1}while(c.measureText(nama).width>w-16&&fs>8);c.fillText(nama,cx,cy+(oleh?-T*.05:T*.1));
@@ -3631,6 +3631,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // label
   const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=10.5*dpr,d=dpr*.8;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle'; // papan plang kayu (gaya plang dusun)
    const w=ctx.measureText(tx).width+f*1.6,h=f*2.2,x0=X-w/2,y0=Y-h/2;
+   {const gy=y0+h+f*1.1-2*d;[X-w*.32-.5*d,X+w*.32-.5*d].forEach(px=>{ctx.fillStyle='rgba(90,60,30,.45)';ctx.beginPath();ctx.ellipse(px,gy,7*d,2.6*d,0,0,7);ctx.fill();ctx.strokeStyle='#5E8A3A';ctx.lineWidth=1.2*d;ctx.beginPath();ctx.moveTo(px-6*d,gy);ctx.lineTo(px-7.5*d,gy-4*d);ctx.moveTo(px+6*d,gy);ctx.lineTo(px+7.5*d,gy-4*d);ctx.moveTo(px+4*d,gy+.5*d);ctx.lineTo(px+4.5*d,gy-3.5*d);ctx.stroke()})} // pangkal tiang menancap di tanah
    ctx.fillStyle='#5A3A1E';ctx.fillRect(X-w*.32-4*d,y0+h-2*d,7*d,f*1.1);ctx.fillRect(X+w*.32-4*d,y0+h-2*d,7*d,f*1.1);
    ctx.fillStyle='#2F6B4F';ctx.fillRect(x0,y0,w,h);ctx.fillStyle='#F4EFE3';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,h-6*d);ctx.fillStyle='#2F6B4F';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,f*.32);
    ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*d;ctx.strokeRect(x0,y0,w,h);ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y+f*.15);ctx.restore()};

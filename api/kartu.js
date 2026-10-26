@@ -380,8 +380,10 @@ export default async function handler(req, res) {
       const key = bKey(b), L = stafAktif(jparse(await kv(['HGET', 'stafplus', key]))), t = cleanU(body.target);
       if (aksi === 'bonus') {
         const n = Math.floor(+body.n);
-        if (!L.some(x => x.user === t)) return res.status(404).json({ error: '@' + t + ' bukan karyawan ' + (b.name || 'bangunanmu') + '.' });
-        if (!(n >= 1 && n <= 10)) return res.status(400).json({ error: 'Bonus 1–10 Receh.' });
+        const kr = L.find(x => x.user === t);
+        if (!kr) return res.status(404).json({ error: '@' + t + ' bukan karyawan ' + (b.name || 'bangunanmu') + '.' });
+        if (kr.gaji > 0) return res.status(400).json({ error: '@' + t + ' sudah digaji tetap. Bonus cuma buat karyawan sukarela.' });
+        if (!(n >= 1 && n <= 3)) return res.status(400).json({ error: 'Bonus 1–3 Receh.' });
         const after = await kv(['HINCRBY', 'saldo', s.u, -n]);
         if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, n]); return res.status(400).json({ error: 'Recehan-mu belum cukup buat bonus ' + n + ' Receh.' }) }
         const at = Date.now();

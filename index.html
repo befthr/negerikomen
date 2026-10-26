@@ -546,6 +546,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
    Posisi kavling identik dengan video Hari 1, jadi rumah tidak pernah pindah. */
 const NK=(()=>{
 const T=40,N=91,C=45,S=6;
+const JALUR={bx0:-3,bx1:-1,by0:6,by1:11}; // jalur kavling Dusun Senja Awan ke selatan, ujungnya Pantai Senja
+const diJalur=(bx,by)=>bx>=JALUR.bx0&&bx<=JALUR.bx1&&by>=JALUR.by0&&by<=JALUR.by1;
 const OWNER={x:C+1,y:C+1,name:'negerikomen'};
 const mod=(a,m)=>((a%m)+m)%m;
 function ih(a,b,c){let h=(a*374761393+b*668265263+c*1442695041)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296}
@@ -743,6 +745,7 @@ function drawTree(cx,cy,r,kind){
   }else{ctx.fillStyle=kind<0.7?'#4F8F3E':'#5E9E46';ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();
     ctx.fillStyle='rgba(255,255,220,.18)';ctx.beginPath();ctx.arc(cx-r*.3,cy-r*.3,r*.5,0,7);ctx.fill()}
 }
+function kavlingJalur(x,y){const w=T*.78,cx=wx(x),cy=wx(y);ctx.fillStyle='#DCC79A';ctx.fillRect(cx-w/2,cy-w/2,w,w);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=1.2;ctx.setLineDash([4,3]);ctx.strokeRect(cx-w/2+3,cy-w/2+3,w-6,w-6);ctx.setLineDash([]);ctx.fillStyle='#8A6A3A';ctx.fillRect(cx-w/2+2,cy-w/2+2,2.2,2.2);ctx.fillRect(cx+w/2-4.2,cy-w/2+2,2.2,2.2);ctx.fillRect(cx-w/2+2,cy+w/2-4.2,2.2,2.2);ctx.fillRect(cx+w/2-4.2,cy+w/2-4.2,2.2,2.2)}
 function drawKavling(p,s,t,i){
   const w=T*.8;ctx.save();ctx.translate(wx(p.x),wx(p.y));ctx.scale(s,s);
   ctx.fillStyle='#D9BF8C';ctx.fillRect(-w/2,-w/2,w,w);
@@ -1355,8 +1358,11 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const act=new Set(['0,0','-1,0','0,-1','-1,-1']);
   const addB=(x,y)=>{const [bx,by]=blockOf(x,y);act.add(bx+','+by)};
   res.forEach(r=>addB(r.x,r.y));free.forEach(p=>addB(p.x,p.y));bld.forEach(b=>addB(b.x,b.y));
+  if(!o.tanpaJalur)for(let bx=JALUR.bx0;bx<=JALUR.bx1;bx++)for(let by=JALUR.by0;by<=JALUR.by1;by++)act.add(bx+','+by);
   const bx0=Math.floor((tx0-C)/S)-1,bx1=Math.ceil((tx1-C)/S)+1,by0=Math.floor((ty0-C)/S)-1,by1=Math.ceil((ty1-C)/S)+1;
-  for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){
+  // jalur kavling bisa lebih panjang dari grid sawah: perluas rentang khusus blok jalur
+  const tyE=o.tanpaJalur?ty1:Math.max(ty1,Math.min(C+JALUR.by1*S+S,Math.ceil(vy1/T+C)+1)),by1E=Math.max(by1,Math.ceil((tyE-C)/S)+1);
+  for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1E;by++){if(by>by1&&!act.has(bx+','+by))continue;
     const x0=bx*S*T+T/2,y0=by*S*T+T/2,s=(S-1)*T;
     if(act.has(bx+','+by)){ctx.fillStyle='#93BE62';ctx.fillRect(x0-T/2,y0-T/2,s+T,s+T);const rd=T*(.3+ih(bx,by,160)*1.1);ctx.fillStyle='#89B65A';ctx.beginPath();ctx.roundRect(x0+T*1.1,y0+T*1.1,s-T*2.2,s-T*2.2,rd);ctx.fill()}
     else drawSawah(x0-T*.15,y0-T*.15,s+T*.3,s+T*.3,bx,by);
@@ -1403,12 +1409,13 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       LAMPU_POS.push([k,q,px,py,vw,hhw])})}
   ctx.fillStyle='rgba(255,255,255,.7)';for(let i=-2;i<=2;i++){ctx.fillRect(i*7-2,-T/2-12,4,10);ctx.fillRect(i*7-2,T/2+2,4,10)}
   const temaOf=new Map();
-  for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1;by++){if(!act.has(bx+','+by))continue;const ix=C+bx*S+2,iy=C+by*S+2;let bebas=true;
+  for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1E;by++){if(!act.has(bx+','+by))continue;const ix=C+bx*S+2,iy=C+by*S+2;let bebas=true;
     for(let i=0;i<3&&bebas;i++)for(let j=0;j<3;j++){const k=key(ix+i,iy+j);if(used.has(k)||occ.has(k)||RESERVED.has(k)){bebas=false;break}}
     if(!bebas)continue;const tm=temaBlok(bx,by);temaOf.set(bx+','+by,tm);if(tm!=='kebun')drawTema(tm,wx(ix)-T/2,wx(iy)-T/2,3*T,bx,by,t||0)}
   {const DD=(window.NK_DATA&&Array.isArray(window.NK_DATA.dusun))?window.NK_DATA.dusun:DUSUN;PLANG.forEach(([bx,by,px,py],k)=>{if(!act.has(bx+','+by))return;const ix=C+bx*S+2,iy=C+by*S+2;(()=>{const d=DD[k],o=d&&typeof d==='object';drawPlang(wx(ix)-T/2+1.5*T,wx(iy)-T/2+1.35*T,String((o?d.nama:d)||'').trim(),o&&d.oleh?String(d.oleh).replace(/^@/,'').slice(0,30):'')})()})}
-  for(let x=tx0;x<=tx1;x++)for(let y=ty0;y<=ty1;y++){
+  for(let x=tx0;x<=tx1;x++)for(let y=ty0;y<=tyE;y++){
     if(isRoad(x,y))continue;const [bx,by]=blockOf(x,y);if(!act.has(bx+','+by))continue;
+    if(diJalur(bx,by)&&!o.tanpaJalur){const lx=mod(x-C,S),ly=mod(y-C,S),k=key(x,y);if((lx===1||lx===5||ly===1||ly===5)&&!occ.has(k)&&!used.has(k)){kavlingJalur(x,y);continue}}
     {const lx0=mod(x-C,S),ly0=mod(y-C,S);if(lx0>1&&lx0<5&&ly0>1&&ly0<5&&((temaOf.get(bx+','+by)||'kebun')!=='kebun'||PLANG.some(([pbx,pby])=>pbx===bx&&pby===by)))continue}
     const k=key(x,y);if(RESERVED.has(k)||occ.has(k)||used.has(k))continue;
     const lx=mod(x-C,S),ly=mod(y-C,S),inner=lx>1&&lx<5&&ly>1&&ly<5,r=ih(x,y,11);
@@ -1563,7 +1570,7 @@ function tag(x,y,name,sub,fs,strong,own,lite){
   if(sub){ctx.fillStyle=own?'#C4502F':'#5E6B62';ctx.font=`500 ${fs*0.78}px Figtree, "Segoe UI", sans-serif`;ctx.fillText(sub,bx+pw,by+fs*1.85)}
   return {x:bx,y:by,w,h:h+fs*0.45};
 }
-return {wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
+return {JALUR,diJalur,wallHex,wibToday,shopOn,jobOn,T,N,C,S,OWNER,PLOTS,SLOTS,RESERVED,BTYPES,STARTER,ROOF_HEX,mod,ih,sh,wx,key,blockOf,tilesOf,
   nextSlot,freePlots,parseRoof,parseWall,parseColors,parseNick,roofHex,uniqCol,use,rr,shade,drawWorld,drawRides,drawLangit,ladangHewan:{kerbau,sapi,kambing,bangau,bebekJalan,burungTerbang,saung,jerami,kelapa,farmer},drawBuilding,drawHouse,drawScarecrow,drawUfo,tag,rideOf,kucingGento};
 })();
 
@@ -2082,6 +2089,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});
   const bi=BLD.findIndex(b=>{const w=b.w||3;return tx>=b.x&&tx<b.x+w&&ty>=b.y&&ty<b.y+w});if(bi>=0)return select({kind:'b',i:bi});
   if(FREE.some(p=>p.x===tx&&p.y===ty))toast('Kavling kosong. Follow dan komen supaya ini jadi rumahmu.');
+  else{const [jbx,jby]=NK.blockOf(tx,ty),lx=NK.mod(tx-C,S),ly=NK.mod(ty-C,S);if(NK.diJalur(jbx,jby)&&lx&&ly&&(lx===1||lx===5||ly===1||ly===5)&&!RES.some(r=>r.x===tx&&r.y===ty))toast('🏖️ Kavling jalur Senja Awan, menuju Pantai Senja. Belum dibuka, pantau videonya!')}
 }
 $('zin').onclick=()=>zoomAt(cw/2,ch/2,1.5);$('zout').onclick=()=>zoomAt(cw/2,ch/2,1/1.5);
 $('zhome').onclick=()=>{sel=null;$('result').hidden=true;flyTo(homeView(),700);try{history.replaceState(null,'',location.pathname)}catch(e){}};
@@ -3476,6 +3484,46 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   {const w=D.wc,big=T*400;const pth=(g)=>{ctx.beginPath();ctx.rect(w.x-big,w.y-big,big*2,big*2);for(let i=0;i<=160;i++){const a=i/160*6.2832,r=D.tepiR(a)*g;const px=w.x+Math.cos(a)*w.rx*r,py=w.y+Math.sin(a)*w.ry*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()};
    ctx.fillStyle='rgba(47,94,58,.35)';pth(1.0);ctx.fill('evenodd');ctx.fillStyle='rgba(47,94,58,.6)';pth(1.04);ctx.fill('evenodd');ctx.fillStyle='#2F5E3A';pth(1.09);ctx.fill('evenodd');
    D.ring.forEach(o=>{if(!vis(o.x,o.y,T))return;const s2=o.s;if(o.k){ctx.fillStyle='#244A2C';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s2);ctx.lineTo(o.x+T*.35*s2,o.y+T*.3*s2);ctx.lineTo(o.x-T*.35*s2,o.y+T*.3*s2);ctx.closePath();ctx.fill()}else{ctx.fillStyle='#2F6B3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.42*s2,0,7);ctx.fill()}})}
+  // 🏖️ Pantai Senja: ujung selatan jalur kavling Dusun Senja Awan (teluk berpasir, laut lepas di selatan)
+  {const J=NK.JALUR,SL=S*T,cx=(J.bx0+J.bx1+1)*SL/2,hw=T*40,y0=(J.by1+1)*SL+T*.6,ySea=y0+T*5,W=T*120;
+   const u=x=>(x-cx)/hw,pan=x=>{const a=Math.abs(u(x));return a<=1?ySea+T*2*a*a:ySea+T*2+(a-1)*T*14};
+   const atas=x=>{const a=Math.abs(u(x));return a<=1?y0+T*6*Math.pow(a,4):pan(x)-T*1.2};
+   const ombak=(x,k)=>Math.sin(x/(T*3.1)+t*.9+k)*T*.18+Math.sin(x/(T*1.3)-t*1.3+k*2)*T*.08;
+   if(vis(cx,ySea+T*20,W)){const xs=[];for(let x=cx-W;x<=cx+W;x+=T)xs.push(x);
+    // pasir
+    ctx.fillStyle='#EAD7A4';ctx.beginPath();xs.forEach((x,i)=>{const y=atas(x)+Math.sin(x*.013)*T*.25;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],pan(xs[i])+T*2);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(205,175,115,.55)';ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)-T*.9;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],pan(xs[i])+T);ctx.closePath();ctx.fill();
+    // laut: dangkal (toska) lalu dalam
+    const lautP=(d,col)=>{ctx.fillStyle=col;ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)+d+ombak(x,d*.01);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.lineTo(cx+W,ySea+T*80);ctx.lineTo(cx-W,ySea+T*80);ctx.closePath();ctx.fill()};
+    lautP(0,'#7FD0D2');lautP(T*2.2,'#4FB2C4');lautP(T*6,'#3A93B5');lautP(T*13,'#2F7AA3');
+    // buih ombak di bibir pantai
+    ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=T*.14;ctx.lineCap='round';
+    for(let k=0;k<2;k++){const off=(Math.sin(t*.8+k*3)*.5+.5)*T*.7+k*T*.5;ctx.globalAlpha=k?.5:.85;ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)+off+ombak(x,k);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}ctx.globalAlpha=1;
+    // riak di laut
+    ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=T*.08;for(let i=0;i<26;i++){const rx=cx-hw*1.6+((i*977)%(hw*3.2)),ry=ySea+T*(4+(i*7)%16)+Math.sin(t*.6+i)*T*.3;if(!vis(rx,ry,T*2))continue;ctx.beginPath();ctx.arc(rx,ry,T*.9,Math.PI*1.15,Math.PI*1.85);ctx.stroke()}
+    // dermaga kayu
+    const dx=cx+T*1.5,dy0=atas(dx)+T*1.4,dy1=ySea+T*8;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(dx-T*.35+T*.25,dy0+T*.3,T*.9,dy1-dy0);ctx.fillStyle='#9A6A3C';ctx.fillRect(dx-T*.45,dy0,T*.9,dy1-dy0);
+    ctx.strokeStyle='#6E4A26';ctx.lineWidth=1.5;for(let y=dy0+T*.3;y<dy1;y+=T*.3){ctx.beginPath();ctx.moveTo(dx-T*.45,y);ctx.lineTo(dx+T*.45,y);ctx.stroke()}
+    ctx.fillStyle='#9A6A3C';ctx.fillRect(dx-T*1.6,dy1-T*1.2,T*3.2,T*1.2);ctx.strokeRect(dx-T*1.6,dy1-T*1.2,T*3.2,T*1.2);
+    // perahu nelayan (jukung bercadik) bergoyang
+    const perahu=(x,y,col,k)=>{if(!vis(x,y,T*3))return;const b=Math.sin(t*1.4+k)*T*.12,r=Math.sin(t*.9+k)*.06;ctx.save();ctx.translate(x,y+b);ctx.rotate(r);
+      ctx.fillStyle='rgba(0,40,60,.22)';ctx.beginPath();ctx.ellipse(T*.2,T*.35,T*1.5,T*.42,0,0,7);ctx.fill();
+      ctx.strokeStyle='#5A3A1E';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-T*.6,-T*.75);ctx.lineTo(-T*.6,T*.75);ctx.moveTo(T*.6,-T*.75);ctx.lineTo(T*.6,T*.75);ctx.stroke();
+      ctx.fillStyle='#F4EFE3';ctx.fillRect(-T*1.2,-T*.85,T*2.4,T*.12);ctx.fillRect(-T*1.2,T*.73,T*2.4,T*.12);
+      ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(-T*1.5,0);ctx.quadraticCurveTo(-T*.6,-T*.42,T*1.5,0);ctx.quadraticCurveTo(-T*.6,T*.42,-T*1.5,0);ctx.fill();ctx.strokeStyle='#1C2520';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.fillStyle='#F2C230';ctx.fillRect(-T*.2,-T*.12,T*.5,T*.24);ctx.restore()};
+    perahu(dx+T*3.2,dy1-T*1.6,'#C4402F',0);perahu(cx-T*9,ySea+T*7,'#2F74B5',2);perahu(cx+T*14,ySea+T*11,'#2E9C6A',4);perahu(cx-T*22+Math.sin(t*.05)*T*6,ySea+T*15,'#F2C230',6);
+    // pohon kelapa, payung pantai, saung
+    const kelapaP=(x,y,k)=>{if(!vis(x,y,T*2))return;const sw=Math.sin(t*.7+k)*T*.08;ctx.fillStyle='rgba(0,0,0,.15)';ctx.beginPath();ctx.ellipse(x+T*.5,y+T*.25,T*.9,T*.3,0,0,7);ctx.fill();
+      ctx.strokeStyle='#8A6A3A';ctx.lineWidth=T*.2;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+T*.4,y-T*.7,x+T*.25+sw,y-T*1.4);ctx.stroke();
+      ctx.fillStyle='#3E8E3A';for(let i=0;i<6;i++){const a=i/6*6.2832+k;ctx.save();ctx.translate(x+T*.25+sw,y-T*1.4);ctx.rotate(a);ctx.beginPath();ctx.ellipse(T*.5,0,T*.55,T*.16,0,0,7);ctx.fill();ctx.restore()}
+      ctx.fillStyle='#6B4A2A';ctx.beginPath();ctx.arc(x+T*.25+sw,y-T*1.4,T*.13,0,7);ctx.fill()};
+    for(let i=0;i<14;i++){const x=cx-hw*.92+i*(hw*1.84/13),a=Math.abs(u(x));if(Math.abs(x-dx)<T*2)continue;kelapaP(x+Math.sin(i*3.1)*T*.6,atas(x)+T*(a<.8?2.3+Math.sin(i*1.7)*.5:.9),i)}
+    const payung=(x,y,col)=>{if(!vis(x,y,T))return;ctx.fillStyle='#F4EFE3';ctx.fillRect(x-T*.55,y+T*.15,T*1.1,T*.55);ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,T*.55,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x,y);ctx.arc(x,y,T*.55,i*1.57,i*1.57+.5);ctx.closePath();ctx.fill()}};
+    payung(cx-T*6,ySea-T*.6,'#C4402F');payung(cx-T*12,ySea-T*.2,'#2F74B5');payung(cx+T*7,ySea-T*.4,'#F2C230');payung(cx+T*17,ySea+T*.3,'#2E9C6A');
+    {const sx=cx-T*20,sy=atas(cx-T*20)+T*1.2;if(vis(sx,sy,T*2)){ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(sx-T+T*.3,sy-T*.7+T*.3,T*2,T*1.5);ctx.fillStyle='#C99A5B';ctx.fillRect(sx-T,sy-T*.7,T*2,T*1.5);ctx.strokeStyle='#7A5230';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx-T,sy-T*.7);ctx.lineTo(sx+T,sy+T*.8);ctx.moveTo(sx+T,sy-T*.7);ctx.lineTo(sx-T,sy+T*.8);ctx.stroke()}}
+   }
+   D.pantai={x:cx,y:ySea+T*3}}
   // wilayah alami: tepi bergelombang (superelips + noise) dan berbulu, bukan kotak
   const blob=(x0,y0,x1,y1,col)=>{const cx=(x0+x1)/2,cy=(y0+y1)/2,rx=(x1-x0)/2,ry=(y1-y0)/2;const sh=(g,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();for(let i=0;i<=120;i++){const t=i/120*6.2832,c=Math.cos(t),s2=Math.sin(t);
       const n=1+.1*Math.sin(t*3+cx*.003)+.07*Math.sin(t*7+cy*.002)+.04*Math.sin(t*13)+.02*Math.sin(t*29);const px=cx+Math.sign(c)*Math.pow(Math.abs(c),.75)*rx*n*g,py=cy+Math.sign(s2)*Math.pow(Math.abs(s2),.75)*ry*n*g;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill()};
@@ -3558,7 +3606,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    papan(x+w/2,y-T*1.2,!window.ROBOT_OWNER?'🤖 HANGGAR GENTO · GENTO BELUM DIMILIKI':gentoDiRumah()?'🤖 HANGGAR GENTO · GENTO di rumah @'+window.ROBOT_OWNER:'🤖 GENTO milik @'+window.ROBOT_OWNER+' · lagi istirahat di hanggar',T*.62,'#F2C230','#1C2520')}
   // label
   const lb=(x,y,tx)=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const X=v.ox+x*z,Y=v.oy+y*z,f=14*dpr;ctx.font=`800 ${f}px Poppins,'Noto Color Emoji',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(tx).width+f*1.1,h=f*1.9;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(X-w/2,Y-h/2,w,h,f*.5);ctx.fill();ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*dpr;ctx.stroke();ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y);ctx.restore()};
-  lb((M.x0+M.x1)/2,M.y1-(M.y1-M.y0)*.25,'⛰️ Pegunungan');lb(wd.x,wd.y,'💧 Waduk');lb((F.x0+F.x1)/2,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0],D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y+D.sawah.rows*D.sawah.h/2,'🌾 Sawah terasering');
+  lb((M.x0+M.x1)/2,M.y1-(M.y1-M.y0)*.25,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x,wd.y,'💧 Waduk');lb((F.x0+F.x1)/2,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0],D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y+D.sawah.rows*D.sawah.h/2,'🌾 Sawah terasering');
   ctx.setTransform(1,0,0,1,0,0)}
 function stdPos(){desaBangun()}
 function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {x,y,w,h}=STD;

@@ -3943,9 +3943,10 @@ async function bagikanPeta(){const bt=$('zshare');if(bt.disabled)return;bt.disab
     const W=1080,H=1920,k=document.createElement('canvas');k.width=W;k.height=H;const c=k.getContext('2d'),gelap=mn>.5;
     const FD='"Bricolage Grotesque","Trebuchet MS",sans-serif',FB='"Figtree","Segoe UI",sans-serif',ink=gelap?'#FFFFFF':'#1C2520',sub=gelap?'rgba(255,255,255,.8)':'#4A5650';
     c.fillStyle=gelap?'#0F1630':'#F2ECDB';c.fillRect(0,0,W,H);c.textAlign='center';
-    c.fillStyle=ink;c.font=`800 104px ${FD}`;c.fillText('NEGERI KOMEN',W/2,200);
-    c.fillStyle=sub;c.font=`700 40px ${FB}`;const hari=($('tagDay')||{}).textContent||'',wg=($('tagWarga')||{}).textContent||'';c.fillText([hari,wg,'dari komentar'].filter(Boolean).join(' · '),W/2,272);
-    const X=40,Y=330,S=1000,SH=Math.round(S*MH/MW);c.fillStyle=gelap?'#8A6A10':'#1C2520';rr(c,X,Y+12,S,SH,40);c.fill();
+    try{const lg=new Image();lg.src='logo.png';await lg.decode();c.save();rr(c,W/2-66,40,132,132,32);c.clip();c.drawImage(lg,W/2-66,40,132,132);c.restore();c.lineWidth=5;c.strokeStyle=gelap?'#F2C230':'#1C2520';rr(c,W/2-66,40,132,132,32);c.stroke()}catch(e){}
+    c.fillStyle=ink;c.font=`800 96px ${FD}`;c.fillText('NEGERI KOMEN',W/2,272);
+    c.fillStyle=sub;c.font=`700 40px ${FB}`;const hari=($('tagDay')||{}).textContent||'',wg=($('tagWarga')||{}).textContent||'';c.fillText([hari,wg,'dari komentar'].filter(Boolean).join(' · '),W/2,330);
+    const X=40,Y=375,S=1000,SH=Math.round(S*MH/MW);c.fillStyle=gelap?'#8A6A10':'#1C2520';rr(c,X,Y+12,S,SH,40);c.fill();
     c.save();rr(c,X,Y,S,SH,40);c.clip();c.drawImage(mp,X,Y,S,SH);
     if(pin){const px=X+pin.x*S/MW,py=Y+pin.y*SH/MH;const gl=c.createRadialGradient(px,py,0,px,py,46);gl.addColorStop(0,'rgba(242,194,48,.85)');gl.addColorStop(1,'rgba(242,194,48,0)');c.fillStyle=gl;c.fillRect(px-46,py-46,92,92);
       c.beginPath();c.arc(px,py,15,0,7);c.fillStyle='#C4402F';c.fill();c.lineWidth=6;c.strokeStyle='#fff';c.stroke();c.lineWidth=3;c.strokeStyle='#1C2520';c.beginPath();c.arc(px,py,19,0,7);c.stroke();
@@ -3955,8 +3956,8 @@ async function bagikanPeta(){const bt=$('zshare');if(bt.disabled)return;bt.disab
     c.restore();c.lineWidth=6;c.strokeStyle=gelap?'#F2C230':'#1C2520';rr(c,X,Y,S,SH,40);c.stroke();
     {const chips=['🏡 Desa Awalkomen','🏞️ Desa Baru','🏖️ Pantai Senja'];c.font=`800 30px ${FB}`;const ws=chips.map(t=>c.measureText(t).width+48),gap=16,tot=ws.reduce((a,b)=>a+b,0)+gap*(chips.length-1);let x=W/2-tot/2;const y=Y+SH+50;
       chips.forEach((t,i)=>{c.fillStyle='#fff';rr(c,x,y,ws[i],62,31);c.fill();c.lineWidth=4;c.strokeStyle='#1C2520';c.stroke();c.fillStyle='#1C2520';c.fillText(t,x+ws[i]/2,y+42);x+=ws[i]+gap})}
-    c.font=`800 46px ${FD}`;const L='negerikomen.my.id',lw=c.measureText(L).width+80;c.fillStyle='#F2C230';rr(c,W/2-lw/2,1640,lw,90,26);c.fill();c.lineWidth=5;c.strokeStyle='#1C2520';c.stroke();c.fillStyle='#1C2520';c.fillText(L,W/2,1702);
-    c.fillStyle=sub;c.font=`700 32px ${FB}`;c.fillText('Komen di @negerikomen, dapat rumah gratis 🏠',W/2,1790);
+    c.font=`800 46px ${FD}`;const L='negerikomen.my.id',lw=c.measureText(L).width+80;c.fillStyle='#F2C230';rr(c,W/2-lw/2,1668,lw,90,26);c.fill();c.lineWidth=5;c.strokeStyle='#1C2520';c.stroke();c.fillStyle='#1C2520';c.fillText(L,W/2,1730);
+    c.fillStyle=sub;c.font=`700 32px ${FB}`;c.fillText('Komen di @negerikomen, dapat rumah gratis 🏠',W/2,1822);
     const blob=await new Promise(res=>k.toBlob(res,'image/png'));showCard(blob,{name:'peta'},{file:'peta-negerikomen.png',title:'Peta Negeri Komen',text:'Ini kampung kami di Negeri Komen 🗺️ Mau punya rumah juga? Komen di @negerikomen'})}
   catch(e){console.error(e);toast('Gagal bikin gambar peta. Coba lagi ya.')}finally{bt.disabled=false}}
 $('zshare').onclick=bagikanPeta;$('v3pv').addEventListener('click',e=>{if(e.target===$('v3pv'))$('v3pv').hidden=true});

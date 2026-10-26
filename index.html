@@ -3488,16 +3488,16 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.fillStyle='rgba(47,94,58,.35)';pth(1.0);ctx.fill('evenodd');ctx.fillStyle='rgba(47,94,58,.6)';pth(1.04);ctx.fill('evenodd');ctx.fillStyle='#2F5E3A';pth(1.09);ctx.fill('evenodd');
    D.ring.forEach(o=>{if(!vis(o.x,o.y,T))return;const s2=o.s;if(o.k){ctx.fillStyle='#244A2C';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s2);ctx.lineTo(o.x+T*.35*s2,o.y+T*.3*s2);ctx.lineTo(o.x-T*.35*s2,o.y+T*.3*s2);ctx.closePath();ctx.fill()}else{ctx.fillStyle='#2F6B3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.42*s2,0,7);ctx.fill()}})}
   // 🏖️ Pantai Senja: ujung selatan jalur kavling Dusun Senja Awan (teluk berpasir, laut lepas di selatan)
-  {const J=NK.JALUR,SL=S*T,cx=(J.bx0+J.bx1+1)*SL/2,hw=T*40,y0=(J.by1+1)*SL+T*.6,ySea=y0+T*5,W=T*120;
-   const u=x=>(x-cx)/hw,pan=x=>{const a=Math.abs(u(x));return a<=1?ySea+T*2*a*a:ySea+T*2+(a-1)*T*14};
+  {const J=NK.JALUR,SL=S*T,cx=(J.bx0+J.bx1+1)*SL/2,hw=T*40,y0=(J.by1+1)*SL+T*.6,ySea=y0+T*5,W=T*420;
+   const u=x=>(x-cx)/hw,pan=x=>{const a=Math.abs(u(x));return a<=1?ySea+T*2*a*a:ySea+T*2+Math.min(a-1,1.3)*T*14};
    const atas=x=>{const a=Math.abs(u(x));return a<=1?y0+T*6*Math.pow(a,4):pan(x)-T*1.2};
    const ombak=(x,k)=>Math.sin(x/(T*3.1)+t*.9+k)*T*.18+Math.sin(x/(T*1.3)-t*1.3+k*2)*T*.08;
-   if(vis(cx,ySea+T*20,W)){const xs=[];for(let x=cx-W;x<=cx+W;x+=T)xs.push(x);
+   if(vis(cx,ySea+T*200,W)){const xs=[];for(let x=cx-W;x<=cx+W;x+=(Math.abs(x-cx)<T*110?T:T*4))xs.push(x);
     // pasir
     ctx.fillStyle='#EAD7A4';ctx.beginPath();xs.forEach((x,i)=>{const y=atas(x)+Math.sin(x*.013)*T*.25;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],pan(xs[i])+T*2);ctx.closePath();ctx.fill();
     ctx.fillStyle='rgba(205,175,115,.55)';ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)-T*.9;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],pan(xs[i])+T);ctx.closePath();ctx.fill();
     // laut: dangkal (toska) lalu dalam
-    const lautP=(d,col)=>{ctx.fillStyle=col;ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)+d+ombak(x,d*.01);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.lineTo(cx+W,ySea+T*80);ctx.lineTo(cx-W,ySea+T*80);ctx.closePath();ctx.fill()};
+    const lautP=(d,col)=>{ctx.fillStyle=col;ctx.beginPath();xs.forEach((x,i)=>{const y=pan(x)+d+ombak(x,d*.01);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.lineTo(cx+W,ySea+T*500);ctx.lineTo(cx-W,ySea+T*500);ctx.closePath();ctx.fill()};
     lautP(0,'#7FD0D2');lautP(T*2.2,'#4FB2C4');lautP(T*6,'#3A93B5');lautP(T*13,'#2F7AA3');
     // buih ombak di bibir pantai
     ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=T*.14;ctx.lineCap='round';

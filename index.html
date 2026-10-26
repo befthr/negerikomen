@@ -964,16 +964,7 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   // kaki ujung
   if(lf<.3){RR(-13,8,8,8,2,GR);RR(5,8,8,8,2,GR);E(-9,15,3,1.6,OR);E(9,15,3,1.6,OR)}
   // lengan kiri (pegang pedang) & kanan (meriam), kepalan siap
-  if(!(lf>0)){
-  RR(-28,-6,8,16,3,IV,1);RR(-28.5,2,9,7,2,OR);
-  // pedang digenggam: gagang tembus kepalan, pelindung di atas kepalan, kepalan menutup gagang
-  {const sa=-.85;c.save();c.translate(-24,15);c.rotate(sa);
-   /* pov dari atas: gagang tertutup lengan */
-   c.fillStyle='#E8EEF4';c.beginPath();c.moveTo(-2,-8);c.lineTo(2,-8);c.lineTo(2,-37);c.lineTo(0,-42);c.lineTo(-2,-37);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();
-   c.fillStyle='#4FB8FF';c.fillRect(-.5,-36,1,27);
-   c.restore()}
-  RR(20,-4,8,16,3,IV,1);RR(19.5,4,9,7,2,OR);
-  }
+
   // badan + dada
   RR(-19,-12,38,20,6,IV,1);RR(-19.5,-12.5,39,6,3,TL);
   RR(-3,-12,6,20,2,OR);[-1,1].forEach(k=>{RR(k*9-5,-3,10,6,2,TL);c.fillStyle='#F4F6F8';for(let q=0;q<3;q++)c.fillRect(k*9-4,-2+q*1.7,8,.6)});
@@ -984,11 +975,11 @@ window.__robot2D=(...a)=>drawRobot2D(...a);function drawRobot2D(t,sd,lf){lf=lf||
   RR(-8,-25,16,13,4,IV,1);RR(-8.5,-25.5,17,4,2,TL);c.fillStyle=OR;c.beginPath();c.moveTo(-6,-19);c.lineTo(0,-24);c.lineTo(6,-19);c.closePath();c.fill();
   c.strokeStyle=GD;c.lineWidth=1.6;c.beginPath();c.moveTo(-8,-22);c.lineTo(-12,-29);c.moveTo(8,-22);c.lineTo(12,-29);c.stroke();
   const bl=Math.sin(t*5+sd)>.3;E(0,-27,2.4,2.4,bl?'#FF5A4E':'#7A2A24');if(bl)E(0,-27,5,5,'rgba(255,90,78,.28)');
-  if(lf>0){sayap();
-   // terbang ala superman: kedua tangan lurus ke depan (di depan kepala), pedang ikut menunjuk ke depan
-   [-1,1].forEach(k=>{c.save();c.translate(k*14,-14);c.rotate(-k*.1);RR(-4.5,-34,9,34,4,IV,1);RR(-5,-40,10,8,3,OR,1);
-    if(k<0){c.fillStyle='#E8EEF4';c.beginPath();c.moveTo(-2,-40);c.lineTo(2,-40);c.lineTo(2,-70);c.lineTo(0,-76);c.lineTo(-2,-70);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();c.fillStyle='#4FB8FF';c.fillRect(-.5,-69,1,27)}
-    else{RR(-2,-46,4,8,1.5,OR)}c.restore()})}
+  if(lf>0)sayap();
+  // tangan ke depan (pov atas), terpisah dari sayap: terbang = lurus panjang ala superman, di darat = lebih pendek & berayun saat jalan
+  {const A=lf>0?34:22,sw2=lf>0?0:Math.sin(t*5+sd)*.12;[-1,1].forEach(k=>{c.save();c.translate(k*(lf>0?14:19),-14);c.rotate(lf>0?-k*.1:k*.05+k*sw2);RR(-4.5,-A,9,A,4,IV,1);RR(-5,-A-6,10,8,3,OR,1);
+    if(k<0){const B=A+6;c.fillStyle='#E8EEF4';c.beginPath();c.moveTo(-2,-B);c.lineTo(2,-B);c.lineTo(2,-B-30);c.lineTo(0,-B-36);c.lineTo(-2,-B-30);c.closePath();c.fill();c.strokeStyle='#1C2520';c.lineWidth=1;c.stroke();c.fillStyle='#4FB8FF';c.fillRect(-.5,-B-29,1,27)}
+    else{RR(-2,-A-12,4,8,1.5,OR)}c.restore()})}
   // kucing aktif (tanpa wajah): pindah pundak ↔ helm, lompat terlihat membesar karena makin dekat ke atas
   {const k=kucingGento(t*.9+sd,[[-22,-11,0],[0,-20,0],[22,-11,0]]),sc=1+k.lomp*.35;c.save();c.translate(k.x,k.y-k.lomp*4);c.scale(sc,sc);if(k.arah)c.rotate(k.arah*Math.PI/2);if(k.lomp>0){E(0,4+k.lomp*6,4,2,'rgba(0,0,0,.18)')}}
   E(0,0,4.6,3.6,'#E07A3E');E(0,-3.6,3,2.8,'#E07A3E');c.fillStyle='#C4602A';c.beginPath();c.moveTo(-2.4,-5.4);c.lineTo(-1.6,-8);c.lineTo(-.4,-5.6);c.moveTo(.4,-5.6);c.lineTo(1.6,-8);c.lineTo(2.4,-5.4);c.fill();

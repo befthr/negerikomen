@@ -2069,13 +2069,14 @@ const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(pts.size
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(-e.deltaY*.0018));hideHint()},{passive:false});
 cv.addEventListener('dblclick',e=>{const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,1.7)});
+function lepasSel(){sel=null;$('result').hidden=true;dirty=true;try{if(location.hash)history.replaceState(null,'',location.pathname)}catch(e){}}
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
   if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);window.QA_IKUT=false;showResult({kind:'q'});dirty=true;return}}
-  if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){SND.play('pop',.8);bukaRental();return}}
-  if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){SND.play('pop',.8);const ow=window.ROBOT_OWNER,k=ow?RES.findIndex(r=>String(r.name).toLowerCase()===ow):-1;if(k>=0){toast(gentoDiRumah()?'🤖 GENTO lagi di rumah @'+ow:'🤖 GENTO milik @'+ow+' lagi istirahat di hanggar');select({kind:'r',i:k});return}openDemoGento();return}}
-  if(STQA&&DESA&&NAMA_DESA_OLEH){const g=DESA.gate;if(Math.abs(wxp-g.x)<T*6.8&&Math.abs(wyp-g.y)<T*2.5){const k=RES.findIndex(r=>String(r.name).toLowerCase()===NAMA_DESA_OLEH);if(k>=0){SND.play('pop',.8);toast('🏷️ '+NAMA_DESA+' — usulan @'+NAMA_DESA_OLEH);select({kind:'r',i:k});return}}}
-  if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){SND.play('pop',.8);bukaLiga(LIGA_QA);return}
+  if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){lepasSel();SND.play('pop',.8);bukaRental();return}}
+  if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){lepasSel();SND.play('pop',.8);const ow=window.ROBOT_OWNER,k=ow?RES.findIndex(r=>String(r.name).toLowerCase()===ow):-1;if(k>=0){toast(gentoDiRumah()?'🤖 GENTO lagi di rumah @'+ow:'🤖 GENTO milik @'+ow+' lagi istirahat di hanggar');select({kind:'r',i:k});return}openDemoGento();return}}
+  if(STQA&&DESA&&NAMA_DESA_OLEH){const g=DESA.gate;if(Math.abs(wxp-g.x)<T*6.8&&Math.abs(wyp-g.y)<T*2.5){const k=RES.findIndex(r=>String(r.name).toLowerCase()===NAMA_DESA_OLEH);if(k>=0){lepasSel();SND.play('pop',.8);toast('🏷️ '+NAMA_DESA+' — usulan @'+NAMA_DESA_OLEH);select({kind:'r',i:k});return}}}
+  if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){lepasSel();SND.play('pop',.8);bukaLiga(LIGA_QA);return}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
   if(tx===NK.OWNER.x&&ty===NK.OWNER.y)return select({kind:'o'});

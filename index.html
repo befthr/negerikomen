@@ -2450,7 +2450,7 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
 let T3=null,v3s=null;
 function loadThree(){if(window.THREE)return Promise.resolve();if(T3)return T3;
   T3=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';sc.onload=ok;sc.onerror=no;document.head.append(sc)});return T3}
-function build3D(r){const o=build3DRumah(r);if(r&&r.demo==='gento')try{rumahGento3D(o.g);o.g.children[o.g.children.length-1].visible=false}catch(e){}if(r&&r.demo==='rental')try{rental3D(o.g)}catch(e){}if(r&&r.demo==='naga')try{naga3D(o.g,r)}catch(e){console.error(e)}if(r&&r.demo==='monumen')try{monumen3D(o.g)}catch(e){}try{items3D(o.g,r)}catch(e){}if(r&&r.demo==='ufo')try{ufo3D(o.g)}catch(e){}if(r&&r.demo==='gento')try{kandang3D(o.g)}catch(e){}return o}
+function build3D(r){const o=build3DRumah(r);if(r&&r.demo==='gento')try{rumahGento3D(o.g);o.g.children[o.g.children.length-1].visible=false}catch(e){}if(r&&r.demo==='rental')try{rental3D(o.g)}catch(e){}if(r&&r.demo==='naga')try{naga3D(o.g,r)}catch(e){console.error(e)}else if(r&&!r.demo&&window.NAGA_OWNER&&String(r.name).toLowerCase()===String(window.NAGA_OWNER).toLowerCase())try{let sy='#2F74B5';try{sy=NK.roofHex(r)}catch(_){}naga3D(o.g,{nagaPemilik:r.name,nagaSyal:sy},{rumah:true})}catch(e){console.error(e)}if(r&&r.demo==='monumen')try{monumen3D(o.g)}catch(e){}try{items3D(o.g,r)}catch(e){}if(r&&r.demo==='ufo')try{ufo3D(o.g)}catch(e){}if(r&&r.demo==='gento')try{kandang3D(o.g)}catch(e){}return o}
 function monumen3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0){m.material=m.material.clone();m.material.color.set('#8DBE5A')}else m.visible=false});const H=new T.Group();g.add(H);
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.7},o||{}));const add=(geo,c,x,y,z,o)=>{const m=new T.Mesh(geo,M(c,o));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;H.add(m);return m};
   add(new T.CylinderGeometry(4.4,4.5,.16,48),'#F6E6D8',0,.08,0);add(new T.TorusGeometry(4.35,.12,8,64),'#C98F7A',0,.17,0).rotation.x=Math.PI/2;
@@ -2470,11 +2470,11 @@ function monumen3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0){m.mater
   {const cv=document.createElement('canvas');cv.width=560;cv.height=120;const c=cv.getContext('2d');c.fillStyle='#E2453C';c.fillRect(0,0,560,120);c.strokeStyle='#fff';c.lineWidth=8;c.strokeRect(6,6,548,108);c.fillStyle='#fff';c.font="800 40px Poppins,'Noto Color Emoji',sans-serif";c.textAlign='center';c.textBaseline='middle';c.fillText('💞 TETANGGA IDAMAN',280,62);
    const p=new T.Mesh(new T.PlaneGeometry(2.8,.6),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv)}));p.position.set(0,1.05,4.5);H.add(p);[-1.25,1.25].forEach(x=>add(new T.BoxGeometry(.1,1.3,.1),'#6B4A2E',x,.65,4.45))}}
 // 🐉 Naga Layangan 3D (faceless): induk beruas meliuk, sayap kain, ekor pita, Si Genteng di pelana (kalau dimiliki), 3 anak naga. Skill: freestyle, sembur, anak main, malam.
-function naga3D(g,r){const T=THREE;g.children.forEach((m,i)=>{if(i>0)m.visible=false});const H=new T.Group();g.add(H);const A=g.userData.anim||(g.userData.anim=[]);
+function naga3D(g,r,opt){opt=opt||{};const T=THREE;if(!opt.rumah)g.children.forEach((m,i)=>{if(i>0)m.visible=false});const H=new T.Group();g.add(H);if(opt.rumah){H.scale.setScalar(.72);H.position.y=3.5}const A=g.userData.anim||(g.userData.anim=[]);
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.6},o||{}));const SG=new T.SphereGeometry(1,16,12);
   const milik=!!r.nagaPemilik,lamp=[];
   if(!milik){const tg=new T.Mesh(new T.CylinderGeometry(.08,.1,4.2,8),M('#6B4A2E'));tg.position.set(-3.6,2.1,1.6);tg.castShadow=true;H.add(tg);const cap=new T.Mesh(new T.BoxGeometry(.5,.18,.5),M('#C4402F'));cap.position.set(-3.6,4.25,1.6);H.add(cap)}
-  const benang=new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(),new T.Vector3()]),new T.LineBasicMaterial({color:'#5A4632'}));H.add(benang);
+  const benang=new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(),new T.Vector3()]),new T.LineBasicMaterial({color:'#5A4632'}));H.add(benang);if(opt.rumah)benang.visible=false;
   const buatNaga=(n,s,c1,c2)=>{const G=new T.Group();H.add(G);const seg=[];for(let i=0;i<n;i++){const rr=.42*s*(1-i/n*.5),m=new T.Mesh(SG,M(i%2?c1:c2,{emissive:'#FFB040',emissiveIntensity:0}));m.scale.setScalar(rr);m.castShadow=true;G.add(m);
       const sp=new T.Mesh(new T.ConeGeometry(.12*s,.3*s,6),M('#F2C230'));sp.position.y=rr*.95/rr;sp.scale.setScalar(1/rr);m.add(sp);seg.push(m);lamp.push(m)}
     const kep=new T.Group();G.add(kep);const hd=new T.Mesh(SG,M(c2,{emissive:'#FFB040',emissiveIntensity:0}));hd.scale.set(.62*s,.5*s,.55*s);kep.add(hd);lamp.push(hd);
@@ -2516,7 +2516,7 @@ function naga3D(g,r){const T=THREE;g.children.forEach((m,i)=>{if(i>0)m.visible=f
         st.parts.push({m,v:new T.Vector3((Math.random()-.3)*3,(Math.random()-.2)*3,(Math.random()-.5)*3),t:s})}
       ANAK.forEach(N=>{if(Math.random()<.4){const m=new T.Mesh(SG,new T.MeshBasicMaterial({color:'#FFE27A'}));m.scale.setScalar(.05);m.position.copy(N.kep.position);H.add(m);st.parts.push({m,v:new T.Vector3((Math.random()-.5)*1.5,Math.random()*1.5,(Math.random()-.5)*1.5),t:s})}})}
     st.parts=st.parts.filter(o=>{const a=s-o.t;if(a>1.6){H.remove(o.m);return false}o.m.position.add(o.v.clone().multiplyScalar(.016));o.v.y-=.04;o.m.scale.setScalar(Math.max(.01,(o.m.scale.x)*.985));return true})});
-  g.userData.naga={freestyle:()=>{st.gaya++;st.gt=performance.now()/1000;return ['🤸 Salto!','🦩 Berdiri satu kaki','🙌 Lambai dua tangan','🤸 Handstand!','🐇 Lompat berirama'][st.gaya%5]},
+  g.userData[opt.rumah?'nagaRumah':'naga']={freestyle:()=>{st.gaya++;st.gt=performance.now()/1000;return ['🤸 Salto!','🦩 Berdiri satu kaki','🙌 Lambai dua tangan','🤸 Handstand!','🐇 Lompat berirama'][st.gaya%5]},
     sembur:()=>{st.sembur=performance.now()/1000},anak:()=>{st.anak=performance.now()/1000},
     malam:m=>lamp.forEach(x=>{x.material.emissiveIntensity=m?.9:0})};
   // waktu animasi pakai performance.now (anim(t) memakai t dalam ms dari rAF)

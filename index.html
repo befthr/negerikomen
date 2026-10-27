@@ -2466,7 +2466,7 @@ function naga3D(g,r){const T=THREE;g.children.forEach((m,i)=>{if(i>0)m.visible=f
     const syal=new T.Mesh(new T.PlaneGeometry(.55,.14),M(r.nagaSyal||'#2F74B5',{side:T.DoubleSide}));syal.position.set(-.3,.42,0);SGt.add(syal);SGt.userData.syal=syal;
     const kaki=[-1,1].map(d=>{const k=new T.Mesh(new T.BoxGeometry(.07,.25,.07),M('#5B3A22'));k.position.set(0,.06,d*.08);SGt.add(k);return k});const tg=[-1,1].map(d=>{const k=new T.Mesh(new T.BoxGeometry(.06,.26,.06),M('#5B3A22'));k.position.set(0,.36,d*.2);SGt.add(k);return k});SGt.userData={...SGt.userData,kaki,tg}}
   // jalur induk: angka-8 di langit, ruas mengikuti waktu tertinggal
-  const jalur=u=>new T.Vector3(Math.sin(u)*3.6,3.1+Math.sin(u*2)*.45,Math.sin(u*2)*1.8);
+  const jalur=u=>new T.Vector3(Math.sin(u)*3.3,2.3+Math.sin(u*2)*.35,Math.sin(u*2)*1.6);
   const st={gaya:0,gt:-9,sembur:-9,anak:-9,parts:[]};const SPD=.55;
   const tempat=(N,u0,gap,off)=>N.seg.map((m,i)=>{const p=jalur(u0-i*gap);if(off)p.add(off(i));m.position.copy(p);return p});
   const kepala=(N,p0,p1)=>{N.kep.position.copy(p0);N.kep.lookAt(p0.clone().multiplyScalar(2).sub(p1));N.kep.rotateY(-Math.PI/2)};
@@ -2480,8 +2480,8 @@ function naga3D(g,r){const T=THREE;g.children.forEach((m,i)=>{if(i>0)m.visible=f
       if(gy===0){jy=Math.sin(q*Math.PI)*.7;rz=q<1?q*Math.PI*2:0}else if(gy===1){ud.kaki[1].rotation.x=1.3;ud.tg.forEach((k,i)=>k.rotation.x=(i?1:-1)*1.2)}else if(gy===2){ud.tg.forEach((k,i)=>{k.position.y=.6;k.rotation.x=(i?1:-1)*(.3+Math.sin(s*10)*.3)})}else if(gy===3){rz=Math.PI;jy=.45}else{jy=Math.abs(Math.sin(s*7))*.25}
       SGt.position.y+=jy;SGt.rotateZ(rz);ud.syal.rotation.y=Math.sin(s*9)*.4}
     // anak naga: mengekor / main mengelilingi induk
-    const mainA=s-st.anak<4.5;ANAK.forEach((N,k)=>{if(mainA){const b=(s-st.anak)*2.2+k*2.09,c=P[4];tempat(N,0,0,null);N.seg.forEach((m,i)=>{const a=b-i*.22;m.position.set(c.x+Math.cos(a)*1.4,c.y+Math.sin(a*1.3)*.5,c.z+Math.sin(a)*1.4)})}
-      else tempat(N,u-13*.14-.5-k*.75,.1,i=>new T.Vector3(0,Math.sin(s*3+i*.7+k)*.15,Math.cos(s*2.5+i+k)*.15));
+    const mainA=s-st.anak<4.5;ANAK.forEach((N,k)=>{if(mainA){const b=(s-st.anak)*2.2+k*2.09,c=P[4];tempat(N,0,0,null);N.seg.forEach((m,i)=>{const a=b-i*.22;m.position.set(c.x+Math.cos(a)*2.2,c.y+2.1+Math.sin(a*1.3)*.25,c.z+Math.sin(a)*2.2) /* orbit di atas & di luar badan induk: tidak tembus */})}
+      else tempat(N,u-13*.14-.5-k*.75,.1,i=>new T.Vector3(0,1.1+k*.35+Math.sin(s*3+i*.7+k)*.15,Math.cos(s*2.5+i+k)*.15)); /* anak terbang lebih tinggi dari induk: tidak tembus walau jalur angka-8 bersilangan */
       const q0=N.seg[0].position,q1=N.seg[1].position;kepala(N,q0.clone().add(q0.clone().sub(q1).normalize().multiplyScalar(.2)),q1);
       N.sy.forEach(([w,d])=>{w.position.copy(N.seg[1].position);w.position.z+=d*.2;w.rotation.set(-Math.PI/2+Math.sin(s*9)*.4*d,0,0)});const e1=N.seg[N.seg.length-1].position;N.pita.forEach((p,j)=>{p.position.copy(e1);p.position.y+=(j-1)*.06})});
     // benang ke tiang / rumah
@@ -3653,7 +3653,7 @@ function nagaGambar(P,s,c1,c2,glow,t,penunggang,pelana){if(P.length<2)return;con
   ctx.fillStyle='#F2C230';[-1,1].forEach(d=>{ctx.beginPath();ctx.moveTo(-r*.3,d*r*.5);ctx.lineTo(-r*1.25,d*r*1.05);ctx.lineTo(-r*.05,d*r*.85);ctx.fill()});
   ctx.fillStyle=c2;ctx.beginPath();ctx.ellipse(0,0,r,r*.82,0,0,7);ctx.fill();ctx.fillStyle='#FFE27A';ctx.beginPath();ctx.ellipse(r*.55,0,r*.45,r*.38,0,0,7);ctx.fill();ctx.restore();
   // penunggang di ruas ke-2
-  if(penunggang||pelana){const [sx,sy]=P[2]||P[1];ctx.save();ctx.translate(sx,sy-T*.35*s);const k=T*.045*s;ctx.scale(k,k);
+  if(penunggang||pelana){const [sx,sy]=P[2]||P[1];ctx.save();ctx.translate(sx,sy-T*.35*s);const k=T*.03*s;ctx.scale(k,k);
     ctx.fillStyle='#7A4E2E';ctx.beginPath();ctx.roundRect(-9,2,18,7,3);ctx.fill();ctx.fillStyle='#F2C230';ctx.fillRect(-9,4,18,2);
     if(penunggang)nagaRider(penunggang);
     ctx.restore()}}
@@ -3690,7 +3690,7 @@ function drawNaga(v,t){if(!STQA||!NAGA_ON())return;const P0=nagaTiang();if(!P0){
   const ms=Date.now(),s=ms/1000,n=(()=>{try{return malamNow().n||0}catch(e){return 0}})(),milik=!!nagaRumah(),E=nagaSemburAktif(ms);
   // jejak berdasarkan jarak (bukan waktu) → ruas rapi berapa pun kecepatannya
   const jejak=(skip,sp,cnt,wob)=>{const L=[];let q=s,a=nagaPos(q);if(!a)return L;let acc=0,want=skip;for(let k=0;k<3000&&L.length<cnt;k++){if(acc>=want){L.push([a.x+(wob?Math.sin(s*3+L.length*.8+wob)*T*.3:0),a.y+(wob?Math.cos(s*2.4+L.length*.6+wob)*T*.25:0)]);want+=sp;continue}q-=.03;const b=nagaPos(q);if(!b)break;acc+=Math.hypot(b.x-a.x,b.y-a.y);a=b}return L};
-  const SC=1.4,SP=T*.5*SC,P=jejak(0,SP,NG_SEG,0);if(P.length<2)return;NAGA_PT={x:P[0][0],y:P[0][1],milik};if(Date.now()<NAGA_IKUT){cam.cx+=(P[0][0]-cam.cx)*.08;cam.cy+=(P[0][1]-cam.cy)*.08;dirty=true}
+  const SC=.6,SP=T*.5*SC,P=jejak(0,SP,NG_SEG,0);if(P.length<2)return;NAGA_PT={x:P[0][0],y:P[0][1],milik};if(Date.now()<NAGA_IKUT){cam.cx+=(P[0][0]-cam.cx)*.08;cam.cy+=(P[0][1]-cam.cy)*.08;dirty=true}
   // benang: ke tiang (belum dimiliki) / ke rumah pemilik kalau dekat
   {const H=milik?nagaRumah():{x:P0.x,y:P0.y-T*2.6};const [bx,by]=P[3]||P[1],d=Math.hypot(bx-H.x,by-H.y);if(!milik||d<T*16){ctx.strokeStyle=`rgba(70,55,40,${milik?Math.max(0,.55-d/(T*30)):.6})`;ctx.lineWidth=1.4;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(H.x,H.y);ctx.quadraticCurveTo((H.x+bx)/2+T,(H.y+by)/2+T*1.5,bx,by);ctx.stroke();ctx.setLineDash([])}}
   // 3 anak naga mengekor
@@ -3934,7 +3934,7 @@ if(QA9)setTimeout(()=>{const n=Date.now(),G=desaBangun().EKS.find(e=>e.lok==='gu
   else if(QA9==='reaksi'){const k=kkResIdx('ryukaarvellacevana');if(k>=0){select({kind:'r',i:k});setTimeout(()=>{const b=$('result');if(b)b.scrollIntoView({block:'start',behavior:'smooth'})},600)}}
   else if(QA9==='idaman'){window.IDAMAN=[{u:'ryukaarvellacevana',poin:31},{u:'scnydpi',poin:22},{u:'lembarpeta',poin:19},...RES.slice(10,27).map((r,k)=>({u:String(r.name).toLowerCase(),poin:17-k}))];renderIdaman();scrollMap();const m=desaBangun().MTI;flyTo({cx:m.x+m.w/2,cy:m.y+m.h/2,zoom:clampZ(1)},900)}
   dirty=true},2600);
-window.__PDH={desa:()=>desaBangun(),ubah:(u,o)=>Object.assign(RES[kkResIdx(u)],o),o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
+window.__PDH={naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>Object.assign(RES[kkResIdx(u)],o),o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
 
 /* ===== 👍 Reaksi Rumah + 📖 Buku Tamu + 🌟 Tetangga Idaman ===== */
 const RXD={mantap:{ic:'👍',n:'Mantap',p:1},genteng:{ic:'<img src="genteng.png" alt="">',n:'Genteng Keren',p:1},tetangga:{ic:'🏡',n:'Pengen Tetanggaan',p:1}};

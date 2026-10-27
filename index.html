@@ -1884,7 +1884,7 @@ JOBS.forEach((j,k)=>{const d=document.createElement('details');d.className='job'
 /* papan penghargaan (berlaku sampai tanggal 'until') */
 const AWARDS=(Array.isArray(D.awards)?D.awards:[]).filter(a=>a&&a.user&&Array.isArray(a.badges)&&(!a.until||a.until>=TODAY));
 const awardOf=r=>AWARDS.find(a=>norm(a.user)===norm(r.name));
-if(AWARDS.length){$('award').hidden=false;
+if(AWARDS.length&&false){/* Papan Penghargaan disembunyikan (sudah lebih dari sepekan) */$('award').hidden=false;
   AWARDS.forEach(a=>{const i=RES.findIndex(r=>norm(r.name)===norm(a.user));const r=RES[i];const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     const bd=el('span','badges');a.badges.forEach(b=>bd.append(el('i',null,b)));
     bt.append(el('span','ico','🏅'),el('b',null,(r&&r.nick?r.nick+' · ':'')+'@'+a.user),bd);
@@ -2066,7 +2066,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
-  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true)}}
+  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true,true)}}
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.short||b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
@@ -4306,7 +4306,8 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   const W0={x0:F.x0-T*2,x1:E.x1+T*14,y0:M.y0-T*2,y1:E.y1+T*12};const wc={x:(W0.x0+W0.x1)/2,y:(W0.y0+W0.y1)/2,rx:(W0.x1-W0.x0)/2,ry:(W0.y1-W0.y0)/2};
   const tepiR=a=>1+.07*Math.sin(a*3+.7)+.05*Math.sin(a*7+2)+.03*Math.sin(a*15);
   const ring=[];for(let i=0;i<2600;i++){const a=R()*6.2832,d=tepiR(a)*(.93+R()*.5);ring.push({x:wc.x+Math.cos(a)*wc.rx*d*1.05,y:wc.y+Math.sin(a)*wc.ry*d*1.05,s:1.1+R()*.7,k:R()<.6})}
-  DESA={EKS,DB,DK,DBC,RG,OT,SH,MTI,GANG,GJ,wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
+  const jalanX1=Math.min(E.x1+T*6,Math.max(OT.x+OT.w,wd.x,SH.x+T*2.6,...DB.filter(([bx,by])=>by===-1||by===1).map(([bx])=>(bx+1)*S*T))+T*1.6);
+  DESA={jalanX1,EKS,DB,DK,DBC,RG,OT,SH,MTI,GANG,GJ,wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
 function papan(cx,cy,teks,fs,fg,bg,pad){ctx.font=`800 ${fs}px Poppins,'Noto Color Emoji',sans-serif`;const w=ctx.measureText(teks).width+(pad||fs*1.2),h=fs*2;ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(cx-w/2,cy-h/2,w,h,fs*.35);ctx.fill();ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(teks,cx,cy+fs*.05)}
 function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {E,M,F,wd}=D;
   const VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z,vis=(x,y,r)=>x+r>VX0&&x-r<VX1&&y+r>VY0&&y-r<VY1;
@@ -4444,7 +4445,8 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   // jalan papan kayu di pantai
   D.GANG.forEach(P=>{if(!P.k)return;ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(P[0][0],P[0][1]);P.forEach((p,i)=>i&&ctx.lineTo(p[0],p[1]));ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=T*.7;ctx.save();ctx.translate(T*.08,T*.1);ctx.stroke();ctx.restore();ctx.strokeStyle='#A8743F';ctx.lineWidth=T*.62;ctx.stroke();ctx.setLineDash([T*.05,T*.2]);ctx.strokeStyle='#7A4E26';ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=T*.05;ctx.strokeStyle='#6B4527';[-1,1].forEach(sd=>{ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]+sd*T*.31):ctx.moveTo(p[0],p[1]+sd*T*.31));ctx.stroke()})});
   D.GJ.forEach(([x,y,a])=>{ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#8A5A2E';ctx.fillRect(-T*1.3,-T*.42,T*2.6,T*.84);ctx.fillStyle='#A8743F';for(let i=0;i<7;i++)ctx.fillRect(-T*1.2+i*T*.36,-T*.42,T*.22,T*.84);ctx.restore()});
-  ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.strokeStyle='#4E5257';ctx.lineWidth=T*1.32;ctx.stroke();ctx.strokeStyle='#5E6368';ctx.lineWidth=T*1.12;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=2;[-1,1].forEach(k=>{ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY+k*T*.48);ctx.lineTo(E.x1+T*6,D.jalanY+k*T*.48);ctx.stroke()});ctx.strokeStyle='#F2C230';ctx.lineWidth=3.5;ctx.setLineDash([T*.6,T*.45]);ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.stroke();ctx.setLineDash([]);ctx.lineCap='round';
+  ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(D.jalanX1,D.jalanY);ctx.strokeStyle='#4E5257';ctx.lineWidth=T*1.32;ctx.stroke();ctx.strokeStyle='#5E6368';ctx.lineWidth=T*1.12;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=2;[-1,1].forEach(k=>{ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY+k*T*.48);ctx.lineTo(D.jalanX1,D.jalanY+k*T*.48);ctx.stroke()});ctx.strokeStyle='#F2C230';ctx.lineWidth=3.5;ctx.setLineDash([T*.6,T*.45]);ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(D.jalanX1,D.jalanY);ctx.stroke();ctx.setLineDash([]);ctx.lineCap='round';
+  {const X=D.jalanX1,Y=D.jalanY;ctx.fillStyle='#4E5257';ctx.beginPath();ctx.arc(X,Y,T*1.25,0,7);ctx.fill();ctx.fillStyle='#5E6368';ctx.beginPath();ctx.arc(X,Y,T*1.15,0,7);ctx.fill();ctx.fillStyle='#86B957';ctx.beginPath();ctx.arc(X,Y,T*.42,0,7);ctx.fill();ctx.fillStyle='#5DAA4A';ctx.beginPath();ctx.arc(X,Y,T*.22,0,7);ctx.fill()} // putaran balik di ujung jalan desa
   {const s1=D.sungai1;const bx=s1[1][0]-T*.2;ctx.fillStyle='#8A5A2E';ctx.fillRect(bx-T*1.6,D.jalanY-T*.8,T*3.2,T*1.6);ctx.fillStyle='#A8743F';for(let i=0;i<9;i++)ctx.fillRect(bx-T*1.5+i*T*.36,D.jalanY-T*.8,T*.22,T*1.6)}
   // pohon
   D.trees.forEach(o=>{if(!vis(o.x,o.y,T))return;const s=o.s;if(o.k){ctx.fillStyle='#2A5E36';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x-T*.35*s,o.y+T*.3*s);ctx.closePath();ctx.fill();ctx.fillStyle='#357042';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x,o.y+T*.3*s);ctx.closePath();ctx.fill()}

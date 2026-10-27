@@ -701,7 +701,7 @@ export default async function handler(req, res) {
         if (await heliTerjual() >= sisa) return res.status(400).json({ error: 'Tiket Helikoper lagi habis: semua kavling eksklusif sudah ada yang pesan.' }) }
       const after = await kv(['HINCRBY', 'saldo', s.u, -P.harga]);
       if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, P.harga]); return res.status(400).json({ error: 'Recehan belum cukup. Butuh ' + P.harga + ' Receh.', kurang: P.harga - (after + P.harga) }) }
-      await kvMany([['HINCRBY', 'tiket', s.u + ':' + j, 1], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -P.harga, ket: j === 'heli' ? 'Tiket Helikoper' : 'Tiket Truk Titut' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]);
+      await kvMany([['HINCRBY', 'tiket', s.u + ':' + j, 1], ...(j === 'heli' ? [['HINCRBY', 'tiket', s.u + ':truk', 1]] : []), ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -P.harga, ket: j === 'heli' ? 'Tiket Helikoper + bonus Tiket Truk Titut' : 'Tiket Truk Titut' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49]]); // beli Helikoper = bonus 1 tiket Truk
       return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'pindah') { // pakai 1 tiket: rumah diangkut ke kavling tujuan {jenis,x,y}
@@ -723,11 +723,11 @@ export default async function handler(req, res) {
     }
     if (aksi === 'tiket-hadiah') { // kades: kasih tiket gratis {target: "a,b,c", jenis, n}
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
-      const j = String(body.jenis || ''); if (!PINDAH[j]) return res.status(400).json({ error: 'Jenis tiket tidak dikenal' });
+      const j = String(body.jenis || ''); if (!PINDAH[j] && j !== 'paket') return res.status(400).json({ error: 'Jenis tiket tidak dikenal' }); const JS = j === 'paket' ? ['heli', 'truk'] : [j]; // paket = Helikoper + Truk
       const n = Math.max(-5, Math.min(5, Math.round(+body.n || 1))), L = String(body.target || '').split(/[\s,]+/).map(cleanU).filter(okU);
       if (!L.length) return res.status(400).json({ error: 'Tulis username warga' });
       const bukan = L.filter(u => !warga(D, u)); const ok = L.filter(u => warga(D, u));
-      if (ok.length) await kvMany(ok.flatMap(u => [['HINCRBY', 'tiket', u + ':' + j, n], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at: Date.now(), n: 0, ket: (n > 0 ? '🎁 Hadiah ' : 'Koreksi ') + n + ' tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') })]]));
+      if (ok.length) await kvMany(ok.flatMap(u => [...JS.map(jj => ['HINCRBY', 'tiket', u + ':' + jj, n]), ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at: Date.now(), n: 0, ket: (n > 0 ? '🎁 Hadiah ' : 'Koreksi ') + n + ' tiket ' + (j === 'paket' ? 'Helikoper + Truk Titut' : j === 'heli' ? 'Helikoper' : 'Truk Titut') })]]));
       return res.status(200).json({ ok: true, dapat: ok, bukan });
     }
     if (aksi === 'gento') { // pemilik GENTO: suruh main (terbang keliling ±30 mnt) / suruh pulang (istirahat di rumah 1 jam). Posisi dihitung di perangkat dari jam.

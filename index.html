@@ -2030,7 +2030,7 @@ $('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@
 const cv=$('map');let ctx=cv.getContext('2d');const CTX0=ctx;NK.use(ctx);
 let dpr=1,cw=1,ch=1;
 /* pengaturan grafik peta: Hemat (perangkat lambat/baterai), Seimbang (bawaan), Tinggi. Animasi santai dibatasi fps-nya; saat digeser/zoom lebih halus. */
-const GFX_SET={hemat:{n:'Hemat',d:'paling ringan',fps:20,fpsI:30,dpr:()=>1,life:false},seimbang:{n:'Seimbang',d:'bawaan',fps:30,fpsI:60,dpr:()=>innerWidth<760?1.5:2,life:true},tinggi:{n:'Tinggi',d:'paling halus',fps:60,fpsI:60,dpr:()=>2,life:true}};
+const GFX_SET={hemat:{n:'Hemat',d:'paling ringan',fps:24,fpsI:60,dpr:()=>1,life:false},seimbang:{n:'Seimbang',d:'bawaan',fps:30,fpsI:60,dpr:()=>innerWidth<760?1.5:2,life:true},tinggi:{n:'Tinggi',d:'paling halus',fps:120,fpsI:120,dpr:()=>2,life:true}};
 let GFX='seimbang',LAST_DRAW=0;try{GFX=localStorage.getItem('nk-gfx')||'seimbang'}catch(e){}if(!GFX_SET[GFX])GFX='seimbang';
 const cam={cx:0,cy:0,zoom:1};let fly=null,sel=null,dirty=true,minZ=.2,maxZ=3.2,fitZ=1;
 function bounds(){

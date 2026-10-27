@@ -21,14 +21,14 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       await kv(['HSET', 'rukoplus', v.u, JSON.stringify({ wall: v.wall, roof: v.roof, day, kode })]);
     } else {
       const raw = jparse(await kv(['HGET', 'itemplus', v.u])), kol = raw && Array.isArray(raw.own) ? raw : { own: [], pajang: [] };
-      for (const ek of ['robot', 'patromax', 'sorot']) if (v.items.includes(ek)) { // barang eksklusif cuma 1: kunci permanen untuk pemiliknya
+      for (const ek of ['robot', 'patromax', 'sorot', 'naga']) if (v.items.includes(ek)) { // barang eksklusif cuma 1: kunci permanen untuk pemiliknya
         const p = await kv(['GET', ek + ':pemilik']);
         if (p && p !== v.u) v.items = v.items.filter(id => id !== ek); else await kv(['SET', ek + ':pemilik', v.u]);
       }
       v.items.forEach(id => {
         const o = { id, day, ...(id === 'papan' ? { teks: v.teks } : {}), ...(v.warna && v.warna[id] ? { warna: v.warna[id] } : {}) }, i = kol.own.findIndex(x => x.id === id);
         if (i >= 0) kol.own[i] = o; else kol.own.push(o);
-        if (!kol.pajang.includes(id) && kol.pajang.length < MAKS_PAJANG) kol.pajang.push(id);
+        if (id !== 'naga' && !kol.pajang.includes(id) && kol.pajang.length < MAKS_PAJANG) kol.pajang.push(id); // naga terbang di langit, tidak makan slot pekarangan
       });
       await kv(['HSET', 'itemplus', v.u, JSON.stringify(kol)]);
     }

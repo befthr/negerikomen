@@ -3657,7 +3657,7 @@ async function pilihKavling(p){const P=PDH[PILIH.jenis],jenis=PILIH.jenis;const 
   const m=pdhMarkas(jenis);flyTo({cx:m.x,cy:m.y,zoom:clampZ(1)},900)}
 function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=Math.max(T*.8,22/cam.zoom);PILIH.list.forEach(p=>{const d=Math.hypot(NK.wx(p.x)-wxp,NK.wx(p.y)-wyp);if(d<bd){bd=d;best=p}});if(best)pilihKavling(best);else toast('Ketuk kotak yang menyala');return true}
   if(!STQA)return false;const D=desaBangun(),{OT,SH}=D;
-  if(D.MTI&&wxp>D.MTI.x&&wxp<D.MTI.x+D.MTI.w&&wyp>D.MTI.y-T*1.3&&wyp<D.MTI.y+D.MTI.h){SND.play('pop',.8);const c=$('idmCard');if(c){c.scrollIntoView({behavior:'smooth',block:'center'})}toast('🌟 Monumen Tetangga Idaman · juara pekan lalu dipajang di sini');return true}
+  if(D.MTI&&wxp>D.MTI.x-T*.4&&wxp<D.MTI.x+D.MTI.w+T*.4&&wyp>D.MTI.y-T*.9&&wyp<D.MTI.y+D.MTI.h+T*.3){SND.play('pop',.8);const c=$('idmCard');if(c){c.scrollIntoView({behavior:'smooth',block:'center'})}{const L=(window.IDAMAN_LALU&&window.IDAMAN_LALU.length?window.IDAMAN_LALU:window.IDAMAN)||[];toast('🌟 Monumen Tetangga Idaman'+(L.length?' · '+L.map((o,k)=>['🥇','🥈','🥉'][k]+' @'+o.u).join(' '):' · belum ada juara, kasih reaksi ke rumah warga!'))}return true}
   if(wxp>OT.x-T&&wxp<OT.x+OT.w+T&&wyp>OT.y-T*1.6&&wyp<OT.y+OT.h+T*1.4){SND.play('pop',.8);bukaPindahan('truk');return true}
   if(Math.hypot(wxp-SH.x,wyp-SH.y)<SH.r+T*.6||(Math.abs(wxp-SH.x)<T*4&&Math.abs(wyp-(SH.y-SH.r-T*.9))<T*.7)){SND.play('pop',.8);bukaPindahan('heli');return true}
   {const e=D.EKS.find(e=>Math.hypot(NK.wx(e.x)-wxp,NK.wx(e.y)-wyp)<T*.6);if(e&&!RES.some(r=>r.x===e.x&&r.y===e.y&&!r._tr)){const o=LOKP[e.lok];toast(`💎 Kavling eksklusif ${o.ic} ${o.n} · ${o.f}. Pindah ke sini pakai 🚁 Helikoper (ketuk Sarang Helikoper)`);return true}}
@@ -3700,12 +3700,17 @@ function renderIdaman(){const box=$('idmList'),card=$('idmCard');if(!box||!card)
   if(!L.length){box.append(el('li','kk-muted','Belum ada reaksi pekan ini. Mampir ke rumah warga & kasih reaksi!'))}
   L.forEach((o,k)=>{const li=el('li'),bt=el('button');bt.type='button';const i=kkResIdx(o.u),r=i>=0?RES[i]:null;bt.append(el('span','md',['🥇','🥈','🥉'][k]),el('span',null,(r&&r.nick?r.nick+' · ':'')+'@'+o.u),el('span','pt',o.poin+' poin'));bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)});card.hidden=false}
 // 🌟 Monumen Tetangga Idaman di desa baru (juara pekan lalu; pekan pertama tampil juara sementara)
-function drawMonumen(v,t){const D=desaBangun(),m0=D.MTI;if(!m0)return;const kM=m0.w/(T*8),mcx=m0.x+m0.w/2,mcy=m0.y+m0.h/2,m={x:mcx-T*4,y:mcy-T*3,w:T*8,h:T*6};ctx.save();ctx.translate(mcx,mcy);ctx.scale(kM,kM);ctx.translate(-mcx,-mcy);const L=(window.IDAMAN_LALU&&window.IDAMAN_LALU.length?window.IDAMAN_LALU:window.IDAMAN)||[];const cx=m.x+m.w/2,by=m.y+m.h;
-  ctx.fillStyle='#D9CFBF';ctx.beginPath();ctx.roundRect(m.x,m.y,m.w,m.h,T*.4);ctx.fill();ctx.strokeStyle='#8A7F6E';ctx.lineWidth=3;ctx.stroke();
-  const P=[[0,T*2.4,'#F2C230'],[-T*2.1,T*1.7,'#E3E6EA'],[T*2.1,T*1.3,'#E8B07A']];
-  P.forEach(([dx,h,c],k)=>{const x=cx+dx-T,y=by-T*.6-h;ctx.fillStyle=c;ctx.fillRect(x,y,T*2,h);ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5;ctx.strokeRect(x,y,T*2,h);ctx.fillStyle='#1C2520';ctx.font=`800 ${T*.8}px Poppins,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(k+1),x+T,y+h*.55);
-    const o=L[k];if(o){const i=kkResIdx(o.u);if(i>=0){const r=RES[i];pdhRumah(r,x+T,y-T*.45,1.25,1);ctx.fillStyle='#fff';ctx.strokeStyle='#1C2520';ctx.lineWidth=3;ctx.font=`800 ${T*.32}px Poppins,sans-serif`;ctx.strokeText('@'+String(o.u).slice(0,14),x+T,y-T*1.25);ctx.fillText('@'+String(o.u).slice(0,14),x+T,y-T*1.25)}}});
-  papan(cx,m.y-T*.9,'🌟 MONUMEN TETANGGA IDAMAN',T*.65,'#1C2520','#F2C230');ctx.restore()}
+function drawMonumen(v,t){const D=desaBangun(),m=D.MTI;if(!m)return;const k=m.w/(T*.95),cx=m.x+m.w/2,cy=m.y+m.h/2,SH='rgba(0,0,0,.18)';
+  ctx.save();ctx.translate(cx,cy);ctx.scale(k,k);
+  ctx.fillStyle=SH;ctx.fillRect(-14,-10,32,30);ctx.fillStyle='#E9DDB8';ctx.fillRect(-17,-15,34,32);ctx.strokeStyle='#B8A26E';ctx.lineWidth=1.5;ctx.strokeRect(-17,-15,34,32);
+  [[-11,6,'#C9C9CF'],[0,2,'#F2C230'],[11,8,'#C98A4B']].forEach(([dx,dy,c])=>{ctx.fillStyle=SH;ctx.fillRect(dx-4,dy-2,10,10);ctx.fillStyle=c;ctx.fillRect(dx-5,dy-4,10,10);ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1;ctx.strokeRect(dx-5,dy-4,10,10)});
+  // tugu dengan atap rumah kecil di puncak (lambang tetangga) + bintang
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.moveTo(2,-12);ctx.lineTo(6,-2);ctx.lineTo(-2,-2);ctx.fill();
+  ctx.fillStyle='#ECE6D8';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,-4);ctx.lineTo(-4,-4);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#C4502F';ctx.beginPath();ctx.moveTo(-4,-15);ctx.lineTo(0,-19);ctx.lineTo(4,-15);ctx.closePath();ctx.fill();
+  const tw=.75+.25*Math.sin((t||0)*3);ctx.fillStyle=`rgba(242,194,48,${tw})`;ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?1.4:3.2;ctx.lineTo(Math.cos(a)*r,-22+Math.sin(a)*r)}ctx.closePath();ctx.fill();
+  ctx.restore();
+  if(v.z>=.35)papan(cx,m.y-T*.55,'🌟 Monumen Tetangga Idaman',T*.3,'#1C2520','#F2C230')}
 function kkTiketAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'🎫 Kasih tiket Jasa Pindahan (gratis)'),el('p','kk-muted','Tulis username (pisah koma/spasi). Contoh pemenang #PindahDesa → Truk, pendukung ≥10 Genteng → Helikoper.'));
   const ta=el('textarea');ta.rows=3;ta.placeholder='@user1, @user2, …';ta.style.cssText='width:100%;box-sizing:border-box;border:2px solid #1C2520;border-radius:10px;padding:8px;font:inherit';const msg=el('p','kk-msg');const row=el('div','kk-row');
   [['truk','🚚 +1 Truk'],['heli','🚁 +1 Helikoper']].forEach(([j,t])=>row.append(kkBtn(t,'sm gold3',async e=>{const L=ta.value.trim();if(!L)return;if(!await kkYakin('Kasih tiket?',`${t} ke: ${L}`,'Ya, kirim'))return;e.target.disabled=true;const r=await kkApi('tiket-hadiah',{target:L,jenis:j,n:1},true);e.target.disabled=false;
@@ -3968,7 +3973,7 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
    for(let i=rumah.length-1;i>=0;i--){const h=rumah[i];if(EKS.some(e=>Math.hypot(NK.wx(e.x)-(h.x+T*.7),NK.wx(e.y)-(h.y+T*.55))<T*1.6))rumah.splice(i,1)}}
   // markas Jasa Pindahan: 🚚 Omah Titut (dekat gerbang) & 🚁 Sarang Helikoper (dekat waduk)
   const OT={x:E.x0+T*49,y:jalanY-T*7.2,w:T*6.4,h:T*4.4},SH={x:wd.x-wd.rx-T*7,y:wd.y+wd.ry*.55,r:T*3.4};
-  const MTI={x:E.x0+T*31,y:jalanY-T*12,w:T*3.4,h:T*2.6};
+  const MTI={x:gate.x+T*8.1-T*.8,y:jalanY+T*1.5,w:T*1.6,h:T*1.6}; // bentuknya seperti Tugu Genteng, di pinggir jalan desa
   for(let i=rumah.length-1;i>=0;i--){const h=rumah[i];if(h.x+T*1.4>OT.x-T*1.2&&h.x<OT.x+OT.w+T*1.2&&h.y+T*1.1>OT.y-T*1.6&&h.y<OT.y+OT.h+T*.6)rumah.splice(i,1)}
   STD.w=T*16;STD.h=T*10;STD.x=E.x0+T*6;STD.y=jalanY+T*5;
   const sawah={x:E.x0+T*4,y:STD.y+STD.h+T*5,cols:14,rows:10,w:T*2.8,h:T*2};
@@ -4089,7 +4094,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
     for(let k=0;k<4;k++)H.kambing(S.x+W2+T*(2+hs(k+80)*3),S.y+H2*(.2+hs(k+90)*.6),t,hs(k+100));
     for(let k=0;k<2;k++){const sp=W2+T*8,px=S.x-T*4+(((t*20+k*500)%sp)+sp)%sp,py=S.y+H2*(.3+k*.4);for(let j=0;j<5;j++)H.burungTerbang(px-Math.abs(j-2)*9,py+(j-2)*8,t,k+j)}}}
   // jalan dari kampung ke desa baru + jembatan
-  ctx.strokeStyle='#D9C38E';ctx.lineWidth=T*.95;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.stroke();ctx.strokeStyle='#E8D6A6';ctx.lineWidth=3;ctx.setLineDash([T*.5,T*.4]);ctx.stroke();ctx.setLineDash([]);
+  ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.strokeStyle='#4E5257';ctx.lineWidth=T*1.32;ctx.stroke();ctx.strokeStyle='#5E6368';ctx.lineWidth=T*1.12;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=2;[-1,1].forEach(k=>{ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY+k*T*.48);ctx.lineTo(E.x1+T*6,D.jalanY+k*T*.48);ctx.stroke()});ctx.strokeStyle='#F2C230';ctx.lineWidth=3.5;ctx.setLineDash([T*.6,T*.45]);ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.stroke();ctx.setLineDash([]);ctx.lineCap='round';
   {const s1=D.sungai1;const bx=s1[1][0]-T*.2;ctx.fillStyle='#8A5A2E';ctx.fillRect(bx-T*1.6,D.jalanY-T*.8,T*3.2,T*1.6);ctx.fillStyle='#A8743F';for(let i=0;i<9;i++)ctx.fillRect(bx-T*1.5+i*T*.36,D.jalanY-T*.8,T*.22,T*1.6)}
   // pohon
   D.trees.forEach(o=>{if(!vis(o.x,o.y,T))return;const s=o.s;if(o.k){ctx.fillStyle='#2A5E36';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x-T*.35*s,o.y+T*.3*s);ctx.closePath();ctx.fill();ctx.fillStyle='#357042';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.6*s);ctx.lineTo(o.x+T*.35*s,o.y+T*.3*s);ctx.lineTo(o.x,o.y+T*.3*s);ctx.closePath();ctx.fill()}

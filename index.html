@@ -401,8 +401,7 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 .mapbox.fs #gfxbar{position:absolute;z-index:5;left:calc(12px + env(safe-area-inset-left,0px));top:calc(54px + env(safe-area-inset-top,0px));margin:0;justify-content:flex-start;background:rgba(255,255,255,.92);border:2px solid #1C2520;border-radius:12px;padding:5px 8px;max-width:calc(100% - 24px)}
 .mapbox.fs #result{position:absolute;z-index:6;left:calc(10px + env(safe-area-inset-left,0px));right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));max-height:46%;overflow:auto;margin:0;box-shadow:0 6px 0 rgba(0,0,0,.25)}
 /* layar penuh: sembunyikan isi halaman lain (dulu kalender/statistik ikut nongol di atas peta), popup tetap tampil */
-html.peta-fs body{visibility:hidden}
-html.peta-fs .mapbox.fs,html.peta-fs .mapbox.fs *,html.peta-fs .v3,html.peta-fs .v3 *,html.peta-fs .kk,html.peta-fs .kk *,html.peta-fs .kk-yakin,html.peta-fs .kk-yakin *,html.peta-fs .gento-pop,html.peta-fs .gento-pop *,html.peta-fs .toast,html.peta-fs .saldo-pop,html.peta-fs .saldo-pop *,html.peta-fs .pdh-bar,html.peta-fs .pdh-bar *{visibility:visible}
+.fs-hide{visibility:hidden!important}
 .mapbox.fs .hint{display:none!important}
 @media (min-width:700px){.mapbox.fs #result{right:auto;width:440px;max-width:calc(100% - 24px)}.mapbox.fs #result .acts{width:100%}}
 .result .acts>.btn{flex:1 1 0;min-width:0;white-space:nowrap;padding-left:10px;padding-right:10px;justify-content:center;text-align:center}
@@ -2323,7 +2322,9 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
 }
 $('zin').onclick=()=>zoomAt(cw/2,ch/2,1.5);$('zout').onclick=()=>zoomAt(cw/2,ch/2,1/1.5);
 /* ⛶ layar penuh: peta memenuhi layar (pakai Fullscreen API kalau ada, selalu juga mode CSS supaya jalan di browser IG/iPhone) */
-{const mb=document.querySelector('.mapbox'),fb=$('zfull');const gb=$('gfxbar'),gbHome=gb&&gb.parentNode,gbNext=gb&&gb.nextSibling,rs=$('result'),rsHome=rs&&rs.parentNode,rsNext=rs&&rs.nextSibling;const set=on=>{window.__KEEPCAM=1;if(gb){if(on)mb.append(gb);else if(gbHome)gbHome.insertBefore(gb,gbNext)}if(rs){if(on)mb.append(rs);else if(rsHome)rsHome.insertBefore(rs,rsNext)}mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
+{const mb=document.querySelector('.mapbox'),fb=$('zfull');const gb=$('gfxbar'),gbHome=gb&&gb.parentNode,gbNext=gb&&gb.nextSibling,rs=$('result'),rsHome=rs&&rs.parentNode,rsNext=rs&&rs.nextSibling;const sembunyi=on=>{document.querySelectorAll('.fs-hide').forEach(x=>x.classList.remove('fs-hide'));if(!on)return; // sembunyikan isi halaman (yang tidak melayang) di sekitar peta; semua popup/modal (posisi fixed) tetap tampil
+    for(let n=mb;n&&n!==document.body;n=n.parentElement){for(const s of n.parentElement.children){if(s===n||s.tagName==='SCRIPT'||s.tagName==='STYLE')continue;const ps=getComputedStyle(s).position;if(ps!=='fixed')s.classList.add('fs-hide')}}};
+  const set=on=>{window.__KEEPCAM=1;sembunyi(on);if(gb){if(on)mb.append(gb);else if(gbHome)gbHome.insertBefore(gb,gbNext)}if(rs){if(on)mb.append(rs);else if(rsHome)rsHome.insertBefore(rs,rsNext)}mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
   fb.onclick=async()=>{const on=!mb.classList.contains('fs');set(on);try{if(on){const de=document.documentElement;if(de.requestFullscreen)await de.requestFullscreen()} /* seluruh halaman yang fullscreen (bukan cuma peta), supaya popup rumah/3D/kartu tetap tampil di atasnya */else if(document.fullscreenElement)await document.exitFullscreen()}catch(e){}};
   document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&mb.classList.contains('fs'))set(false)});
   addEventListener('keydown',e=>{if(e.key==='Escape'&&mb.classList.contains('fs')&&!document.fullscreenElement)set(false)})}

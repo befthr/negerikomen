@@ -1426,9 +1426,9 @@ let ITEM_T=0,ITEM_HZ=true,ITEM_DIAM=false; // waktu animasi item pekarangan
 // langit: awan berarak (bayangannya jatuh ke tanah) + sesekali pesawat lewat bawa spanduk
 function drawLangit(v,t){const {W,H,z,ox,oy}=v,dp=window.devicePixelRatio||1,zw=z/dp,al=zw<.45?1:zw>1.5?.12:1-(zw-.45)/1.05*.88;
   ctx.setTransform(z,0,0,z,ox,oy);const vx0=-ox/z,vx1=(W-ox)/z,vy0=-oy/z,vy1=(H-oy)/z,G=T*24;
-  for(let gx=Math.floor((vx0-G)/G);gx<=Math.ceil((vx1+G)/G);gx++)for(let gy=Math.floor((vy0-G)/G);gy<=Math.ceil(vy1/G);gy++){if(ih(gx,gy,901)>.55)continue;
+  for(let gx=Math.floor((vx0-G)/G);gx<=Math.ceil((vx1+G)/G);gx++)for(let gy=Math.floor((vy0-G)/G);gy<=Math.ceil(vy1/G);gy++){if(ih(gx,gy,901)>.25)continue; // awan dikurangi (dulu .55)
     const cx=gx*G+((ih(gx,gy,903)*G+t*7)%G),cy=gy*G+ih(gx,gy,905)*G,sc=.8+ih(gx,gy,907)*.9,blob=(dx,dy,col,a)=>{ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();[[0,0,1],[-.9,.15,.72],[.95,.12,.78],[-.35,-.45,.7],[.45,-.38,.66]].forEach(([a2,b,r])=>{const X=cx+dx+a2*T*2.6*sc,Y=cy+dy+b*T*2.2*sc,R=r*T*2.4*sc;ctx.moveTo(X+R,Y);ctx.arc(X,Y,R,0,6.2832)});ctx.fill()};
-    blob(T*5,T*6,'#1C2520',.07*al);blob(0,0,'#FFFFFF',.5*al)}
+    blob(T*5,T*6,'#1C2520',.06*al);blob(0,0,'#FFFFFF',.42*al)}
   ctx.globalAlpha=1;
   // pesawat: tiap 150 detik lewat 22 detik di atas kampung (koordinat dunia, ikut digeser/di-zoom seperti benda lain)
   const per=150,tg=Date.now()/1000,ph=((tg%per)+per)%per;if(ph<22){const k=ph/22,lap=Math.floor(tg/per),X0=-S*T*14,X1=S*T*16,px=X0+k*(X1-X0),py=((lap%5)-2)*S*T*2.4+Math.sin(k*3)*T,u=T/14;

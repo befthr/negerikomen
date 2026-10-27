@@ -3095,7 +3095,22 @@ window.NK_DATA = {
   { "name": "444kiil", "x": 77, "y": 80, "day": 9, "nick": "Aqil", "roof": "biru", "wall": "abu-abu" },
   { "name": "kialucukk", "x": 2, "y": 65, "day": 9, "roof": "merah muda", "wall": "merah muda" },
   { "name": "ini.aliza_ghania", "x": 7, "y": 74, "day": 9, "nick": "Aliza", "roof": "merah muda", "wall": "hitam" },
-  { "name": "sabeyubix", "x": 70, "y": 86, "day": 9, "nick": "Mateyubz", "roof": "oranye", "wall": "putih" }
+  { "name": "sabeyubix", "x": 70, "y": 86, "day": 9, "nick": "Mateyubz", "roof": "oranye", "wall": "putih" },
+  { "name": "fahmiherian", "x": 82, "y": 77, "day": 9, "nick": "Fahmi", "roof": "biru", "wall": "putih" },
+  { "name": "ozi_e19", "x": 83, "y": 76, "day": 9, "nick": "ozyy", "roof": "biru", "wall": "putih" },
+  { "name": "draka_rfdaop1", "x": 82, "y": 78, "day": 9, "wall": "merah" },
+  { "name": "ilo_15100", "x": 82, "y": 76, "day": 9 },
+  { "name": "qidgesaesar23", "x": 84, "y": 76, "day": 9, "nick": "Qidges", "roof": "biru", "wall": "hitam" },
+  { "name": "keanu4rchive", "x": 85, "y": 76, "day": 9, "nick": "Keanu", "roof": "merah", "wall": "putih" },
+  { "name": "difa_nanad", "x": 82, "y": 79, "day": 9 },
+  { "name": "satria_gantekkk", "x": 82, "y": 80, "day": 9 },
+  { "name": "hmrra.mr", "x": 83, "y": 80, "day": 9, "nick": "humaira", "roof": "biru", "wall": "putih" },
+  { "name": "muhammadaffanp.w", "x": 86, "y": 77, "day": 9, "nick": "Affan", "roof": "biru", "wall": "putih" },
+  { "name": "rell_iaaaaa", "x": 86, "y": 76, "day": 9, "nick": "aurel", "roof": "merah muda", "wall": "hijau muda" },
+  { "name": "ferdy_261228", "x": 84, "y": 80, "day": 9, "nick": "Fredy", "roof": "biru", "wall": "abu-abu" },
+  { "name": "mohamadadityalisar", "x": 86, "y": 79, "day": 9, "roof": "merah", "wall": "putih" },
+  { "name": "hanikfauzihidayah", "x": 86, "y": 78, "day": 9 },
+  { "name": "azkay_99", "x": 85, "y": 80, "day": 9 }
  ],
  "buildings": [
   { "type": "posronda", "name": "Pos Ronda", "by": "negerikomen", "day": 1, "x": 44, "y": 46, "w": 1, "staff": [{"user":"muhhusainalfathaly_","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"},{"user":"mandre.js","role":"Satpam","sejak":"2026-10-24","until":"2026-11-23"}] },

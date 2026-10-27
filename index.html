@@ -2383,8 +2383,8 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     try{if(!(window.NK_DATA&&window.NK_DATA.reaksi===false))left.append(reaksiBox(r))}catch(e){console.error(e)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(r,s.i);acts.append(v3);
     if(Array.isArray(r.items)&&r.items.slice(0,3).some(o=>o.id==='robot')){const me=(kkGet()||{}).u===String(r.name).toLowerCase();if(me){const jb=el('button','btn gold3','🤖 Jalan-jalan pakai GENTO');jb.type='button';jb.onclick=()=>{select({kind:'r',i:s.i},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(s.i,'robot');scrollMap()};acts.append(jb)}}
-    const cp=el('button','btn dark','Salin link rumahku');cp.type='button';
-    cp.onclick=()=>copy(location.origin+location.pathname+'#'+encodeURIComponent(r.name));acts.append(cp);
+    const cp=el('button','btn dark','🔗 Share');cp.type='button';cp.title='Bagikan link rumah ini';
+    cp.onclick=async()=>{const url=location.origin+location.pathname+'#'+encodeURIComponent(r.name);if(navigator.share){try{await navigator.share({title:'Rumah @'+r.name+' di Negeri Komen',url});return}catch(e){if(e&&e.name==='AbortError')return}}copy(url)};acts.append(cp);
     if(KK_ON){const mine=(kkGet()||{}).u===String(r.name).toLowerCase();const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kamu':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka(r.name);acts.append(kb)}
     BLD.forEach(b=>{const w=(window.LOWONGAN||{})[bKey(b)];if(bossOf(b)===r.name&&w&&w.pelamar&&(kkGet()||{}).u===r.name){const pb=el('button','btn gold3','📝 '+w.pelamar+' pelamar di '+(b.name||'bangunanmu'));pb.type='button';pb.onclick=()=>kkBuka(r.name);acts.append(pb)}});
     BLD.forEach(b=>{if(bossOf(b)===r.name&&(kkGet()||{}).u!==r.name&&(window.LOWONGAN||{})[bKey(b)]){const lb=el('button','btn gold3','📝 Lamar kerja di '+(b.name||'sini'));lb.type='button';lb.onclick=()=>kkLamar(b);acts.append(lb)}})}

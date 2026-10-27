@@ -27,7 +27,8 @@
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
 import { terapkan, bolehOtomatis } from './_terapkan.js';
-import { EKS } from './_kavling.js';
+import { EKS, DK } from './_kavling.js';
+const DKS = new Set(DK.map(([x, y]) => x + ',' + y)); // kavling biasa Desa Komen-Komen Sejahtera
 // ===== Jasa Pindahan Pak Kades =====
 const PINDAH = { truk: { harga: 3, dur: 1800 }, heli: { harga: 8, dur: 180 } }; // Truk Titut 30 mnt (kavling biasa) · Helikoper 3 mnt (khusus kavling eksklusif)
 const JEDA_PINDAH = 7 * 864e2; // boleh pindah lagi setelah 7 hari
@@ -708,13 +709,13 @@ export default async function handler(req, res) {
       const r = warga(D, s.u); if (!r) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa pindah.' });
       const tk = await tiketKu(s.u); if (tk[j] < 1) return res.status(400).json({ error: 'Kamu belum punya tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') + '.' });
       const cd = +(await kv(['PTTL', 'pindah:cd:' + s.u])) || 0; if (cd > 0) return res.status(400).json({ error: 'Kamu baru pindah. Bisa pindah lagi ' + Math.ceil(cd / 864e5) + ' hari lagi.' });
-      const ek = eksDi(x, y); if (j === 'heli' ? !ek : !(diJalurK(x, y) || kavKampung(D, x, y))) return res.status(400).json({ error: j === 'truk' && ek ? 'Kavling eksklusif cuma bisa didatangi Helikoper.' : j === 'heli' ? 'Helikoper khusus ke kavling eksklusif.' : 'Kavling itu tidak bisa dipilih.' });
+      const ek = eksDi(x, y), dk = DKS.has(x + ',' + y); if (j === 'heli' ? !ek : !(diJalurK(x, y) || kavKampung(D, x, y) || dk)) return res.status(400).json({ error: j === 'truk' && ek ? 'Kavling eksklusif cuma bisa didatangi Helikoper.' : j === 'heli' ? 'Helikoper khusus ke kavling eksklusif.' : 'Kavling itu tidak bisa dipilih.' });
       const all = await pindahSemua(), kini = all[s.u] || null, dari = kini ? { x: kini.x, y: kini.y } : { x: r.x, y: r.y };
       const tempati = (D.residents || []).some(o => { const u2 = String(o.name).toLowerCase(), p = all[u2]; return p ? false : o.x === x && o.y === y });
       if (tempati) return res.status(409).json({ error: 'Kavling itu sudah ada rumahnya.' });
       if (!(await kv(['HSETNX', 'kavlock', x + ',' + y, s.u]))) return res.status(409).json({ error: 'Yah, kavling itu baru saja dipesan warga lain. Pilih yang lain ya.' });
       const after = await kv(['HINCRBY', 'tiket', s.u + ':' + j, -1]); if (after < 0) { await kvMany([['HINCRBY', 'tiket', s.u + ':' + j, 1], ['HDEL', 'kavlock', x + ',' + y]]); return res.status(400).json({ error: 'Tiket tidak cukup.' }) }
-      const v = { x, y, lok: ek ? ek.lok : null, via: j, at: Date.now(), dur: P.dur, dari, lokDari: kini ? kini.lok || null : null };
+      const v = { x, y, lok: ek ? ek.lok : dk ? 'desa' : null, via: j, at: Date.now(), dur: P.dur, dari, lokDari: kini ? kini.lok || null : null };
       const cmds = [['HSET', 'pindah', s.u, JSON.stringify(v)], ['SET', 'pindah:cd:' + s.u, '1', 'PX', JEDA_PINDAH * 1000], ['LPUSH', 'pindah:log', JSON.stringify({ u: s.u, via: j, lok: v.lok, dari, x, y, at: v.at })], ['LTRIM', 'pindah:log', 0, 49]];
       if (kini) cmds.push(['HDEL', 'kavlock', kini.x + ',' + kini.y]);
       await kvMany(cmds);

@@ -36,6 +36,12 @@ const md = (a, m) => ((a % m) + m) % m;
 function diJalurK(x, y) { const bx = Math.floor((x - KC) / KS), by = Math.floor((y - KC) / KS); if (bx < JALUR_K.bx0 || bx > JALUR_K.bx1 || by < JALUR_K.by0 || by > JALUR_K.by1) return false;
   const lx = md(x - KC, KS), ly = md(y - KC, KS); return lx >= 1 && lx <= 5 && ly >= 1 && ly <= 5 && (lx === 1 || lx === 5 || ly === 1 || ly === 5) }
 const eksDi = (x, y) => EKS.find(e => e.x === x && e.y === y) || null;
+// kavling kosong di Desa Awalkomen (dusun 1–4): pola kavling sama dengan PLOTS di index.html, hanya di blok yang sudah berpenghuni
+const KN = 91, KRES = new Set(['46,46', '44,46', '46,44', '44,44']); [[47, 41], [41, 47]].forEach(([x0, y0]) => { for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) KRES.add((x0 + i) + ',' + (y0 + j)) });
+function kavKampung(D, x, y) { if (x < 1 || y < 1 || x > KN - 2 || y > KN - 2) return false; const lx = md(x - KC, KS), ly = md(y - KC, KS); if (lx === 0 || ly === 0) return false;
+  if (!(lx === 1 || lx === 5 || ly === 1 || ly === 5)) return false; if (Math.max(Math.abs(x - KC), Math.abs(y - KC)) > 43 || KRES.has(x + ',' + y)) return false;
+  const bx = Math.floor((x - KC) / KS), by = Math.floor((y - KC) / KS); if (!(D.residents || []).some(r => Math.floor((r.x - KC) / KS) === bx && Math.floor((r.y - KC) / KS) === by)) return false;
+  return !(D.buildings || []).some(b => { const w = b.w || 3; return x >= b.x && x < b.x + w && y >= b.y && y < b.y + w }) }
 async function pindahSemua() { const a = await kv(['HGETALL', 'pindah']) || [], o = {}; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o[a[i]] = v } return o }
 // ===== Reaksi Rumah + Buku Tamu + Tetangga Idaman =====
 const RX = { mantap: 1, genteng: 2, tetangga: 3 }; // poin mingguan Tetangga Idaman
@@ -702,7 +708,7 @@ export default async function handler(req, res) {
       const r = warga(D, s.u); if (!r) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa pindah.' });
       const tk = await tiketKu(s.u); if (tk[j] < 1) return res.status(400).json({ error: 'Kamu belum punya tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') + '.' });
       const cd = +(await kv(['PTTL', 'pindah:cd:' + s.u])) || 0; if (cd > 0) return res.status(400).json({ error: 'Kamu baru pindah. Bisa pindah lagi ' + Math.ceil(cd / 864e5) + ' hari lagi.' });
-      const ek = eksDi(x, y); if (j === 'heli' ? !ek : !diJalurK(x, y)) return res.status(400).json({ error: j === 'truk' && ek ? 'Kavling eksklusif cuma bisa didatangi Helikoper.' : j === 'heli' ? 'Helikoper khusus ke kavling eksklusif.' : 'Kavling itu tidak bisa dipilih.' });
+      const ek = eksDi(x, y); if (j === 'heli' ? !ek : !(diJalurK(x, y) || kavKampung(D, x, y))) return res.status(400).json({ error: j === 'truk' && ek ? 'Kavling eksklusif cuma bisa didatangi Helikoper.' : j === 'heli' ? 'Helikoper khusus ke kavling eksklusif.' : 'Kavling itu tidak bisa dipilih.' });
       const all = await pindahSemua(), kini = all[s.u] || null, dari = kini ? { x: kini.x, y: kini.y } : { x: r.x, y: r.y };
       const tempati = (D.residents || []).some(o => { const u2 = String(o.name).toLowerCase(), p = all[u2]; return p ? false : o.x === x && o.y === y });
       if (tempati) return res.status(409).json({ error: 'Kavling itu sudah ada rumahnya.' });

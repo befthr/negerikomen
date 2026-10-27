@@ -3634,7 +3634,9 @@ function mulaiPilih(jenis,u){const list=kavBebas(jenis);if(!list.length){toast('
   scrollMap();const xs=list.map(p=>NK.wx(p.x)),ys=list.map(p=>NK.wx(p.y)),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
   flyTo({cx:(x0+x1)/2,cy:(y0+y1)/2,zoom:clampZ(Math.min(cw/(x1-x0+T*8),ch/(y1-y0+T*8))*.85)},900)}
 async function pilihKavling(p){const P=PDH[PILIH.jenis],jenis=PILIH.jenis;const tujuan=p.lok?`${LOKP[p.lok].ic} ${LOKP[p.lok].n} (💎 eksklusif)`:'📍 Jalur Senja Awan, Dusun Senja Awan';
-  if(!await kkYakin('Pindah ke sini?',`${tujuan}\n${P.ic} ${P.n} · ${P.wkt} perjalanan · pakai 1 tiket.\nRumah lamamu jadi kavling kosong. Pindahan ini permanen, bisa pindah lagi 7 hari lagi.`,'Ya, berangkat!'))return;
+  const BEN={pantai:['🏝️ Rumah di atas pasir, menghadap laut','🌴 Pohon kelapa + hammock','🌅 Senja jingga tiap sore (17.30–18.15)','🏠 3D: setengah pasir, setengah laut'],waduk:['⚓ Dermaga kayu pribadi','🚣 Perahu pribadi warna gentengmu','🏠 3D: rumput + air waduk + dermaga'],gunung:['🍵 Kebun teh pribadi','🏔️ Pemandangan paling tinggi di desa','🏠 3D: kebun teh + gunung bersalju'],gerbang:['🪧 Baliho "Selamat datang! — @namamu"','👀 Dilewati semua yang masuk desa baru','🏠 3D: halaman paving + baliho']};
+  const ben=p.lok?['✨ Benefit:',...BEN[p.lok].map(x=>'• '+x),'• 🏅 Lencana Warga Eksklusif']:['✨ Kavling di jalur menuju Pantai Senja, Dusun Senja Awan'];
+  if(!await kkYakin('Pindah ke sini?',`${tujuan}\n\n${ben.join('\n')}\n\n${P.ic} ${P.n} · ${P.wkt} perjalanan · pakai 1 tiket.\nRumah lamamu jadi kavling kosong. Pindahan ini permanen, bisa pindah lagi 7 hari lagi.`,'Ya, berangkat!'))return;
   const r=await kkApi('pindah',{jenis,x:p.x,y:p.y},true);if(!r.ok){toast(r.error||'Gagal');if(/dipesan|ada rumahnya/.test(r.error||'')){PILIH.list=PILIH.list.filter(q=>!(q.x===p.x&&q.y===p.y));dirty=true}return}
   const u=PILIH.u;PILIH=null;const bar=$('pdhbar');if(bar)bar.remove();window.PINDAH[u]=r.pindah;pindahTerapkan();SND.play('ting',.9);
   toast(jenis==='heli'?'🚁 Helikoper berangkat jemput rumahmu! 3 menit lagi sampai.':'🚚 Telolet! Truk Titut berangkat jemput rumahmu. 30 menit lagi sampai.');

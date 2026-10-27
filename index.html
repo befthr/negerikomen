@@ -1440,7 +1440,7 @@ function drawRides(res,t){res.forEach(r=>{if(!Array.isArray(r.items))return;r.it
     ctx.scale(2,2);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
     ctx.font='800 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
     const nm='@'+String(r.name).slice(0,18);if(!(window.__SETIR&&window.__SETIR.u===r.name)){ctx.strokeText(nm,0,-11);ctx.fillText(nm,0,-11)}ctx.restore()})})}
-let HC=null;
+let HC=null,GC=null;
 function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const {W,H,z,ox,oy}=v;const anim=o.anim||(()=>({s:1,a:1}));
   ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#B5C85A';ctx.fillRect(0,0,W,H);
@@ -1458,6 +1458,13 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const bx0=Math.floor((tx0-C)/S)-1,bx1=Math.ceil((tx1-C)/S)+1,by0=Math.floor((ty0-C)/S)-1,by1=Math.ceil((ty1-C)/S)+1;
   // jalur kavling bisa lebih panjang dari grid sawah: perluas rentang khusus blok jalur
   const tyE=o.tanpaJalur?ty1:Math.max(ty1,Math.min(C+JALUR.by1*S+S,Math.ceil(vy1/T+C)+1)),by1E=Math.max(by1,Math.ceil((tyE-C)/S)+1);
+  // hemat: saat zoom jauh, tanah/sawah/jalan/pohon/kavling/bangunan digambar sekali ke kanvas cadangan, tiap frame tinggal ditempel
+  const GKC=.3,useG=!o.anim&&!o.noCache&&!o.groundOnly&&!window.__NO_HCACHE&&z<=GKC*1.25&&typeof document!=='undefined';let skipG=false;
+  if(useG){const gx=(N/2+1)*T,gya=-gx-T*14,gyb=(JALUR.by1*S+S+2)*T,key=res.length+'|'+free.length+'|'+bld.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/30000);
+    if(!GC){GC={c:document.createElement('canvas'),key:''};GC.c.width=Math.ceil(2*gx*GKC);GC.c.height=Math.ceil((gyb-gya)*GKC);GC.x=GC.c.getContext('2d')}
+    if(GC.key!==key){const old=ctx;ctx=GC.x;try{drawWorld({W:GC.c.width,H:GC.c.height,z:GKC,ox:gx*GKC,oy:-gya*GKC},w,t,{tanpaJalur:o.tanpaJalur,groundOnly:true})}finally{ctx=old}GC.key=key;ctx.setTransform(z,0,0,z,ox,oy)}
+    ctx.drawImage(GC.c,-gx,gya,2*gx,gyb-gya);skipG=true}
+  if(!skipG){
   for(let bx=bx0;bx<=bx1;bx++)for(let by=by0;by<=by1E;by++){if(by>by1&&!act.has(bx+','+by))continue;
     const x0=bx*S*T+T/2,y0=by*S*T+T/2,s=(S-1)*T;
     if(act.has(bx+','+by)){ctx.fillStyle='#93BE62';ctx.fillRect(x0-T/2,y0-T/2,s+T,s+T);const rd=T*(.3+ih(bx,by,160)*1.1);ctx.fillStyle='#89B65A';ctx.beginPath();ctx.roundRect(x0+T*1.1,y0+T*1.1,s-T*2.2,s-T*2.2,rd);ctx.fill()}
@@ -1468,7 +1475,9 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   for(let q=Math.floor((ty0-C)/S);q<=Math.ceil((ty1-C)/S);q++)if(q*S*T>=gy0-T&&q*S*T<=gy1+T)ctx.fillRect(gx0,q*S*T-T*.18,gx1-gx0,T*.36);
   for(let q=Math.floor((tx0-C)/S);q<=Math.ceil((tx1-C)/S);q++)if(q*S*T>=gx0-T&&q*S*T<=gx1+T)ctx.fillRect(q*S*T-T*.18,gy0,T*.36,gy1-gy0);}
   {let mb=0;act.forEach(k=>{const y=+k.split(',')[1];if(y<mb)mb=y});drawSungai(mb*S*T,vx0,vx1,t||0)}
+  }
   const blocks=[...act].map(k=>k.split(',').map(Number));
+  if(!skipG){
   // ruas jalan (unik), digambar dari yang paling sederhana ke jalan besar; mulut jalan kecil yang bertemu jalan lebih besar dibuat melengkung
   {const seg=new Map();blocks.forEach(([bx,by])=>{[[1,by,bx],[1,by+1,bx],[0,bx,by],[0,bx+1,by]].forEach(([hz,q,sg])=>{const k=hz+','+q+','+sg;if(!seg.has(k))seg.set(k,{hz,q,sg,j:jenisJalan(hz,q,sg)})})});
     const SL=S*T,W={besar:T*1.12,aspal:T*.8,gang:T*.46,tanah:T*.6,rumput:T*.5},COL={besar:'#5E6368',aspal:'#6E7378',gang:'#BDB6A6',tanah:'#B48A5A',rumput:'#A8CC72'};
@@ -1521,6 +1530,8 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   free.forEach((p,i)=>drawKavling(p,1,t,i));
   bld.forEach((b,i)=>{const m=anim('b',i);if(m.a>0)drawBuilding(b,m.s,m.a)});
   drawOwner();
+  }
+  if(o.groundOnly)return blocks;
   const life=!!o.life;
   if(o.vehicles||life){
     const Hr=new Map(),Vr=new Map();
@@ -1597,7 +1608,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   }
   ROBOT_POS=[];window.__ROBOT=ROBOT_POS;PATRO_POS=[];window.__PATRO=PATRO_POS;SOROT_POS=[];window.__SOROT=SOROT_POS;{const MG=T*3,x0=-v.ox/v.z-MG,x1=(v.W-v.ox)/v.z+MG,y0=-v.oy/v.z-MG,y1=(v.H-v.oy)/v.z+MG,EKI={robot:1,patromax:1,sorot:1}; // hemat: rumah di luar layar tidak digambar (kecuali pemilik barang eksklusif, posisinya dipakai fitur lain)
   const dyn=r=>(r.items||[]).some(q=>{const id=q&&q.id||q;return EKI[id]||id==='motor'||id==='sepeda'}); // rumah yang isinya bergerak → selalu digambar langsung
-  const KC=.5,useC=!o.anim&&!o.noCache&&!window.__NO_HCACHE&&z<=KC*1.25&&typeof document!=='undefined';
+  const KC=.3,useC=!o.anim&&!o.noCache&&!window.__NO_HCACHE&&z<=KC*1.25&&typeof document!=='undefined';
   if(useC){ // zoom jauh: semua rumah "diam" digambar sekali ke kanvas cadangan, tiap frame tinggal ditempel (perangkat murah jauh lebih lancar)
     const off=(N/2+1)*T,key=res.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/30000);
     if(!HC){HC={c:document.createElement('canvas'),key:''};HC.c.width=HC.c.height=Math.ceil(2*off*KC);HC.x=HC.c.getContext('2d')}

@@ -392,7 +392,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 #zshare,#lgbtn,#legend{display:none!important} /* disederhanakan: tombol foto & keterangan peta disembunyikan */
 .mapbox .zoom{right:auto;left:12px} /* tombol peta di kiri bawah: tidak ketutup tombol Menu */
 .mapbox .kompas{top:12px}
-.gfxbar button.gsnd{font-size:13px;padding:3px 9px;margin-right:2px}.gfxbar button.gsnd[aria-pressed="true"]{background:#F2C230;border-color:#1C2520}.gfxbar .gsep{width:1px;height:14px;background:#c9c2b0;margin:0 4px}
+.gfxbar button.gsnd{font-size:11.5px;padding:4px 9px;margin-right:0}.gfxbar button.gsnd[aria-pressed="true"]{background:#F2C230;border-color:#1C2520}.gfxbar .gsep{width:1px;height:14px;background:#c9c2b0;margin:0 2px}
 #tagWarga,#tagDay{display:none!important} /* hari & jumlah warga sudah ada di kotak statistik */
 </style>
 </head>
@@ -422,7 +422,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         </div>
         <ul class="sug" id="sug" role="listbox" hidden></ul>
       </div>
-      <div class="gfxbar" id="gfxbar" role="group" aria-label="Pengaturan peta"><button type="button" id="snd" class="snd gsnd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button><span class="gsep"></span><span>⚙️ Grafik</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
+      <div class="gfxbar" id="gfxbar" role="group" aria-label="Pengaturan peta"><button type="button" id="snd" class="snd gsnd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇 Suara</button><span class="gsep"></span><span>⚙️ Grafik</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
       <button type="button" class="jw jw-go" id="jadiWarga" hidden style="display:none"><span>🏠</span><b>Belum punya rumah? Gini cara jadi warga</b><i>↓</i></button>
       <div class="result" id="result" hidden></div>
       <div class="questbar" id="questbar" hidden></div>
@@ -2474,10 +2474,10 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
   return {start,stop,play,kend,naga,ketukNaga,get on(){return on},ok:!!AC}})();
 {const gb=$('gfxbar');if(gb){const tandai=()=>gb.querySelectorAll('button').forEach(b=>{const on=b.dataset.g===GFX;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});tandai();gb.querySelectorAll('button').forEach(b=>b.onclick=()=>{GFX=b.dataset.g;try{localStorage.setItem('nk-gfx',GFX)}catch(e){}try{resize()}catch(e){}dirty=true;tandai();const G=GFX_SET[GFX];toast('⚙️ Grafik peta: '+G.n+' · '+G.d)})}}
 {const b=$('snd');if(!SND.ok)b.hidden=true;
-  const set=v=>{b.textContent=v?'🔊':'🔇';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
+  const set=v=>{b.textContent=v?'🔊 Suara':'🔇 Suara';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
   b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾')}};
   let want=false;try{want=localStorage.getItem('nk-sound')==='1'}catch(e){}
-  if(want){set(false);b.textContent='🔇';const once=e=>{if(e.target===b)return;document.removeEventListener('pointerdown',once,true);if(!SND.on){SND.start();set(true)}};document.addEventListener('pointerdown',once,true)}}
+  if(want){set(false);b.textContent='🔇 Suara';const once=e=>{if(e.target===b)return;document.removeEventListener('pointerdown',once,true);if(!SND.on){SND.start();set(true)}};document.addEventListener('pointerdown',once,true)}}
 
 /* ---------- rumah 3D ---------- */
 let T3=null,v3s=null;

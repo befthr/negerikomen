@@ -395,6 +395,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .gfxbar button.gsnd{font-size:11.5px;padding:4px 9px;margin-right:0}.gfxbar button.gsnd[aria-pressed="true"]{background:#F2C230;border-color:#1C2520}.gfxbar .gsep{width:1px;height:14px;background:#c9c2b0;margin:0 2px}
 #tagWarga,#tagDay{display:none!important} /* hari & jumlah warga sudah ada di kotak statistik */
 .kk-kades{margin-top:14px;border-top:3px dashed #D9C98F;padding-top:12px}.kk-kades-h{display:block;font-size:16px;margin-bottom:8px}.kk-kadestab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.kk-kadestab button{flex:1 1 auto;font-size:13px;padding:7px 10px}.kk-tabp>.kk-admin,.kk-tabp>.kk-kol{margin-bottom:10px}
+.mapbox.fs{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:none!important;border-radius:0!important;border:0!important;margin:0!important;z-index:9000;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);box-sizing:border-box;background:#1C2520}
+html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{display:none!important}
+.mapbox.fs .zoom{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 </style>
 </head>
 <body>
@@ -437,6 +440,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
           <button type="button" id="zin" aria-label="Perbesar">+</button>
           <button type="button" id="zout" aria-label="Perkecil">−</button>
           <button type="button" class="home" id="zhome" aria-label="Lihat seluruh kampung">⌂</button>
+          <button type="button" id="zfull" aria-label="Layar penuh" title="Layar penuh">⛶</button>
         </div>
       </div>
     </div>
@@ -2302,6 +2306,11 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   else{const [jbx,jby]=NK.blockOf(tx,ty),lx=NK.mod(tx-C,S),ly=NK.mod(ty-C,S);if(NK.diJalur(jbx,jby)&&lx&&ly&&(lx===1||lx===5||ly===1||ly===5)&&!RES.some(r=>r.x===tx&&r.y===ty))toast('🏖️ Kavling jalur Senja Awan · tujuan 🚚 Truk Titut. Ketuk Omah Titut di gerbang desa baru buat pindah ke sini!')}
 }
 $('zin').onclick=()=>zoomAt(cw/2,ch/2,1.5);$('zout').onclick=()=>zoomAt(cw/2,ch/2,1/1.5);
+/* ⛶ layar penuh: peta memenuhi layar (pakai Fullscreen API kalau ada, selalu juga mode CSS supaya jalan di browser IG/iPhone) */
+{const mb=document.querySelector('.mapbox'),fb=$('zfull');const set=on=>{window.__KEEPCAM=1;mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
+  fb.onclick=async()=>{const on=!mb.classList.contains('fs');set(on);try{if(on){if(mb.requestFullscreen)await mb.requestFullscreen()}else if(document.fullscreenElement)await document.exitFullscreen()}catch(e){}};
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&mb.classList.contains('fs'))set(false)});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&mb.classList.contains('fs')&&!document.fullscreenElement)set(false)})}
 $('zhome').onclick=()=>{sel=null;$('result').hidden=true;flyTo(homeView(),700);try{history.replaceState(null,'',location.pathname)}catch(e){}};
 let hintGone=false;function hideHint(){if(!hintGone){hintGone=true;$('hint').hidden=true}}
 
@@ -4849,7 +4858,7 @@ if(TT_ITEMS.length){$('tancap').hidden=false;
 {const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0)RES[j].juragan=true}
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
-new ResizeObserver(()=>{const keep={...cam};resize();if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);
+new ResizeObserver(()=>{const keep={...cam};resize();if(window.__KEEPCAM){Object.assign(cam,keep);window.__KEEPCAM=0}else if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);
 function fromLink(){let q='';try{q=decodeURIComponent(location.hash.slice(1))}catch(e){}
   if(/^kartu=/.test(q)){KK_ON=true;kkPublik();kkTerimaLink(q.slice(6));return}
   if(!q){const u=new URLSearchParams(location.search);q=u.get('cari')||''}

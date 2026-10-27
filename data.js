@@ -35,6 +35,8 @@ window.NK_DATA = {
  "setir": true,
  "gento": true,
  "gentoMain": true,
+ "pindahan": false,
+ "reaksi": false,
  "gaji": { "default": 2, "warung": 2, "satpam": 2, "bakso": 2, "padang": 2, "marbot": 2, "proyek": 2 },
  "dusun": [{"nama":"SukaMaju","oleh":"zildjian.video"}, {"nama":"Perjuangan","oleh":"_kykoo.12"}, {"nama":"Senja Awan","oleh":"4hmad_3devc"}, {"nama":"dimsumentaii","oleh":"eriinvm_"}, {"nama":"Rosavelle","oleh":"dainosssss"}],
  "residents": [

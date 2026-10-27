@@ -3116,7 +3116,7 @@ async function qa9Api(aksi,b){await new Promise(z=>setTimeout(z,250));const ok=x
     const o=QS.rx[t]||(QS.rx[t]={n:{mantap:0,genteng:0,tetangga:0},tamu:0,buku:[]});o.n[b.r]++;o.tamu++;o.buku.unshift({u:'lembarpeta',r:b.r,pesan:p||null,at:Date.now()});QS.rxSudah[t]=b.r;
     const I=window.IDAMAN;const k=I.findIndex(x=>x.u===t);if(k>=0)I[k].poin+=RXD[b.r].p;else I.push({u:t,poin:RXD[b.r].p});I.sort((a,c)=>c.poin-a.poin);window.IDAMAN=I.slice(0,3);renderIdaman();return {ok:true}}
   return no('(mode uji) aksi '+aksi+' tidak disimulasikan')}
-function qaRxInfo(u){const o=QS.rx[u]||{n:{mantap:2,genteng:1,tetangga:1},tamu:3,buku:[{u:'ryukaarvellacevana',r:'tetangga',pesan:'Mau dong tetanggaan sama kamu!',at:Date.now()-3e5},{u:'scnydpi',r:'genteng',pesan:'Gentengnya cakep bang',at:Date.now()-9e5},{u:'dhafageka',r:'mantap',pesan:null,at:Date.now()-2e6}]};QS.rx[u]=o;return {...o,sudah:QS.rxSudah[u]||null}}
+function qaRxInfo(u){const o=QS.rx[u]||{n:{mantap:1,genteng:1,tetangga:1},tamu:3,buku:[{u:'alvaro.kenzie.a',r:'tetangga',pesan:'Mau dong tetanggaan sama kamu!',at:Date.now()-3e5},{u:'scnydpi',r:'genteng',pesan:'Gentengnya cakep bang',at:Date.now()-9e5},{u:'dhafageka',r:'mantap',pesan:null,at:Date.now()-2e6}]};QS.rx[u]=o;return {...o,sudah:QS.rxSudah[u]||null}}
 function kkGet(){if(BOS_QA()||QA9)return {u:'lembarpeta',t:'qa-simulasi'};try{return JSON.parse(localStorage.getItem('nk_kartu')||'null')}catch(e){return null}}
 function kkSet(v){try{v?localStorage.setItem('nk_kartu',JSON.stringify(v)):localStorage.removeItem('nk_kartu')}catch(e){}}
 // ===== mode simulasi bos (link #bos-qa): coba jadi bos yang buka lowongan, terima/tolak pelamar, kirim bonus. Semua cuma di perangkat ini, tidak ke server.

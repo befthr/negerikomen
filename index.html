@@ -409,6 +409,11 @@ html.peta-fs .mapbox.fs,html.peta-fs .mapbox.fs *,html.peta-fs .v3,html.peta-fs 
 /* kartu info rumah: garis putus-putus pemisah antar kategori (identitas · lokasi · lencana · barang/skill · reaksi · tombol) */
 #result>div:first-child>:is(.lokasi,.badges,.promo,.rx):not(.promo+.promo){border-top:1.5px dashed var(--line);padding-top:8px;margin-top:8px}
 #result>.acts{border-top:1.5px dashed var(--line);padding-top:10px}
+/* kartu info rumah (tampilan biasa & layar penuh): satu kolom, garis & tombol selebar kartu */
+#result{flex-direction:column!important;align-items:stretch!important;flex-wrap:nowrap!important}
+#result>div:first-child{width:100%;min-width:0}
+#result>.acts{width:100%;flex-wrap:nowrap}
+#result>.acts>.btn{max-width:220px}
 </style>
 </head>
 <body>

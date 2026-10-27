@@ -3720,6 +3720,9 @@ function nagaJalurDasar(s){const H=nagaRumah();if(!H){const P=nagaTiang();if(!P)
   const r0=w-k*LEG,A=orbit(spot(k-1),k?T*3:T*3.2,k?k-1:0),B=orbit(spot(k),T*3,k);return r0<FLY?mix(A,B,ease(r0/FLY)):B}
 // posisi dengan sembur: menukik ke rumah target, melayang, lalu kembali
 function nagaSemburAktif(ms){return (window.NAGA_SEMBUR||[]).find(e=>ms>=e.at&&ms<e.at+NG_DUR*1000)||null}
+// hemat: posisi naga di titik waktu kisi 0,03 dtk disimpan (jejak badan & anak naga memakai ribuan titik lampau tiap frame → dulu ±250 ms/frame di HP)
+const NPG=new Map();let NPG_SIG='';function nagaPosG(g){const M=window.NAGA_MODE,sig=(window.NAGA_OWNER||'')+'|'+(M?M.m+M.at:'')+'|'+(window.NAGA_SEMBUR||[]).map(e=>e.at).join(',')+'|'+(window.__HCV||0)+'|'+(Date.now()<NAGA_SIM?1:0);
+  if(sig!==NPG_SIG){NPG.clear();NPG_SIG=sig}let v=NPG.get(g);if(v===undefined){v=nagaPos(g*.03);NPG.set(g,v);if(NPG.size>40000){let n=0;for(const k of NPG.keys()){NPG.delete(k);if(++n>10000)break}}}return v}
 function nagaPos(s){const p=nagaJalur(s);if(!p)return null;const E=nagaSemburAktif(s*1000);if(!E)return p;const i=kkResIdx(E.t);if(i<0)return p;
   const q=(s*1000-E.at)/1000,X=NK.wx(RES[i].x),Y=NK.wx(RES[i].y)-T*2.6,eo=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,w=q<1.6?eo(q/1.6):q>6.4?1-eo(Math.min(1,(q-6.4)/1.6)):1;
   return {x:p.x+(X+Math.sin(q*2.2)*T*1.2-p.x)*w,y:p.y+(Y+Math.cos(q*1.7)*T*.5-p.y)*w}}
@@ -3778,7 +3781,7 @@ let NAGA_PT=null;
 function drawNaga(v,t){if(!STQA||!NAGA_ON())return;const P0=nagaTiang();if(!P0){NAGA_PT=null;return}ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);
   const ms=Date.now(),s=ms/1000,n=(()=>{try{return malamNow().n||0}catch(e){return 0}})(),milik=!!nagaRumah(),E=nagaSemburAktif(ms);
   // jejak berdasarkan jarak (bukan waktu) → ruas rapi berapa pun kecepatannya
-  const jejak=(skip,sp,cnt,wob)=>{const L=[];let q=s,a=nagaPos(q);if(!a)return L;let acc=0,want=skip;for(let k=0;k<3000&&L.length<cnt;k++){if(acc>=want){L.push([a.x+(wob?Math.sin(s*3+L.length*.8+wob)*T*.3:0),a.y+(wob?Math.cos(s*2.4+L.length*.6+wob)*T*.25:0)]);want+=sp;continue}q-=.03;const b=nagaPos(q);if(!b)break;acc+=Math.hypot(b.x-a.x,b.y-a.y);a=b}return L};
+  const jejak=(skip,sp,cnt,wob)=>{const L=[];let a=nagaPos(s);if(!a)return L;let acc=0,want=skip,g=Math.floor(s/.03);for(let k=0;k<3000&&L.length<cnt;k++){if(acc>=want){L.push([a.x+(wob?Math.sin(s*3+L.length*.8+wob)*T*.3:0),a.y+(wob?Math.cos(s*2.4+L.length*.6+wob)*T*.25:0)]);want+=sp;continue}const b=nagaPosG(g--);if(!b)break;acc+=Math.hypot(b.x-a.x,b.y-a.y);a=b}return L};
   const SC=.8,SP=T*.5*SC,P=jejak(0,SP,NG_SEG,0);if(P.length<2)return;NAGA_PT={x:P[0][0],y:P[0][1],milik};if(Date.now()<NAGA_IKUT){cam.cx+=(P[0][0]-cam.cx)*.08;cam.cy+=(P[0][1]-cam.cy)*.08;dirty=true}
   // benang: ke tiang (belum dimiliki) / ke rumah pemilik kalau dekat
   {const H=milik?nagaRumah():{x:P0.x,y:P0.y-T*2.6};const [bx,by]=P[3]||P[1],d=Math.hypot(bx-H.x,by-H.y);if(!milik||d<T*16){ctx.strokeStyle=`rgba(70,55,40,${milik?Math.max(0,.55-d/(T*30)):.6})`;ctx.lineWidth=1.4;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(H.x,H.y);ctx.quadraticCurveTo((H.x+bx)/2+T,(H.y+by)/2+T*1.5,bx,by);ctx.stroke();ctx.setLineDash([])}}

@@ -45,6 +45,7 @@ function kavKampung(D, x, y) { if (x < 1 || y < 1 || x > KN - 2 || y > KN - 2) r
   return !(D.buildings || []).some(b => { const w = b.w || 3; return x >= b.x && x < b.x + w && y >= b.y && y < b.y + w }) }
 async function pindahSemua() { const a = await kv(['HGETALL', 'pindah']) || [], o = {}; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o[a[i]] = v } return o }
 // ===== Reaksi Rumah + Buku Tamu + Tetangga Idaman =====
+const RXP = 'rx:'; // awalan kunci reaksi. Ganti saat rilis = semua reaksi & ranking mulai dari nol (data tes di preview tidak ikut)
 const RX = { mantap: 1, genteng: 1, tetangga: 1 }; // poin mingguan Tetangga Idaman
 const hariWIB = (now = Date.now()) => { const w = new Date(now + 7 * 3600e3); return w.getUTCFullYear() + '-' + String(w.getUTCMonth() + 1).padStart(2, '0') + '-' + String(w.getUTCDate()).padStart(2, '0') };
 const KASAR = ['anjing','anjg','anjir','anjrit','bangsat','bajingan','babi','kontol','kntl','memek','mmk','ngentot','entot','ngewe','jancok','jancuk','jancik','asu','goblok','goblog','tolol','bego','idiot','kampret','tai','taik','brengsek','pantek','puki','pukimak','lonte','pelacur','sundal','perek','bencong','jembut','peler','toket','sange','colmek','coli','bokep','porno','bugil','telanjang','fuck','fck','shit','bitch','dick','pussy','asshole','nigga','nigger','kafir','bunuh','mampus','modar','setan','iblis','bodoh','dongo','cupu','sialan','keparat','laknat','bacot','bacod','tetek','pepek','itil','silit'];
@@ -52,7 +53,7 @@ const KASAR_SUB = ['anjing','goblok','tolol','brengsek','kampret','pantek','lont
 function pesanKasar(t) { const n = String(t || '').toLowerCase().replace(/[0@4]/g, m => ({ '0': 'o', '@': 'a', '4': 'a' })[m]).replace(/1|!/g, 'i').replace(/3/g, 'e').replace(/5|\$/g, 's').replace(/7/g, 't').replace(/(.)\1{2,}/g, '$1$1');
   const kata = n.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean).map(w => w.replace(/(.)\1+/g, '$1')); const rapat = n.replace(/[^a-z]/g, '').replace(/(.)\1+/g, '$1');
   return kata.some(w => KASAR.includes(w)) || KASAR_SUB.some(k => rapat.includes(k.replace(/(.)\1+/g, '$1'))) }
-async function papanIdaman(w0, n = 20) { const [p, t] = await kvMany([['HGETALL', 'rx:w:' + w0 + ':p'], ['HGETALL', 'rx:w:' + w0 + ':t']]); const P = {}, Tm = {};
+async function papanIdaman(w0, n = 20) { const [p, t] = await kvMany([['HGETALL', RXP + 'w:' + w0 + ':p'], ['HGETALL', RXP + 'w:' + w0 + ':t']]); const P = {}, Tm = {};
   for (let i = 0; p && i + 1 < p.length; i += 2) P[p[i]] = +p[i + 1] || 0; for (let i = 0; t && i + 1 < t.length; i += 2) Tm[t[i]] = +t[i + 1] || 0;
   return Object.keys(P).filter(u => P[u] > 0).sort((a, b) => P[b] - P[a] || (Tm[a] || 0) - (Tm[b] || 0)).slice(0, n).map(u => ({ u, poin: P[u] })) }
 async function tiketKu(u) { const [t, h] = await kv(['HMGET', 'tiket', u + ':truk', u + ':heli']) || []; return { truk: +t || 0, heli: +h || 0 } }
@@ -341,9 +342,9 @@ export default async function handler(req, res) {
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });
-      const [n, hr, log] = await kvMany([['HGETALL', 'rx:n:' + t], ['HGET', 'rx:hari:' + hariWIB(), t], ['LRANGE', 'rx:log:' + t, 0, 29]]); const N = { mantap: 0, genteng: 0, tetangga: 0 };
+      const [n, hr, log] = await kvMany([['HGETALL', RXP + 'n:' + t], ['HGET', RXP + 'hari:' + hariWIB(), t], ['LRANGE', RXP + 'log:' + t, 0, 29]]); const N = { mantap: 0, genteng: 0, tetangga: 0 };
       for (let i = 0; n && i + 1 < n.length; i += 2) N[n[i]] = +n[i + 1] || 0;
-      let sudah = null; const ss = await sesi(req).catch(() => null); if (ss) sudah = await kv(['GET', 'rx:d:' + hariWIB() + ':' + ss.u + ':' + t]);
+      let sudah = null; const ss = await sesi(req).catch(() => null); if (ss) sudah = await kv(['GET', RXP + 'd:' + hariWIB() + ':' + ss.u + ':' + t]);
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ n: N, tamu: +hr || 0, buku: (log || []).map(jparse).filter(Boolean), sudah: sudah || null });
     }
@@ -687,10 +688,10 @@ export default async function handler(req, res) {
       let pesan = String(body.pesan || '').replace(/\s+/g, ' ').trim().slice(0, 80);
       if (pesan && /(https?:|www\.|\.(com|id|net|org|ly|co)\b|@\w)/i.test(pesan)) return res.status(400).json({ error: 'Pesan nggak boleh berisi link atau mention.', kode: 'pesan' });
       if (pesan && pesanKasar(pesan)) return res.status(400).json({ error: 'Pesanmu ada kata yang kurang sopan. Ganti kata-katanya, atau kirim reaksi tanpa pesan ya 🙏', kode: 'kasar' });
-      const day = hariWIB(); if (!(await kv(['SET', 'rx:d:' + day + ':' + s.u + ':' + t, r, 'NX', 'EX', 2 * 864e2]))) return res.status(429).json({ error: 'Kamu sudah kasih reaksi ke rumah ini hari ini. Besok lagi ya!' });
+      const day = hariWIB(); if (!(await kv(['SET', RXP + 'd:' + day + ':' + s.u + ':' + t, r, 'NX', 'EX', 2 * 864e2]))) return res.status(429).json({ error: 'Kamu sudah kasih reaksi ke rumah ini hari ini. Besok lagi ya!' });
       const w0 = awalMinggu(), now = Date.now();
-      await kvMany([['HINCRBY', 'rx:n:' + t, r, 1], ['HINCRBY', 'rx:hari:' + day, t, 1], ['EXPIRE', 'rx:hari:' + day, 3 * 864e2], ['HINCRBY', 'rx:w:' + w0 + ':p', t, RX[r]], ['HSET', 'rx:w:' + w0 + ':t', t, String(now)], ['EXPIRE', 'rx:w:' + w0 + ':p', 40 * 864e2], ['EXPIRE', 'rx:w:' + w0 + ':t', 40 * 864e2],
-        ['LPUSH', 'rx:log:' + t, JSON.stringify({ u: s.u, r, pesan: pesan || null, at: now })], ['LTRIM', 'rx:log:' + t, 0, 99]]);
+      await kvMany([['HINCRBY', RXP + 'n:' + t, r, 1], ['HINCRBY', RXP + 'hari:' + day, t, 1], ['EXPIRE', RXP + 'hari:' + day, 3 * 864e2], ['HINCRBY', RXP + 'w:' + w0 + ':p', t, RX[r]], ['HSET', RXP + 'w:' + w0 + ':t', t, String(now)], ['EXPIRE', RXP + 'w:' + w0 + ':p', 40 * 864e2], ['EXPIRE', RXP + 'w:' + w0 + ':t', 40 * 864e2],
+        ['LPUSH', RXP + 'log:' + t, JSON.stringify({ u: s.u, r, pesan: pesan || null, at: now })], ['LTRIM', RXP + 'log:' + t, 0, 99]]);
       return res.status(200).json({ ok: true });
     }
     if (aksi === 'pindah-beli') { // beli tiket Jasa Pindahan pakai Receh

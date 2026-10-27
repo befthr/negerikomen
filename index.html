@@ -1891,7 +1891,7 @@ if(AWARDS.length){$('award').hidden=false;
 /* kalender kejutan: petunjuk misterius tiap hari, terbuka jam 19.00 saat fiturnya dirilis (buka:true diisi saat deploy rilis) */
 const KEJUTAN=[
   {d:'2026-10-26',ic:'🏞️',q:'Kampung lama akhirnya punya nama…',n:'Gerbang Desa Awalkomen',buka:true},
-  {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan',buka:true},
+  {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan',buka:!(window.NK_DATA&&window.NK_DATA.pindahan===false)},
   {d:'2026-10-28',ic:'🔍',q:'Pak Kades menyembunyikan sesuatu di peta…',n:'Harta Karun Harian'},
   {d:'2026-10-29',ic:'📺',q:'Ada yang mau siaran…',n:'TV Komen Nasional'},
   {d:'2026-10-30',ic:'🎈',q:'Lihat ke langit malam nanti…',n:'Balon Genteng'},
@@ -3690,7 +3690,9 @@ function drawPindahan(v,t){if(!STQA)return;ctx.setTransform(v.z,0,0,v.z,v.ox,v.o
 {const _ds=drawStadion;drawStadion=function(v,t){_ds(v,t);try{drawPindahan(v,t)}catch(e){console.error(e)}}}
 // --- menu & pembelian ---
 function pdhJeda(ms){const jm=Math.ceil(ms/36e5),d=Math.floor(jm/24),h=jm%24;return d?(h?`${d} hari ${h} jam`:`${d} hari`):`${h} jam`}
-async function bukaPindahan(tab){tab=tab==='heli'?'heli':'truk';const body=kkModal();const k=kkGet();let c=null;
+// flag data.js: pindahan:false / reaksi:false = bangunannya sudah tampil, fiturnya belum dibuka (mode uji ?qa9 tetap jalan)
+const PDH_ON=()=>QA9||!(window.NK_DATA&&window.NK_DATA.pindahan===false),RX_ON=()=>QA9||!(window.NK_DATA&&window.NK_DATA.reaksi===false);
+async function bukaPindahan(tab){if(!PDH_ON()){toast('🚚🚁 Sabar ya… bangunan ini dibuka Pak Kades nanti malam jam 19.00!');return}tab=tab==='heli'?'heli':'truk';const body=kkModal();const k=kkGet();let c=null;
   body.append(el('p','kk-muted','Memuat…'));if(k&&k.u){const r=await kkApi('saya',null,true).catch(()=>null);c=r&&r.kartu||null}body.innerHTML='';
   const h=el('h3',null,'🚚🚁 Jasa Pindahan Pak Kades');body.append(h,el('p','kk-muted','Pindah rumah beserta semua barangnya. Rumah lama jadi kavling kosong, perjalanannya kelihatan di peta semua warga.'));
   const tb=el('div','kk-tabs');['truk','heli'].forEach(id=>{const b=el('button',id===tab?'on':'',PDH[id].ic+' '+PDH[id].n);b.type='button';b.onclick=()=>bukaPindahan(id);tb.append(b)});body.append(tb);
@@ -3723,7 +3725,7 @@ async function pilihKavling(p){const P=PDH[PILIH.jenis],jenis=PILIH.jenis;const 
   const u=PILIH.u;PILIH=null;const bar=$('pdhbar');if(bar)bar.remove();window.PINDAH[u]=r.pindah;pindahTerapkan();SND.play('ting',.9);
   toast(jenis==='heli'?'🚁 Helikoper berangkat jemput rumahmu! 3 menit lagi sampai.':'🚚 Telolet! Truk Titut berangkat jemput rumahmu. 30 menit lagi sampai.');
   const m=pdhMarkas(jenis);flyTo({cx:m.x,cy:m.y,zoom:clampZ(1)},900)}
-function pdhKetuk(wxp,wyp){if(PILIH){let best=null,bd=Math.max(T*.8,22/cam.zoom);PILIH.list.forEach(p=>{const d=Math.hypot(NK.wx(p.x)-wxp,NK.wx(p.y)-wyp);if(d<bd){bd=d;best=p}});if(best)pilihKavling(best);else toast('Ketuk kotak yang menyala');return true}
+function pdhKetuk(wxp,wyp){if(!PDH_ON()){const D=desaBangun();if(D.OT&&wxp>D.OT.x-T*.5&&wxp<D.OT.x+D.OT.w+T*.5&&wyp>D.OT.y-T*1.2&&wyp<D.OT.y+D.OT.h+T*.3||Math.hypot(wxp-D.SH.x,wyp-D.SH.y)<D.SH.r+T*.5){toast('🚚🚁 Sabar ya… bangunan ini dibuka Pak Kades nanti malam jam 19.00!');return true}if(D.MTI&&wxp>D.MTI.x-T*.4&&wxp<D.MTI.x+D.MTI.w+T*.4&&wyp>D.MTI.y-T*.9&&wyp<D.MTI.y+D.MTI.h+T*.3){bukaMonumen();return true}return false}if(PILIH){let best=null,bd=Math.max(T*.8,22/cam.zoom);PILIH.list.forEach(p=>{const d=Math.hypot(NK.wx(p.x)-wxp,NK.wx(p.y)-wyp);if(d<bd){bd=d;best=p}});if(best)pilihKavling(best);else toast('Ketuk kotak yang menyala');return true}
   if(!STQA)return false;const D=desaBangun(),{OT,SH}=D;
   if(D.MTI&&wxp>D.MTI.x-T*.4&&wxp<D.MTI.x+D.MTI.w+T*.4&&wyp>D.MTI.y-T*.9&&wyp<D.MTI.y+D.MTI.h+T*.3){SND.play('pop',.8);bukaMonumen();return true}
   if(wxp>OT.x-T&&wxp<OT.x+OT.w+T&&wyp>OT.y-T*1.6&&wyp<OT.y+OT.h+T*1.4){SND.play('pop',.8);bukaPindahan('truk');return true}
@@ -3766,9 +3768,9 @@ function reaksiKirim(r,k,selesai){const me=(kkGet()||{}).u;if(!me){toast('Ambil 
   row.append(kkBtn('Batal','sm',()=>o.remove()),kkBtn('Kirim','sm gold3',()=>kirim(false)));b.append(h,el('p','kk-muted','1 reaksi per rumah per hari. Pesan yang kasar otomatis ditolak.'),ta,msg,row);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);setTimeout(()=>ta.focus(),50)}
 window.IDAMAN=[];window.IDAMAN_LALU=[];
 function idmJuara(){return (window.IDAMAN_LALU&&window.IDAMAN_LALU.length?window.IDAMAN_LALU:window.IDAMAN)||[]}
-function bukaMonumen(){open3D({demo:'monumen',name:'monumen',nick:'💞 Monumen Tetangga Idaman',x:0,y:0,wall:'krem',roof:'merah',items:[]},0)}
+function bukaMonumen(){if(!RX_ON()){toast('💞 Monumen Tetangga Idaman diresmikan nanti malam jam 19.00!');return}open3D({demo:'monumen',name:'monumen',nick:'💞 Monumen Tetangga Idaman',x:0,y:0,wall:'krem',roof:'merah',items:[]},0)}
 function monumenDiPeta(){if(typeof STQA!=='undefined'&&!STQA)return;const m=desaBangun().MTI;scrollMap();flyTo({cx:m.x+m.w/2,cy:m.y+m.h/2,zoom:clampZ(1.6)},900)}
-function renderIdaman(){{const a=$('idmPeta'),b=$('idmTiga');if(a&&!a.onclick){a.onclick=monumenDiPeta;b.onclick=bukaMonumen}}const box=$('idmList'),card=$('idmCard');if(!box||!card)return;box.innerHTML='';const L=window.IDAMAN||[];
+function renderIdaman(){{const a=$('idmPeta'),b=$('idmTiga');if(a&&!a.onclick){a.onclick=monumenDiPeta;b.onclick=bukaMonumen}}const box=$('idmList'),card=$('idmCard');if(!box||!card)return;if(!RX_ON()){card.hidden=true;return}box.innerHTML='';const L=window.IDAMAN||[];
   if(!L.length){box.append(el('li','kk-muted','Belum ada reaksi pekan ini. Mampir ke rumah warga & kasih reaksi!'))}
   L.slice(0,20).forEach((o,k)=>{const li=el('li'),bt=el('button');bt.type='button';const i=kkResIdx(o.u),r=i>=0?RES[i]:null;bt.append(el('span','rkn'+(k<3?' rkt':''),MEDAL(k+1)),el('span','rn',(r&&r.nick?r.nick+' · ':'')+'@'+o.u),el('span','rc',o.poin+' poin'));bt.onclick=()=>{if(i>=0){select({kind:'r',i});scrollMap()}};li.append(bt);box.append(li)});card.hidden=false}
 // 🌟 Monumen Tetangga Idaman di desa baru (juara pekan lalu; pekan pertama tampil juara sementara)
@@ -3793,12 +3795,12 @@ function kkTiketAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'�
   [['truk','🚚 +1 Truk'],['heli','🚁 +1 Helikoper'],['paket','🚁+🚚 Paket']].forEach(([j,t])=>row.append(kkBtn(t,'sm gold3',async e=>{const L=ta.value.trim();if(!L)return;if(!await kkYakin('Kasih tiket?',`${t} ke: ${L}`,'Ya, kirim'))return;e.target.disabled=true;const r=await kkApi('tiket-hadiah',{target:L,jenis:j,n:1},true);e.target.disabled=false;
     msg.className='kk-msg'+(r.ok?'':' err');msg.textContent=r.ok?`✅ Terkirim ke ${r.dapat.length} warga`+(r.bukan.length?` · ⚠️ bukan warga: ${r.bukan.join(', ')}`:''):(r.error||'Gagal')})));
   w.append(ta,row,msg);body.append(w)}
-function kkJasaBox(body,c,i,punyaK,sw){const w=el('div','kk-jasa');w.append(el('b',null,'🧰 Jasa & Sewaan'));const t=c.tiket||{};
+function kkJasaBox(body,c,i,punyaK,sw){const w=el('div','kk-jasa');w.append(el('b',null,'🧰 Jasa & Sewaan'));const t=c.tiket||{};const pdhOn=PDH_ON();
   const jalan=c.pindahKu&&Date.now()<c.pindahKu.at+c.pindahKu.dur*1000;
   const row=(ic,nm,ket,btn)=>{const r=el('div','kj-row'),tx=el('div','kj-tx');tx.append(el('b',null,nm),el('small',null,ket));const icn=el('span','kj-ic');if(typeof ic==='string')icn.textContent=ic;else icn.append(ic);r.append(icn,tx,btn);w.append(r)};
   const rb=(t2,cls,fn)=>{const b=kkBtn(t2,'sm '+(cls||''),fn);b.classList.add('kj-b');return b};
-  row('🚚','Truk Titut',(t.truk?`🎫 ${t.truk} tiket · `:'')+'pindah rumah · 30 mnt',rb(t.truk?'Pakai':'3 Receh',t.truk?'gold3':'',()=>bukaPindahan('truk')));
-  row('🚁','Helikoper',(t.heli?`🎫 ${t.heli} tiket · `:'')+'ke kavling 💎 eksklusif · 3 mnt',rb(t.heli?'Pakai':'8 Receh',t.heli?'gold3':'',()=>bukaPindahan('heli')));
+  if(pdhOn)row('🚚','Truk Titut',(t.truk?`🎫 ${t.truk} tiket · `:'')+'pindah rumah · 30 mnt',rb(t.truk?'Pakai':'3 Receh',t.truk?'gold3':'',()=>bukaPindahan('truk')));
+  if(pdhOn)row('🚁','Helikoper',(t.heli?`🎫 ${t.heli} tiket · `:'')+'ke kavling 💎 eksklusif · 3 mnt',rb(t.heli?'Pakai':'8 Receh',t.heli?'gold3':'',()=>bukaPindahan('heli')));
   if(jalan)w.append(el('p','kj-st',`📦 Rumahmu lagi diangkut · ⏳ ${pdhSisa(c.pindahKu,Date.now())} lagi`));
   const ks=kkItemSVG('konsol');
   if(punyaK)row(ks,'playadalahmain','14 mini game · punyamu selamanya',rb('🎮 Main','gold3',()=>{kkTutup();bukaKonsol(false)}));

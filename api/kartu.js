@@ -682,6 +682,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, u: t, saldo });
     }
     if (aksi === 'reaksi') { // {target, r: mantap|genteng|tetangga, pesan?} · 1x per rumah per hari, tidak ke rumah sendiri
+      if (D.reaksi === false) return res.status(400).json({ error: 'Reaksi dibuka nanti malam jam 19.00 ya!' });
       const t = cleanU(body.target), r = String(body.r || ''); if (!RX[r]) return res.status(400).json({ error: 'Reaksi tidak dikenal' });
       if (!warga(D, t)) return res.status(404).json({ error: 'Rumah tidak ditemukan' }); if (t === s.u) return res.status(400).json({ error: 'Nggak bisa kasih reaksi ke rumah sendiri 😄' });
       if (!warga(D, s.u) && s.u !== OWNER) return res.status(403).json({ error: 'Cuma warga yang bisa kasih reaksi.' });
@@ -695,6 +696,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
     if (aksi === 'pindah-beli') { // beli tiket Jasa Pindahan pakai Receh
+      if (D.pindahan === false) return res.status(400).json({ error: 'Jasa Pindahan dibuka nanti malam jam 19.00 ya!' });
       const j = String(body.jenis || ''); const P = PINDAH[j]; if (!P) return res.status(400).json({ error: 'Jenis tiket tidak dikenal' });
       if (!warga(D, s.u)) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa pindah.' });
       if ((await tiketKu(s.u))[j] >= 1) return res.status(400).json({ error: 'Kamu masih punya tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') + '. Pakai dulu buat pindah ya!' });
@@ -706,6 +708,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'pindah') { // pakai 1 tiket: rumah diangkut ke kavling tujuan {jenis,x,y}
+      if (D.pindahan === false) return res.status(400).json({ error: 'Jasa Pindahan dibuka nanti malam jam 19.00 ya!' });
       const j = String(body.jenis || ''), P = PINDAH[j], x = Math.round(+body.x), y = Math.round(+body.y); if (!P || !isFinite(x) || !isFinite(y)) return res.status(400).json({ error: 'Data pindahan tidak lengkap' });
       const r = warga(D, s.u); if (!r) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa pindah.' });
       const tk = await tiketKu(s.u); if (tk[j] < 1) return res.status(400).json({ error: 'Kamu belum punya tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') + '.' });

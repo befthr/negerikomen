@@ -1864,7 +1864,7 @@ function renderShops(){
 const RUKO_ON=false; // ruko ditutup sementara (kerja sama usaha lewat DM)
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
 // kartu kerja sama (ruko tutup): ikon kiri + penjelasan kanan, tanpa catatan di bawah garis
-function kerjaSama(){const t=$('toko');t.classList.add('ks');$('tokoNote').hidden=true;
+function kerjaSama(){const t=$('toko');t.classList.add('ks');t.parentNode.append(t);$('tokoNote').hidden=true;
   const im=t.querySelector('.trak-row img');if(im){const ic=el('span','ks-ic','🤝');im.replaceWith(ic)}
   $('tokoTitle').textContent='Kerja Sama & Kolaborasi';const lp=t.querySelector('.trak-lede');if(!lp)return;lp.innerHTML='';
   const ig=document.createElement('a');ig.href='https://instagram.com/negerikomen';ig.target='_blank';ig.rel='noopener';ig.textContent='@negerikomen';

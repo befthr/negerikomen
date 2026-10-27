@@ -22,7 +22,9 @@ async function dataKampung(req) {
   if (DATA && Date.now() - DATA_AT < 60000) return DATA;
   const host = req.headers['x-forwarded-host'] || req.headers.host;
   const t = await (await fetch('https://' + host + '/data.js?v=' + Math.floor(Date.now() / 60000))).text();
-  DATA = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); DATA_AT = Date.now(); return DATA;
+  const base = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1));
+  try { const a = await kvMany([['HGETALL', 'warga:baru']]); const raw = a[0] || [], ada = new Set((base.residents || []).map(r => String(r.name).toLowerCase())); for (let i = 0; i + 1 < raw.length; i += 2) { const v = jparse(raw[i + 1]); if (v && v.name && !ada.has(String(v.name).toLowerCase())) base.residents.push(v) } } catch (e) { }
+  DATA = base; DATA_AT = Date.now(); return DATA;
 }
 const jparse = s => { try { return s ? JSON.parse(s) : null } catch (e) { return null } };
 // semua teks di payload (pesan bisa ada di supporter_message / message / dll.)

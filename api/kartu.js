@@ -96,9 +96,15 @@ async function dataKampung(req) {
   if (DATA && Date.now() - DATA_AT < 60000) return DATA;
   const host = req.headers['x-forwarded-host'] || req.headers.host;
   const t = await (await fetch('https://' + host + '/data.js?v=' + Math.floor(Date.now() / 60000))).text();
-  DATA = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); DATA_AT = Date.now();
+  const base = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1));
+  try { const add = await wargaBaru(); if (add.length) { const ada = new Set((base.residents || []).map(r => String(r.name).toLowerCase())); base.residents = (base.residents || []).concat(add.filter(r => !ada.has(String(r.name).toLowerCase()))) } } catch (e) { }
+  DATA = base; DATA_AT = Date.now();
   return DATA;
 }
+// 🏠 warga baru yang ditambahkan lewat Kartu kepala desa (tanpa deploy). Disimpan di hash 'warga:baru' {username: {name,x,y,day,nick,roof,wall,at}}
+async function wargaBaru(raw) { const a = raw !== undefined ? raw : (await kv(['HGETALL', 'warga:baru']) || []); const o = []; for (let i = 0; a && i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v && v.name && Number.isFinite(v.x) && Number.isFinite(v.y)) o.push(v) } return o }
+function kavBaruOk(x, y) { if (!Number.isInteger(x) || !Number.isInteger(y) || x < 1 || y < 1 || x > KN - 2 || y > KN - 2) return false; const lx = md(x - KC, KS), ly = md(y - KC, KS); if (lx === 0 || ly === 0) return false;
+  if (!(lx === 1 || lx === 5 || ly === 1 || ly === 5)) return false; return Math.max(Math.abs(x - KC), Math.abs(y - KC)) <= 43 && !KRES.has(x + ',' + y) }
 function warga(D, u) { return (D.residents || []).find(r => String(r.name).toLowerCase() === u) || null }
 // warna tambahan hasil traktir (disimpan di database) digabung ke riwayat rumah dari data.js
 async function wargaPlus(D, u, extra) {
@@ -324,7 +330,7 @@ export default async function handler(req, res) {
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
       for (let i = 0; i + 1 < rx.length; i += 2) { const e = jparse(rx[i + 1]); if (e && e.length) extra[rx[i]] = e }
-      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx, srt, gmd, pdh, plog, ngp, ngs, ngmd] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik'], ['GET', 'sorot:pemilik'], ['GET', 'robot:mode'], ['HGETALL', 'pindah'], ['LRANGE', 'pindah:log', 0, 11], ['GET', 'naga:pemilik'], ['LRANGE', 'naga:sembur', 0, 29], ['GET', 'naga:mode']]);
+      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx, srt, gmd, pdh, plog, ngp, ngs, ngmd, wbr] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:genteng'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik'], ['GET', 'sorot:pemilik'], ['GET', 'robot:mode'], ['HGETALL', 'pindah'], ['LRANGE', 'pindah:log', 0, 11], ['GET', 'naga:pemilik'], ['LRANGE', 'naga:sembur', 0, 29], ['GET', 'naga:mode'], ['HGETALL', 'warga:baru']]);
       const tingkat = {}, atas = {}; for (let i = 0; rt && i + 1 < rt.length; i += 2) { const v = jparse(rt[i + 1]); if (v && v.lantai > 1) tingkat[rt[i]] = v.lantai; if (v && Array.isArray(v.atas)) atas[rt[i]] = v.atas }
       const jalan = {}; for (let i = 0; rj && i + 1 < rj.length; i += 2) { const v = jparse(rj[i + 1]); if (v && Date.now() - v.at < 120000) jalan[rj[i]] = v }
       const staf = {}; for (let i = 0; sp && i + 1 < sp.length; i += 2) { const v = stafAktif(jparse(sp[i + 1])); if (v.length) staf[sp[i]] = v.map(x => ({ user: x.user, role: x.role, sejak: x.sejak, until: x.until })) }
@@ -338,7 +344,7 @@ export default async function handler(req, res) {
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });
@@ -724,6 +730,28 @@ export default async function handler(req, res) {
       if (kini) cmds.push(['HDEL', 'kavlock', kini.x + ',' + kini.y]);
       await kvMany(cmds);
       return res.status(200).json({ ok: true, pindah: v, kartu: await infoKartu(D, s.u) });
+    }
+    if (aksi === 'tambah-warga') { // kades: tambah warga baru tanpa deploy {list:[{name,x,y,nick,roof,wall}]} (posisi dihitung di perangkat kades)
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const L = Array.isArray(body.list) ? body.list.slice(0, 300) : []; if (!L.length) return res.status(400).json({ error: 'Daftar kosong' });
+      DATA = null; const D = await dataKampung(req), pd = await pindahSemua();
+      const pakai = new Set((D.residents || []).map(r => r.x + ',' + r.y)); Object.values(pd).forEach(v => { if (v && !v.lok) pakai.add(v.x + ',' + v.y) });
+      (D.buildings || []).forEach(b => { const w = b.w || 3; for (let i = 0; i < w; i++) for (let j = 0; j < w; j++) pakai.add((b.x + i) + ',' + (b.y + j)) });
+      const ada = new Set((D.residents || []).map(r => String(r.name).toLowerCase())), ok = [], tolak = [], cmds = [];
+      for (const o of L) { const u = cleanU(o && o.name), x = Math.round(+o.x), y = Math.round(+o.y);
+        if (!okU(u)) { tolak.push({ u: String(o && o.name || ''), why: 'username tidak valid' }); continue }
+        if (ada.has(u)) { tolak.push({ u, why: 'sudah jadi warga' }); continue }
+        if (!kavBaruOk(x, y) || pakai.has(x + ',' + y)) { tolak.push({ u, why: 'kavling tidak tersedia' }); continue }
+        const r = { name: u, x, y, day: +D.day || 0, at: Date.now() }; const nk = String(o.nick || '').trim().slice(0, 24); if (nk) r.nick = nk;
+        if (WARNA_OK.includes(o.roof)) r.roof = o.roof; if (WARNA_OK.includes(o.wall)) r.wall = o.wall;
+        ada.add(u); pakai.add(x + ',' + y); ok.push(u); cmds.push(['HSET', 'warga:baru', u, JSON.stringify(r)]) }
+      if (cmds.length) await kvMany(cmds); DATA = null;
+      return res.status(200).json({ ok: true, masuk: ok, tolak });
+    }
+    if (aksi === 'hapus-warga') { // kades: batalkan warga baru (hanya yang ditambahkan lewat Kartu, bukan dari data.js)
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      const L = String(body.target || '').split(/[\s,]+/).map(cleanU).filter(okU); if (!L.length) return res.status(400).json({ error: 'Tulis username' });
+      const n = await kv(['HDEL', 'warga:baru', ...L]); DATA = null; return res.status(200).json({ ok: true, n: +n || 0 });
     }
     if (aksi === 'tiket-hadiah') { // kades: kasih tiket gratis {target: "a,b,c", jenis, n}
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

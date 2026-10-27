@@ -4174,11 +4174,25 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   const sungai=(pts,w)=>{ctx.lineCap='round';ctx.lineJoin='round';[[w+T*.5,'#C9B98A'],[w,'#3E8FC9'],[w*.45,'#5FA9DB']].forEach(([lw,col])=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(...pts[0]);for(let i=1;i<pts.length-1;i++){const m=[(pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2];ctx.quadraticCurveTo(pts[i][0],pts[i][1],m[0],m[1])}ctx.lineTo(...pts[pts.length-1]);ctx.stroke()})};
   sungai(D.sungai1,T*1.1);sungai(D.sungai2,T*.9);sungai(D.sungai3,T*.9);
   // air terjun
-  const af=D.sungai2[0];ctx.fillStyle='#E9F5FF';ctx.fillRect(af[0]-T*.5,af[1]-T*2.5,T,T*2.6);ctx.fillStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.ellipse(af[0],af[1]+T*.2,T*1.2,T*.45,0,0,7);ctx.fill();
-  for(let i=0;i<3;i++){const u=(t*.8+i/3)%1;ctx.fillStyle=`rgba(255,255,255,${1-u})`;ctx.beginPath();ctx.arc(af[0]+(i-1)*T*.4,af[1]+u*T*.6,T*.18,0,7);ctx.fill()}
   // waduk + bendungan + perahu
   ctx.fillStyle='#C9B98A';ctx.beginPath();ctx.ellipse(wd.x,wd.y,wd.rx+T*.7,wd.ry+T*.7,-.15,0,7);ctx.fill();
   sungai(D.sungai1,T*1.1);sungai(D.sungai2,T*.9);sungai(D.sungai3,T*.9); // sungai menembus bibir waduk → air menyatu
+  // air terjun (digambar setelah sungai biar kolamnya di atas tepian sungai)
+  {const af=D.sungai2[0],X=af[0],Y=af[1],top=Y-T*2.6,tt=t||0;
+   // tebing batu tak beraturan
+   ctx.fillStyle='#6E665A';ctx.beginPath();ctx.moveTo(X-T*1.7,Y-T*.1);ctx.lineTo(X-T*1.9,top+T*.6);ctx.lineTo(X-T*1.2,top-T*.3);ctx.lineTo(X-T*.3,top-T*.1);ctx.lineTo(X+T*.5,top-T*.35);ctx.lineTo(X+T*1.4,top+T*.1);ctx.lineTo(X+T*1.8,top+T*.9);ctx.lineTo(X+T*1.5,Y-T*.2);ctx.closePath();ctx.fill();
+   ctx.fillStyle='#8C8373';[[-1.3,-1.6,.5],[1.1,-1.9,.45],[-1.0,-.7,.38],[1.2,-.8,.42],[-.2,-2.75,.35]].forEach(([a,b2,r])=>{ctx.beginPath();ctx.ellipse(X+a*T,Y+b2*T,r*T,r*T*.7,.4,0,7);ctx.fill()});
+   ctx.fillStyle='#A39A88';[[-1.45,-1.75,.22],[1.0,-2.05,.2],[-.9,-.85,.16]].forEach(([a,b2,r])=>{ctx.beginPath();ctx.ellipse(X+a*T,Y+b2*T,r*T,r*T*.6,.4,0,7);ctx.fill()});
+   // sungai kecil di atas tebing
+   ctx.strokeStyle='#4E9BD8';ctx.lineWidth=T*.55;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(X,top+T*.1);ctx.quadraticCurveTo(X+T*.6,top-T*1.2,X-T*.2,top-T*2.4);ctx.stroke();ctx.lineCap='butt';
+   // tirai air: melebar ke bawah, gradasi biru-putih, garis air bergerak turun
+   const g=ctx.createLinearGradient(0,top,0,Y);g.addColorStop(0,'#7CC0F0');g.addColorStop(.5,'#CFE9FB');g.addColorStop(1,'#F4FBFF');ctx.fillStyle=g;
+   ctx.beginPath();ctx.moveTo(X-T*.32,top);ctx.quadraticCurveTo(X-T*.42,Y-T*1.3,X-T*.62,Y);ctx.lineTo(X+T*.62,Y);ctx.quadraticCurveTo(X+T*.42,Y-T*1.3,X+T*.32,top);ctx.closePath();ctx.fill();
+   ctx.save();ctx.clip();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=T*.07;for(let i=0;i<6;i++){const xx=X-T*.4+i*T*.16,o=((tt*1.6+i*.37)%1)*T*1.4;ctx.setLineDash([T*.5,T*.9]);ctx.lineDashOffset=-o;ctx.beginPath();ctx.moveTo(xx,top);ctx.lineTo(xx+(xx-X)*.4,Y);ctx.stroke()}ctx.setLineDash([]);ctx.restore();
+   // kolam & busa & kabut
+   ctx.fillStyle='#3F8FD0';ctx.beginPath();ctx.ellipse(X,Y+T*.25,T*1.25,T*.6,0,0,7);ctx.fill();ctx.fillStyle='#5DAAE8';ctx.beginPath();ctx.ellipse(X,Y+T*.3,T*.95,T*.42,0,0,7);ctx.fill();
+   ctx.fillStyle='rgba(255,255,255,.9)';ctx.beginPath();ctx.ellipse(X,Y+T*.05,T*.75,T*.22,0,0,7);ctx.fill();
+   for(let i=0;i<5;i++){const u=(tt*.5+i/5)%1;ctx.fillStyle=`rgba(255,255,255,${.55*(1-u)})`;ctx.beginPath();ctx.arc(X+(i-2)*T*.32+Math.sin(i*2.1)*T*.1,Y+T*.05-u*T*.7,T*(.16+u*.22),0,7);ctx.fill()}}
   if(D.pantai&&D.pantai.pan){const P=D.sungai3,mx=P[P.length-1][0],{pan,ombak}=D.pantai,w=T*.9; // muara: sungai melebar lalu tenggelam ke air laut (laut digambar ulang di atas ujung sungai)
    const sy=pan(mx);ctx.fillStyle='#3E8FC9';ctx.beginPath();ctx.moveTo(mx-w*.5,sy-T*1.6);ctx.quadraticCurveTo(mx-w*.6,sy-T*.5,mx-w*1.5,sy+T*.2);ctx.lineTo(mx+w*1.5,sy+T*.2);ctx.quadraticCurveTo(mx+w*.6,sy-T*.5,mx+w*.5,sy-T*1.6);ctx.closePath();ctx.fill();
    ctx.fillStyle='#5FA9DB';ctx.beginPath();ctx.moveTo(mx-w*.22,sy-T*1.6);ctx.quadraticCurveTo(mx-w*.3,sy-T*.5,mx-w*.8,sy+T*.2);ctx.lineTo(mx+w*.8,sy+T*.2);ctx.quadraticCurveTo(mx+w*.3,sy-T*.5,mx+w*.22,sy-T*1.6);ctx.closePath();ctx.fill();

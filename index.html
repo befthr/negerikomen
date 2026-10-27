@@ -394,6 +394,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .mapbox .kompas{top:12px}
 .gfxbar button.gsnd{font-size:11.5px;padding:4px 9px;margin-right:0}.gfxbar button.gsnd[aria-pressed="true"]{background:#F2C230;border-color:#1C2520}.gfxbar .gsep{width:1px;height:14px;background:#c9c2b0;margin:0 2px}
 #tagWarga,#tagDay{display:none!important} /* hari & jumlah warga sudah ada di kotak statistik */
+.kk-kades{margin-top:14px;border-top:3px dashed #D9C98F;padding-top:12px}.kk-kades-h{display:block;font-size:16px;margin-bottom:8px}.kk-kadestab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.kk-kadestab button{flex:1 1 auto;font-size:13px;padding:7px 10px}.kk-tabp>.kk-admin,.kk-tabp>.kk-kol{margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -3373,7 +3374,7 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
     if(H.length){const ul=el('ul','kk-mgl');H.forEach(o=>{const li=el('li');li.append(el('span',null,NG[o.g]),el('b',null,String(o.v)),el('small',null,new Date(o.at).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})));ul.append(li)});mg.append(ul)}
     else{mg.setAttribute('aria-disabled','true');mg.firstChild.append(el('span','kk-soon',punyaK?'Belum main':'Segera'));mg.append(el('p','kk-muted',punyaK?'Skor terakhirmu di mini game akan muncul di sini. Ayo main!':'Skor dan peringkatmu di mini game Negeri Komen akan muncul di sini.'))}
     body.append(mg)}
-  if(c.admin){kkStatus(body);kkAdmin(body);try{kkWargaAdmin(body)}catch(e){console.error(e)}try{kkTiketAdmin(body)}catch(e){}}
+  if(c.admin){const n0=body.children.length;kkStatus(body);kkAdmin(body);try{kkWargaAdmin(body)}catch(e){console.error(e)}try{kkTiketAdmin(body)}catch(e){}try{kkAdminTabs(body,n0)}catch(e){console.error(e)}}
   const lk=el('div','kk-links'),a1=el('button',null,'Keluarkan perangkat lain'),a2=el('button',null,'Keluar dari perangkat ini');a1.type=a2.type='button';
   // konfirmasi dulu sebelum keluar
   const tanya=(teks,ya,fn)=>{const old=body.querySelector('.kk-cf.out');if(old)old.remove();const cf=el('div','kk-cf out');cf.append(el('p',null,teks));
@@ -4022,7 +4023,7 @@ if(QA9)setTimeout(()=>{const n=Date.now(),G=desaBangun().EKS.find(e=>e.lok==='gu
   else if(QA9==='reaksi'){const k=kkResIdx('ryukaarvellacevana');if(k>=0){select({kind:'r',i:k});setTimeout(()=>{const b=$('result');if(b)b.scrollIntoView({block:'start',behavior:'smooth'})},600)}}
   else if(QA9==='idaman'){window.IDAMAN=[{u:'ryukaarvellacevana',poin:31},{u:'scnydpi',poin:22},{u:'lembarpeta',poin:19},...RES.slice(10,27).map((r,k)=>({u:String(r.name).toLowerCase(),poin:17-k}))];renderIdaman();scrollMap();const m=desaBangun().MTI;flyTo({cx:m.x+m.w/2,cy:m.y+m.h/2,zoom:clampZ(1)},900)}
   dirty=true},2600);
-window.__PDH={wa:b=>kkWargaAdmin(b),wk:n=>wargaKavling(n),wp:t=>wargaParse(t),wq:()=>({n:RES.length,cari:IDX.length}),ngj:s=>nagaJalur(s),naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>{window.__HCV=(window.__HCV||0)+1;return Object.assign(RES[kkResIdx(u)],o)},o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
+window.__PDH={kt:c=>{const b=kkModal();kkTampil(b,c,true)},wa:b=>kkWargaAdmin(b),wk:n=>wargaKavling(n),wp:t=>wargaParse(t),wq:()=>({n:RES.length,cari:IDX.length}),ngj:s=>nagaJalur(s),naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>{window.__HCV=(window.__HCV||0)+1;return Object.assign(RES[kkResIdx(u)],o)},o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
 
 /* ===== 👍 Reaksi Rumah + 📖 Buku Tamu + 🌟 Tetangga Idaman ===== */
 const RXD={mantap:{ic:'👍',n:'Mantap',p:1},genteng:{ic:'<img src="genteng.png" alt="">',n:'Genteng Keren',p:1},tetangga:{ic:'🏡',n:'Pengen Tetanggaan',p:1}};
@@ -4091,6 +4092,21 @@ function wargaBaruTerapkan(L){if(!Array.isArray(L)||!L.length)return;let n=0;
   if(!n)return;window.__HCV=(window.__HCV||0)+1;dirty=true;try{$('sWarga').textContent=fmt(RES.length+1)}catch(e){}
   try{const hn=RES.filter(r=>r.day===D.day).length;if(hn>=10)$('newTitle').textContent=`Warga baru hari ke-${D.day} (${fmt(hn)})`;window.__renderNew&&window.__renderNew()}catch(e){}
   try{if(!sel&&location.hash.length>1)fromLink()}catch(e){}}
+// 👑 Menu kepala desa dikelompokkan jadi tab (Warga · Pesanan · Hadiah · Karyawan · Lainnya) supaya tidak satu halaman panjang
+function kkAdminTabs(body,n0){const nodes=[...body.children].slice(n0);if(!nodes.length)return;const chunks=[];
+  nodes.forEach(nd=>{const kids=[...nd.children],isSub=c=>c.classList&&(c.classList.contains('kk-sub')||(c.firstElementChild&&c.firstElementChild.classList.contains('kk-sub')));
+    if(!kids.some(isSub)){chunks.push({nodes:[nd],t:(nd.querySelector('b')||{}).textContent||''});return}
+    let cur=null;kids.forEach(c=>{if(isSub(c)||!cur){cur={nodes:[],t:(c.classList.contains('kk-sub')?c.textContent:(c.querySelector('.kk-sub,b')||c).textContent)||''};chunks.push(cur)}cur.nodes.push(c)});nd.remove()});
+  const CAT=[['warga','🏠 Warga',/tambah warga|bantu warga|aktivasi/i],['pesanan','🧾 Pesanan',/antrean|tanpa kode|kode/i],['hadiah','🎁 Hadiah & tiket',/tiket|hadiah|pendukung lama|receh/i],['karyawan','💼 Karyawan',/gaji|pelamar|loker/i],['lain','🩺 Lainnya',/./]];
+  const P={};CAT.forEach(([k])=>{P[k]=el('div','kk-tabp');P[k].dataset.k=k});
+  chunks.forEach(ch=>{const k=(CAT.find(([,,re])=>re.test(ch.t))||CAT[4])[0];let box=ch.nodes.length===1&&ch.nodes[0].classList&&(ch.nodes[0].classList.contains('kk-admin')||ch.nodes[0].classList.contains('kk-kol'))?ch.nodes[0]:null;
+    if(!box){box=el('div','kk-admin');ch.nodes.forEach(n=>box.append(n))}P[k].append(box)});
+  {const tw=[...P.warga.children].find(x=>/tambah warga/i.test(x.textContent.slice(0,60)));if(tw)P.warga.prepend(tw)} // tambah warga paling atas (paling sering dipakai)
+  const wrap=el('div','kk-kades'),bar=el('div','kk-tabs kk-kadestab');wrap.append(el('b','kk-kades-h','👑 Menu Kepala Desa'),bar);
+  let akt='warga';try{akt=localStorage.getItem('nk-kades-tab')||'warga'}catch(e){}
+  const pilih=k=>{akt=k;try{localStorage.setItem('nk-kades-tab',k)}catch(e){}bar.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));Object.values(P).forEach(p=>p.hidden=p.dataset.k!==k)};
+  CAT.forEach(([k,t])=>{if(!P[k].children.length)return;const b=el('button',null,t);b.type='button';b.dataset.k=k;b.onclick=()=>pilih(k);bar.append(b);wrap.append(P[k])});
+  if(!P[akt]||!P[akt].children.length)akt='warga';body.append(wrap);pilih(akt)}
 function kkTiketAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'🎫 Kasih tiket Jasa Pindahan (gratis)'),el('p','kk-muted','Tulis username (pisah koma/spasi). Contoh pemenang #PindahDesa → Truk, pendukung ≥10 Genteng → Paket (Helikoper + Truk).'));
   const ta=el('textarea');ta.rows=3;ta.placeholder='@user1, @user2, …';ta.style.cssText='width:100%;box-sizing:border-box;border:2px solid #1C2520;border-radius:10px;padding:8px;font:inherit';const msg=el('p','kk-msg');const row=el('div','kk-row');
   [['truk','🚚 +1 Truk'],['heli','🚁 +1 Helikoper'],['paket','🚁+🚚 Paket']].forEach(([j,t])=>row.append(kkBtn(t,'sm gold3',async e=>{const L=ta.value.trim();if(!L)return;if(!await kkYakin('Kasih tiket?',`${t} ke: ${L}`,'Ya, kirim'))return;e.target.disabled=true;const r=await kkApi('tiket-hadiah',{target:L,jenis:j,n:1},true);e.target.disabled=false;

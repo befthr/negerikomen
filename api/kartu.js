@@ -29,7 +29,7 @@ import crypto from 'crypto';
 import { terapkan, bolehOtomatis } from './_terapkan.js';
 import { EKS } from './_kavling.js';
 // ===== Jasa Pindahan Pak Kades =====
-const PINDAH = { truk: { harga: 3, dur: 1800 }, heli: { harga: 8, dur: 180 } }; // Truk Titut 30 mnt (kavling biasa) · Helikoper 3 mnt (kavling mana pun, termasuk eksklusif)
+const PINDAH = { truk: { harga: 3, dur: 1800 }, heli: { harga: 8, dur: 180 } }; // Truk Titut 30 mnt (kavling biasa) · Helikoper 3 mnt (khusus kavling eksklusif)
 const JEDA_PINDAH = 7 * 864e2; // boleh pindah lagi setelah 7 hari
 const JALUR_K = { bx0: -3, bx1: -1, by0: 6, by1: 11 }, KC = 45, KS = 6;
 const md = (a, m) => ((a % m) + m) % m;
@@ -702,7 +702,7 @@ export default async function handler(req, res) {
       const r = warga(D, s.u); if (!r) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa pindah.' });
       const tk = await tiketKu(s.u); if (tk[j] < 1) return res.status(400).json({ error: 'Kamu belum punya tiket ' + (j === 'heli' ? 'Helikoper' : 'Truk Titut') + '.' });
       const cd = +(await kv(['PTTL', 'pindah:cd:' + s.u])) || 0; if (cd > 0) return res.status(400).json({ error: 'Kamu baru pindah. Bisa pindah lagi ' + Math.ceil(cd / 864e5) + ' hari lagi.' });
-      const ek = eksDi(x, y); if (!(diJalurK(x, y) || (j === 'heli' && ek))) return res.status(400).json({ error: j === 'truk' && ek ? 'Kavling eksklusif cuma bisa didatangi Helikoper.' : 'Kavling itu tidak bisa dipilih.' });
+      const ek = eksDi(x, y); if (j === 'heli' ? !ek : !diJalurK(x, y)) return res.status(400).json({ error: j === 'truk' && ek ? 'Kavling eksklusif cuma bisa didatangi Helikoper.' : j === 'heli' ? 'Helikoper khusus ke kavling eksklusif.' : 'Kavling itu tidak bisa dipilih.' });
       const all = await pindahSemua(), kini = all[s.u] || null, dari = kini ? { x: kini.x, y: kini.y } : { x: r.x, y: r.y };
       const tempati = (D.residents || []).some(o => { const u2 = String(o.name).toLowerCase(), p = all[u2]; return p ? false : o.x === x && o.y === y });
       if (tempati) return res.status(409).json({ error: 'Kavling itu sudah ada rumahnya.' });

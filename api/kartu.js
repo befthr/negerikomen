@@ -44,7 +44,7 @@ function kavKampung(D, x, y) { if (x < 1 || y < 1 || x > KN - 2 || y > KN - 2) r
   return !(D.buildings || []).some(b => { const w = b.w || 3; return x >= b.x && x < b.x + w && y >= b.y && y < b.y + w }) }
 async function pindahSemua() { const a = await kv(['HGETALL', 'pindah']) || [], o = {}; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o[a[i]] = v } return o }
 // ===== Reaksi Rumah + Buku Tamu + Tetangga Idaman =====
-const RX = { mantap: 1, genteng: 2, tetangga: 3 }; // poin mingguan Tetangga Idaman
+const RX = { mantap: 1, genteng: 1, tetangga: 1 }; // poin mingguan Tetangga Idaman
 const hariWIB = (now = Date.now()) => { const w = new Date(now + 7 * 3600e3); return w.getUTCFullYear() + '-' + String(w.getUTCMonth() + 1).padStart(2, '0') + '-' + String(w.getUTCDate()).padStart(2, '0') };
 const KASAR = ['anjing','anjg','anjir','anjrit','bangsat','bajingan','babi','kontol','kntl','memek','mmk','ngentot','entot','ngewe','jancok','jancuk','jancik','asu','goblok','goblog','tolol','bego','idiot','kampret','tai','taik','brengsek','pantek','puki','pukimak','lonte','pelacur','sundal','perek','bencong','jembut','peler','toket','sange','colmek','coli','bokep','porno','bugil','telanjang','fuck','fck','shit','bitch','dick','pussy','asshole','nigga','nigger','kafir','bunuh','mampus','modar','setan','iblis','bodoh','dongo','cupu','sialan','keparat','laknat','bacot','bacod','tetek','pepek','itil','silit'];
 const KASAR_SUB = ['anjing','goblok','tolol','brengsek','kampret','pantek','lonte','kontol','memek','ngentot','bangsat','bajingan','pukimak','jancok','jancuk','ngewe','pelacur','jembut','colmek','bokep','pepek'];

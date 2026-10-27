@@ -305,6 +305,9 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .toko .tlist li+li{border-top:1.5px dashed #C9D1C6}
 .toko .tlist button{margin:6px 0}
 .toko .tlist .empty{padding:8px 0}
+.toko.ks .trak-row{margin:0;align-items:flex-start}.ks-ic{flex:none;width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font-size:30px;background:linear-gradient(145deg,#FFE7A8,#F6C453);border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink)}
+.toko.ks .trak-lede b{display:block;margin-top:4px}
+.ks-ct{display:block;margin-top:8px;font-size:13.5px}.ks-ct a{font-weight:800;color:var(--daun);text-decoration:none;word-break:break-word}
 .result .shopimg{width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--line);float:left;margin:0 12px 4px 0}
 .voucher{border:2px dashed var(--genteng);background:#FFF8F4}
 .voucher .lbl{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--genteng);color:#fff;border-radius:6px;padding:3px 7px;margin-bottom:8px}
@@ -1849,7 +1852,7 @@ function renderShops(){
   const ul=$('tList');ul.innerHTML='';
   $('tokoTitle').textContent=`Toko Warga (${fmt(SHOPS.length)})`;
   $('toko').classList.toggle('kosong',!SHOPS.length);
-  if(!SHOPS.length){if(HAS_TRAK&&typeof RUKO_ON!=='undefined'&&!RUKO_ON){$('toko').hidden=false;$('toko').classList.remove('kosong');ul.hidden=true;$('tokoTitle').textContent='🤝 Kerja sama usaha';const lp=$('toko').querySelector('.trak-lede');if(lp)lp.textContent='Punya toko atau usaha kecil? Ajukan lewat DM, Pak Kades pilih yang cocok buat warga.';return}if(HAS_TRAK&&typeof RUKO_ON!=='undefined'&&RUKO_ON){$('toko').hidden=false;ul.append(el('li','empty','🏪 Belum ada toko warga. Jadilah yang pertama!'))}return}
+  if(!SHOPS.length){if(HAS_TRAK&&typeof RUKO_ON!=='undefined'&&!RUKO_ON){$('toko').hidden=false;$('toko').classList.remove('kosong');ul.hidden=true;kerjaSama();return}if(HAS_TRAK&&typeof RUKO_ON!=='undefined'&&RUKO_ON){$('toko').hidden=false;ul.append(el('li','empty','🏪 Belum ada toko warga. Jadilah yang pertama!'))}return}
   $('toko').hidden=false;ul.hidden=false;
   SHOPS.forEach(o=>{const r=o.r,li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
     const src=safeImg(r.shop.img);let th;
@@ -1860,7 +1863,14 @@ function renderShops(){
     bt.onclick=()=>{if(o.i>=0)select({kind:'r',i:o.i});else{sel=null;dirty=true;showResult({kind:'s',j:o.j})}scrollMap()};li.append(bt);ul.append(li)})}
 const RUKO_ON=false; // ruko ditutup sementara (kerja sama usaha lewat DM)
 const HAS_TRAK=!!(D.trakteer&&/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.url||'')));
-if(HAS_TRAK&&!RUKO_ON){const n=$('tokoNote');n.innerHTML='';n.append('Ajukan lewat DM ',el('b',null,'@negerikomen'),'. Yang dipilih: ramah anak & seru buat kampung.')}
+// kartu kerja sama (ruko tutup): ikon kiri + penjelasan kanan, tanpa catatan di bawah garis
+function kerjaSama(){const t=$('toko');t.classList.add('ks');$('tokoNote').hidden=true;
+  const im=t.querySelector('.trak-row img');if(im){const ic=el('span','ks-ic','🤝');im.replaceWith(ic)}
+  $('tokoTitle').textContent='Kerja Sama & Kolaborasi';const lp=t.querySelector('.trak-lede');if(!lp)return;lp.innerHTML='';
+  const ig=document.createElement('a');ig.href='https://instagram.com/negerikomen';ig.target='_blank';ig.rel='noopener';ig.textContent='@negerikomen';
+  const ml=document.createElement('a');ml.href='mailto:negerikomen@gmail.com';ml.textContent='negerikomen@gmail.com';
+  const ct=el('span','ks-ct','📩 DM ');ct.append(ig,' atau email ',ml);
+  lp.append('Brand, UMKM, kreator, komunitas, sekolah, atau acara? Hadir di kampung lewat bangunan, item, atau tantangan seru di video. ',el('b',null,'Ramah anak, seru buat warga.'),ct)}
 if(HAS_TRAK&&RUKO_ON){const a=document.createElement('a');a.href=(/^https:\/\/(www\.)?trakteer\.id\//.test(String(D.trakteer.usaha||''))?D.trakteer.usaha:D.trakteer.url).trim();a.target='_blank';a.rel='noopener';a.textContent='Buka Usaha';
   const n=$('tokoNote');n.innerHTML='';const b=document.createElement('b');b.textContent='20 Genteng';const k1=el('span');k1.dataset.kk='';k1.hidden=true;k1.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari: buka Kartu Komen → Ubah rumah → Jadi ruko (',b,'), lalu traktir lewat paket ',a,'. ');
   const b2=document.createElement('b');b2.textContent='20 Genteng';const a2=a.cloneNode(true);const k2=el('span');k2.dataset.nokk='';k2.append('Sudah jadi warga? Rumahmu bisa jadi ruko selama 30 hari lewat paket ',a2,' (',b2,') di Trakteer. ');n.append(k1,k2);const dm=el('button','demoBtn demoSm','👀 Lihat contoh ruko 3D');dm.type='button';dm.onclick=openDemoRuko;n.append(el('br'),dm)}

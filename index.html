@@ -315,7 +315,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .v3gaya{position:absolute;left:10px;top:calc(min(46vh,420px) - 186px);z-index:2;padding:5px 10px;border-radius:999px;border:2px solid var(--ink);background:#1F2F5C;color:#fff;font:inherit;font-weight:800;font-size:12px;box-shadow:0 2px 0 var(--ink);cursor:pointer;opacity:.94}
 .v3skill{position:absolute;left:10px;top:calc(min(46vh,420px) - 156px);z-index:2;display:flex;flex-direction:column;gap:8px}.v3sk-w{display:flex;align-items:center;gap:6px}.v3sk{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%;border:2px solid var(--ink);color:#fff;font-size:19px;cursor:pointer;box-shadow:0 2px 0 var(--ink)}.v3sk:active{transform:translateY(2px);box-shadow:none}.v3sk-l{font:700 11px Poppins,sans-serif;background:rgba(255,255,255,.88);border:1.5px solid var(--ink);border-radius:999px;padding:2px 7px;white-space:nowrap}
 .v3fire{position:absolute;left:10px;top:calc(min(46vh,420px) - 50px);z-index:2;width:40px;height:40px;padding:0;display:grid;place-items:center;line-height:1;border-radius:50%;border:2px solid var(--ink);background:#D62E2E;color:#fff;font:inherit;font-weight:800;font-size:19px;box-shadow:0 2px 0 var(--ink);cursor:pointer;opacity:.94}.v3slash{top:calc(min(46vh,420px) - 98px);background:#2F74B5}.v3fly{top:calc(min(46vh,420px) - 146px);background:#E07A3E}.v3fire:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
-.v3share{position:absolute;right:10px;top:calc(min(46vh,420px) - 42px);z-index:2;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;border:2px solid var(--ink);background:#F2C230;color:var(--ink);font:800 13px var(--f-body);box-shadow:0 2px 0 var(--ink);cursor:pointer}.v3share:disabled{opacity:.6}
+.v3share{position:absolute;right:10px;top:calc(min(46vh,420px) - 42px);z-index:2;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;border:2px solid #1C2520;background:#1C2520;color:#fff;font:800 13px var(--f-body);box-shadow:0 2px 0 var(--ink);cursor:pointer}.v3share:disabled{opacity:.6}
 .v3scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .v3box canvas{display:block;flex:none;width:100%;height:min(46vh,420px);touch-action:none;cursor:grab}
 .v3x.back{right:auto;left:10px;font-size:20px}
@@ -602,7 +602,7 @@ html.peta-fs .mapbox.fs,html.peta-fs .mapbox.fs *,html.peta-fs .v3,html.peta-fs 
   <div class="v3box">
     <button type="button" class="v3x" id="v3x" aria-label="Tutup">✕</button>
     <canvas id="v3c"></canvas>
-    <button type="button" class="v3share" id="v3save">📸 Bagikan</button>
+    <button type="button" class="v3share" id="v3save">📤 Bagikan</button>
     <button type="button" class="v3fire" id="v3fire" hidden aria-label="Tembak mercon" title="Tembak mercon">💥</button>
     <button type="button" class="v3fire v3slash" id="v3slash" hidden aria-label="Tebas" title="Tebas">⚔️</button>
     <button type="button" class="v3fire v3fly" id="v3fly" hidden aria-label="Terbang" title="Terbang">☁️</button>
@@ -2387,7 +2387,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     try{if(!(window.NK_DATA&&window.NK_DATA.reaksi===false))left.append(reaksiBox(r))}catch(e){console.error(e)}
     const v3=el('button','btn gold3','🏠 Lihat 3D');v3.type='button';v3.onclick=()=>open3D(r,s.i);acts.append(v3);
     if(Array.isArray(r.items)&&r.items.slice(0,3).some(o=>o.id==='robot')){const me=(kkGet()||{}).u===String(r.name).toLowerCase();if(me){const jb=el('button','btn gold3','🤖 Jalan-jalan pakai GENTO');jb.type='button';jb.onclick=()=>{select({kind:'r',i:s.i},{instant:true});cam.zoom=Math.max(cam.zoom,1.3);mulaiSetir(s.i,'robot');scrollMap()};acts.append(jb)}}
-    const cp=el('button','btn dark','🔗 Share');cp.type='button';cp.title='Bagikan link rumah ini';
+    const cp=el('button','btn dark','📤 Bagikan');cp.type='button';cp.title='Bagikan link rumah ini';
     cp.onclick=async()=>{const url=location.origin+location.pathname+'#'+encodeURIComponent(r.name);if(navigator.share){try{await navigator.share({title:'Rumah @'+r.name+' di Negeri Komen',url});return}catch(e){if(e&&e.name==='AbortError')return}}copy(url)};acts.append(cp);
     if(KK_ON){const mine=(kkGet()||{}).u===String(r.name).toLowerCase();const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kamu':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka(r.name);acts.append(kb)}
     BLD.forEach(b=>{const w=(window.LOWONGAN||{})[bKey(b)];if(bossOf(b)===r.name&&w&&w.pelamar&&(kkGet()||{}).u===r.name){const pb=el('button','btn gold3','📝 '+w.pelamar+' pelamar di '+(b.name||'bangunanmu'));pb.type='button';pb.onclick=()=>kkBuka(r.name);acts.append(pb)}});

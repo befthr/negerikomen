@@ -3655,7 +3655,16 @@ function nagaTiang(){const D=desaBangun(),d=D&&D.pantaiDermaga;if(!d)return null
 let NAGA_SIM=0,NAGA_IKUT=0;
 function nagaRumah(){const u=window.NAGA_OWNER||(Date.now()<NAGA_SIM?'lembarpeta':null);if(!u)return null;const i=kkResIdx(u);if(i<0)return null;const r=RES[i];return {x:NK.wx(r.x),y:NK.wx(r.y),r}}
 // jalur dasar (detik) → titik dunia
-function nagaJalur(s){const H=nagaRumah();if(!H){const P=nagaTiang();if(!P)return null;const a=s*.45;return {x:P.x+Math.cos(a)*T*3,y:P.y-T*3.6+Math.sin(a*1.6)*T*1.3}}
+function nagaJalur(s){const B=nagaJalurDasar(s),M=window.NAGA_MODE,H=nagaRumah();if(!B||!M||!H||!M.at)return B;const t0=M.at/1000,d=s-t0;
+  const ease=v=>v<.5?2*v*v:1-Math.pow(-2*v+2,2)/2,mix=(A,C,w)=>({x:A.x+(C.x-A.x)*w,y:A.y+(C.y-A.y)*w}),FLY=24;if(d<0)return B;
+  const A0=nagaJalurDasar(t0)||B,O={x:H.x,y:H.y-T*2.4},orb=(P,r,k)=>({x:P.x+Math.cos(s*.35+k)*r,y:P.y+Math.sin(s*.35+k)*r*.6});
+  if(M.m==='pulang'&&d<3600)return mix(A0,orb(O,T*3.2,0),ease(Math.min(1,d/FLY)));
+  if(M.m==='main'&&d<1800){const hs=x=>{let h=2166136261;for(const c of String(x)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)/4294967296},L=T*46,LEG=60;
+    const sp=k=>{const a=hs(M.at+':'+k)*6.2832,dd=T*(18+hs(k+'#'+M.at)*30);return {x:Math.max(-L,Math.min(L,O.x+Math.cos(a)*dd)),y:Math.max(-L,Math.min(T*64,O.y+Math.sin(a)*dd))}};
+    const k=Math.floor(d/LEG),r0=d-k*LEG,A=k?orb(sp(k-1),T*3,k-1):A0,C=orb(sp(k),T*3,k);return r0<FLY?mix(A,C,ease(r0/FLY)):C}
+  const dur=M.m==='main'?1800:3600;if(d<dur+FLY)return mix(nagaJalur(t0+dur-.01),B,ease((d-dur)/FLY));
+  return B}
+function nagaJalurDasar(s){const H=nagaRumah();if(!H){const P=nagaTiang();if(!P)return null;const a=s*.45;return {x:P.x+Math.cos(a)*T*3,y:P.y-T*3.6+Math.sin(a*1.6)*T*1.3}}
   // jadwal seperti GENTO: tiap 10 mnt ±3 mnt melingkar di atas atap, ±7 mnt keluyuran ke 5 titik, lalu pulang. Selalu di udara.
   const hs=x=>{let h=2166136261;for(const c of String(x)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)/4294967296};
   const u=String(window.NAGA_OWNER||'lembarpeta'),CY=600,HOME=170,LEG=80,FLY=24,ph=hs(u+'ng')*CY,c=Math.floor((s+ph)/CY),q=s+ph-c*CY,O={x:H.x,y:H.y-T*2.4};
@@ -3745,7 +3754,8 @@ function nagaKetukCek(wxp,wyp,cx,cy){if(!STQA||!NAGA_ON())return false;const P=n
 function nagaPop(cx,cy){SND.play('pop',.8);document.querySelectorAll('.gento-pop').forEach(x=>x.remove());const u=window.NAGA_OWNER,me=(kkGet()||{}).u,own=u===me||!!NAGA_QA;
   const p=el('div','gento-pop');p.style.left=Math.min(innerWidth-12,Math.max(12,cx))+'px';p.style.top=Math.max(12,cy-14)+'px';
   p.append(el('b',null,'🐉 NAGASARI & Si Genteng milik @'+u),el('small',null,own?'Buka info rumah warga mana pun → 🎆 Sembur kembang api':'terbang bareng Cilok, Cireng, Cimol'));
-  const b=el('button','gento-btn','🏠 Lihat rumahnya');b.type='button';b.onclick=ev=>{ev.stopPropagation();p.remove();const k=kkResIdx(u);if(k>=0)select({kind:'r',i:k})};const b3=el('button','gento-btn','🐉 Lihat 3D');b3.type='button';b3.style.marginLeft='4px';b3.onclick=ev=>{ev.stopPropagation();p.remove();openDemoNaga()};p.append(b,b3);
+  const M=window.NAGA_MODE,pl=M&&M.m==='pulang'&&Date.now()-M.at<3600e3;if(own&&!NAGA_QA){const bm=el('button','gento-btn',pl?'🐉 Suruh main lagi':'🏠 Suruh pulang');bm.type='button';bm.onclick=async ev=>{ev.stopPropagation();bm.disabled=true;const m=pl?'main':'pulang';const r=await kkApi('naga-mode',{m},true);if(!r.ok){toast(r.error||'Gagal');bm.disabled=false;return}window.NAGA_MODE=r.mode;dirty=true;p.remove();toast(m==='main'?'🐉 NAGASARI terbang main keliling kampung! Bisa disuruh pulang kapan aja.':'🏠 NAGASARI pulang, melingkar di atas rumahmu (istirahat 1 jam).')};p.append(bm)}
+  const b=el('button','gento-btn','🏠 Lihat rumahnya');b.type='button';b.style.marginLeft=own&&!NAGA_QA?'4px':'';b.onclick=ev=>{ev.stopPropagation();p.remove();const k=kkResIdx(u);if(k>=0)select({kind:'r',i:k})};const b3=el('button','gento-btn','🐉 Lihat 3D');b3.type='button';b3.style.marginLeft='4px';b3.onclick=ev=>{ev.stopPropagation();p.remove();openDemoNaga()};p.append(b,b3);
   document.body.append(p);const tutup=ev=>{if(!p.contains(ev.target)){p.remove();document.removeEventListener('pointerdown',tutup,true)}};setTimeout(()=>document.addEventListener('pointerdown',tutup,true),50);setTimeout(()=>p.remove(),6000)}
 function bukaNagaInfo(){SND.play('pop',.8);const body=kkModal();const sv=kkItemSVG('naga');sv.style.cssText='width:120px;height:120px;display:block;margin:0 auto 4px';
   body.append(sv,el('h3',null,'🐉 NAGASARI'),el('p','kk-muted','EKSKLUSIF · cuma 1 di kampung · 25 Receh'));
@@ -3759,7 +3769,7 @@ async function nagaSembur(r,btn){const t=String(r.name).toLowerCase();let ev;if(
 function nagaCekKena(){const me=(kkGet()||{}).u;if(!me)return;let seen=0;try{seen=+localStorage.getItem('nk-sembur')||0}catch(e){}
   const E=(window.NAGA_SEMBUR||[]).filter(e=>e.t===me&&e.at>seen).sort((a,b)=>b.at-a.at)[0];if(!E)return;try{localStorage.setItem('nk-sembur',String(E.at))}catch(e){}
   setTimeout(()=>{toast('🎆 Rumahmu disembur NAGASARI milik @'+E.u+'!');try{SND.play('ting',.9)}catch(e){}},400)}
-function nagaData(j){if(NAGA_QA||!j||!j.naga)return;window.NAGA_OWNER=j.naga.owner||null;window.NAGA_SEMBUR=Array.isArray(j.naga.sembur)?j.naga.sembur:[];nagaCekKena()}
+function nagaData(j){if(NAGA_QA||!j||!j.naga)return;window.NAGA_OWNER=j.naga.owner||null;window.NAGA_MODE=j.naga.mode||null;window.NAGA_SEMBUR=Array.isArray(j.naga.sembur)?j.naga.sembur:[];nagaCekKena()}
 {const nq=(new URLSearchParams(location.search).get('naga')||'').toLowerCase();if(nq==='tiang'||nq==='main'||nq==='sembur'){NAGA_QA=nq;
   const pas=()=>{window.NAGA_OWNER=nq==='tiang'?null:'lembarpeta';if(nq==='sembur'){const n=Date.now(),L=window.NAGA_SEMBUR||[];if(!L.length||n-L[0].at>12000)window.NAGA_SEMBUR=[{u:'lembarpeta',t:'ryukaarvellacevana',at:n},...L].slice(0,1)}};
   pas();setInterval(pas,1000);setTimeout(()=>{try{const H=nq==='tiang'?nagaTiang():nq==='sembur'?(()=>{const i=kkResIdx('ryukaarvellacevana');return i>=0?{x:NK.wx(RES[i].x),y:NK.wx(RES[i].y)}:null})():nagaRumah();scrollMap();if(H)flyTo({cx:H.x,cy:H.y-T*2,zoom:clampZ(nq==='tiang'?1.2:.75)},900);
@@ -3970,7 +3980,7 @@ if(QA9)setTimeout(()=>{const n=Date.now(),G=desaBangun().EKS.find(e=>e.lok==='gu
   else if(QA9==='reaksi'){const k=kkResIdx('ryukaarvellacevana');if(k>=0){select({kind:'r',i:k});setTimeout(()=>{const b=$('result');if(b)b.scrollIntoView({block:'start',behavior:'smooth'})},600)}}
   else if(QA9==='idaman'){window.IDAMAN=[{u:'ryukaarvellacevana',poin:31},{u:'scnydpi',poin:22},{u:'lembarpeta',poin:19},...RES.slice(10,27).map((r,k)=>({u:String(r.name).toLowerCase(),poin:17-k}))];renderIdaman();scrollMap();const m=desaBangun().MTI;flyTo({cx:m.x+m.w/2,cy:m.y+m.h/2,zoom:clampZ(1)},900)}
   dirty=true},2600);
-window.__PDH={naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>Object.assign(RES[kkResIdx(u)],o),o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
+window.__PDH={ngj:s=>nagaJalur(s),naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>Object.assign(RES[kkResIdx(u)],o),o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
 
 /* ===== 👍 Reaksi Rumah + 📖 Buku Tamu + 🌟 Tetangga Idaman ===== */
 const RXD={mantap:{ic:'👍',n:'Mantap',p:1},genteng:{ic:'<img src="genteng.png" alt="">',n:'Genteng Keren',p:1},tetangga:{ic:'🏡',n:'Pengen Tetanggaan',p:1}};

@@ -388,6 +388,10 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .pdh-bar{position:fixed;left:50%;top:12px;border:3px solid #F2C230;transform:translateX(-50%);z-index:99;background:#1C2520;color:#F2C230;font:800 13px Poppins,sans-serif;border-radius:16px;padding:8px 10px 8px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 5px 0 rgba(0,0,0,.3);max-width:94vw}.pdh-bar .btn{flex:none}
 .gento-btn{font:800 13px Poppins,sans-serif;padding:3px 10px;border:2px solid #1C2520;border-radius:999px;background:#F2C230;color:#1C2520;cursor:pointer;vertical-align:1px;white-space:nowrap}.gento-btn:disabled{opacity:.6}.gento-pop{position:fixed;z-index:9999;transform:translate(-50%,-100%);background:#fff;border:3px solid #1C2520;border-radius:16px;padding:8px 12px;box-shadow:0 5px 0 #1C2520;display:flex;flex-direction:column;align-items:center;gap:5px;font:700 13px Poppins,sans-serif;white-space:nowrap}.gento-pop small{color:#C4502F;font-weight:600;margin-top:-4px}
 .rx-b.rx-only{cursor:default;box-shadow:none!important;border-style:dashed;transform:none!important}
+.gfxbar{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin:-4px 2px 8px;font-size:12px;color:#5b6a60;flex-wrap:wrap}.gfxbar span{margin-right:2px}.gfxbar button{font:600 11.5px/1 var(--f-body);padding:4px 9px;border-radius:999px;border:1.5px solid #c9c2b0;background:#fff;color:#1C2520;cursor:pointer}.gfxbar button.on{background:#1C2520;color:#F2C230;border-color:#1C2520}
+#zshare,#lgbtn,#legend{display:none!important} /* disederhanakan: tombol foto & keterangan peta disembunyikan */
+.mapbox .zoom{right:auto;left:12px} /* tombol peta di kiri bawah: tidak ketutup tombol Menu */
+.mapbox .kompas{top:12px}
 </style>
 </head>
 <body>
@@ -416,6 +420,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         </div>
         <ul class="sug" id="sug" role="listbox" hidden></ul>
       </div>
+      <div class="gfxbar" id="gfxbar" role="group" aria-label="Grafik peta"><span>⚙️ Grafik peta</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
       <button type="button" class="jw jw-go" id="jadiWarga" hidden style="display:none"><span>🏠</span><b>Belum punya rumah? Gini cara jadi warga</b><i>↓</i></button>
       <div class="result" id="result" hidden></div>
       <div class="questbar" id="questbar" hidden></div>
@@ -427,7 +432,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="zoom">
           <button type="button" id="zshare" aria-label="Bagikan peta" title="Bagikan peta">📸</button>
           <button type="button" id="snd" class="snd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button>
-          <button type="button" id="gfx" class="snd" aria-label="Pengaturan grafik peta" title="Grafik peta">⚙️</button>
           <button type="button" id="zin" aria-label="Perbesar">+</button>
           <button type="button" id="zout" aria-label="Perkecil">−</button>
           <button type="button" class="home" id="zhome" aria-label="Lihat seluruh kampung">⌂</button>
@@ -2467,7 +2471,7 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
     if(o.sembur&&o.sembur!==ngSem){ngSem=o.sembur;nagaSembur(Math.max(.4,k))}}
   function ketukNaga(){if(!on||!ac)return;lonceng(1)}
   return {start,stop,play,kend,naga,ketukNaga,get on(){return on},ok:!!AC}})();
-{const gb=$('gfx');if(gb)gb.onclick=()=>{const K=['hemat','seimbang','tinggi'];GFX=K[(K.indexOf(GFX)+1)%3];try{localStorage.setItem('nk-gfx',GFX)}catch(e){}try{resize()}catch(e){}dirty=true;const G=GFX_SET[GFX];toast('⚙️ Grafik peta: '+G.n+' · '+G.d)}}
+{const gb=$('gfxbar');if(gb){const tandai=()=>gb.querySelectorAll('button').forEach(b=>{const on=b.dataset.g===GFX;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});tandai();gb.querySelectorAll('button').forEach(b=>b.onclick=()=>{GFX=b.dataset.g;try{localStorage.setItem('nk-gfx',GFX)}catch(e){}try{resize()}catch(e){}dirty=true;tandai();const G=GFX_SET[GFX];toast('⚙️ Grafik peta: '+G.n+' · '+G.d)})}}
 {const b=$('snd');if(!SND.ok)b.hidden=true;
   const set=v=>{b.textContent=v?'🔊':'🔇';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
   b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾')}};

@@ -387,6 +387,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .pdh-st{font-size:14px;margin:6px 0}.pdh-log{margin-top:12px;font-size:13px;border-top:2px dashed #ccc;padding-top:8px;display:flex;flex-direction:column;gap:3px}
 .pdh-bar{position:fixed;left:50%;top:12px;border:3px solid #F2C230;transform:translateX(-50%);z-index:99;background:#1C2520;color:#F2C230;font:800 13px Poppins,sans-serif;border-radius:16px;padding:8px 10px 8px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 5px 0 rgba(0,0,0,.3);max-width:94vw}.pdh-bar .btn{flex:none}
 .gento-btn{font:800 13px Poppins,sans-serif;padding:3px 10px;border:2px solid #1C2520;border-radius:999px;background:#F2C230;color:#1C2520;cursor:pointer;vertical-align:1px;white-space:nowrap}.gento-btn:disabled{opacity:.6}.gento-pop{position:fixed;z-index:9999;transform:translate(-50%,-100%);background:#fff;border:3px solid #1C2520;border-radius:16px;padding:8px 12px;box-shadow:0 5px 0 #1C2520;display:flex;flex-direction:column;align-items:center;gap:5px;font:700 13px Poppins,sans-serif;white-space:nowrap}.gento-pop small{color:#C4502F;font-weight:600;margin-top:-4px}
+.rx-b.rx-only{cursor:default;box-shadow:none!important;border-style:dashed;transform:none!important}
 </style>
 </head>
 <body>
@@ -3989,8 +3990,8 @@ const RXD={mantap:{ic:'👍',n:'Mantap',p:1},genteng:{ic:'<img src="genteng.png"
 function rxIc(k){const s=el('span','ic');s.innerHTML=RXD[k].ic;return s}
 function reaksiBox(r){const w=el('div','rx'),row=el('div','rx-row'),st=el('div','rx-st'),bk=el('div','rx-bk');bk.hidden=true;let info=null;
   const me=(kkGet()||{}).u,self=me&&me===String(r.name).toLowerCase();
-  const render=()=>{row.innerHTML='';Object.keys(RXD).forEach(k=>{const b=el('button','rx-b'+(info&&info.sudah===k?' on':''));b.type='button';b.title=RXD[k].n;b.setAttribute('aria-label',RXD[k].n);b.append(rxIc(k),el('span','nm',RXD[k].n),el('b',null,info?String(info.n[k]||0):'0'));
-      if(info&&info.sudah)b.disabled=true;b.onclick=()=>reaksiKirim(r,k,()=>muat());row.append(b)});
+  const render=()=>{row.innerHTML='';Object.keys(RXD).forEach(k=>{const b=el(self?'span':'button','rx-b'+(self?' rx-only':'')+(info&&info.sudah===k?' on':''));if(!self)b.type='button';b.title=RXD[k].n;b.setAttribute('aria-label',RXD[k].n);b.append(rxIc(k),el('span','nm',RXD[k].n),el('b',null,info?String(info.n[k]||0):'0'));
+      if(!self){if(info&&info.sudah)b.disabled=true;b.onclick=()=>reaksiKirim(r,k,()=>muat())}row.append(b)});
     st.innerHTML='';const tm=el('span',null,`👀 ${info?info.tamu:0} hari ini`+(info&&info.sudah?' · ✓ sudah mampir':''));const bb=el('button','rx-bt',`📖 Buku Tamu (${info?info.buku.length:0})`);bb.type='button';bb.onclick=()=>{bk.hidden=!bk.hidden};st.append(tm,bb);
     bk.innerHTML='';if(info&&info.buku.length)info.buku.forEach(o=>{const d=el('div'),av=el('span','av');const k2=kkResIdx(o.u);av.style.background=k2>=0?NK.roofHex(RES[k2]):'#ccc';const tx=el('span'),a=el('a',null,'@'+o.u);a.onclick=()=>{if(k2>=0)select({kind:'r',i:k2})};
       tx.append(a,document.createTextNode(' '),rxIc(o.r));tx.lastChild.style.cssText='display:inline';const im=tx.querySelector('img');if(im)im.style.cssText='width:14px;height:14px;vertical-align:-2px';if(o.pesan)tx.append(el('i',null,'💬 '+o.pesan));d.append(av,tx);bk.append(d)});

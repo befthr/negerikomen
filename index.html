@@ -2393,7 +2393,18 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
   let starting=false;async function start(){if(on||starting)return;starting=true;await init();starting=false;if(!ac)return;await ac.resume();on=true;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(.55,ac.currentTime,.6);loop(ac.currentTime+.05);clearInterval(nt);nt=setInterval(tickMalam,120)}
   function stop(){on=false;clearTimeout(timer);clearInterval(nt);if(ac){master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(0,ac.currentTime,.15);setTimeout(()=>{if(!on)ac.suspend()},600)}}
   function play(n,v){if(!on||!fx[n])return;const s=ac.createBufferSource(),g=ac.createGain();s.buffer=fx[n];g.gain.value=v||1;s.connect(g);g.connect(ac.destination);s.start()}
-  return {start,stop,play,get on(){return on},ok:!!AC}})();
+  // 🚚🚁 suara kendaraan Jasa Pindahan (disintesis, tanpa file): mesin truk menderu, baling-baling helikoper, klakson telolet saat truk masuk layar
+  let kv=null,kLast=0,kTel=0,kPrevT=0;
+  function kendInit(){if(kv||!ac)return;const g1=ac.createGain(),g2=ac.createGain();g1.gain.value=0;g2.gain.value=0;g1.connect(master);g2.connect(master);
+    const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=52;const o2=ac.createOscillator();o2.type='square';o2.frequency.value=26;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=260;const og=ac.createGain();og.gain.value=.5;o.connect(lp);o2.connect(og);og.connect(lp);lp.connect(g1);
+    const lf=ac.createOscillator();lf.frequency.value=3.1;const lfg=ac.createGain();lfg.gain.value=4;lf.connect(lfg);lfg.connect(o.frequency);o.start();o2.start();lf.start();
+    const nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const ns=ac.createBufferSource();ns.buffer=nb;ns.loop=true;
+    const bp=ac.createBiquadFilter();bp.type='lowpass';bp.frequency.value=520;const am=ac.createGain();am.gain.value=.5;const ch=ac.createOscillator();ch.type='square';ch.frequency.value=13;const chg=ac.createGain();chg.gain.value=.5;ch.connect(chg);chg.connect(am.gain);ns.connect(bp);bp.connect(am);am.connect(g2);ns.start();ch.start();
+    kv={g1,g2};setInterval(()=>{if(kv&&ac&&performance.now()-kLast>900){kv.g1.gain.setTargetAtTime(0,ac.currentTime,.3);kv.g2.gain.setTargetAtTime(0,ac.currentTime,.3)}},500)}
+  function telolet(v){const T=ac.currentTime;[[659,.16],[784,.16],[659,.16],[784,.16],[880,.42]].reduce((t,[f,d])=>{[1,1.5].forEach(m=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f*m*.5;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.05*v,t+.02);g.gain.setValueAtTime(.05*v,t+d-.03);g.gain.exponentialRampToValueAtTime(.0001,t+d);const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1800;o.connect(lp);lp.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02)});return t+d+.03},T+.05)}
+  function kend(vt,vh){if(!on||!ac)return;kendInit();kLast=performance.now();const T=ac.currentTime;kv.g1.gain.setTargetAtTime(.32*vt,T,.25);kv.g2.gain.setTargetAtTime(.22*vh,T,.25);
+    if(vt>.35&&kPrevT<=.35&&T>kTel){telolet(Math.min(1,vt+.2));kTel=T+25}kPrevT=vt}
+  return {start,stop,play,kend,get on(){return on},ok:!!AC}})();
 {const b=$('snd');if(!SND.ok)b.hidden=true;
   const set=v=>{b.textContent=v?'🔊':'🔇';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
   b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾')}};
@@ -3654,6 +3665,8 @@ function drawPindahan(v,t){if(!STQA)return;ctx.setTransform(v.z,0,0,v.z,v.ox,v.o
       else if(r){/* rumah masih di tempat lama sampai dijemput */NK.drawHouse(r,1,1)}}
     if(!s)return;if(o.via==='truk'){pdhTruk(s.x,s.y,s.ang,s.bawa,r,t||0);TRK=1}else HL.push([s,r])});
   if(TRK)try{gerbangPapan(D)}catch(e){} // truk lewat di bawah papan gerbang
+  // volume suara ikut jarak kendaraan ke tengah layar
+  if(SND.on){let vt=0,vh=0;const zf=Math.min(1,v.z*1.4);Object.entries(window.PINDAH).forEach(([u,o])=>{if(Date.now()>o.at+o.dur*1000)return;const s=pdhStatus(u,o,now);if(!s)return;const d=Math.hypot(s.x-cam.cx,s.y-cam.cy)*v.z,k=Math.max(0,1-d/520)*zf;if(o.via==='truk')vt=Math.max(vt,k);else vh=Math.max(vh,k*(.35+.65*(s.lift||0)))});try{SND.kend(vt,vh)}catch(e){}}
   HL.forEach(([s,r])=>pdhHeli(s.x,s.y,s.ang,s.lift||0,s.bawa,r,t||0)); // helikoper terbang di atasnya
   // label (ukuran layar)
   Object.entries(window.PINDAH).forEach(([u,o])=>{const s=pdhStatus(u,o,now);if(!s)return;const end=o.at+o.dur*1000;

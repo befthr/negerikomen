@@ -2216,7 +2216,7 @@ function frame(now){
     try{if(PILIH)drawPilih(v,reduce?0:t)}catch(e){console.error(e)}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
-    drawLabels(v,reduce?0:t);dirty=false;
+    ctx.setTransform(1,0,0,1,0,0);drawLabels(v,reduce?0:t);dirty=false; // label pakai koordinat layar: reset transform (drawNaga dkk meninggalkan transform dunia)
   }
   if(reduce&&now-MALAM_T>60000){MALAM_T=now;dirty=true}
   requestAnimationFrame(frame);
@@ -2504,6 +2504,16 @@ function pratinjauNagaPeta(){try{close3D()}catch(e){}kkTutup&&kkTutup();scrollMa
   if(window.NAGA_OWNER){NAGA_IKUT=Date.now()+9000;const p=NAGA_PT||P;if(p)flyTo({cx:p.x,cy:p.y,zoom:clampZ(.8)},700);toast('🐉 Kamera ngikutin NAGASARI & Si Genteng…');return}
   if(P)flyTo({cx:P.x,cy:P.y-T*2,zoom:clampZ(1)},700);toast('🐉 NAGASARI masih ditali di Tiang Layangan Pantai Senja…');
   setTimeout(()=>{NAGA_SIM=Date.now()+14000;NAGA_IKUT=Date.now()+14000;toast('✨ Contoh simulasi: kalau sudah punya pemilik, NAGASARI terbang keliling kampung (cuma di perangkatmu)')},3200)}
+// 🌙 pratinjau malam di peta: NAGASARI nyala lampion + contoh Sembur Kembang Api ke rumah tetangga (cuma di perangkat ini, ±18 dtk)
+let NAGA_PVM=null;
+function pratinjauNagaMalam(){try{close3D()}catch(e){}try{kkTutup()}catch(e){}if(NAGA_PVM)NAGA_PVM();scrollMap();
+  const punya=!!window.NAGA_OWNER,ow=window.NAGA_OWNER||'lembarpeta';if(!punya){NAGA_SIM=Date.now()+18000}
+  window.__MALAM_PAKSA=true;dirty=true;NAGA_IKUT=Date.now()+4000;const H=nagaRumah();if(H)flyTo({cx:H.x,cy:H.y-T*2,zoom:clampZ(.9)},700);
+  toast('🌙 Pratinjau malam · NAGASARI nyala lampion'+(punya?' · milik @'+ow:' (contoh, cuma di perangkatmu)'));
+  const tm=setTimeout(()=>{const i=kkResIdx(ow);if(i<0)return;const o=RES[i];let best=-1,bd=1e9;RES.forEach((r,k)=>{if(k===i||r.lok)return;const d=Math.hypot(r.x-o.x,r.y-o.y);if(d>1.5&&d<bd){bd=d;best=k}});if(best<0)return;const t=String(RES[best].name).toLowerCase(),ev={u:ow,t,at:Date.now(),pv:1};
+    window.NAGA_SEMBUR=[ev,...(window.NAGA_SEMBUR||[])];try{SND.play('ting',.9)}catch(e){}toast('🎆 Contoh skill: NAGASARI nyembur kembang api ke rumah @'+t+'!');flyTo({cx:NK.wx(RES[best].x),cy:NK.wx(RES[best].y)-T*1.5,zoom:clampZ(1)},900)},3500);
+  const tm2=setTimeout(()=>{NAGA_PVM&&NAGA_PVM();try{toast('☀️ Pratinjau selesai')}catch(e){}},18000);
+  NAGA_PVM=()=>{clearTimeout(tm);clearTimeout(tm2);window.__MALAM_PAKSA=false;window.NAGA_SEMBUR=(window.NAGA_SEMBUR||[]).filter(e=>!e.pv);if(!punya)NAGA_SIM=0;dirty=true;NAGA_PVM=null}}
 function openDemoNaga(){const ow=window.NAGA_OWNER;let syal='#2F74B5';if(ow){const i=kkResIdx(ow);if(i>=0)try{syal=NK.roofHex(RES[i])}catch(e){}}
   open3D({demo:'naga',name:'naga',nick:'🐉 NAGASARI',x:0,y:0,wall:'krem',roof:'merah',items:[],nagaPemilik:ow||null,nagaSyal:syal},0)}
 function rental3D(g){const T=THREE;g.children.forEach((m,i)=>{if(i===0)m.scale.set(1.25,1,1.25);else m.visible=false});const H=new T.Group();H.rotation.y=.35;g.add(H);
@@ -4574,7 +4584,7 @@ async function open3D(r,i,bd0){document.querySelectorAll('.v3skill').forEach(x=>
   if(g.userData.naga){const N=g.userData.naga,box=cv.parentElement,ow=r.nagaPemilik;let mlm=false;const w=el('div','kk-game on'),gh=el('div','kk-gh');gh.append(kkItemSVG('naga'),el('b',null,ow?'NAGASARI':'NAGASARI · 25 Receh'));w.append(gh);
     const info=el('p','kk-muted',ow?'Coba skill-nya:':'Coba skill-nya dulu (cuma pamer di 3D):');const row=el('div','kk-row');row.style.flexWrap='wrap';
     const tg=kkBtn('🌙 Lihat malam','sm',()=>{mlm=!mlm;scn.background=mlm?SKY_MALAM:SKY_SIANG;hemi.intensity=mlm?.16:.5;hemi.color.set(mlm?'#8FA3D9':'#FFFFFF');sun.intensity=mlm?.1:.75;box.style.background=mlm?'linear-gradient(#0B1330,#1F2C5C 70%,#2B3A6B)':'';N.malam(mlm);tg.textContent=mlm?'☀️ Lihat siang':'🌙 Lihat malam'});
-    row.append(kkBtn('🗺️ Lihat di peta','sm',()=>pratinjauNagaPeta()),tg);
+    row.append(kkBtn('🗺️ Lihat di peta','sm',()=>pratinjauNagaPeta()),kkBtn('🌙 Lihat malam di peta + skill sembur','sm gold3',()=>pratinjauNagaMalam()),tg);
     // tombol skill bulat di kiri layar 3D (seperti tombol mercon GENTO)
     {const sk=el('div','v3skill');[['🤸','Si Genteng freestyle','#F2C230',()=>{const t2=N.freestyle();if(!ow)toast('Si Genteng ikut naik kalau NAGASARI sudah ada pemiliknya 😉');else toast(t2)}],['🎆','Sembur kembang api','#D62E2E',()=>{N.sembur();try{SND.play('ting',.8)}catch(e){}}],['🐉','Cilok, Cireng, Cimol main','#2F9E6A',()=>N.anak()]].forEach(([ic,nm,bg,fn])=>{const b=el('button','v3sk',ic);b.type='button';b.title=nm;b.setAttribute('aria-label',nm);b.style.background=bg;b.onclick=e=>{e.stopPropagation();fn()};sk.append(b)});$('v3fire').parentElement.append(sk)}
     w.append(info,row);

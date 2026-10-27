@@ -1514,7 +1514,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const tyE=o.tanpaJalur?ty1:Math.max(ty1,Math.min(C+JALUR.by1*S+S,Math.ceil(vy1/T+C)+1)),by1E=Math.max(by1,Math.ceil((tyE-C)/S)+1);
   // hemat: saat zoom jauh, tanah/sawah/jalan/pohon/kavling/bangunan digambar sekali ke kanvas cadangan, tiap frame tinggal ditempel
   const GKC=.3,useG=!o.anim&&!o.noCache&&!o.groundOnly&&!window.__NO_HCACHE&&z<=GKC*1.25&&typeof document!=='undefined';let skipG=false;
-  if(useG){const gx=(N/2+1)*T,gya=-gx-T*14,gyb=(JALUR.by1*S+S+2)*T,key=res.length+'|'+free.length+'|'+bld.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/30000);
+  if(useG){const gx=(N/2+1)*T,gya=-gx-T*14,gyb=(JALUR.by1*S+S+2)*T,key=res.length+'|'+free.length+'|'+bld.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/(window.__GFX==='hemat'?300000:30000));
     if(!GC){GC={c:document.createElement('canvas'),key:''};GC.c.width=Math.ceil(2*gx*GKC);GC.c.height=Math.ceil((gyb-gya)*GKC);GC.x=GC.c.getContext('2d')}
     if(GC.key!==key){const old=ctx;ctx=GC.x;try{drawWorld({W:GC.c.width,H:GC.c.height,z:GKC,ox:gx*GKC,oy:-gya*GKC},w,t,{tanpaJalur:o.tanpaJalur,groundOnly:true})}finally{ctx=old}GC.key=key;ctx.setTransform(z,0,0,z,ox,oy)}
     ctx.drawImage(GC.c,-gx,gya,2*gx,gyb-gya);skipG=true}
@@ -1664,7 +1664,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const dyn=r=>(r.items||[]).some(q=>{const id=q&&q.id||q;return EKI[id]||id==='motor'||id==='sepeda'}); // rumah yang isinya bergerak → selalu digambar langsung
   const KC=.3,useC=!o.anim&&!o.noCache&&!window.__NO_HCACHE&&z<=KC*1.25&&typeof document!=='undefined';
   if(useC){ // zoom jauh: semua rumah "diam" digambar sekali ke kanvas cadangan, tiap frame tinggal ditempel (perangkat murah jauh lebih lancar)
-    const off=(N/2+1)*T,key=res.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/30000);
+    const off=(N/2+1)*T,key=res.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/(window.__GFX==='hemat'?300000:30000));
     if(!HC){HC={c:document.createElement('canvas'),key:''};HC.c.width=HC.c.height=Math.ceil(2*off*KC);HC.x=HC.c.getContext('2d')}
     if(HC.key!==key){const old=ctx;ctx=HC.x;try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,HC.c.width,HC.c.height);ctx.setTransform(KC,0,0,KC,off*KC,off*KC);res.forEach(r=>{if(r.lok||r._tr||dyn(r))return;drawHouse(r,1,1)})}finally{ctx=old;ctx.setTransform(z,0,0,z,ox,oy)}HC.key=key}
     ctx.drawImage(HC.c,-off,-off,2*off,2*off);
@@ -4498,7 +4498,7 @@ let DC=null;
 function drawDesaC(v,t){if(!STQA)return;const z=v.z;if(z>.375||window.__NO_HCACHE){drawDesa(v,t);return}
   const B=desaBangun().bounds,KD=.2,x0=B.x0-T*20,y0=B.y0-T*20,x1=B.x1+T*20,y1=B.y1+T*30,VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z;
   if(VX0<x0||VY0<y0||VX1>x1||VY1>y1){drawDesa(v,t);return}
-  const key=(window.__HCV||0)+'|'+RES.length+'|'+Math.floor(Date.now()/10000);
+  const key=(window.__HCV||0)+'|'+RES.length+'|'+Math.floor(Date.now()/(window.__GFX==='hemat'?120000:10000)); // hemat: jarang digambar ulang (tiap gambar ulang macet ±0,5 dtk di perangkat lemah)
   if(!DC){DC={c:document.createElement('canvas'),key:''};DC.c.width=Math.ceil((x1-x0)*KD);DC.c.height=Math.ceil((y1-y0)*KD);DC.x=DC.c.getContext('2d')}
   if(DC.key!==key){ctx=DC.x;NK.use(DC.x);try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,DC.c.width,DC.c.height);drawDesa({W:DC.c.width,H:DC.c.height,z:KD,ox:-x0*KD,oy:-y0*KD},t)}catch(e){console.error(e)}finally{ctx=CTX0;NK.use(CTX0)}DC.key=key}
   ctx.setTransform(z,0,0,z,v.ox,v.oy);ctx.drawImage(DC.c,x0,y0,x1-x0,y1-y0)}

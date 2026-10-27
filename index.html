@@ -398,7 +398,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .mapbox.fs{position:fixed!important;inset:0!important;z-index:50!important;width:100vw!important;height:100dvh!important;max-height:none!important;border-radius:0!important;border:0!important;margin:0!important;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);box-sizing:border-box;background:#1C2520}
 html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{display:none!important}
 .mapbox.fs .zoom{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
-.mapbox.fs #gfxbar{position:absolute;z-index:5;left:calc(12px + env(safe-area-inset-left,0px));top:calc(54px + env(safe-area-inset-top,0px));margin:0;justify-content:flex-start;background:rgba(255,255,255,.92);border:2px solid #1C2520;border-radius:12px;padding:5px 8px;max-width:calc(100% - 24px)}
+.mapbox.fs #gfxbar{position:absolute;z-index:5;left:12px;top:56px;margin:0;justify-content:flex-start;background:rgba(255,255,255,.92);border:2px solid #1C2520;border-radius:12px;padding:5px 8px;max-width:calc(100% - 24px)}
 .mapbox.fs #result{position:absolute;z-index:6;left:calc(10px + env(safe-area-inset-left,0px));right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(68px + env(safe-area-inset-bottom,0px));max-height:46%;overflow:auto;margin:0;box-shadow:0 6px 0 rgba(0,0,0,.25)}
 /* layar penuh: sembunyikan isi halaman lain (dulu kalender/statistik ikut nongol di atas peta), popup tetap tampil */
 .fs-hide{visibility:hidden!important}
@@ -413,6 +413,11 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 #result>div:first-child{width:100%;min-width:0}
 #result>.acts{width:100%;flex-wrap:nowrap}
 #result>.acts>.btn{max-width:220px}
+.gfxbar .gtog{display:none}
+.mapbox.fs #gfxbar .gtog{display:inline-block;font:700 12px/1 var(--f-body);padding:6px 10px;border-radius:999px;border:1.5px solid #1C2520;background:#1C2520;color:#fff;cursor:pointer}
+.mapbox.fs #gfxbar:not(.buka){padding:0;border:0;background:none}
+.mapbox.fs #gfxbar:not(.buka)>:not(.gtog){display:none}
+.mapbox.fs #gfxbar.buka .gtog{background:#fff;color:#1C2520}
 </style>
 </head>
 <body>
@@ -441,7 +446,7 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
         </div>
         <ul class="sug" id="sug" role="listbox" hidden></ul>
       </div>
-      <div class="gfxbar" id="gfxbar" role="group" aria-label="Pengaturan peta"><button type="button" id="snd" class="snd gsnd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇 Suara</button><span class="gsep"></span><span>⚙️ Grafik</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
+      <div class="gfxbar" id="gfxbar" role="group" aria-label="Pengaturan peta"><button type="button" class="gtog" id="gtog" aria-expanded="false">⚙️ Setelan</button><button type="button" id="snd" class="snd gsnd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇 Suara</button><span class="gsep"></span><span>⚙️ Grafik</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
       <button type="button" class="jw jw-go" id="jadiWarga" hidden style="display:none"><span>🏠</span><b>Belum punya rumah? Gini cara jadi warga</b><i>↓</i></button>
       <div class="result" id="result" hidden></div>
       <div class="questbar" id="questbar" hidden></div>
@@ -2322,9 +2327,10 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
 }
 $('zin').onclick=()=>zoomAt(cw/2,ch/2,1.5);$('zout').onclick=()=>zoomAt(cw/2,ch/2,1/1.5);
 /* ⛶ layar penuh: peta memenuhi layar (pakai Fullscreen API kalau ada, selalu juga mode CSS supaya jalan di browser IG/iPhone) */
-{const mb=document.querySelector('.mapbox'),fb=$('zfull');const gb=$('gfxbar'),gbHome=gb&&gb.parentNode,gbNext=gb&&gb.nextSibling,rs=$('result'),rsHome=rs&&rs.parentNode,rsNext=rs&&rs.nextSibling;const sembunyi=on=>{document.querySelectorAll('.fs-hide').forEach(x=>x.classList.remove('fs-hide'));if(!on)return; // sembunyikan isi halaman (yang tidak melayang) di sekitar peta; semua popup/modal (posisi fixed) tetap tampil
-    for(let n=mb;n&&n!==document.body;n=n.parentElement){for(const s of n.parentElement.children){if(s===n||s.tagName==='SCRIPT'||s.tagName==='STYLE')continue;const ps=getComputedStyle(s).position;if(ps!=='fixed')s.classList.add('fs-hide')}}};
-  const set=on=>{window.__KEEPCAM=1;sembunyi(on);if(gb){if(on)mb.append(gb);else if(gbHome)gbHome.insertBefore(gb,gbNext)}if(rs){if(on)mb.append(rs);else if(rsHome)rsHome.insertBefore(rs,rsNext)}mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
+{const mb=document.querySelector('.mapbox'),fb=$('zfull');{const tg=$('gtog'),g=$('gfxbar');if(tg)tg.onclick=()=>{const on=!g.classList.contains('buka');g.classList.toggle('buka',on);tg.setAttribute('aria-expanded',on?'true':'false');tg.textContent=on?'✕':'⚙️ Setelan';tg.setAttribute('aria-label',on?'Tutup setelan':'Buka setelan')}}
+  const gb=$('gfxbar'),gbHome=gb&&gb.parentNode,gbNext=gb&&gb.nextSibling,rs=$('result'),rsHome=rs&&rs.parentNode,rsNext=rs&&rs.nextSibling;const sembunyi=on=>{document.querySelectorAll('.fs-hide').forEach(x=>x.classList.remove('fs-hide'));if(!on)return; // sembunyikan isi halaman (yang tidak melayang) di sekitar peta; semua popup/modal (posisi fixed) tetap tampil
+    for(let n=mb;n&&n!==document.body;n=n.parentElement){for(const s of n.parentElement.children){if(s===n||s.tagName==='SCRIPT'||s.tagName==='STYLE'||s.id==='gfxbar'||s.id==='result')continue;const ps=getComputedStyle(s).position;if(ps!=='fixed')s.classList.add('fs-hide')}}};
+  const set=on=>{window.__KEEPCAM=1;sembunyi(on);if(gb){gb.classList.remove('buka');const tg=$('gtog');if(tg){tg.textContent='⚙️ Setelan';tg.setAttribute('aria-expanded','false')}if(on)mb.append(gb);else if(gbHome)gbHome.insertBefore(gb,gbNext)}if(rs){if(on)mb.append(rs);else if(rsHome)rsHome.insertBefore(rs,rsNext)}mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
   fb.onclick=async()=>{const on=!mb.classList.contains('fs');set(on);try{if(on){const de=document.documentElement;if(de.requestFullscreen)await de.requestFullscreen()} /* seluruh halaman yang fullscreen (bukan cuma peta), supaya popup rumah/3D/kartu tetap tampil di atasnya */else if(document.fullscreenElement)await document.exitFullscreen()}catch(e){}};
   document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&mb.classList.contains('fs'))set(false)});
   addEventListener('keydown',e=>{if(e.key==='Escape'&&mb.classList.contains('fs')&&!document.fullscreenElement)set(false)})}
@@ -2510,7 +2516,7 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
     if(o.sembur&&o.sembur!==ngSem){ngSem=o.sembur;nagaSembur(Math.max(.4,k))}}
   function ketukNaga(){if(!on||!ac)return;lonceng(1)}
   return {start,stop,play,kend,naga,ketukNaga,get on(){return on},ok:!!AC}})();
-{const gb=$('gfxbar');if(gb){const tandai=()=>gb.querySelectorAll('button').forEach(b=>{const on=b.dataset.g===GFX;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});tandai();gb.querySelectorAll('button').forEach(b=>b.onclick=()=>{GFX=b.dataset.g;try{localStorage.setItem('nk-gfx',GFX)}catch(e){}try{resize()}catch(e){}dirty=true;tandai();const G=GFX_SET[GFX];toast('⚙️ Grafik peta: '+G.n+' · '+G.d)})}}
+{const gb=$('gfxbar');if(gb){const tandai=()=>gb.querySelectorAll('button[data-g]').forEach(b=>{const on=b.dataset.g===GFX;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});tandai();gb.querySelectorAll('button[data-g]').forEach(b=>b.onclick=()=>{GFX=b.dataset.g;try{localStorage.setItem('nk-gfx',GFX)}catch(e){}try{resize()}catch(e){}dirty=true;tandai();const G=GFX_SET[GFX];toast('⚙️ Grafik peta: '+G.n+' · '+G.d)})}}
 {const b=$('snd');if(!SND.ok)b.hidden=true;
   const set=v=>{b.textContent=v?'🔊 Suara':'🔇 Suara';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
   b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾')}};

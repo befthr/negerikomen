@@ -4057,7 +4057,7 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
    const rx=wd.rx+T*4.2,ry=wd.ry+T*4,ring=[];for(let i=0;i<=48;i++){const a=i/48*6.2832;ring.push([wd.x+Math.cos(a)*rx,wd.y+Math.sin(a)*ry])}GANG.push(ring);GANG.push([[wd.x,wd.y-ry],[wd.x,jalanY]]);
    EKS.filter(e=>e.lok==='waduk').forEach(e=>{const x=W(e.x),y=W(e.y),a=Math.atan2((y-wd.y)/ry,(x-wd.x)/rx);GANG.push([[x,y],[wd.x+Math.cos(a)*rx,wd.y+Math.sin(a)*ry]])});
    // gunung: jalan kaki gunung berkelok + jalan setapak zig-zag (serpentin) naik ke tiap kavling
-   const gn=EKS.filter(e=>e.lok==='gunung'),gx=gn.map(e=>W(e.x)),fx0=Math.min(...gx)-T,fx1=Math.max(...gx)+T,fyA=x=>M.y1-T*2+Math.sin(x/(T*5))*T*.6,kaki=[];
+   const gn=EKS.filter(e=>e.lok==='gunung'),gx=gn.map(e=>W(e.x)),fx0=Math.min(...gx)-T,fx1=Math.max(...gx)+T,fyA=x=>M.y1-T*2+Math.sin(x/(T*5))*T*.6+T*3.2*Math.exp(-Math.pow((x-sungai2[0][0])/(T*3.5),2)),/* jalan menurun dulu biar nyebrang sungai di bawah air terjun, bukan di bibirnya */kaki=[];
    for(let x=fx0;x<=fx1+1;x+=T*.8)kaki.push([x,fyA(x)]);kaki.s=1;GANG.push(kaki);const mx=Math.round((fx0+fx1)/2/(T*.8))*T*.8;GANG.push([[fx0+mx-fx0,fyA(fx0+mx-fx0)],[fx0+mx-fx0,jalanY]]);GANG.gx=mx;
    gn.forEach((e,n)=>{const sx=W(e.x),sy=W(e.y)+T*.45,fy=fyA(sx),k=Math.max(2,Math.round((fy-sy)/(T*1.5))),P=[[sx,fy]];for(let i=1;i<k;i++)P.push([sx+((i+n)%2?T*.95:-T*.95),fy-(fy-sy)*i/k]);P.push([sx,sy]);P.s=1;GANG.push(P)});
    // pantai: jalan papan kayu (boardwalk) di depan deretan kavling, nyambung ke dermaga kayu yang sudah ada
@@ -4252,7 +4252,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.fillStyle='#5A3A1E';ctx.fillRect(X-w*.32-4*d,y0+h-2*d,7*d,f*1.1);ctx.fillRect(X+w*.32-4*d,y0+h-2*d,7*d,f*1.1);
    ctx.fillStyle='#2F6B4F';ctx.fillRect(x0,y0,w,h);ctx.fillStyle='#F4EFE3';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,h-6*d);ctx.fillStyle='#2F6B4F';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,f*.32);
    ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*d;ctx.strokeRect(x0,y0,w,h);ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y+f*.15);ctx.restore()};
-  lb((D.GANG.gx||(M.x0+M.x1)/2)-T*4.5,M.y1+T*.7,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x-wd.rx*.2,wd.y+wd.ry+T*2.2,'💧 Waduk');lb(F.x1-T*5,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0]+T*4,D.sungai2[0][1]+T*2.2,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y-T*1.6,'🌾 Sawah terasering');
+  lb((D.GANG.gx||(M.x0+M.x1)/2)-T*4.5,M.y1+T*.7,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x-wd.rx*.2,wd.y+wd.ry+T*2.2,'💧 Waduk');lb(F.x1-T*5,(F.y0+F.y1)/2,'🌲 Hutan');lb(D.sungai2[0][0]+T*4.2,D.sungai2[0][1]+T*4.6,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y-T*1.6,'🌾 Sawah terasering');
   ctx.setTransform(1,0,0,1,0,0)}
 function stdPos(){desaBangun()}
 function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {x,y,w,h}=STD;

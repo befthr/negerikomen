@@ -2453,7 +2453,9 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
      const A=g.userData.anim||(g.userData.anim=[]);A.push(t=>{w.position.y=.012+Math.sin(t*.002)*.01})}
    else if(r.lok==='waduk'){ground.material.color.set('#86B957');seg(3,'#5DA9D6',.012);box(.8,.08,2.6,'#8A5A2E',2.4,.06,3.9);const bt=box(.7,.22,1.4,'#F4EFE3',3.3,.1,4.4);const bt2=box(.5,.08,1,NK.roofHex(r),3.3,.24,4.4);
      const A=g.userData.anim||(g.userData.anim=[]);A.push(t=>{const k=Math.sin(t*.0016)*.04;bt.position.y=.1+k;bt2.position.y=.24+k})}
-   else if(r.lok==='gunung'){ground.material.color.set('#7FA85A');for(let i=0;i<4;i++)for(let j=0;j<6;j++){const b2=new T.Mesh(new T.SphereGeometry(.22,8,6),M(i%2?'#4E9A3F':'#5DAA4A'));b2.scale.y=.6;b2.position.set(-3.4+j*.55,.12,1.4+i*.55);g.add(b2)}
+   else if(r.lok==='gunung'){ground.material.color.set('#7FA85A');[-1,1].forEach(sd=>{for(let i=0;i<5;i++){const z=-.6+i*.75,ln=2.5-Math.abs(i-2)*.25,cx=sd*(1.95+ln/2);const b2=new T.Mesh(new T.BoxGeometry(ln,.34,.42),M('#3E8A34'));b2.position.set(cx,.17,z);b2.castShadow=true;g.add(b2);const tp=new T.Mesh(new T.BoxGeometry(ln-.06,.08,.36),M('#8FD05A'));tp.position.set(cx,.38,z);g.add(tp)}});
+     {const cv2=document.createElement('canvas');cv2.width=360;cv2.height=110;const c2=cv2.getContext('2d');c2.fillStyle='#2F6B2A';c2.fillRect(0,0,360,110);c2.strokeStyle='#F4EBD0';c2.lineWidth=8;c2.strokeRect(4,4,352,102);c2.fillStyle='#F4EBD0';c2.font="800 40px Poppins,'Noto Color Emoji',sans-serif";c2.textAlign='center';c2.textBaseline='middle';c2.fillText('🍵 KEBUN TEH',180,56);
+      const gp=new T.Mesh(new T.PlaneGeometry(2.1,.64),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv2)}));gp.position.set(3,1.25,3.3);g.add(gp);const p=new T.Mesh(new T.BoxGeometry(.12,1,.12),M('#6B4A2E'));p.position.set(3,.5,3.28);g.add(p)}
      [[-4,-7,3.2],[1,-8,4],[5,-6.5,2.8]].forEach(([x,z,h])=>{const c=new T.Mesh(new T.ConeGeometry(h*.9,h,7),M('#6E8F6A'));c.position.set(x,h/2-.2,z);g.add(c);const sn=new T.Mesh(new T.ConeGeometry(h*.3,h*.33,7),M('#F4F6F8'));sn.position.set(x,h-.2-h*.165+.02,z);g.add(sn)})}
    else if(r.lok==='gerbang'){/* tanah hijau biasa; di belakang rumah jalan desa yang ramai kendaraan lewat (dekat plang gerbang) */
      const gb=new T.Group();gb.rotation.y=Math.PI;g.add(gb);const segB=(z0,col,y)=>{const m=seg(z0,col,y);g.remove(m);gb.add(m);return m};segB(3.7,'#7A7A7A',.014);segB(5.35,'#86B957',.018);
@@ -3589,7 +3591,7 @@ function drawMarkas(v,t){const D=desaBangun(),{OT,SH}=D;
 function drawFasilitas(r,t){const X=NK.wx(r.x),Y=NK.wx(r.y),D=desaBangun(),rf=NK.roofHex(r);
   if(r.lok==='waduk'){const a=Math.atan2(D.wd.y-Y,D.wd.x-X),L=T*2.4;ctx.save();ctx.translate(X,Y);ctx.rotate(a);ctx.fillStyle='#8A5A2E';ctx.fillRect(T*.4,-T*.22,L,T*.44);ctx.fillStyle='#A8743F';for(let i=0;i<8;i++)ctx.fillRect(T*.45+i*L/8,-T*.22,L/16,T*.44);
     const bob=Math.sin(t*1.6+r.x)*2;ctx.translate(T*.4+L+T*.2,T*.55+bob);ctx.fillStyle='#fff';ctx.strokeStyle='#1C2520';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,0,T*.5,T*.2,0,0,7);ctx.fill();ctx.stroke();ctx.fillStyle=rf;ctx.beginPath();ctx.ellipse(0,0,T*.36,T*.12,0,0,7);ctx.fill();ctx.restore()}
-  else if(r.lok==='gunung'){ctx.save();for(let i=0;i<3;i++)for(let j=0;j<4;j++){ctx.fillStyle=(i+j)%2?'#4E9A3F':'#5DAA4A';ctx.beginPath();ctx.ellipse(X+T*1.1+j*T*.42,Y-T*.5+i*T*.42,T*.2,T*.13,0,0,7);ctx.fill()}ctx.restore()}
+  else if(r.lok==='gunung'){}
   else if(r.lok==='gerbang'){const bx=X-T*.2,by=Y-T*1.55;ctx.fillStyle='#6B5B45';ctx.fillRect(bx-T*.9,by+T*.5,3,T*.6);ctx.fillRect(bx+T*.9-3,by+T*.5,3,T*.6);ctx.fillStyle='#fff';ctx.strokeStyle='#1C2520';ctx.lineWidth=1.5;ctx.fillRect(bx-T*1.05,by,T*2.1,T*.55);ctx.strokeRect(bx-T*1.05,by,T*2.1,T*.55);
     ctx.fillStyle='#C4502F';ctx.fillRect(bx-T*1.05,by,T*2.1,T*.12);ctx.fillStyle='#1C2520';ctx.font=`800 ${T*.17}px Poppins,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Selamat datang! — @'+String(r.name).slice(0,16),bx,by+T*.34)}
   else if(r.lok==='pantai'){try{ctx.save();ctx.translate(X+T*1.15,Y+T*.1);ctx.scale(.55,.55);NK.ladangHewan.kelapa(0,0,t,r.x);ctx.restore()}catch(e){ctx.restore()}ctx.strokeStyle='#C49A5A';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X+T*.75,Y+T*.1);ctx.quadraticCurveTo(X+T*1.2,Y+T*.45,X+T*1.6,Y+T*.12);ctx.stroke();ctx.fillStyle='rgba(226,69,60,.8)';ctx.beginPath();ctx.moveTo(X+T*.8,Y+T*.15);ctx.quadraticCurveTo(X+T*1.2,Y+T*.5,X+T*1.55,Y+T*.17);ctx.quadraticCurveTo(X+T*1.2,Y+T*.38,X+T*.8,Y+T*.15);ctx.fill();
@@ -3605,16 +3607,34 @@ function drawPilih(v,t){  {/* mode pilih lokasi: peta digelapkan, cuma kavling y
      {const dk=k[0]==='d'&&k!=='jalur'?+k.slice(1):null;pdhTag(v,dk!=null?DSN_Q[dk].cx:cx,dk!=null?DSN_Q[dk].cy-(dk===2?T*14:0):ty,k==='jalur'?'📍 Jalur Senja Awan · '+L.length+' kavling':dk!=null?'🏡 Dusun '+dsnLabel(dk).replace(/^Dusun /,'')+' · '+L.length+' kosong':LOKP[k].ic+' '+LOKP[k].n+' · '+L.length+' 💎',k==='jalur'||dk!=null?'kavling biasa':LOKP[k].f,k==='jalur'||dk!=null?'#F2C230':'#CFE8F7')}});
    {const i=kkResIdx(PILIH.u);if(i>=0){const r=RES[i],X=NK.wx(r.x),Y=NK.wx(r.y);ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([8,6]);ctx.beginPath();ctx.arc(X,Y,T*.9,0,7);ctx.stroke();ctx.setLineDash([]);NK.drawHouse(r,1,1);pdhTag(v,X,Y-T*1,'🏠 Rumahmu sekarang',null,'#fff')}}}
 }
+// papan gerbang melintang di atas jalan (Desa Awalkomen & desa baru) — digambar ulang setelah kendaraan, jadi truk lewat DI BAWAH papan
+function gerbangPapan(D){
+  {const K=D.K,gx=K.x1-T*2.4,gy=D.jalanY,bw=T*4.6,bh=T*4.6;
+   [gy-T*3.9,gy+T*2.5].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(gx-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(gx-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(gx-T*.8,y+T*.25,T*1.6,T*.9)});
+   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(gx-bw/2+10,gy-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(gx-bw/2-T*.3,gy-bh/2-T*.3,bw+T*.6,bh+T*.6);
+   ctx.fillStyle='#F2C230';ctx.fillRect(gx-bw/2,gy-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(gx-bw/2,gy-bh/2,bw,bh);
+   for(let i=0;i<6;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(gx-bw/2+i*bw/6,gy-bh/2-T*.75,bw/6,T*.4)}
+   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';const fit=(t,f,y,w8)=>{let fs=f;ctx.font=`${w8} ${fs}px Poppins,sans-serif`;while(ctx.measureText(t).width>bw*.88&&fs>T*.3){fs-=T*.04;ctx.font=`${w8} ${fs}px Poppins,sans-serif`}ctx.fillText(t,gx,y)};
+   fit('SELAMAT DATANG DI',T*.5,gy-T*1.5,700);fit('DESA',T*1.1,gy-T*.45,800);fit('AWALKOMEN',T*1.1,gy+T*.85,800)}
+  {const g=D.gate,bw=T*13,bh=T*4.2;// gerbang besar dilihat dari atas: 2 tugu di sisi jalan + papan nama melintang
+   [g.y-T*3.6,g.y+T*2.2].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(g.x-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(g.x-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(g.x-T*.8,y+T*.25,T*1.6,T*.9)});
+   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);
+   ctx.fillStyle='#F2C230';ctx.fillRect(g.x-bw/2,g.y-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(g.x-bw/2,g.y-bh/2,bw,bh);
+   for(let i=0;i<14;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(g.x-bw/2+i*bw/14,g.y-bh/2-T*.75,bw/14,T*.4)}
+   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${T*.8}px Poppins,sans-serif`;ctx.fillText('SELAMAT DATANG DI',g.x,g.y-T*1.2);{const nm=NAMA_DESA.toUpperCase();let fs=T*1.6;ctx.font=`800 ${fs}px Poppins,sans-serif`;while(ctx.measureText(nm).width>bw*.92&&fs>T*.5){fs-=T*.05;ctx.font=`800 ${fs}px Poppins,sans-serif`}ctx.fillText(nm,g.x,g.y+T*.4)}if(NAMA_DESA_OLEH){ctx.fillStyle='#6B4527';ctx.font=`700 ${T*.55}px Poppins,sans-serif`;ctx.fillText('usulan @'+NAMA_DESA_OLEH,g.x,g.y+T*1.55)}}
+}
 function drawPindahan(v,t){if(!STQA)return;ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);const now=Date.now(),D=desaBangun();try{drawMarkas(v,t)}catch(e){}try{drawMonumen(v,t)}catch(e){}
   // warga di kavling eksklusif (di luar grid kampung): fasilitas + rumah
   {const RP=window.__ROBOT||[],n0=RP.length;RES.forEach(r=>{if(!r.lok||r._tr)return;try{drawFasilitas(r,t||0)}catch(e){}NK.drawHouse(r,1,1)});if(RP.length>n0&&window.__GAMBAR_ROBOT)try{window.__GAMBAR_ROBOT(RP.slice(n0))}catch(e){}}
   // mode pilih kavling: kavling bebas menyala
   // perjalanan yang sedang berlangsung
-  Object.entries(window.PINDAH).forEach(([u,o])=>{const s=pdhStatus(u,o,now);const i=kkResIdx(u),r=i>=0?RES[i]:null;
+  let TRK=0;const HL=[];Object.entries(window.PINDAH).forEach(([u,o])=>{const s=pdhStatus(u,o,now);const i=kkResIdx(u),r=i>=0?RES[i]:null;
     const end=o.at+o.dur*1000;if(now<end){const X=NK.wx(o.x),Y=NK.wx(o.y);ctx.strokeStyle='#C4502F';ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.strokeRect(X-T*.42,Y-T*.42,T*.84,T*.84);ctx.setLineDash([]);
       if(s&&s.fase!=='jemput'){const ax=NK.wx(o.dari.x),ay=NK.wx(o.dari.y);ctx.fillStyle='rgba(120,100,80,.35)';ctx.fillRect(ax-T*.36,ay-T*.3,T*.72,T*.6);ctx.strokeStyle='rgba(60,50,40,.6)';ctx.setLineDash([4,4]);ctx.strokeRect(ax-T*.36,ay-T*.3,T*.72,T*.6);ctx.setLineDash([])}
       else if(r){/* rumah masih di tempat lama sampai dijemput */NK.drawHouse(r,1,1)}}
-    if(!s)return;if(o.via==='truk')pdhTruk(s.x,s.y,s.ang,s.bawa,r,t||0);else pdhHeli(s.x,s.y,s.ang,s.lift||0,s.bawa,r,t||0)});
+    if(!s)return;if(o.via==='truk'){pdhTruk(s.x,s.y,s.ang,s.bawa,r,t||0);TRK=1}else HL.push([s,r])});
+  if(TRK)try{gerbangPapan(D)}catch(e){} // truk lewat di bawah papan gerbang
+  HL.forEach(([s,r])=>pdhHeli(s.x,s.y,s.ang,s.lift||0,s.bawa,r,t||0)); // helikoper terbang di atasnya
   // label (ukuran layar)
   Object.entries(window.PINDAH).forEach(([u,o])=>{const s=pdhStatus(u,o,now);if(!s)return;const end=o.at+o.dur*1000;
     if(now<end){pdhTag(v,s.x,s.y-(o.via==='heli'?T*(1.6*(s.lift||0)+.8):T*.7),(s.bawa>0?'📦 Rumah @':'📦 Jemput rumah @')+u,'⏳ '+pdhSisa(o,now)+' lagi');pdhTag(v,NK.wx(o.x),NK.wx(o.y)-T*.55,'📦 Dipesan @'+u,null,'#F2C230')}
@@ -3991,11 +4011,14 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
    EKS.filter(e=>e.lok==='gerbang').forEach(e=>GANG.push([[W(e.x),W(e.y)+T*.3],[W(e.x),jalanY]]));
    const rx=wd.rx+T*4.2,ry=wd.ry+T*4,ring=[];for(let i=0;i<=48;i++){const a=i/48*6.2832;ring.push([wd.x+Math.cos(a)*rx,wd.y+Math.sin(a)*ry])}GANG.push(ring);GANG.push([[wd.x,wd.y-ry],[wd.x,jalanY]]);
    EKS.filter(e=>e.lok==='waduk').forEach(e=>{const x=W(e.x),y=W(e.y),a=Math.atan2((y-wd.y)/ry,(x-wd.x)/rx);GANG.push([[x,y],[wd.x+Math.cos(a)*rx,wd.y+Math.sin(a)*ry]])});
-   const gn=EKS.filter(e=>e.lok==='gunung'),fy=M.y1-T*2,gx=gn.map(e=>W(e.x));GANG.push([[Math.min(...gx)-T,fy],[Math.max(...gx)+T,fy]]);GANG.push([[(Math.min(...gx)+Math.max(...gx))/2,fy],[(Math.min(...gx)+Math.max(...gx))/2,jalanY]]);gn.forEach(e=>GANG.push([[W(e.x),W(e.y)+T*.3],[W(e.x),fy]]));
+   // gunung: jalan kaki gunung berkelok + jalan setapak zig-zag (serpentin) naik ke tiap kavling
+   const gn=EKS.filter(e=>e.lok==='gunung'),gx=gn.map(e=>W(e.x)),fx0=Math.min(...gx)-T,fx1=Math.max(...gx)+T,fyA=x=>M.y1-T*2+Math.sin(x/(T*5))*T*.6,kaki=[];
+   for(let x=fx0;x<=fx1+1;x+=T*.8)kaki.push([x,fyA(x)]);kaki.s=1;GANG.push(kaki);const mx=Math.round((fx0+fx1)/2/(T*.8))*T*.8;GANG.push([[fx0+mx-fx0,fyA(fx0+mx-fx0)],[fx0+mx-fx0,jalanY]]);
+   gn.forEach((e,n)=>{const sx=W(e.x),sy=W(e.y)+T*.45,fy=fyA(sx),k=Math.max(2,Math.round((fy-sy)/(T*1.5))),P=[[sx,fy]];for(let i=1;i<k;i++)P.push([sx+((i+n)%2?T*.95:-T*.95),fy-(fy-sy)*i/k]);P.push([sx,sy]);P.s=1;GANG.push(P)});
    const pn=EKS.filter(e=>e.lok==='pantai'),px=pn.map(e=>W(e.x)),py=W(pn[0].y)+T*.85;GANG.push([[Math.min(...px)-T*.6,py],[Math.max(...px)+T*.6,py]]);pn.forEach(e=>GANG.push([[W(e.x),W(e.y)+T*.3],[W(e.x),py]]))}
   // titik gang menyeberang sungai → jembatan kayu kecil
   const GJ=[];{const X=(a,b,c,d)=>{const r=[b[0]-a[0],b[1]-a[1]],q=[d[0]-c[0],d[1]-c[1]],den=r[0]*q[1]-r[1]*q[0];if(!den)return null;const u=((c[0]-a[0])*q[1]-(c[1]-a[1])*q[0])/den,v=((c[0]-a[0])*r[1]-(c[1]-a[1])*r[0])/den;return u>=0&&u<=1&&v>=0&&v<=1?[a[0]+u*r[0],a[1]+u*r[1],Math.atan2(r[1],r[0])]:null};
-   GANG.forEach(P=>{for(let i=0;i<P.length-1;i++)[sungai1,sungai2,sungai3].forEach(S=>{for(let j=0;j<S.length-1;j++){const h=X(P[i],P[i+1],S[j],S[j+1]);if(h)GJ.push(h)}})})}
+   GANG.forEach(P=>{for(let i=0;i<P.length-1;i++)[sungai1,sungai2,sungai3].forEach(S=>{for(let j=0;j<S.length-1;j++){const h=X(P[i],P[i+1],S[j],S[j+1]);if(h&&!GJ.some(o=>Math.hypot(o[0]-h[0],o[1]-h[1])<T*2))GJ.push(h)}})})}
   const kos=(x,y)=>!((x>RT.x-T*2&&x<RT.x+RT.w+T*2&&y>RT.y-T*3&&y<RT.y+RT.h+T)||(x>GM.x-T*3&&x<GM.x+GM.w+T*3&&y>GM.y-T*4&&y<GM.y+GM.h+T*2)||Math.abs(y-jalanY)<T*6.5||(x>STD.x-T*2&&x<STD.x+STD.w+T*2&&y>STD.y-T*3&&y<STD.y+STD.h+T*2)||(x>sawah.x-T&&x<sawah.x+sawah.cols*sawah.w+T&&y>sawah.y-T*2&&y<sawah.y+sawah.rows*sawah.h+T)||Math.hypot((x-wd.x)/(wd.rx+T*4),(y-wd.y)/(wd.ry+T*4))<1||(y>jalanY&&y<jalanY+T*11&&x>E.x0+T*22&&x<wd.x-wd.rx));
   for(let i=0;i<700;i++){const x=E.x0+R()*ew,y=E.y0+R()*eh;if(kos(x,y))trees.push({x,y,s:.9+R()*.6,k:R()<.45})}
   // kavling eksklusif & markas pindahan bebas pohon
@@ -4112,7 +4135,12 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
     for(let k=0;k<2;k++){const sp=W2+T*8,px=S.x-T*4+(((t*20+k*500)%sp)+sp)%sp,py=S.y+H2*(.3+k*.4);for(let j=0;j<5;j++)H.burungTerbang(px-Math.abs(j-2)*9,py+(j-2)*8,t,k+j)}}}
   // jalan dari kampung ke desa baru + jembatan
   // gang semen ke tiap bangunan & kavling eksklusif
-  ctx.lineCap='round';ctx.lineJoin='round';[['#A79F8E',T*.58],['#BDB6A6',T*.46]].forEach(([c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w;D.GANG.forEach(P=>{ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()})});
+  // 🍵 kebun teh bertingkat di tiap kavling Atas Gunung (selalu kelihatan, biar beda jelas dari kavling biasa)
+  D.EKS.forEach(e=>{if(e.lok!=='gunung')return;const x=NK.wx(e.x),y=NK.wx(e.y);if(!vis(x,y,T*3))return;ctx.save();ctx.translate(x,y);
+    ctx.fillStyle='#B9D77A';ctx.beginPath();ctx.ellipse(0,T*.1,T*1.95,T*1.6,0,0,7);ctx.fill();ctx.strokeStyle='#8FB55A';ctx.lineWidth=T*.06;ctx.stroke();
+    for(let i=0;i<6;i++){const yy=-T*1.25+i*T*.5,hw=T*1.8*Math.sqrt(Math.max(0,1-Math.pow((yy-T*.1)/(T*1.6),2)));ctx.strokeStyle='#3E8A34';ctx.lineWidth=T*.26;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-hw+T*.2,yy);ctx.quadraticCurveTo(0,yy+T*.22,hw-T*.2,yy);ctx.stroke();ctx.strokeStyle='#7CC04E';ctx.lineWidth=T*.1;ctx.stroke()}
+    ctx.restore()});
+  ctx.lineCap='round';ctx.lineJoin='round';[['#A79F8E',T*.58],['#BDB6A6',T*.46]].forEach(([c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w;D.GANG.forEach(P=>{ctx.beginPath();ctx.moveTo(P[0][0],P[0][1]);if(P.s&&P.length>2){for(let i=1;i<P.length-1;i++){const q=P[i],r=P[i+1];ctx.quadraticCurveTo(q[0],q[1],i<P.length-2?(q[0]+r[0])/2:r[0],i<P.length-2?(q[1]+r[1])/2:r[1])}}else P.forEach((p,i)=>i&&ctx.lineTo(p[0],p[1]));ctx.stroke()})});
   D.GJ.forEach(([x,y,a])=>{ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#8A5A2E';ctx.fillRect(-T*1.3,-T*.42,T*2.6,T*.84);ctx.fillStyle='#A8743F';for(let i=0;i<7;i++)ctx.fillRect(-T*1.2+i*T*.36,-T*.42,T*.22,T*.84);ctx.restore()});
   ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.strokeStyle='#4E5257';ctx.lineWidth=T*1.32;ctx.stroke();ctx.strokeStyle='#5E6368';ctx.lineWidth=T*1.12;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=2;[-1,1].forEach(k=>{ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY+k*T*.48);ctx.lineTo(E.x1+T*6,D.jalanY+k*T*.48);ctx.stroke()});ctx.strokeStyle='#F2C230';ctx.lineWidth=3.5;ctx.setLineDash([T*.6,T*.45]);ctx.beginPath();ctx.moveTo(D.K.x1-T,D.jalanY);ctx.lineTo(E.x1+T*6,D.jalanY);ctx.stroke();ctx.setLineDash([]);ctx.lineCap='round';
   {const s1=D.sungai1;const bx=s1[1][0]-T*.2;ctx.fillStyle='#8A5A2E';ctx.fillRect(bx-T*1.6,D.jalanY-T*.8,T*3.2,T*1.6);ctx.fillStyle='#A8743F';for(let i=0;i<9;i++)ctx.fillRect(bx-T*1.5+i*T*.36,D.jalanY-T*.8,T*.22,T*1.6)}
@@ -4123,19 +4151,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang
   // gerbang Desa Awalkomen (desa lama) di jalan keluar kampung, gaya sama dengan gerbang desa baru
-  {const K=D.K,gx=K.x1-T*2.4,gy=D.jalanY,bw=T*4.6,bh=T*4.6;
-   [gy-T*3.9,gy+T*2.5].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(gx-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(gx-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(gx-T*.8,y+T*.25,T*1.6,T*.9)});
-   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(gx-bw/2+10,gy-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(gx-bw/2-T*.3,gy-bh/2-T*.3,bw+T*.6,bh+T*.6);
-   ctx.fillStyle='#F2C230';ctx.fillRect(gx-bw/2,gy-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(gx-bw/2,gy-bh/2,bw,bh);
-   for(let i=0;i<6;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(gx-bw/2+i*bw/6,gy-bh/2-T*.75,bw/6,T*.4)}
-   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';const fit=(t,f,y,w8)=>{let fs=f;ctx.font=`${w8} ${fs}px Poppins,sans-serif`;while(ctx.measureText(t).width>bw*.88&&fs>T*.3){fs-=T*.04;ctx.font=`${w8} ${fs}px Poppins,sans-serif`}ctx.fillText(t,gx,y)};
-   fit('SELAMAT DATANG DI',T*.5,gy-T*1.5,700);fit('DESA',T*1.1,gy-T*.45,800);fit('AWALKOMEN',T*1.1,gy+T*.85,800)}
-  {const g=D.gate,bw=T*13,bh=T*4.2;// gerbang besar dilihat dari atas: 2 tugu di sisi jalan + papan nama melintang
-   [g.y-T*3.6,g.y+T*2.2].forEach(y=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(g.x-T*1.1+8,y+10,T*2.2,T*1.4);ctx.fillStyle='#8A8070';ctx.fillRect(g.x-T*1.1,y,T*2.2,T*1.4);ctx.fillStyle='#A69C8A';ctx.fillRect(g.x-T*.8,y+T*.25,T*1.6,T*.9)});
-   ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(g.x-bw/2+10,g.y-bh/2+12,bw,bh);ctx.fillStyle='#6B4527';ctx.fillRect(g.x-bw/2-T*.3,g.y-bh/2-T*.3,bw+T*.6,bh+T*.6);
-   ctx.fillStyle='#F2C230';ctx.fillRect(g.x-bw/2,g.y-bh/2,bw,bh);ctx.strokeStyle='#1C2520';ctx.lineWidth=5;ctx.strokeRect(g.x-bw/2,g.y-bh/2,bw,bh);
-   for(let i=0;i<14;i++){ctx.fillStyle=['#C4402F','#fff'][i%2];ctx.fillRect(g.x-bw/2+i*bw/14,g.y-bh/2-T*.75,bw/14,T*.4)}
-   ctx.fillStyle='#1C2520';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${T*.8}px Poppins,sans-serif`;ctx.fillText('SELAMAT DATANG DI',g.x,g.y-T*1.2);{const nm=NAMA_DESA.toUpperCase();let fs=T*1.6;ctx.font=`800 ${fs}px Poppins,sans-serif`;while(ctx.measureText(nm).width>bw*.92&&fs>T*.5){fs-=T*.05;ctx.font=`800 ${fs}px Poppins,sans-serif`}ctx.fillText(nm,g.x,g.y+T*.4)}if(NAMA_DESA_OLEH){ctx.fillStyle='#6B4527';ctx.font=`700 ${T*.55}px Poppins,sans-serif`;ctx.fillText('usulan @'+NAMA_DESA_OLEH,g.x,g.y+T*1.55)}}
+  gerbangPapan(D);
   // Rental playadalahmain: toko kecil, papan neon, etalase konsol, antrean anak-anak
   {const R0=D.RT,kR=R0.w/(T*9.5),ccx=R0.x+R0.w/2,ccy=R0.y+R0.h/2;ctx.save();ctx.translate(ccx,ccy);ctx.scale(kR,kR);ctx.translate(-ccx,-ccy);const w=T*9.5,h=T*7.5,x=ccx-w/2,y=ccy-h/2;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x+8,y+10,w,h);ctx.fillStyle='#E9DFC6';ctx.fillRect(x,y,w,h);
    const bx=x+T*.8,by=y+T*.9,bw=w-T*1.6,bh=h*.62;ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(bx+6,by+8,bw,bh);ctx.fillStyle='#2B2F5E';ctx.fillRect(bx,by,bw,bh*.7);ctx.fillStyle='rgba(255,255,255,.1)';for(let i=0;i<bw;i+=T*.4)ctx.fillRect(bx+i,by,3,bh*.7);

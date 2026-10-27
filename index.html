@@ -392,6 +392,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 #zshare,#lgbtn,#legend{display:none!important} /* disederhanakan: tombol foto & keterangan peta disembunyikan */
 .mapbox .zoom{right:auto;left:12px} /* tombol peta di kiri bawah: tidak ketutup tombol Menu */
 .mapbox .kompas{top:12px}
+.gfxbar button.gsnd{font-size:13px;padding:3px 9px;margin-right:2px}.gfxbar button.gsnd[aria-pressed="true"]{background:#F2C230;border-color:#1C2520}.gfxbar .gsep{width:1px;height:14px;background:#c9c2b0;margin:0 4px}
 </style>
 </head>
 <body>
@@ -420,7 +421,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         </div>
         <ul class="sug" id="sug" role="listbox" hidden></ul>
       </div>
-      <div class="gfxbar" id="gfxbar" role="group" aria-label="Grafik peta"><span>⚙️ Grafik peta</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
+      <div class="gfxbar" id="gfxbar" role="group" aria-label="Pengaturan peta"><button type="button" id="snd" class="snd gsnd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button><span class="gsep"></span><span>⚙️ Grafik</span><button type="button" data-g="hemat">Hemat</button><button type="button" data-g="seimbang">Seimbang</button><button type="button" data-g="tinggi">Tinggi</button></div>
       <button type="button" class="jw jw-go" id="jadiWarga" hidden style="display:none"><span>🏠</span><b>Belum punya rumah? Gini cara jadi warga</b><i>↓</i></button>
       <div class="result" id="result" hidden></div>
       <div class="questbar" id="questbar" hidden></div>
@@ -431,7 +432,6 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
         <div class="hint" id="hint">Geser untuk jelajah · cubit atau scroll untuk zoom · ketuk rumah</div>
         <div class="zoom">
           <button type="button" id="zshare" aria-label="Bagikan peta" title="Bagikan peta">📸</button>
-          <button type="button" id="snd" class="snd" aria-label="Nyalakan suara suasana kampung" aria-pressed="false" title="Suara kampung">🔇</button>
           <button type="button" id="zin" aria-label="Perbesar">+</button>
           <button type="button" id="zout" aria-label="Perkecil">−</button>
           <button type="button" class="home" id="zhome" aria-label="Lihat seluruh kampung">⌂</button>

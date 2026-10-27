@@ -2067,7 +2067,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.short||b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
-  {const RB=(window.__ROBOT||[]).find(o=>o.roam&&!(window.__SETIR&&window.__SETIR.u===o.u));if(RB)tryTag(v.ox+RB.roam.x*z,v.oy+RB.roam.y*z-22*dpr,'🤖 GENTO milik @'+RB.u,RB.roam.pulang?'lagi pulang ke rumah':'lagi main-main',true,true,true)}
+  {const RB=(window.__ROBOT||[]).find(o=>o.roam&&!(window.__SETIR&&window.__SETIR.u===o.u));if(RB)tryTag(v.ox+RB.roam.x*z,v.oy+(RB.roam.y-14*(RB.roam.lf||0)-T*1.15)*z-4*dpr,'🤖 GENTO',RB.roam.pulang?'pulang':'',false,false,false)} // label kecil, tidak menonjol; info pemilik muncul kalau GENTO diketuk
   if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true,true);
     // 4 rumah terdekat di depan/belakang kendaraan tetap diberi nama, biar tahu lagi lewat rumah siapa
     RES.map(r=>({r,d:Math.hypot(NK.wx(r.x)-W_.x,NK.wx(r.y)-W_.y)})).filter(o=>o.d<T*6&&o.r.name!==W_.u).sort((a,b)=>a.d-b.d).slice(0,12).reduce((n,{r})=>{if(n>=4)return n;const p0=placed.length,[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy),'@'+r.name,'',false);return n+(placed.length>p0?1:0)},0)}

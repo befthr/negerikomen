@@ -3951,8 +3951,9 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
    [21,23,25,27,29,31,33,35,37,39,41,43,47,49,51].forEach(x=>EKS.push({x,y:121,lok:'pantai'}));
    for(let i=rumah.length-1;i>=0;i--){const h=rumah[i];if(EKS.some(e=>Math.hypot(NK.wx(e.x)-(h.x+T*.7),NK.wx(e.y)-(h.y+T*.55))<T*1.6))rumah.splice(i,1)}}
   // markas Jasa Pindahan: 🚚 Omah Titut (dekat gerbang) & 🚁 Sarang Helikoper (dekat waduk)
-  const OT={x:gate.x-T*3.4,y:jalanY-T*7.6,w:T*6.4,h:T*4.4},SH={x:wd.x-wd.rx-T*7,y:wd.y+wd.ry*.55,r:T*3.4};
+  const OT={x:E.x0+T*49,y:jalanY-T*7.2,w:T*6.4,h:T*4.4},SH={x:wd.x-wd.rx-T*7,y:wd.y+wd.ry*.55,r:T*3.4};
   const MTI={x:E.x0+T*31,y:jalanY-T*19,w:T*8,h:T*6};
+  for(let i=rumah.length-1;i>=0;i--){const h=rumah[i];if(h.x+T*1.4>OT.x-T*1.2&&h.x<OT.x+OT.w+T*1.2&&h.y+T*1.1>OT.y-T*1.6&&h.y<OT.y+OT.h+T*.6)rumah.splice(i,1)}
   STD.w=T*16;STD.h=T*10;STD.x=E.x0+T*6;STD.y=jalanY+T*5;
   const sawah={x:E.x0+T*4,y:STD.y+STD.h+T*5,cols:14,rows:10,w:T*2.8,h:T*2};
   // pohon tersebar di desa baru, menghindari jalan, rumah, stadion, sawah, waduk

@@ -2235,7 +2235,7 @@ function lepasSel(){sel=null;$('result').hidden=true;dirty=true;try{if(location.
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
   try{if(pdhKetuk(wxp,wyp))return}catch(e){console.error(e)}
-  {const G=(window.__ROBOT||[]).find(o=>o.roam&&Math.hypot(wxp-o.roam.x,wyp-(o.roam.y-14*(o.roam.lf||0)))<Math.max(T*1.4,26/cam.zoom));if(G){gentoKetuk(G,e.clientX,e.clientY);return}}
+  {const G=(window.__ROBOT||[]).find(o=>o.roam&&Math.hypot(wxp-o.roam.x,wyp-(o.roam.y-14*(o.roam.lf||0)))<Math.max(T*2,34/cam.zoom));if(G){gentoKetuk(G,e.clientX,e.clientY);return}}
   if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);window.QA_IKUT=false;showResult({kind:'q'});dirty=true;return}}
   if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){lepasSel();SND.play('pop',.8);bukaRental();return}}
   if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){lepasSel();SND.play('pop',.8);const ow=window.ROBOT_OWNER,k=ow?RES.findIndex(r=>String(r.name).toLowerCase()===ow):-1;if(k>=0){toast(gentoDiRumah()?'🤖 GENTO lagi di rumah @'+ow:'🤖 GENTO milik @'+ow+' lagi istirahat di hanggar');select({kind:'r',i:k});return}openDemoGento();return}}
@@ -2305,7 +2305,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       if(typeof r.promo.url==='string'&&/^https:\/\//.test(r.promo.url)){const a=el('a','btn gent','Lihat promo');a.href=r.promo.url;a.target='_blank';a.rel='sponsored nofollow noopener';acts.append(a)}}
     {const ek=eksMilik(r.name);if(ek.length){const pe=el('p','promo');pe.append(el('b',null,'💎 Pemilik Eksklusif: '),document.createTextNode(ek.join(' · ')+' (cuma 1 di kampung)'));left.append(pe);
       const me=(kkGet()||{}).u,own=String(window.ROBOT_OWNER||'').toLowerCase()===String(r.name).toLowerCase(),ok=(window.NK_DATA&&window.NK_DATA.gentoMain)||window.__GENTO_QA;
-      if(own&&ok&&(me===r.name||window.__GENTO_QA==='pemilik')&&(r.items||[]).some(o=>(o&&o.id||o)==='robot')){const gb=el('button','gento-btn');gb.type='button';
+      if(own&&ok&&(me===r.name||window.__GENTO_QA)&&(r.items||[]).some(o=>(o&&o.id||o)==='robot')){const gb=el('button','gento-btn');gb.type='button';
         const tx=()=>{gb.textContent=gentoLuar(r.name)?'🏠 Suruh GENTO pulang':'🛸 Suruh GENTO main'},upd=()=>{if(!gb.isConnected){clearInterval(iv);return}tx()};tx();const iv=setInterval(upd,500);
         gb.onclick=async()=>{gb.disabled=true;await gentoSuruh(r.name,gentoLuar(r.name)?'pulang':'main');gb.disabled=false;upd()};pe.append(document.createTextNode(' '),gb)}}}
     {const k=(window.IDAMAN_LALU||[]).findIndex(o=>o.u===String(r.name).toLowerCase());if(k>=0){const p=el('p','promo');p.append(el('b',null,`🌟 Tetangga Idaman ${['🥇','🥈','🥉'][k]} pekan lalu`),document.createTextNode(' · dipajang di Monumen Tetangga Idaman'));left.append(p)}}
@@ -3539,10 +3539,10 @@ async function gentoSuruh(u,m){let mode;if(window.__GENTO_QA){const L=window.GEN
   window.GENTO_MODE=mode;dirty=true;toast(m==='main'?'🛸 GENTO terbang main-main! Semua warga bisa lihat. Bisa disuruh pulang kapan aja.':'🏠 GENTO terbang pulang ke rumahmu (istirahat 1 jam).');return true}
 // ketuk GENTO yang lagi keluyuran di peta: pemilik dapat tombol kecil suruh pulang/main, warga lain lihat pemiliknya
 function gentoKetuk(G,cx,cy){SND.play('pop',.8);document.querySelectorAll('.gento-pop').forEach(x=>x.remove());
-  const me=(kkGet()||{}).u,own=G.u===me||window.__GENTO_QA==='pemilik',pulang=G.roam.pulang;
+  const me=(kkGet()||{}).u,own=G.u===me||!!window.__GENTO_QA,pulang=G.roam.pulang;
   const p=el('div','gento-pop');p.style.left=Math.min(innerWidth-12,Math.max(12,cx))+'px';p.style.top=Math.max(12,cy-14)+'px';
   p.append(el('b',null,'🤖 GENTO milik @'+G.u),el('small',null,pulang?'lagi pulang ke rumah':G.roam.lf>0?'lagi terbang main-main':'lagi jalan-jalan'));
-  if(own&&!pulang){const b=el('button','gento-btn','🏠 Suruh pulang');b.type='button';b.onclick=async ev=>{ev.stopPropagation();b.disabled=true;await gentoSuruh(G.u,'pulang');p.remove()};p.append(b)}
+  if(own){const b=el('button','gento-btn',pulang?'🛸 Suruh main lagi':'🏠 Suruh pulang');b.type='button';b.onclick=async ev=>{ev.stopPropagation();b.disabled=true;await gentoSuruh(G.u,pulang?'main':'pulang');p.remove()};p.append(b)}
   else if(!own){const b=el('button','gento-btn','🏠 Lihat rumahnya');b.type='button';b.onclick=ev=>{ev.stopPropagation();p.remove();const k=kkResIdx(G.u);if(k>=0)select({kind:'r',i:k})};p.append(b)}
   document.body.append(p);const tutup=ev=>{if(!p.contains(ev.target)){p.remove();document.removeEventListener('pointerdown',tutup,true)}};setTimeout(()=>document.addEventListener('pointerdown',tutup,true),50);setTimeout(()=>p.remove(),6000)}
 /* ===== 🚚🚁 Jasa Pindahan Pak Kades =====

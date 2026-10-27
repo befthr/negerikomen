@@ -1440,6 +1440,7 @@ function drawRides(res,t){res.forEach(r=>{if(!Array.isArray(r.items))return;r.it
     ctx.scale(2,2);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
     ctx.font='800 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
     const nm='@'+String(r.name).slice(0,18);if(!(window.__SETIR&&window.__SETIR.u===r.name)){ctx.strokeText(nm,0,-11);ctx.fillText(nm,0,-11)}ctx.restore()})})}
+let HC=null;
 function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const {W,H,z,ox,oy}=v;const anim=o.anim||(()=>({s:1,a:1}));
   ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#B5C85A';ctx.fillRect(0,0,W,H);
@@ -1595,7 +1596,15 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       ctx.restore()});
   }
   ROBOT_POS=[];window.__ROBOT=ROBOT_POS;PATRO_POS=[];window.__PATRO=PATRO_POS;SOROT_POS=[];window.__SOROT=SOROT_POS;{const MG=T*3,x0=-v.ox/v.z-MG,x1=(v.W-v.ox)/v.z+MG,y0=-v.oy/v.z-MG,y1=(v.H-v.oy)/v.z+MG,EKI={robot:1,patromax:1,sorot:1}; // hemat: rumah di luar layar tidak digambar (kecuali pemilik barang eksklusif, posisinya dipakai fitur lain)
-  res.forEach((r,i)=>{if(r.lok||r._tr)return;const X=wx(r.x),Y=wx(r.y);if((X<x0||X>x1||Y<y0||Y>y1)&&!(r.items||[]).some(o=>EKI[o&&o.id||o]))return;const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)})}
+  const dyn=r=>(r.items||[]).some(q=>{const id=q&&q.id||q;return EKI[id]||id==='motor'||id==='sepeda'}); // rumah yang isinya bergerak → selalu digambar langsung
+  const KC=.5,useC=!o.anim&&!o.noCache&&!window.__NO_HCACHE&&z<=KC*1.25&&typeof document!=='undefined';
+  if(useC){ // zoom jauh: semua rumah "diam" digambar sekali ke kanvas cadangan, tiap frame tinggal ditempel (perangkat murah jauh lebih lancar)
+    const off=(N/2+1)*T,key=res.length+'|'+(window.__HCV||0)+'|'+Math.floor(Date.now()/30000);
+    if(!HC){HC={c:document.createElement('canvas'),key:''};HC.c.width=HC.c.height=Math.ceil(2*off*KC);HC.x=HC.c.getContext('2d')}
+    if(HC.key!==key){const old=ctx;ctx=HC.x;try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,HC.c.width,HC.c.height);ctx.setTransform(KC,0,0,KC,off*KC,off*KC);res.forEach(r=>{if(r.lok||r._tr||dyn(r))return;drawHouse(r,1,1)})}finally{ctx=old;ctx.setTransform(z,0,0,z,ox,oy)}HC.key=key}
+    ctx.drawImage(HC.c,-off,-off,2*off,2*off);
+    res.forEach((r,i)=>{if(r.lok||r._tr||!dyn(r))return;const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)})}
+  else res.forEach((r,i)=>{if(r.lok||r._tr)return;const X=wx(r.x),Y=wx(r.y);if((X<x0||X>x1||Y<y0||Y>y1)&&!dyn(r))return;const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)})}
   // tiang listrik + lampu jalan + kabel (biar kampungnya terasa nyata); hanya saat cukup dekat
   window.__TIANG=[];if(z>=.42&&JALAN_SEG){const SL=S*T,lines=new Map(),M=T*2;
     JALAN_SEG.forEach(({hz,q,sg,j})=>{if(j==='rumput')return;const w=JALAN_W[j],c0=q*SL,sides=j==='besar'?[1,-1]:[(q+sg)%2?1:-1];
@@ -3251,7 +3260,7 @@ async function kkApi(aksi,body,auth){if(BOS_QA()&&aksi!=='pilihan')return bqApi(
   let r,j;try{r=await fetch('/api/kartu?aksi='+aksi,o);j=await r.json()}catch(e){return {ok:false,error:'Internet lagi lemot. Coba lagi ya.'}}
   if(r.status===401&&auth){kkSet(null)}return Object.assign({ok:r.ok},j)}
 function kkResIdx(u){return RES.findIndex(x=>String(x.name).toLowerCase()===String(u).toLowerCase())}
-function kkPakaiLokal(i,n){const r=RES[i];if(!r)return;const V=histOf(r);if(!V[n])return;
+function kkPakaiLokal(i,n){window.__HCV=(window.__HCV||0)+1;const r=RES[i];if(!r)return;const V=histOf(r);if(!V[n])return;
   if(!r._asli){r._asli={};LOOK.forEach(k=>r._asli[k]=r[k])}
   const look=V[n].look;LOOK.forEach(k=>{if(look[k]==null)delete r[k];else r[k]=look[k]});r._pilih=n===V.length-1?null:n;dirty=true}
 async function kkPakai(i,n){const res=await kkApi('pilih',{n},true);
@@ -3805,7 +3814,7 @@ function kavBebas(jenis){const used=kavTerisi();if(jenis==='heli')return desaBan
   NK.PLOTS.forEach(p=>{const k=p.x+','+p.y;if(used.has(k)||bld.has(k)||sudah.has(k)||NK.RESERVED.has(k))return;const [a,b]=NK.blockOf(p.x,p.y);if(act.has(a+','+b))o.push({x:p.x,y:p.y,lok:null})});
   (desaBangun().DK||[]).forEach(p=>{if(!used.has(p.x+','+p.y))o.push({x:p.x,y:p.y,lok:'desa'})});return o}
 let PDH_TIBA=new Set();
-function pindahTerapkan(){const now=Date.now(),me=(kkGet()||{}).u;let ub=false;if(QA9){Object.assign(window.PINDAH,QS.lain||{});if(QS.pindahKu)window.PINDAH.lembarpeta=QS.pindahKu}
+function pindahTerapkan(){window.__HCV=(window.__HCV||0)+1;const now=Date.now(),me=(kkGet()||{}).u;let ub=false;if(QA9){Object.assign(window.PINDAH,QS.lain||{});if(QS.pindahKu)window.PINDAH.lembarpeta=QS.pindahKu}
   Object.entries(window.PINDAH).forEach(([u,v])=>{const i=kkResIdx(u);if(i<0)return;const r=RES[i],end=v.at+v.dur*1000;
     if(now>=end){if(r.x!==v.x||r.y!==v.y||r._tr){if(r._tr&&u===me&&!PDH_TIBA.has(u+':'+v.x+','+v.y)){PDH_TIBA.add(u+':'+v.x+','+v.y);setTimeout(()=>pindahSampai(r,v),300)}r.x=v.x;r.y=v.y;ub=true}r.lok=v.lok||null;r._tr=null}
     else{if(!r._tr)ub=true;r._tr=v;r.x=v.dari.x;r.y=v.dari.y;r.lok=v.lokDari||null}});
@@ -3985,7 +3994,7 @@ if(QA9)setTimeout(()=>{const n=Date.now(),G=desaBangun().EKS.find(e=>e.lok==='gu
   else if(QA9==='reaksi'){const k=kkResIdx('ryukaarvellacevana');if(k>=0){select({kind:'r',i:k});setTimeout(()=>{const b=$('result');if(b)b.scrollIntoView({block:'start',behavior:'smooth'})},600)}}
   else if(QA9==='idaman'){window.IDAMAN=[{u:'ryukaarvellacevana',poin:31},{u:'scnydpi',poin:22},{u:'lembarpeta',poin:19},...RES.slice(10,27).map((r,k)=>({u:String(r.name).toLowerCase(),poin:17-k}))];renderIdaman();scrollMap();const m=desaBangun().MTI;flyTo({cx:m.x+m.w/2,cy:m.y+m.h/2,zoom:clampZ(1)},900)}
   dirty=true},2600);
-window.__PDH={ngj:s=>nagaJalur(s),naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>Object.assign(RES[kkResIdx(u)],o),o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
+window.__PDH={ngj:s=>nagaJalur(s),naga3d:()=>openDemoNaga(),desa:()=>desaBangun(),ubah:(u,o)=>{window.__HCV=(window.__HCV||0)+1;return Object.assign(RES[kkResIdx(u)],o)},o3:u=>{const i=kkResIdx(u);open3D(RES[i],i)},eks:()=>desaBangun().EKS,st:u=>pdhStatus(u,window.PINDAH[u],Date.now()),buka:(t)=>bukaPindahan(t),pilih:()=>PILIH,layar:p=>{const cv=document.getElementById('map'),r=cv.getBoundingClientRect();return {x:r.left+(NK.wx(p.x)-cam.cx)*cam.zoom+r.width/2,y:r.top+(NK.wx(p.y)-cam.cy)*cam.zoom+r.height/2}},kam:(x,y,z)=>{cam.cx=x;cam.cy=y;cam.zoom=z;dirty=true}};
 
 /* ===== 👍 Reaksi Rumah + 📖 Buku Tamu + 🌟 Tetangga Idaman ===== */
 const RXD={mantap:{ic:'👍',n:'Mantap',p:1},genteng:{ic:'<img src="genteng.png" alt="">',n:'Genteng Keren',p:1},tetangga:{ic:'🏡',n:'Pengen Tetanggaan',p:1}};
@@ -4218,7 +4227,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
   if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length)try{renderSups()}catch(e){}
   try{const jj=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(jj>=0)RES[jj].juragan=true;dirty=true}catch(e){} // pita Juragan ikut traktiran terbaru
-  Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
+  setTimeout(()=>{window.__HCV=(window.__HCV||0)+1},0);  Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
   if(sel)showResult(sel)}).catch(()=>{});
 // GENTO dipajang di rumah pemilik? kalau tidak, GENTO istirahat di hanggar
 function gentoDiRumah(){const ow=window.ROBOT_OWNER;if(!ow)return false;const k=kkResIdx(ow);return k>=0&&(RES[k].items||[]).some(o=>(o&&o.id||o)==='robot')}

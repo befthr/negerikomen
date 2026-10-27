@@ -52,9 +52,9 @@ const KASAR_SUB = ['anjing','goblok','tolol','brengsek','kampret','pantek','lont
 function pesanKasar(t) { const n = String(t || '').toLowerCase().replace(/[0@4]/g, m => ({ '0': 'o', '@': 'a', '4': 'a' })[m]).replace(/1|!/g, 'i').replace(/3/g, 'e').replace(/5|\$/g, 's').replace(/7/g, 't').replace(/(.)\1{2,}/g, '$1$1');
   const kata = n.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean).map(w => w.replace(/(.)\1+/g, '$1')); const rapat = n.replace(/[^a-z]/g, '').replace(/(.)\1+/g, '$1');
   return kata.some(w => KASAR.includes(w)) || KASAR_SUB.some(k => rapat.includes(k.replace(/(.)\1+/g, '$1'))) }
-async function papanIdaman(w0) { const [p, t] = await kvMany([['HGETALL', 'rx:w:' + w0 + ':p'], ['HGETALL', 'rx:w:' + w0 + ':t']]); const P = {}, Tm = {};
+async function papanIdaman(w0, n = 20) { const [p, t] = await kvMany([['HGETALL', 'rx:w:' + w0 + ':p'], ['HGETALL', 'rx:w:' + w0 + ':t']]); const P = {}, Tm = {};
   for (let i = 0; p && i + 1 < p.length; i += 2) P[p[i]] = +p[i + 1] || 0; for (let i = 0; t && i + 1 < t.length; i += 2) Tm[t[i]] = +t[i + 1] || 0;
-  return Object.keys(P).filter(u => P[u] > 0).sort((a, b) => P[b] - P[a] || (Tm[a] || 0) - (Tm[b] || 0)).slice(0, 3).map(u => ({ u, poin: P[u] })) }
+  return Object.keys(P).filter(u => P[u] > 0).sort((a, b) => P[b] - P[a] || (Tm[a] || 0) - (Tm[b] || 0)).slice(0, n).map(u => ({ u, poin: P[u] })) }
 async function tiketKu(u) { const [t, h] = await kv(['HMGET', 'tiket', u + ':truk', u + ':heli']) || []; return { truk: +t || 0, heli: +h || 0 } }
 async function heliTerjual() { const a = await kv(['HGETALL', 'tiket']) || []; let n = 0; for (let i = 0; i + 1 < a.length; i += 2) if (String(a[i]).endsWith(':heli')) n += Math.max(0, +a[i + 1] || 0); return n }
 
@@ -337,7 +337,7 @@ export default async function handler(req, res) {
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5), patromax: pmx || null, sorot: srt || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });

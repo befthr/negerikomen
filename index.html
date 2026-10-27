@@ -398,6 +398,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .mapbox.fs{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:none!important;border-radius:0!important;border:0!important;margin:0!important;z-index:9000;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);box-sizing:border-box;background:#1C2520}
 html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{display:none!important}
 .mapbox.fs .zoom{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.mapbox.fs #gfxbar{position:absolute;z-index:5;left:calc(12px + env(safe-area-inset-left,0px));top:calc(54px + env(safe-area-inset-top,0px));margin:0;justify-content:flex-start;background:rgba(255,255,255,.92);border:2px solid #1C2520;border-radius:12px;padding:5px 8px;max-width:calc(100% - 24px)}
 </style>
 </head>
 <body>
@@ -2307,7 +2308,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
 }
 $('zin').onclick=()=>zoomAt(cw/2,ch/2,1.5);$('zout').onclick=()=>zoomAt(cw/2,ch/2,1/1.5);
 /* ⛶ layar penuh: peta memenuhi layar (pakai Fullscreen API kalau ada, selalu juga mode CSS supaya jalan di browser IG/iPhone) */
-{const mb=document.querySelector('.mapbox'),fb=$('zfull');const set=on=>{window.__KEEPCAM=1;mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
+{const mb=document.querySelector('.mapbox'),fb=$('zfull');const gb=$('gfxbar'),gbHome=gb&&gb.parentNode,gbNext=gb&&gb.nextSibling;const set=on=>{window.__KEEPCAM=1;if(gb){if(on)mb.append(gb);else if(gbHome)gbHome.insertBefore(gb,gbNext)}mb.classList.toggle('fs',on);document.documentElement.classList.toggle('peta-fs',on);fb.textContent=on?'✕':'⛶';fb.setAttribute('aria-label',on?'Keluar layar penuh':'Layar penuh');dirty=true};
   fb.onclick=async()=>{const on=!mb.classList.contains('fs');set(on);try{if(on){if(mb.requestFullscreen)await mb.requestFullscreen()}else if(document.fullscreenElement)await document.exitFullscreen()}catch(e){}};
   document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&mb.classList.contains('fs'))set(false)});
   addEventListener('keydown',e=>{if(e.key==='Escape'&&mb.classList.contains('fs')&&!document.fullscreenElement)set(false)})}

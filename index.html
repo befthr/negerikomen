@@ -3911,11 +3911,11 @@ function kavBebas(jenis){const used=kavTerisi();if(jenis==='heli')return desaBan
   NK.PLOTS.forEach(p=>{const k=p.x+','+p.y;if(used.has(k)||bld.has(k)||sudah.has(k)||NK.RESERVED.has(k))return;const [a,b]=NK.blockOf(p.x,p.y);if(act.has(a+','+b))o.push({x:p.x,y:p.y,lok:null})});
   (desaBangun().DK||[]).forEach(p=>{if(!used.has(p.x+','+p.y))o.push({x:p.x,y:p.y,lok:'desa'})});return o}
 let PDH_TIBA=new Set();
-function pindahTerapkan(){window.__HCV=(window.__HCV||0)+1;const now=Date.now(),me=(kkGet()||{}).u;let ub=false;if(QA9){Object.assign(window.PINDAH,QS.lain||{});if(QS.pindahKu)window.PINDAH.lembarpeta=QS.pindahKu}
+function pindahTerapkan(){const now=Date.now(),me=(kkGet()||{}).u;let ub=false;if(QA9){Object.assign(window.PINDAH,QS.lain||{});if(QS.pindahKu)window.PINDAH.lembarpeta=QS.pindahKu}
   Object.entries(window.PINDAH).forEach(([u,v])=>{const i=kkResIdx(u);if(i<0)return;const r=RES[i],end=v.at+v.dur*1000;
-    if(now>=end){if(r.x!==v.x||r.y!==v.y||r._tr){if(r._tr&&u===me&&!PDH_TIBA.has(u+':'+v.x+','+v.y)){PDH_TIBA.add(u+':'+v.x+','+v.y);setTimeout(()=>pindahSampai(r,v),300)}r.x=v.x;r.y=v.y;ub=true}r.lok=v.lok||null;r._tr=null}
-    else{if(!r._tr)ub=true;r._tr=v;r.x=v.dari.x;r.y=v.dari.y;r.lok=v.lokDari||null}});
-  if(ub)dirty=true}
+    if(now>=end){if((r.lok||null)!==(v.lok||null))ub=true;if(r.x!==v.x||r.y!==v.y||r._tr){if(r._tr&&u===me&&!PDH_TIBA.has(u+':'+v.x+','+v.y)){PDH_TIBA.add(u+':'+v.x+','+v.y);setTimeout(()=>pindahSampai(r,v),300)}r.x=v.x;r.y=v.y;ub=true}r.lok=v.lok||null;r._tr=null}
+    else{if(!r._tr||r.x!==v.dari.x||r.y!==v.dari.y)ub=true;r._tr=v;r.x=v.dari.x;r.y=v.dari.y;r.lok=v.lokDari||null}});
+  if(ub){dirty=true;window.__HCV=(window.__HCV||0)+1}} // hemat: kanvas cadangan & jejak naga hanya diulang kalau ada rumah yang benar-benar pindah (dulu tiap detik → peta berat di perangkat lemah)
 setInterval(()=>{if(Object.keys(window.PINDAH).length){pindahTerapkan();dirty=true}},1000);
 function pindahSampai(r,v){kkSukses('🎉 Rumahmu udah sampai!',[EKSL(v.lok)?`${LOKP[v.lok].ic} ${LOKP[v.lok].n} · 💎 Warga Eksklusif`:v.lok==='desa'?'🏘️ Desa Komen-Komen Sejahtera':'📍 '+dsnLabel(dsnOf(v.x,v.y))+', Desa Awalkomen',EKSL(v.lok)?'Fasilitas: '+LOKP[v.lok].f:'Selamat datang di rumah baru!']);
   const k=kkResIdx(r.name);if(k>=0)select({kind:'r',i:k})}
@@ -4363,7 +4363,7 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
   if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length)try{renderSups()}catch(e){}
   try{const jj=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(jj>=0)RES[jj].juragan=true;dirty=true}catch(e){} // pita Juragan ikut traktiran terbaru
-  setTimeout(()=>{window.__HCV=(window.__HCV||0)+1},0);  Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
+  {const sg=(()=>{try{return JSON.stringify([j.ruko,j.tingkat,j.atas,j.item,j.jalan,j.pilihan,j.donasi,j.emas,j.robot,j.patromax,j.sorot])}catch(e){return Math.random()+''}})();if(sg!==window.__PSIG){window.__PSIG=sg;setTimeout(()=>{window.__HCV=(window.__HCV||0)+1},0)}} // hemat: gambar ulang cuma kalau datanya berubah  Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
   if(sel)showResult(sel)}).catch(()=>{});
 // GENTO dipajang di rumah pemilik? kalau tidak, GENTO istirahat di hanggar
 function gentoDiRumah(){const ow=window.ROBOT_OWNER;if(!ow)return false;const k=kkResIdx(ow);return k>=0&&(RES[k].items||[]).some(o=>(o&&o.id||o)==='robot')}

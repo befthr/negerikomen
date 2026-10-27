@@ -821,7 +821,8 @@ function drawHouse(r,s,a){
   let dx=0,dy=0,horiz;
   if(ly===1){dy=-1;horiz=true}else if(ly===5){dy=1;horiz=true}else if(lx===1){dx=-1;horiz=false}else{dx=1;horiz=false}
   ctx.save();ctx.translate(wx(r.x),wx(r.y));ctx.scale(s,s);ctx.globalAlpha*=a;
-  ctx.fillStyle='rgba(30,40,20,.22)';ctx.fillRect(-w/2+5,-h/2+6,w,h);
+  const lite=ctx.getTransform().a*w<16; // hemat: rumah kecil di layar (zoom jauh) → garis atap & bayangan tidak digambar (tak kelihatan)
+  if(!lite){ctx.fillStyle='rgba(30,40,20,.22)';ctx.fillRect(-w/2+5,-h/2+6,w,h)}
   ctx.fillStyle='rgba(235,225,190,.55)';ctx.fillRect(-w/2-3+dx*4,-h/2-3+dy*4,w+6,h+6);
   ctx.fillStyle=wallHex(r);ctx.fillRect(-w/2+dx*6,-h/2+dy*6,w,h);
   const roof=roofHex(r);
@@ -866,10 +867,10 @@ function drawHouse(r,s,a){
     ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.arc(-w/4+1.2,-h/4+1.2,4.2,0,7);ctx.fill();
     ctx.fillStyle='#3E86C6';ctx.beginPath();ctx.arc(-w/4,-h/4,4.2,0,7);ctx.fill();ctx.fillStyle='#7FB3E0';ctx.beginPath();ctx.arc(-w/4-1,-h/4-1,1.8,0,7);ctx.fill();
   }else if(horiz){ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w,h/2);ctx.fillStyle=shade(roof,-12);ctx.fillRect(-w/2,0,w,h/2);
-    ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-w/2+5;k<w/2;k+=5){ctx.moveTo(k,-h/2);ctx.lineTo(k,h/2)}ctx.stroke();
+    if(!lite){ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-w/2+5;k<w/2;k+=5){ctx.moveTo(k,-h/2);ctx.lineTo(k,h/2)}ctx.stroke()}
     ctx.strokeStyle=shade(roof,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-w/2,0);ctx.lineTo(w/2,0);ctx.stroke();
   }else{ctx.fillStyle=shade(roof,22);ctx.fillRect(-w/2,-h/2,w/2,h);ctx.fillStyle=shade(roof,-12);ctx.fillRect(0,-h/2,w/2,h);
-    ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-h/2+5;k<h/2;k+=5){ctx.moveTo(-w/2,k);ctx.lineTo(w/2,k)}ctx.stroke();
+    if(!lite){ctx.strokeStyle=shade(roof,-35);ctx.lineWidth=1.2;ctx.beginPath();for(let k=-h/2+5;k<h/2;k+=5){ctx.moveTo(-w/2,k);ctx.lineTo(w/2,k)}ctx.stroke()}
     ctx.strokeStyle=shade(roof,-55);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-h/2);ctx.lineTo(0,h/2);ctx.stroke()}
   if(TK)ctx.translate(0,TK);
   if(r.kerja&&!shopOn(r)){ // rumah karyawan: lencana bulat emas di pojok atap
@@ -1593,7 +1594,8 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       else if(b.type==='masjid'||b.type==='sekolah'||b.type==='pasar'||b.type==='puskesmas'){park(X+20,Y+108,0.7,false);park(X+34,Y+108,0.85,false)}
       ctx.restore()});
   }
-  ROBOT_POS=[];window.__ROBOT=ROBOT_POS;PATRO_POS=[];window.__PATRO=PATRO_POS;SOROT_POS=[];window.__SOROT=SOROT_POS;res.forEach((r,i)=>{if(r.lok||r._tr)return;const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)});
+  ROBOT_POS=[];window.__ROBOT=ROBOT_POS;PATRO_POS=[];window.__PATRO=PATRO_POS;SOROT_POS=[];window.__SOROT=SOROT_POS;{const MG=T*3,x0=-v.ox/v.z-MG,x1=(v.W-v.ox)/v.z+MG,y0=-v.oy/v.z-MG,y1=(v.H-v.oy)/v.z+MG,EKI={robot:1,patromax:1,sorot:1}; // hemat: rumah di luar layar tidak digambar (kecuali pemilik barang eksklusif, posisinya dipakai fitur lain)
+  res.forEach((r,i)=>{if(r.lok||r._tr)return;const X=wx(r.x),Y=wx(r.y);if((X<x0||X>x1||Y<y0||Y>y1)&&!(r.items||[]).some(o=>EKI[o&&o.id||o]))return;const m=anim('r',i);if(m.a>0)drawHouse(r,m.s,m.a)})}
   // tiang listrik + lampu jalan + kabel (biar kampungnya terasa nyata); hanya saat cukup dekat
   window.__TIANG=[];if(z>=.42&&JALAN_SEG){const SL=S*T,lines=new Map(),M=T*2;
     JALAN_SEG.forEach(({hz,q,sg,j})=>{if(j==='rumput')return;const w=JALAN_W[j],c0=q*SL,sides=j==='besar'?[1,-1]:[(q+sg)%2?1:-1];
@@ -2028,7 +2030,7 @@ window.__qaDusun=k=>selectDusun(k);
 function selectDusun(k){sel={kind:'d',k};const q=DSN_Q[k];flyTo({cx:q.cx,cy:q.cy,zoom:clampZ(Math.min(cw/(q.x1-q.x0),ch/(q.y1-q.y0))*1.05)},900);showResult(sel);dirty=true;SND.play('pop',.8)}
 function homeView(){const w=BB.x1-BB.x0,h=BB.y1-BB.y0;fitZ=Math.min(cw/(w+T*2),ch/(h+T*3));
   minZ=Math.max(.06,fitZ*.55);try{if(STQA){const b=desaBangun().bounds;minZ=Math.min(minZ,Math.min(cw/(b.x1-b.x0),ch/(b.y1-b.y0))*.95)}}catch(e){}return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ*1.15}}
-function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);cw=Math.max(1,r.width);ch=Math.max(1,r.height);
+function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(innerWidth<760?1.5:2,window.devicePixelRatio||1);cw=Math.max(1,r.width);ch=Math.max(1,r.height);
   cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);homeView();dirty=true}
 const clampZ=z=>Math.max(minZ,Math.min(maxZ,z));
 function zoomAt(px,py,f){const z2=clampZ(cam.zoom*f),wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom;

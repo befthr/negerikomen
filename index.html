@@ -1446,7 +1446,7 @@ function drawRides(res,t){res.forEach(r=>{if(!Array.isArray(r.items))return;r.it
     ctx.scale(2,2);ITEM_DIAM=true;drawItem2D(o.id,t,0,null,o.warna);ITEM_DIAM=false;ctx.restore();
     ctx.font='800 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=2.5;ctx.strokeStyle='rgba(28,37,32,.85)';ctx.fillStyle='#FFFFFF';
     const nm='@'+String(r.name).slice(0,18);if(!(window.__SETIR&&window.__SETIR.u===r.name)){ctx.strokeText(nm,0,-11);ctx.fillText(nm,0,-11)}ctx.restore()})})}
-let HC=null,GC=null;
+let HC=null,GC=null,DW_M=null;
 function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const {W,H,z,ox,oy}=v;const anim=o.anim||(()=>({s:1,a:1}));
   ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#B5C85A';ctx.fillRect(0,0,W,H);
@@ -1455,12 +1455,16 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   const tx0=Math.max(0,Math.floor(vx0/T+C)-1),tx1=Math.min(N-1,Math.ceil(vx1/T+C)+1);
   const ty0=Math.max(0,Math.floor(vy0/T+C)-1),ty1=Math.min(N-1,Math.ceil(vy1/T+C)+1);
   const res=w.residents||[],bld=w.buildings||[],free=w.free||[];
-  const occ=new Set();res.forEach(r=>occ.add(key(r.x,r.y)));free.forEach(p=>occ.add(key(p.x,p.y)));
-  const used=usedTiles(bld);
-  const act=new Set(['0,0','-1,0','0,-1','-1,-1']);
+  // hemat: himpunan petak terisi/blok aktif dihitung ulang hanya kalau data berubah (dulu tiap frame untuk 3.000+ rumah)
+  const mk=res.length+'|'+free.length+'|'+bld.length+'|'+(o.tanpaJalur?1:0)+'|'+(typeof window!=='undefined'&&window.__HCV||0)+'|'+(o.anim?Math.random():0);
+  let occ,used,act;if(DW_M&&DW_M.k===mk&&DW_M.r===res){occ=DW_M.occ;used=DW_M.used;act=DW_M.act}else{
+  occ=new Set();res.forEach(r=>occ.add(key(r.x,r.y)));free.forEach(p=>occ.add(key(p.x,p.y)));
+  used=usedTiles(bld);
+  act=new Set(['0,0','-1,0','0,-1','-1,-1']);
   const addB=(x,y)=>{const [bx,by]=blockOf(x,y);act.add(bx+','+by)};
   res.forEach(r=>{if(!r.lok)addB(r.x,r.y)});free.forEach(p=>addB(p.x,p.y));bld.forEach(b=>addB(b.x,b.y));
   if(!o.tanpaJalur)for(let bx=JALUR.bx0;bx<=JALUR.bx1;bx++)for(let by=JALUR.by0;by<=JALUR.by1;by++)act.add(bx+','+by);
+  DW_M={k:mk,r:res,occ,used,act}}
   const bx0=Math.floor((tx0-C)/S)-1,bx1=Math.ceil((tx1-C)/S)+1,by0=Math.floor((ty0-C)/S)-1,by1=Math.ceil((ty1-C)/S)+1;
   // jalur kavling bisa lebih panjang dari grid sawah: perluas rentang khusus blok jalur
   const tyE=o.tanpaJalur?ty1:Math.max(ty1,Math.min(C+JALUR.by1*S+S,Math.ceil(vy1/T+C)+1)),by1E=Math.max(by1,Math.ceil((tyE-C)/S)+1);
@@ -2023,7 +2027,7 @@ BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama'
 $('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,''),dk=window.B_DESA||'semua';let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=(!q||li.dataset.q.includes(q))&&(dk==='semua'||li.dataset.desa===dk);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0;$('bList').closest('.bscroll').scrollTop=0};
 
 /* ---------- peta ---------- */
-const cv=$('map'),ctx=cv.getContext('2d');NK.use(ctx);
+const cv=$('map');let ctx=cv.getContext('2d');const CTX0=ctx;NK.use(ctx);
 let dpr=1,cw=1,ch=1;
 /* pengaturan grafik peta: Hemat (perangkat lambat/baterai), Seimbang (bawaan), Tinggi. Animasi santai dibatasi fps-nya; saat digeser/zoom lebih halus. */
 const GFX_SET={hemat:{n:'Hemat',d:'paling ringan',fps:20,fpsI:30,dpr:()=>1,life:false},seimbang:{n:'Seimbang',d:'bawaan',fps:30,fpsI:60,dpr:()=>innerWidth<760?1.5:2,life:true},tinggi:{n:'Tinggi',d:'paling halus',fps:60,fpsI:60,dpr:()=>2,life:true}};
@@ -2243,7 +2247,7 @@ function frame(now){
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
     NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});
-    try{drawDesa(v,reduce?0:t);drawStadion(v,reduce?0:t)}catch(e){console.error(e)}
+    try{drawDesaC(v,reduce?0:t);drawStadion(v,reduce?0:t)}catch(e){console.error(e)}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}
     try{drawMalam(v,t)}catch(e){}
@@ -4378,6 +4382,16 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   const jalanX1=Math.min(E.x1+T*6,Math.max(OT.x+OT.w,wd.x,SH.x+T*2.6,...DB.filter(([bx,by])=>by===-1||by===1).map(([bx])=>(bx+1)*S*T))+T*1.6);
   DESA={jalanX1,EKS,DB,DK,DBC,RG,OT,SH,MTI,GANG,GJ,wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
 function papan(cx,cy,teks,fs,fg,bg,pad){ctx.font=`800 ${fs}px Poppins,'Noto Color Emoji',sans-serif`;const w=ctx.measureText(teks).width+(pad||fs*1.2),h=fs*2;ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(cx-w/2,cy-h/2,w,h,fs*.35);ctx.fill();ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(teks,cx,cy+fs*.05)}
+/* hemat: saat zoom jauh, Desa Komen-Komen Sejahtera (hutan, waduk, gunung, pantai, sawah) digambar ke kanvas cadangan tiap ±10 dtk, lalu ditempel.
+   Kendaraan pindahan, GENTO, NAGASARI, stadion tetap digambar langsung. Kalau layar melihat di luar area cadangan → gambar langsung seperti biasa. */
+let DC=null;
+function drawDesaC(v,t){if(!STQA)return;const z=v.z;if(z>.375||window.__NO_HCACHE){drawDesa(v,t);return}
+  const B=desaBangun().bounds,KD=.2,x0=B.x0-T*20,y0=B.y0-T*20,x1=B.x1+T*20,y1=B.y1+T*30,VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z;
+  if(VX0<x0||VY0<y0||VX1>x1||VY1>y1){drawDesa(v,t);return}
+  const key=(window.__HCV||0)+'|'+RES.length+'|'+Math.floor(Date.now()/10000);
+  if(!DC){DC={c:document.createElement('canvas'),key:''};DC.c.width=Math.ceil((x1-x0)*KD);DC.c.height=Math.ceil((y1-y0)*KD);DC.x=DC.c.getContext('2d')}
+  if(DC.key!==key){ctx=DC.x;NK.use(DC.x);try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,DC.c.width,DC.c.height);drawDesa({W:DC.c.width,H:DC.c.height,z:KD,ox:-x0*KD,oy:-y0*KD},t)}catch(e){console.error(e)}finally{ctx=CTX0;NK.use(CTX0)}DC.key=key}
+  ctx.setTransform(z,0,0,z,v.ox,v.oy);ctx.drawImage(DC.c,x0,y0,x1-x0,y1-y0)}
 function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {E,M,F,wd}=D;
   const VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z,vis=(x,y,r)=>x+r>VX0&&x-r<VX1&&y+r>VY0&&y-r<VY1;
   {const w=D.wc,big=T*400;const pth=(g)=>{ctx.beginPath();ctx.rect(w.x-big,w.y-big,big*2,big*2);for(let i=0;i<=160;i++){const a=i/160*6.2832,r=D.tepiR(a)*g;const px=w.x+Math.cos(a)*w.rx*r,py=w.y+Math.sin(a)*w.ry*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()};

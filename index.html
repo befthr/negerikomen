@@ -2193,16 +2193,18 @@ document.addEventListener('keydown',e=>{if(!SETIR)return;const m={ArrowUp:[0,-1]
 const JAM_UJI=(new URLSearchParams(location.search).get('jam')||'').match(/^(\d{1,2})[:.](\d{2})$/);
 function malamNow(){if(window.__MALAM_PAKSA)return {n:1,senja:0};const d=new Date();let m=JAM_UJI?(+JAM_UJI[1]*60+ +JAM_UJI[2]):(d.getUTCHours()*60+d.getUTCMinutes()+420)%1440;m+=JAM_UJI?0:d.getUTCSeconds()/60;
   const cl=x=>Math.max(0,Math.min(1,x));const n=m>=1050?cl((m-1050)/60):m<300?1:m<360?1-(m-300)/60:0;const senja=m>=1020&&m<1140?Math.sin(cl((m-1020)/120)*Math.PI):0;return {n,senja}}
+let GLOW_SPR=null;function glowSpr(){if(GLOW_SPR)return GLOW_SPR;const mk=st=>{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d'),g=x.createRadialGradient(48,48,0,48,48,48);st.forEach(([o,col])=>g.addColorStop(o,col));x.fillStyle=g;x.fillRect(0,0,96,96);return c};
+  return GLOW_SPR={rumah:mk([[0,'rgba(255,196,96,1)'],[1,'rgba(255,196,96,0)']]),jalan:mk([[0,'rgba(255,240,190,.55)'],[.35,'rgba(255,226,150,.22)'],[1,'rgba(255,226,150,0)']])}}
 function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&senja<=0){if(window.__SOROT_TES&&(window.__SOROT||[]).length){try{sorotLangit(v,t,0)}catch(e){}}return false}const W=v.W,H=v.H;ctx.save();ctx.setTransform(1,0,0,1,0,0);
   if(senja>0){ctx.fillStyle=`rgba(255,128,48,${.16*senja})`;ctx.fillRect(0,0,W,H)}
   if(n>0){if((window.__PATRO||[]).length)patromaxGelap(v,t,n);else{ctx.fillStyle=`rgba(10,16,46,${.7*n})`;ctx.fillRect(0,0,W,H)}
     // lampu rumah & bangunan menyala hangat
     ctx.globalCompositeOperation='lighter';const z=v.z,T=NK.T,rr=T*.42*z,x0=-rr,y0=-rr,x1=W+rr,y1=H+rr;
-    const glow=(wx,wy,r,a)=>{const x=v.ox+wx*z,y=v.oy+wy*z;if(x<x0||x>x1||y<y0||y>y1)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,196,96,${a})`);g.addColorStop(1,'rgba(255,196,96,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)};
-    if(z>.35)RES.forEach((r,i)=>{if(((i*7)%10)<8)glow(NK.wx(r.x),NK.wx(r.y),rr,.45*n)});
+    const SPR=glowSpr(),glow=(wx,wy,r,a)=>{const x=v.ox+wx*z,y=v.oy+wy*z;if(x<x0||x>x1||y<y0||y>y1)return;ctx.globalAlpha=a;ctx.drawImage(SPR.rumah,x-r,y-r,2*r,2*r);ctx.globalAlpha=1}; // hemat GPU: sprite cahaya dibuat sekali, tidak bikin gradien baru tiap lampu tiap frame
+    if(z>.35&&window.__GFX!=='hemat')RES.forEach((r,i)=>{if(((i*7)%10)<8)glow(NK.wx(r.x),NK.wx(r.y),rr,.45*n)});
     BLD.forEach(b=>glow(NK.wx(b.x)+(b.w||1)*T/2,NK.wx(b.y)+T/2,rr*2.2*(b.w||1)/1.5,.28*n));
     // lampu jalan: cahaya putih-kuning yang jatuh ke aspal
-    (window.__TIANG||[]).forEach(([x,y])=>{const X=v.ox+x*z,Y=v.oy+y*z,r=T*1.15*z;if(X<-r||X>W+r||Y<-r||Y>H+r)return;const g=ctx.createRadialGradient(X,Y,0,X,Y,r);g.addColorStop(0,`rgba(255,240,190,${.55*n})`);g.addColorStop(.35,`rgba(255,226,150,${.22*n})`);g.addColorStop(1,'rgba(255,226,150,0)');ctx.fillStyle=g;ctx.fillRect(X-r,Y-r,2*r,2*r)})}
+    (window.__TIANG||[]).forEach(([x,y])=>{const X=v.ox+x*z,Y=v.oy+y*z,r=T*1.15*z;if(X<-r||X>W+r||Y<-r||Y>H+r)return;ctx.globalAlpha=n;ctx.drawImage(SPR.jalan,X-r,Y-r,2*r,2*r);ctx.globalAlpha=1})}
   try{sorotLangit(v,t,n)}catch(e){}
   ctx.restore();return n>0}
 // Patromax: malam tetap gelap, tapi rumah pemilik + 4 rumah terdekat kelihatan terang (lubang di lapisan gelap + cahaya hangat berkedip)

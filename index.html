@@ -405,6 +405,10 @@ html.peta-fs body{visibility:hidden}
 html.peta-fs .mapbox.fs,html.peta-fs .mapbox.fs *,html.peta-fs .v3,html.peta-fs .v3 *,html.peta-fs .kk,html.peta-fs .kk *,html.peta-fs .kk-yakin,html.peta-fs .kk-yakin *,html.peta-fs .gento-pop,html.peta-fs .gento-pop *,html.peta-fs .toast,html.peta-fs .saldo-pop,html.peta-fs .saldo-pop *,html.peta-fs .pdh-bar,html.peta-fs .pdh-bar *{visibility:visible}
 .mapbox.fs .hint{display:none!important}
 @media (min-width:700px){.mapbox.fs #result{right:auto;width:440px;max-width:calc(100% - 24px)}.mapbox.fs #result .acts{width:100%}}
+.result .acts>.btn{flex:1 1 0;min-width:0;white-space:nowrap;padding-left:10px;padding-right:10px;justify-content:center;text-align:center}
+/* kartu info rumah: garis putus-putus pemisah antar kategori (identitas · lokasi · lencana · barang/skill · reaksi · tombol) */
+#result>div:first-child>:is(.lokasi,.badges,.promo,.rx):not(.promo+.promo){border-top:1.5px dashed var(--line);padding-top:8px;margin-top:8px}
+#result>.acts{border-top:1.5px dashed var(--line);padding-top:10px}
 </style>
 </head>
 <body>

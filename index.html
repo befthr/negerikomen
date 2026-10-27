@@ -2417,7 +2417,27 @@ const SND=(()=>{let ac=null,master=null,buf=null,fx={},on=false,timer=null,loadi
   function telolet(v){const T=ac.currentTime;[[659,.16],[784,.16],[659,.16],[784,.16],[880,.42]].reduce((t,[f,d])=>{[1,1.5].forEach(m=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f*m*.5;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.05*v,t+.02);g.gain.setValueAtTime(.05*v,t+d-.03);g.gain.exponentialRampToValueAtTime(.0001,t+d);const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1800;o.connect(lp);lp.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02)});return t+d+.03},T+.05)}
   function kend(vt,vh){if(!on||!ac)return;kendInit();kLast=performance.now();const T=ac.currentTime;kv.g1.gain.setTargetAtTime(.32*vt,T,.25);kv.g2.gain.setTargetAtTime(.22*vh,T,.25);
     if(vt>.35&&kPrevT<=.35&&T>kTel){telolet(Math.min(1,vt+.2));kTel=T+25}kPrevT=vt}
-  return {start,stop,play,kend,get on(){return on},ok:!!AC}})();
+  // 🐉 suara NAGASARI (disintesis, tanpa musik): desir angin + kain berkibar + gemerincing ekor, salto "wiing" + "tuk",
+  // sembur: tarik napas → fwoosh → pop-pop kembang api + desis + "pip" anak naga, malam: dengung lampion, ketuk: lonceng
+  let ng=null,ngLast=0,ngG=-1,ngSem=0,ngChime=0;
+  const nbuf=()=>{const b=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b};
+  function ngInit(){if(ng||!ac)return;const wg=ac.createGain(),hg=ac.createGain();wg.gain.value=0;hg.gain.value=0;wg.connect(master);hg.connect(master);
+    const ns=ac.createBufferSource();ns.buffer=nbuf();ns.loop=true;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=700;bp.Q.value=.6;const fl=ac.createGain();fl.gain.value=.6;
+    const lfo=ac.createOscillator();lfo.frequency.value=7;const lg=ac.createGain();lg.gain.value=.4;lfo.connect(lg);lg.connect(fl.gain);ns.connect(bp);bp.connect(fl);fl.connect(wg);ns.start();lfo.start();
+    const h=ac.createOscillator();h.type='sine';h.frequency.value=196;const h2=ac.createOscillator();h2.type='sine';h2.frequency.value=294;const hl=ac.createGain();hl.gain.value=.5;h.connect(hg);h2.connect(hl);hl.connect(hg);h.start();h2.start();
+    ng={wg,hg};setInterval(()=>{if(ng&&ac&&performance.now()-ngLast>900){ng.wg.gain.setTargetAtTime(0,ac.currentTime,.3);ng.hg.gain.setTargetAtTime(0,ac.currentTime,.3)}},500)}
+  function tone(f,d,type,v,f2,at){const o=ac.createOscillator(),g=ac.createGain(),t=at||ac.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05)}
+  function burst(at,d,f,v,q){const s=ac.createBufferSource();s.buffer=nbuf();const b=ac.createBiquadFilter();b.type='bandpass';b.frequency.value=f;b.Q.value=q||1;const g=ac.createGain();g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(v,at+.02);g.gain.exponentialRampToValueAtTime(.0001,at+d);s.connect(b);b.connect(g);g.connect(master);s.start(at);s.stop(at+d+.05)}
+  function lonceng(v,at){const t=at||ac.currentTime;[1568,2093,2637].forEach((f,i)=>tone(f,.9,'sine',.05*v,0,t+i*.06))}
+  function nagaSembur(v){const T=ac.currentTime;burst(T,.7,500,.12*v,.8);[[.75,1.1,900],[.9,1,1400]].forEach(([d,l,f])=>burst(T+d,l,f,.2*v,.5));
+    for(let i=0;i<9;i++){const t=T+1.8+i*.42+Math.random()*.15;tone(180+Math.random()*80,.12,'triangle',.18*v,60,t);burst(t+.05,.6,3500+Math.random()*1500,.06*v,.7)}
+    for(let i=0;i<10;i++)tone(1200+Math.random()*900,.08,'sine',.05*v,0,T+2+i*.32)}
+  function naga(k,o){if(!on||!ac)return;ngInit();ngLast=performance.now();const T=ac.currentTime;ng.wg.gain.setTargetAtTime(.1*k,T,.3);ng.hg.gain.setTargetAtTime(.025*k*(o.malam||0),T,.6);
+    if(k<.05)return;if(T>ngChime&&Math.random()<.02){lonceng(.5*k);ngChime=T+3}
+    if(o.milik){const G=Math.floor(Date.now()/2600);if(G!==ngG){if(ngG>=0&&G%5===0){tone(500,.45,'sine',.07*k,1300);tone(260,.08,'triangle',.08*k,0,T+.5)}ngG=G}}
+    if(o.sembur&&o.sembur!==ngSem){ngSem=o.sembur;nagaSembur(Math.max(.4,k))}}
+  function ketukNaga(){if(!on||!ac)return;lonceng(1)}
+  return {start,stop,play,kend,naga,ketukNaga,get on(){return on},ok:!!AC}})();
 {const b=$('snd');if(!SND.ok)b.hidden=true;
   const set=v=>{b.textContent=v?'🔊':'🔇';b.setAttribute('aria-pressed',v?'true':'false');b.setAttribute('aria-label',v?'Matikan suara':'Nyalakan suara suasana kampung');try{localStorage.setItem('nk-sound',v?'1':'0')}catch(e){}};
   b.onclick=()=>{if(SND.on){SND.stop();set(false)}else{SND.start();set(true);toast('Suara kampung menyala 🌾')}};
@@ -3710,14 +3730,15 @@ function drawNaga(v,t){if(!STQA||!NAGA_ON())return;const P0=nagaTiang();if(!P0){
   NG_ANAK.forEach(([c1,c2],k)=>{const d=NG_SEG*SP+T*1.6+k*(7*SP*.4+T*1.4),A=milik?jejak(d,SP*.42,7,k*2.1+1):(()=>{const a=s*.9+k*2.09,rx=T*(4.4+k*.7),L=[];for(let i=0;i<7;i++){const b=a-i*(SP*.42/rx);L.push([P0.x+Math.cos(b)*rx,P0.y-T*2.4+Math.sin(b)*rx*.42])}return L})();
     nagaGambar(A,.4*SC,c1,c2,n,t+k,null,false);if(E){const q=(ms-E.at)/1000;if(q>1.6&&q<6.6&&A[0]){for(let j=0;j<5;j++){const u=((q*2+j/5+k*.3)%1);ctx.fillStyle=['#FFD23A','#FF4D6D','#4DD8FF'][(j+k)%3];ctx.globalAlpha=1-u;ctx.beginPath();ctx.arc(A[0][0]+Math.cos(j*1.3+k)*T*u*1.2,A[0][1]+Math.sin(j*1.3+k)*T*u*1.2,T*.07,0,7);ctx.fill()}ctx.globalAlpha=1}}});
   nagaGambar(P,SC,'#D8392F','#E8503F',n,t,milik?nagaWarnaSyal():null,true);
-  if(E)nagaKembangApi(E,ms,P[0][0],P[0][1])}
+  if(E)nagaKembangApi(E,ms,P[0][0],P[0][1]);
+  if(SND.on)try{const d=Math.hypot(P[0][0]-cam.cx,P[0][1]-cam.cy)*v.z,k=Math.max(0,1-d/600)*Math.min(1,v.z*1.4);SND.naga(k,{milik,malam:n,sembur:E?E.at:0})}catch(e){}}
 // tiang + papan (ikut gelap malam, digambar sebelum malam)
 function drawNagaTiang(v,t){if(!STQA||!NAGA_ON())return;const P=nagaTiang();if(!P)return;ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);
   ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(P.x-T*.08+T*.3,P.y-T*2.5+T*.3,T*.18,T*2.6);ctx.fillStyle='#6B4A2E';ctx.fillRect(P.x-T*.09,P.y-T*2.7,T*.18,T*2.8);ctx.fillStyle='#C4402F';ctx.fillRect(P.x-T*.3,P.y-T*2.85,T*.6,T*.22);
   if(nagaRumah())return;const bw=T*3.6,bh=T*1.15,bx=P.x-bw/2,by=P.y+T*.25;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(bx+4,by+4,bw,bh);ctx.fillStyle='#1C2520';ctx.beginPath();ctx.roundRect(bx,by,bw,bh,6);ctx.fill();
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#F2C230';ctx.font=`800 ${T*.3}px Poppins,'Noto Color Emoji',sans-serif`;ctx.fillText('🐉 NAGASARI',P.x,by+bh*.33);ctx.fillStyle='#fff';ctx.font=`600 ${T*.22}px Poppins,sans-serif`;ctx.fillText('Belum dimiliki · 25 Receh',P.x,by+bh*.72)}
 function nagaKetukCek(wxp,wyp,cx,cy){if(!STQA||!NAGA_ON())return false;const P=nagaTiang();if(!P)return false;const tol=Math.max(T*1.6,30/cam.zoom);
-  if(NAGA_PT&&Math.hypot(wxp-NAGA_PT.x,wyp-NAGA_PT.y)<tol){if(NAGA_PT.milik&&window.NAGA_OWNER)nagaPop(cx,cy);else openDemoNaga();return true}
+  if(NAGA_PT&&Math.hypot(wxp-NAGA_PT.x,wyp-NAGA_PT.y)<tol){try{SND.ketukNaga()}catch(e){}if(NAGA_PT.milik&&window.NAGA_OWNER)nagaPop(cx,cy);else openDemoNaga();return true}
   if(!nagaRumah()&&Math.abs(wxp-P.x)<T*2.2&&wyp>P.y-T*3.2&&wyp<P.y+T*1.6){openDemoNaga();return true}return false}
 function nagaPop(cx,cy){SND.play('pop',.8);document.querySelectorAll('.gento-pop').forEach(x=>x.remove());const u=window.NAGA_OWNER,me=(kkGet()||{}).u,own=u===me||!!NAGA_QA;
   const p=el('div','gento-pop');p.style.left=Math.min(innerWidth-12,Math.max(12,cx))+'px';p.style.top=Math.max(12,cy-14)+'px';

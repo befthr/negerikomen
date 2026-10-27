@@ -1550,7 +1550,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       [bx,bx+1].forEach(q=>{const r=Vr.get(q)||[by,by];Vr.set(q,[Math.min(r[0],by),Math.max(r[1],by)])});
     });
     const run=(q,[a,b],horiz)=>{const x0=a*S*T-T/2,x1=(b+1)*S*T+T/2,len=x1-x0,hz=horiz?1:2;
-      const n=q===0?5:1+(ih(q,hz,31)<0.6?1:0)+(len>S*T*3?1:0),SL=S*T,stopD=(q===0?T*.55:T*.75)+T*.45;
+      const hm=typeof window!=='undefined'&&window.__GFX==='hemat',n=hm?(q===0?2:(ih(q,hz,31)<0.5?1:0)):q===0?5:1+(ih(q,hz,31)<0.6?1:0)+(len>S*T*3?1:0),SL=S*T,stopD=(q===0?T*.55:T*.75)+T*.45;
       const cars=[];for(let v=0;v<n;v++){const k=ih(q,v,40+hz),dir=ih(q,v,47+hz)<0.5?1:-1,sp=k<0.3?70:k<0.6?95:k<0.85?60:22,id=(horiz?'h':'v')+q+':'+v;
         let st=VS.get(id);if(!st||Math.abs(t-st.t)>2){st={p:x0+mod(t*sp*dir+ih(q,v,53+hz)*len,len),t};VS.set(id,st)}cars.push({v,k,dir,sp,st})}
       cars.forEach(c=>{const dt=Math.max(0,t-c.st.t);c.st.t=t;let p=c.st.p;
@@ -2063,7 +2063,7 @@ window.__qaDusun=k=>selectDusun(k);
 function selectDusun(k){sel={kind:'d',k};const q=DSN_Q[k];flyTo({cx:q.cx,cy:q.cy,zoom:clampZ(Math.min(cw/(q.x1-q.x0),ch/(q.y1-q.y0))*1.05)},900);showResult(sel);dirty=true;SND.play('pop',.8)}
 function homeView(){const w=BB.x1-BB.x0,h=BB.y1-BB.y0;fitZ=Math.min(cw/(w+T*2),ch/(h+T*3));
   minZ=Math.max(.06,fitZ*.55);try{if(STQA){const b=desaBangun().bounds;minZ=Math.min(minZ,Math.min(cw/(b.x1-b.x0),ch/(b.y1-b.y0))*.95)}}catch(e){}return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ*1.15}}
-function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(GFX_SET[GFX].dpr(),window.devicePixelRatio||1);window.__CDPR=dpr;cw=Math.max(1,r.width);ch=Math.max(1,r.height);
+function resize(){const r=cv.getBoundingClientRect();dpr=Math.min(GFX_SET[GFX].dpr(),window.devicePixelRatio||1);window.__CDPR=dpr;window.__GFX=GFX;cw=Math.max(1,r.width);ch=Math.max(1,r.height);
   cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);homeView();dirty=true}
 const clampZ=z=>Math.max(minZ,Math.min(maxZ,z));
 function zoomAt(px,py,f){const z2=clampZ(cam.zoom*f),wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom;

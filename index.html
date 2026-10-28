@@ -3156,9 +3156,8 @@ function items3D(g,r){if(r.kerja&&!(r.items||[]).some(o=>o.id==='papan'))r={item
       g.userData.tembak=()=>{if(lama)lama();tesAt=performance.now();try{SND.play('ting',.45)}catch(e){}};
       const malam=()=>{if(window.__PMX_MALAM!=null)return window.__PMX_MALAM;try{return malamNow().n>.5}catch(e){return false}};
       const P0=new T.Vector3(),Q0=new T.Vector3(0,4.3,0),UP=new T.Vector3(0,1,0);
-      A.push(t=>{if(!bg){bg=new T.Group();g.add(bg);const cg=new T.ConeGeometry(.95,1,28,1,true);cg.rotateX(Math.PI);cg.translate(0,.5,0);
-          const cn=new T.Mesh(cg,new T.MeshBasicMaterial({color:'#FFF2C0',transparent:true,opacity:.3,depthWrite:false,side:T.DoubleSide,blending:T.AdditiveBlending,fog:false}));bg.add(cn);bg.userData.cn=cn;
-          {const cg2=new T.ConeGeometry(.42,1,24,1,true);cg2.rotateX(Math.PI);cg2.translate(0,.5,0);cn.add(new T.Mesh(cg2,new T.MeshBasicMaterial({color:'#FFFBE6',transparent:true,opacity:.45,depthWrite:false,side:T.DoubleSide,blending:T.AdditiveBlending,fog:false})))}
+      A.push(t=>{if(!bg){bg=new T.Group();g.add(bg);const cg=new T.ConeGeometry(.55,1,24,1,true);cg.rotateX(Math.PI);cg.translate(0,.5,0);
+          const cn=new T.Mesh(cg,new T.MeshBasicMaterial({color:'#FFF2C0',transparent:true,opacity:.26,depthWrite:false,side:T.DoubleSide,blending:T.AdditiveBlending,fog:false}));bg.add(cn);bg.userData.cn=cn;
           const cv2=document.createElement('canvas');cv2.width=1024;cv2.height=256;const c2=cv2.getContext('2d');c2.save();c2.translate(512,128);c2.scale(4,1);const gr=c2.createRadialGradient(0,0,4,0,0,124);gr.addColorStop(0,'rgba(255,250,225,.95)');gr.addColorStop(.6,'rgba(255,244,205,.6)');gr.addColorStop(1,'rgba(255,244,205,0)');c2.fillStyle=gr;c2.beginPath();c2.arc(0,0,124,0,7);c2.fill();c2.restore();
           let fs=96;c2.font=`800 ${fs}px Poppins,system-ui,sans-serif`;while(c2.measureText(nama).width>860&&fs>40){fs-=6;c2.font=`800 ${fs}px Poppins,system-ui,sans-serif`}c2.textAlign='center';c2.textBaseline='middle';c2.lineJoin='round';c2.lineWidth=14;c2.strokeStyle='#FFFFFF';c2.strokeText(nama,512,132);c2.fillStyle='#13204A';c2.fillText(nama,512,132);
           sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv2),transparent:true,depthWrite:false,fog:false}));sp.scale.set(4,1,1);bg.add(sp)}

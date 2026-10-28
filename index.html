@@ -1800,8 +1800,8 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
     o.P={x:X,y:Y,bulan,jalan};
     {const TR=(window.__MBTR||(window.__MBTR={}));let tr=TR[o.r.name]||(TR[o.r.name]=[]);if(!jalan){tr.length=0}else{const L=tr[tr.length-1];if(!L||Math.hypot(L[0]-X,L[1]-Y)>2.2){tr.push([X,Y]);if(tr.length>140)tr.shift()}
       const nF=Math.min(6,Math.floor(tr.length/14)),tt=t||0; // warga & hewan sekitar ikut ngintil karena gemas (makin lama makin banyak, maks 6)
-      for(let i=nF-1;i>=0;i--){const q=tr[Math.max(0,tr.length-1-(i+2)*10)],wob=Math.sin(tt*4+i*2.1)*2.2,fx=q[0]+((i%2)?wob:-wob),fy=q[1]+((i%2)?-wob:wob)*.6,sd=((o.sd*7+i*.37)%1),kind=i%3;
-        ctx.save();ctx.translate(fx,fy);ctx.scale(1.7,1.7);if(kind===0)chicken(0,0,tt,sd);else if(kind===1)kucing(0,0,tt,.45+sd*.5);else person(0,0,['#C4402F','#2F74B5','#2F9E6A','#8E5AA8'][i%4],Math.floor(tt*6+i)%2);ctx.restore();
+      for(let i=nF-1;i>=0;i--){const ix=Math.max(0,tr.length-1-(i+2)*10),q=tr[ix],q2=tr[Math.min(tr.length-1,ix+3)],fa=Math.atan2(q2[1]-q[1],q2[0]-q[0])||ang,side=((i%2)?1:-1)*(2+Math.sin(tt*2+i)*.6),fx=q[0]-Math.sin(fa)*side,fy=q[1]+Math.cos(fa)*side,sd=((o.sd*7+i*.37)%1),kind=i%3;
+        ctx.save();ctx.translate(fx,fy);ctx.rotate(fa);ctx.scale(1.7,1.7);if(kind===0)chicken(0,0,tt,sd);else if(kind===1)kucing(0,0,tt,.42+sd*.25);else person(0,0,['#C4402F','#2F74B5','#2F9E6A','#8E5AA8'][i%4],Math.floor(tt*6+i)%2);ctx.restore();
         const hb=(tt*.8+i*.29)%1;if(hb<.6){ctx.globalAlpha=1-hb/.6;ctx.font='11px "Noto Color Emoji",sans-serif';ctx.textAlign='center';ctx.fillText('💕',fx,fy-16-hb*10);ctx.globalAlpha=1}}}}
     const E=(x,y,a,b,f,rt)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,rt||0,0,7);c.fill()},L=(w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round'};
     if(bulan)return;c.save();c.translate(X,Y);c.scale(S,S);

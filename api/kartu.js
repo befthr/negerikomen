@@ -279,7 +279,7 @@ async function kartuAktif() {
   } catch (e) { if (AKTIF === null) return false }
   return AKTIF;
 }
-// cari komentar kunci di postingan Kartu Komen (#kartukomen) + video terbaru.
+// cari komentar kunci di postingan Kartu Komen (#kartukomen) + 2 postingan terbaru.
 // Supaya kuat saat ramai: daftar komentar dibaca dari Instagram paling sering tiap ±20 detik untuk SEMUA warga
 // (salinan disimpan di database), lalu setiap pengecekan cukup mencari di salinan itu.
 const IGC_MAKS = 5000;
@@ -292,7 +292,7 @@ async function segarkanKomen() {
   let media = jparse(await kv(['GET', 'igc:media']));
   if (!media) {
     const all = (await igGet('https://graph.instagram.com/v21.0/me/media?fields=id,caption&limit=15&access_token=' + encodeURIComponent(IG_TOKEN))).data || [];
-    media = all.filter((m, i) => i === 0 || adaPenanda(m.caption)).slice(0, 3).map(m => m.id);
+    media = all.filter((m, i) => i < 2 || adaPenanda(m.caption)).slice(0, 4).map(m => m.id); // 2 postingan terbaru (hari yang sama: episode + Breaking News) + postingan Kartu Komen yang di-pin
     await kv(['SET', 'igc:media', JSON.stringify(media), 'EX', 60]);
   }
   const list = jparse(await kv(['GET', 'igc:list'])) || [], ada = new Set(list.map(c => c.id));

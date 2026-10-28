@@ -1352,7 +1352,7 @@ function drawBuilding(b,s,a){
     ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;for(let i=0;i<4;i++)ctx.strokeRect(X+16+i*22,Y+86,18,22);
     ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(X+Z-40,Y+Z-24,30,14);ctx.fillStyle='#FFFFFF';ctx.fillRect(X+Z-42,Y+Z-27,30,14);ctx.fillStyle='#D9302F';ctx.fillRect(X+Z-42,Y+Z-22,30,3);ctx.fillRect(X+Z-30,Y+Z-27,5,3);
   }else if(t==='hiburan'){ // Taman Hiburan Pantai: pasir, bianglala, roller coaster, kios
-    ctx.fillStyle='#EBD7A2';ctx.fillRect(X+4,Y+4,Z-8,Z-8);
+    if(b._luar){const qx=X+Z/2,qy=Y+Z/2;ctx.translate(qx,qy);ctx.scale(.9,.9);ctx.translate(-qx,-qy)}else{ctx.fillStyle="#EBD7A2";ctx.fillRect(X+4,Y+4,Z-8,Z-8)}
     ctx.strokeStyle='#C64B3B';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X+10,Y+100);ctx.bezierCurveTo(X+20,Y+60,X+40,Y+110,X+56,Y+70);ctx.bezierCurveTo(X+66,Y+46,X+100,Y+96,X+110,Y+60);ctx.stroke();
     ctx.strokeStyle='#F2C230';ctx.lineWidth=2;ctx.stroke();
     const wx0=X+76,wy0=Y+38;ctx.fillStyle=SH;ctx.beginPath();ctx.arc(wx0+4,wy0+5,27,0,7);ctx.fill();

@@ -733,7 +733,7 @@ const BTYPES={
   warung:{label:'Warung'},warkop:{label:'Warung kopi'},masjid:{label:'Masjid'},lapangan:{label:'Lapangan'},
   sekolah:{label:'Sekolah'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Rumah sakit'},
   umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'},
-  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'},layartancap:{label:'Layar tancap'},tugu:{label:'Tugu pendukung'},penginapan:{label:'Penginapan'},coffeeshop:{label:'Coffee shop'},tokokampung:{label:'Toko Pak Kades'},tb:{label:'Toko bangunan'},tk:{label:'TK/PAUD'},dealer:{label:'Dealer motor & sepeda'}
+  padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'},layartancap:{label:'Layar tancap'},tugu:{label:'Tugu pendukung'},penginapan:{label:'Penginapan'},coffeeshop:{label:'Coffee shop'},tokokampung:{label:'Toko Pak Kades'},tb:{label:'Toko bangunan'},tk:{label:'TK/PAUD'},dealer:{label:'Dealer motor & sepeda'},hiburan:{label:'Taman hiburan'},monumen:{label:'Monumen & museum'},tps:{label:'Tempat pengolahan sampah'},bandara:{label:'Bandara'},pasarmalam:{label:'Pasar malam'}
 };
 const STARTER=[
   {type:'posronda',name:'Pos Ronda',by:'negerikomen',day:1,x:C-1,y:C+1,w:1},
@@ -1351,6 +1351,54 @@ function drawBuilding(b,s,a){
     ctx.fillStyle='#FFFFFF';ctx.fillRect(cx-15,Y+26,30,30);ctx.fillStyle='#D9302F';ctx.fillRect(cx-4,Y+30,8,22);ctx.fillRect(cx-11,Y+37,22,8);
     ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;for(let i=0;i<4;i++)ctx.strokeRect(X+16+i*22,Y+86,18,22);
     ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(X+Z-40,Y+Z-24,30,14);ctx.fillStyle='#FFFFFF';ctx.fillRect(X+Z-42,Y+Z-27,30,14);ctx.fillStyle='#D9302F';ctx.fillRect(X+Z-42,Y+Z-22,30,3);ctx.fillRect(X+Z-30,Y+Z-27,5,3);
+  }else if(t==='hiburan'){ // Taman Hiburan Pantai: pasir, bianglala, roller coaster, kios
+    ctx.fillStyle='#EBD7A2';ctx.fillRect(X+4,Y+4,Z-8,Z-8);
+    ctx.strokeStyle='#C64B3B';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X+10,Y+100);ctx.bezierCurveTo(X+20,Y+60,X+40,Y+110,X+56,Y+70);ctx.bezierCurveTo(X+66,Y+46,X+100,Y+96,X+110,Y+60);ctx.stroke();
+    ctx.strokeStyle='#F2C230';ctx.lineWidth=2;ctx.stroke();
+    const wx0=X+76,wy0=Y+38;ctx.fillStyle=SH;ctx.beginPath();ctx.arc(wx0+4,wy0+5,27,0,7);ctx.fill();
+    ctx.strokeStyle='#3E8FC9';ctx.lineWidth=4;ctx.beginPath();ctx.arc(wx0,wy0,26,0,7);ctx.stroke();ctx.lineWidth=1.5;
+    for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.beginPath();ctx.moveTo(wx0,wy0);ctx.lineTo(wx0+Math.cos(a)*26,wy0+Math.sin(a)*26);ctx.stroke();
+      ctx.fillStyle=['#E2453C','#F2C230','#2E9C6A','#8E5AA8'][i%4];ctx.beginPath();ctx.arc(wx0+Math.cos(a)*26,wy0+Math.sin(a)*26,5,0,7);ctx.fill()}
+    ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(wx0,wy0,5,0,7);ctx.fill();
+    [[X+12,Y+14,'#E2453C'],[X+36,Y+14,'#3E8FC9']].forEach(([px,py,c])=>{box(px,py,20,16,'#FFF6E0');awning(px,py,20,9,c,'#FFFFFF',4)});
+    [[X+20,Y+56,'#FF6FA8'],[X+34,Y+50,'#3E8FC9']].forEach(([px,py,c])=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(px,py,7,0,Math.PI,true);ctx.fill();ctx.fillStyle='#7A5230';ctx.fillRect(px-1,py,2,8)});
+  }else if(t==='monumen'){ // Monumen + Museum Desa
+    ctx.fillStyle='#CFC6AE';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    ctx.fillStyle='#BFE0A0';ctx.fillRect(X+12,Y+12,46,96);
+    ctx.fillStyle=SH;ctx.fillRect(X+28,Y+34,22,50);ctx.fillStyle='#F4F1E8';ctx.fillRect(X+25,Y+30,20,52);ctx.strokeStyle='#A39A84';ctx.lineWidth=2;ctx.strokeRect(X+25,Y+30,20,52);
+    ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(X+35,Y+14);ctx.lineTo(X+43,Y+30);ctx.lineTo(X+27,Y+30);ctx.closePath();ctx.fill();ctx.strokeStyle='#C99A1C';ctx.stroke();
+    ctx.fillStyle='#8E8673';ctx.fillRect(X+20,Y+82,30,8);
+    box(X+64,Y+20,48,62,'#F6F1E6','#A39A84');gable(X+62,Y+16,52,22,'#B5533C',false);
+    for(let i=0;i<4;i++){ctx.fillStyle='#E9E2CF';ctx.fillRect(X+67+i*11,Y+44,5,30)}
+    ctx.fillStyle='#6B4527';ctx.fillRect(X+82,Y+70,12,12);
+    ctx.fillStyle='#E2453C';ctx.fillRect(X+66,Y+92,44,12);ctx.fillStyle='#fff';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText('MUSEUM',X+88,Y+101);ctx.textAlign='left';
+  }else if(t==='tps'){ // TPS: lantai beton, tong warna-warni, truk sampah, pohon
+    ctx.fillStyle='#BFC4C2';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    box(X+14,Y+14,92,40,'#E3E7E5','#8A9390');ctx.fillStyle='#2E9C6A';ctx.fillRect(X+12,Y+12,96,10);
+    ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('♻ TPS',X+60,Y+20);ctx.textAlign='left';
+    ['#2E9C6A','#F2C230','#E2453C','#3E8FC9'].forEach((c,i)=>{const px=X+18+i*22,py=Y+30;ctx.fillStyle=SH;ctx.fillRect(px+3,py+3,16,18);ctx.fillStyle=c;ctx.fillRect(px,py,16,18);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(px,py,16,4)});
+    box(X+16,Y+70,50,24,'#2E9C6A','#1C5A3E');box(X+66,Y+74,18,20,'#F3E8D2','#1C5A3E');ctx.fillStyle='#BFE3F2';ctx.fillRect(X+70,Y+77,10,7);
+    [[X+24,Y+96],[X+56,Y+96],[X+76,Y+96]].forEach(([px,py])=>{ctx.fillStyle='#222';ctx.beginPath();ctx.arc(px,py,5,0,7);ctx.fill()});
+    drawTree(X+100,Y+76,10,.4);drawTree(X+100,Y+102,9,.7);
+  }else if(t==='bandara'){ // Bandara: landasan, pesawat, menara kontrol, terminal
+    ctx.fillStyle='#9DCB6E';ctx.fillRect(X+4,Y+4,Z-8,Z-8);
+    ctx.fillStyle='#4A4F55';ctx.fillRect(X+8,Y+62,Z-16,26);ctx.fillStyle='#fff';for(let i=0;i<6;i++)ctx.fillRect(X+14+i*17,Y+74,9,2);
+    ctx.fillStyle='#F2C230';ctx.fillRect(X+8,Y+62,Z-16,2);ctx.fillRect(X+8,Y+86,Z-16,2);
+    box(X+12,Y+14,62,30,'#E6F0F7','#7E9AAE');ctx.fillStyle='#7FB7DD';ctx.fillRect(X+16,Y+20,54,10);ctx.fillStyle='#3E8FC9';ctx.fillRect(X+10,Y+12,66,5);
+    box(X+86,Y+12,14,34,'#E6F0F7','#7E9AAE');ctx.fillStyle='#2F4A5E';ctx.fillRect(X+82,Y+8,22,10);ctx.fillStyle='#7FD3FF';ctx.fillRect(X+84,Y+10,18,5);
+    const px=X+60,py=Y+75;ctx.fillStyle=SH;ctx.beginPath();ctx.ellipse(px+4,py+5,26,5,0,0,7);ctx.fill();
+    ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.ellipse(px,py,26,5,0,0,7);ctx.fill();ctx.fillStyle='#E2453C';ctx.beginPath();ctx.moveTo(px-6,py);ctx.lineTo(px+4,py-18);ctx.lineTo(px+10,py-18);ctx.lineTo(px+6,py);ctx.lineTo(px+10,py+18);ctx.lineTo(px+4,py+18);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#3E8FC9';ctx.fillRect(px-26,py-8,6,16);ctx.fillStyle='#2F4A5E';ctx.fillRect(px+18,py-2,5,4);
+    ctx.fillStyle='#E2453C';ctx.beginPath();ctx.moveTo(X+108,Y+98);ctx.lineTo(X+108,Y+108);ctx.lineTo(X+116,Y+103);ctx.closePath();ctx.fill();ctx.fillStyle='#7A5230';ctx.fillRect(X+107,Y+98,1.5,16);
+  }else if(t==='pasarmalam'){ // Pasar Malam: tenda warna-warni, lampu gantung, komidi putar
+    ctx.fillStyle='#4A3B5C';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    const cols=['#E2453C','#F2C230','#3E8FC9','#2E9C6A','#FF6FA8','#FF9F43'];
+    for(let i=0;i<3;i++){const px=X+12+i*34,py=Y+12;ctx.fillStyle=SH;ctx.fillRect(px+3,py+4,28,28);ctx.fillStyle='#F3E8D2';ctx.fillRect(px,py+14,28,14);awning(px,py,28,16,cols[i],'#FFFFFF',4)}
+    for(let i=0;i<2;i++){const px=X+12+i*34,py=Y+82;ctx.fillStyle=SH;ctx.fillRect(px+3,py+4,28,24);ctx.fillStyle='#F3E8D2';ctx.fillRect(px,py+12,28,12);awning(px,py,28,14,cols[3+i],'#FFFFFF',4)}
+    ctx.strokeStyle='#FFE27A';ctx.lineWidth=1;[[Y+50],[Y+66]].forEach(([yy])=>{ctx.beginPath();ctx.moveTo(X+10,yy);ctx.quadraticCurveTo(X+60,yy+8,X+110,yy);ctx.stroke();for(let k=0;k<10;k++){const xx=X+14+k*10;ctx.fillStyle=cols[k%6];ctx.beginPath();ctx.arc(xx,yy+3.2-Math.abs(k-4.5)*.5,2.4,0,7);ctx.fill()}});
+    const cx2=X+96,cy2=Y+96;ctx.fillStyle=SH;ctx.beginPath();ctx.arc(cx2+3,cy2+4,15,0,7);ctx.fill();ctx.fillStyle='#FF6FA8';ctx.beginPath();ctx.arc(cx2,cy2,15,0,7);ctx.fill();
+    for(let i=0;i<6;i++){ctx.fillStyle=i%2?'#FFFFFF':'#F2C230';ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.arc(cx2,cy2,15,i*Math.PI/3,(i+1)*Math.PI/3);ctx.closePath();ctx.fill()}
+    ctx.fillStyle='#E2453C';ctx.beginPath();ctx.arc(cx2,cy2,4,0,7);ctx.fill();
   }else{
     const roof=ROOFS[sh(b.name||'umum')%ROOFS.length];
     ctx.fillStyle='#D9D2C0';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
@@ -2358,8 +2406,9 @@ function frame(now){
     cam.cx=fly.from.cx+(fly.to.cx-fly.from.cx)*e;cam.cy=fly.from.cy+(fly.to.cy-fly.from.cy)*e;cam.zoom=zf;if(k>=1)fly=null;dirty=true}
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
+    try{BLD.forEach(b=>{if(!b.ikut)return;const r=RES[kkResIdx(b.by)];if(r&&r.lok==='pantai'&&!r._tr){b.x=r.x+b.ikut[0];b.y=r.y+b.ikut[1];b._luar=1}else b._luar=0})}catch(e){}
     {const _t0=DBG?performance.now():0;NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});if(DBG)DBG.m.dunia=(DBG.m.dunia||0)*.9+(performance.now()-_t0)*.1}
-    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
+    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     {const _t0=DBG?performance.now():0;try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.langit=(DBG.m.langit||0)*.9+(performance.now()-_t0)*.1}
     {const _t0=DBG?performance.now():0;try{drawMalam(v,t)}catch(e){}if(DBG)DBG.m.malam=(DBG.m.malam||0)*.9+(performance.now()-_t0)*.1}
@@ -3288,6 +3337,63 @@ function build3DB(b){const T=THREE,g=new T.Group();
     box(2.2,.8,.5,'#B07A45',0,.4,1.45);box(2.3,.06,.6,'#D9B27A',0,.82,1.45);
     ['#E35D3A','#F2C230','#5BA35B','#2E86C1'].forEach((c,i)=>box(.22,.3,.22,c,-.75+i*.5,1,1.45));
     sign(b.name||'WARUNG','#2E86C1','#FFFFFF',1.9,.45,0,2.25,1.2);
+  }else if(ty==='hiburan'){
+    ground.material.color.set('#E8D3A0');
+    const wh=new T.Group();wh.position.set(1.1,2.3,-.6);g.add(wh);
+    const ring=new T.Mesh(new T.TorusGeometry(1.7,.08,8,40),M('#3E8FC9'));wh.add(ring);
+    for(let i=0;i<8;i++){const a=i*Math.PI/4,sp=new T.Mesh(new T.BoxGeometry(.05,1.7,.05),M('#DDE6EE'));sp.position.set(Math.cos(a)*.85,Math.sin(a)*.85,0);sp.rotation.z=a-Math.PI/2;wh.add(sp);
+      const cab=new T.Mesh(new T.BoxGeometry(.38,.32,.38),M(['#E2453C','#F2C230','#2E9C6A','#8E5AA8'][i%4]));cab.position.set(Math.cos(a)*1.7,Math.sin(a)*1.7-.2,0);cab.castShadow=true;wh.add(cab)}
+    [-.6,.6].forEach(z=>{const l1=box(.1,2.5,.1,'#9AA7B1',1.1-.7,1.15,-.6+z*.4);l1.rotation.z=-.28;const l2=box(.1,2.5,.1,'#9AA7B1',1.1+.7,1.15,-.6+z*.4);l2.rotation.z=.28});
+    g.userData.spin=wh;
+    const pts=[];for(let i=0;i<=40;i++){const u=i/40;pts.push(new T.Vector3(-3+u*3.2,.7+Math.sin(u*Math.PI*2.5)*.55+.4,1.6-Math.sin(u*Math.PI)*.8))}
+    const tr=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),60,.07,6),M('#E2453C'));tr.castShadow=true;g.add(tr);
+    pts.filter((p,i)=>i%5===0).forEach(p=>box(.06,p.y,.06,'#F2C230',p.x,p.y/2,p.z));
+    const cart=box(.4,.22,.26,'#F2C230',pts[12].x,pts[12].y+.16,pts[12].z);
+    [[-2.2,-1.6,'#E2453C'],[-1.2,-1.9,'#3E8FC9']].forEach(([x,z,c])=>{box(.8,.6,.7,'#FFF6E0',x,.3,z);box(.9,.1,.8,c,x,.66,z)});
+    [[-2.6,0,'#FF6FA8'],[2.6,1.6,'#3E8FC9']].forEach(([x,z,c])=>{box(.04,1,.04,'#7A5230',x,.5,z);const u=new T.Mesh(new T.ConeGeometry(.5,.3,10),M(c));u.position.set(x,1.05,z);g.add(u)});
+    sign(b.name?b.name.toUpperCase():'TAMAN HIBURAN','#E2453C','#FFFFFF',2.6,.4,-1.6,1.1,-1.2);
+  }else if(ty==='monumen'){
+    box(2.2,.2,2.2,'#D8D0BC',-1.3,.1,0);box(1.6,.3,1.6,'#CFC6AE',-1.3,.35,0);
+    const ob=new T.Mesh(new T.CylinderGeometry(.22,.38,3.4,4),M('#F4F1E8'));ob.rotation.y=Math.PI/4;ob.position.set(-1.3,2.2,0);ob.castShadow=true;g.add(ob);
+    const fl=new T.Mesh(new T.ConeGeometry(.3,.6,8),M('#F2C230',{metalness:.4,roughness:.3,emissive:'#7a5a00',emissiveIntensity:.3}));fl.position.set(-1.3,4.2,0);g.add(fl);
+    box(2.4,1.6,1.8,'#F6F1E6',1.4,.8,-.4);box(2.7,.18,2.1,'#E2D6BC',1.4,1.68,-.4);
+    const sh2=new T.Shape();sh2.moveTo(-1.35,0);sh2.lineTo(1.35,0);sh2.lineTo(0,.6);sh2.lineTo(-1.35,0);const rg2=new T.ExtrudeGeometry(sh2,{depth:2,bevelEnabled:false});rg2.translate(0,0,-1);const rf2=new T.Mesh(rg2,M('#B5533C'));rf2.position.set(1.4,1.77,-.4);g.add(rf2);
+    for(let i=0;i<4;i++){const c=new T.Mesh(new T.CylinderGeometry(.08,.08,1.4,10),M('#FFFFFF'));c.position.set(.6+i*.53,.75,.6);c.castShadow=true;g.add(c)}
+    sign('MUSEUM DESA','#E2453C','#FFFFFF',1.8,.32,1.4,1.45,.62);box(.5,.8,.06,'#6B4527',1.4,.4,.52);
+    sign(b.name?b.name.toUpperCase():'MONUMEN','#2F6B4F','#FFFFFF',2,.3,-1.3,.35,.83);
+  }else if(ty==='tps'){
+    ground.material.color.set('#B9C2BE');
+    box(3.6,.1,2.4,'#C9CFCC',0,.05,-.4);
+    box(3.4,1.4,.12,'#E3E7E5',0,.75,-1.6);box(3.6,.15,1.3,'#2E9C6A',0,1.5,-1.0);
+    ['#2E9C6A','#F2C230','#E2453C','#3E8FC9'].forEach((c,i)=>{box(.55,.7,.55,c,-1.25+i*.83,.4,-.9);box(.6,.08,.6,'#333',-1.25+i*.83,.79,-.9)});
+    sign(b.name?b.name.toUpperCase():'TPS','#2E9C6A','#FFFFFF',2.4,.38,0,1.2,-1.5);
+    box(1.4,.8,.9,'#2E9C6A',-.7,.55,1.4);box(.6,.75,.86,'#F3E8D2',.35,.52,1.4);box(.3,.3,.02,'#BFE3F2',.5,.7,1.84);
+    [[-1.1,1.85],[-.3,1.85],[.4,1.85],[-1.1,.95],[-.3,.95],[.4,.95]].forEach(([x,z])=>{const w=new T.Mesh(new T.CylinderGeometry(.16,.16,.12,12),M('#222'));w.rotation.x=Math.PI/2;w.position.set(x,.16,z);g.add(w)});
+    const rec=new T.Mesh(new T.TorusGeometry(.25,.06,6,3),M('#FFFFFF'));rec.position.set(-.7,.6,1.86);g.add(rec);
+  }else if(ty==='bandara'){
+    box(7,.04,1.4,'#4A4F55',0,.02,1.3);for(let i=0;i<7;i++)box(.45,.05,.08,'#FFFFFF',-3+i*1,.04,1.3);
+    box(3,1.1,1.4,'#E6F0F7',-1.2,.55,-1.4);box(3.2,.12,1.6,'#3E8FC9',-1.2,1.16,-1.4);box(2.6,.45,.06,'#7FB7DD',-1.2,.7,-.69);
+    box(.5,2.4,.5,'#E6F0F7',1.9,1.2,-1.5);box(.9,.5,.9,'#2F4A5E',1.9,2.6,-1.5);box(.8,.3,.8,'#7FD3FF',1.9,2.6,-1.5,{emissive:'#2a6f8f',emissiveIntensity:.4});
+    const pl=new T.Group();pl.position.set(.2,.5,1.3);g.add(pl);
+    const bd=new T.Mesh(new T.CylinderGeometry(.2,.2,2.4,14),M('#FFFFFF'));bd.rotation.z=Math.PI/2;bd.castShadow=true;pl.add(bd);
+    const ns=new T.Mesh(new T.SphereGeometry(.2,14,10),M('#FFFFFF'));ns.position.x=1.2;pl.add(ns);
+    const wg=new T.Mesh(new T.BoxGeometry(.5,.05,2.4),M('#E2453C'));wg.position.x=.1;pl.add(wg);
+    const tl=new T.Mesh(new T.BoxGeometry(.35,.6,.05),M('#E2453C'));tl.position.set(-1.05,.35,0);pl.add(tl);
+    const tw=new T.Mesh(new T.BoxGeometry(.3,.05,.9),M('#E2453C'));tw.position.set(-1.05,.1,0);pl.add(tw);
+    [[.6,.2],[-.3,.2],[-.3,-.2],[.6,-.2]].forEach(([x,z])=>{const w=new T.Mesh(new T.CylinderGeometry(.08,.08,.06,10),M('#222'));w.rotation.x=Math.PI/2;w.position.set(x,-.38,z*2);pl.add(w)});
+    sign(b.name?b.name.toUpperCase():'BANDARA','#3E8FC9','#FFFFFF',2.6,.36,-1.2,1.5,-.66);
+  }else if(ty==='pasarmalam'){
+    const cols=['#E2453C','#F2C230','#3E8FC9','#2E9C6A','#FF6FA8'];
+    [[-2,-1.3],[0,-1.5],[2,-1.3],[-2.2,1.3],[2.2,1.3]].forEach(([x,z],i)=>{box(1.2,.7,1,'#F3E8D2',x,.35,z);const tn=new T.Mesh(new T.ConeGeometry(.95,.7,4),M(cols[i]));tn.rotation.y=Math.PI/4;tn.position.set(x,1.05,z);tn.castShadow=true;g.add(tn)});
+    for(let i=0;i<14;i++){const a=i/13,x=-2.6+a*5.2,y=1.7-Math.sin(a*Math.PI)*.35;const bl=new T.Mesh(new T.SphereGeometry(.07,8,6),M(cols[i%5],{emissive:cols[i%5],emissiveIntensity:.8}));bl.position.set(x,y,0);g.add(bl)}
+    [-2.7,2.7].forEach(x=>box(.06,1.8,.06,'#7A5230',x,.9,0));
+    const cr=new T.Group();cr.position.set(0,0,1.3);g.add(cr);
+    const base=new T.Mesh(new T.CylinderGeometry(.9,.9,.12,20),M('#FF6FA8'));base.position.y=.2;cr.add(base);
+    const top=new T.Mesh(new T.ConeGeometry(1,.6,12),M('#F2C230'));top.position.y=1.5;cr.add(top);
+    const pole=new T.Mesh(new T.CylinderGeometry(.06,.06,1.3,8),M('#FFFFFF'));pole.position.y=.85;cr.add(pole);
+    for(let i=0;i<6;i++){const a=i*Math.PI/3,hs=new T.Mesh(new T.BoxGeometry(.25,.25,.4),M(cols[i%5]));hs.position.set(Math.cos(a)*.65,.55,Math.sin(a)*.65);cr.add(hs)}
+    g.userData.spin=cr;
+    sign(b.name?b.name.toUpperCase():'PASAR MALAM','#4A3B5C','#FFE27A',2.4,.38,0,2.1,-.9);
   }else{
     box(1.2,.04,1.4,'#C9B48A',0,.02,2.4);box(3.2,2,2.6,'#F3E8D2',0,1,0);
     const sh=new T.Shape();sh.moveTo(-1.95,0);sh.lineTo(1.95,0);sh.lineTo(0,1.2);sh.lineTo(-1.95,0);const rg=new T.ExtrudeGeometry(sh,{depth:3.1,bevelEnabled:false});rg.translate(0,0,-1.55);

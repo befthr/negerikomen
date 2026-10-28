@@ -874,7 +874,7 @@ export default async function handler(req, res) {
     }
     if (aksi === 'bersih-antre') { // kades: batalkan pesanan lama yang belum dibayar sama sekali (sistem lama bayar pakai kode traktiran). Ruko & yang sudah dicicil tetap.
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
-      const umur = Math.max(1, Math.min(30, +body.hari || 2)) * 864e5, now = Date.now(), calon = [];
+      const umur = Math.max(.25, Math.min(30, +body.hari || 2)) * 864e5, now = Date.now(), calon = [];
       for (const j of Object.keys(JENIS)) { if (j === 'ruko') continue; const kodes = await kv(['SMEMBERS', j + ':antre']) || []; if (!kodes.length) continue;
         const vals = await kvMany(kodes.map(k => ['GET', j + ':req:' + k]));
         kodes.forEach((k, i) => { const v = jparse(vals[i]); if (v && v.status === 'menunggu' && !(+v.bayar > 0) && now - (+v.at || now) > umur) calon.push({ j, k, v }) }) }

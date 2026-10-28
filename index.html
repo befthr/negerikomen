@@ -2356,6 +2356,8 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
     const SPR=glowSpr(),glow=(wx,wy,r,a)=>{const x=v.ox+wx*z,y=v.oy+wy*z;if(x<x0||x>x1||y<y0||y>y1)return;ctx.globalAlpha=a;ctx.drawImage(SPR.rumah,x-r,y-r,2*r,2*r);ctx.globalAlpha=1}; // hemat GPU: sprite cahaya dibuat sekali, tidak bikin gradien baru tiap lampu tiap frame
     if(z>.35&&window.__GFX!=='hemat')RES.forEach((r,i)=>{if(((i*7)%10)<8)glow(NK.wx(r.x),NK.wx(r.y),rr,.45*n)});
     BLD.forEach(b=>glow(NK.wx(b.x)+(b.w||1)*T/2,NK.wx(b.y)+T/2,rr*2.2*(b.w||1)/1.5,.28*n));
+    BLD.forEach(b=>{if(b.type!=='pasarmalam')return;const X0=NK.wx(b.x)-T/2,Y0=NK.wx(b.y)-T/2,cols=['#FF5A4F','#FFD84A','#5FB4FF','#5BE08A','#FF7FBF','#FFB050'];glow(X0+60,Y0+60,rr*2.4,.3*n);
+      [50,66].forEach(yy=>{for(let k=0;k<10;k++){const x=v.ox+(X0+14+k*10)*z,y=v.oy+(Y0+yy+3.2-Math.abs(k-4.5)*.5)*z,r=Math.max(2,2.6*z);ctx.globalAlpha=n*.9;ctx.fillStyle=cols[k%6];ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.globalAlpha=n*.25;ctx.drawImage(SPR.rumah,x-r*2.2,y-r*2.2,r*4.4,r*4.4)}});ctx.globalAlpha=1});
     // lampu jalan: cahaya putih-kuning yang jatuh ke aspal
     (window.__TIANG||[]).forEach(([x,y])=>{const X=v.ox+x*z,Y=v.oy+y*z,r=T*1.15*z;if(X<-r||X>W+r||Y<-r||Y>H+r)return;ctx.globalAlpha=n;ctx.drawImage(SPR.jalan,X-r,Y-r,2*r,2*r);ctx.globalAlpha=1})}
   try{sorotLangit(v,t,n)}catch(e){}
@@ -5046,6 +5048,8 @@ async function open3D(r,i,bd0){document.querySelectorAll('.v3skill').forEach(x=>
   window.__PMX_MALAM=null;cv.parentElement.style.background='';const hemi=new T.HemisphereLight('#FFFFFF','#6E8F4A',.5);scn.add(hemi);const sun=new T.DirectionalLight('#FFF2D6',.75);sun.position.set(5,9,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
   Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6});scn.add(sun);
   let {g,flag}=bd0?build3DB(bd0):build3D(r);scn.add(g);
+  if(bd0&&bd0.type==='pasarmalam'){let m=0;try{const q=malamNow();m=q.n>0||q.senja>.5}catch(e){}if(m){scn.background=SKY_MALAM;hemi.intensity=.2;hemi.color.set('#8FA3D9');sun.intensity=.12;cv.parentElement.style.background='linear-gradient(#0B1330,#1F2C5C 70%,#2B3A6B)';
+    [[0,2.2,0,'#FFD27A',2.2],[-2,1.6,-1.2,'#FF9F6B',1.2],[2,1.6,-1.2,'#FF9FD0',1.2],[0,1.4,1.3,'#FFF0B0',1.6]].forEach(([x,y,z,c,i])=>{const L=new THREE.PointLight(c,i,6,1.6);L.position.set(x,y,z);g.add(L)})}}
   {const gb=$('v3gaya');gb.hidden=!g.userData.gaya||!!(r&&r.eksMilik);gb.onclick=()=>{if(!g.userData.gaya)return;const n=g.userData.gaya();gb.textContent='🕺 '+n;auto=false}}
   {const fb=$('v3fly');fb.hidden=!g.userData.terbang||!!(r&&r.eksMilik);let fc=0;fb.onclick=()=>{if(!g.userData.terbang||Date.now()<fc)return;fc=Date.now()+6800;auto=false;g.userData.terbang()}}
   {const sb=$('v3slash');sb.hidden=!g.userData.tebas||!!(r&&r.eksMilik);let cd=0;sb.onclick=()=>{if(!g.userData.tebas||Date.now()<cd)return;cd=Date.now()+1100;auto=false;g.userData.tebas()}}

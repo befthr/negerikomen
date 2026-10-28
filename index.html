@@ -346,7 +346,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 28px;color:var(--mute
 .rank{list-style:none;margin:8px 0 0;padding:0;border-top:1.5px dashed #E2D6A8}
 .rank li{border-bottom:1.5px dashed #E2D6A8}
 #idmList{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;background:#fff;border-radius:12px;padding:0 8px;margin-top:10px}#idmList li:last-child{border-bottom:0}#idmList .rc{color:#C4502F;font-weight:800}
-#supList{max-height:172px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}#supList li:last-child{border-bottom:0}
+#supList{max-height:106px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}#supList li:last-child{border-bottom:0}
 #supList::-webkit-scrollbar{width:6px}#supList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 .rank button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:9px 2px;font:600 14.5px var(--f-body);color:var(--ink);cursor:pointer;text-align:left}
 .rank .rkn{width:30px;flex:none;text-align:center;font-weight:800;color:var(--muted);font-size:13px}.rank .rkn.rkt{font-size:20px}
@@ -449,7 +449,7 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 .hk .btn.hk-cari{width:100%;margin-top:12px;background:#F2C230;color:#1C2520;border:2px solid #1C2520;font-weight:800}
 .hk-me{margin:8px 0 0;font-size:13px;background:#fff;border:1.5px dashed #C9A227;border-radius:10px;padding:7px 10px}
 .hk-pb{margin-top:12px;background:#fff;border:2px solid #1C2520;border-radius:12px;padding:10px 12px}
-.hk-pb b{font-size:14px}.hk-pb ul{list-style:none;margin:6px 0 0;padding:0}
+.hk-pb b{font-size:14px}.hk-pb ul{list-style:none;margin:6px 0 0;padding:0 4px 0 0;max-height:106px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .hk-pb li{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:5px 0;border-top:1.5px dashed #E4D9B5}.hk-pb li:first-child{border-top:0}
 .hk-pb li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.hk-pb li span:last-child{flex:none;color:#5b5b4f;text-align:right;white-space:nowrap}
 .hkm-pd{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}.hkm-pd li{display:flex;gap:8px;align-items:center;background:#FFF4CF;border:2px solid #1C2520;border-radius:12px;padding:7px 10px;font-size:13.5px;font-weight:600}.hkm-pd li span:first-child{font-size:18px}
@@ -3972,7 +3972,7 @@ function hkTulis(b,bd,pb,pl,modal){b.innerHTML='';const s=hkAktif(),me=(kkGet()|
   else if(s&&HK_POS){const c=kkBtn('🗺️ Cari di peta','hk-cari',()=>{if(modal)kkTutup();scrollMap();flyTo({cx:HK_POS.area.cx,cy:HK_POS.area.cy,zoom:clampZ(.5)},1100);toast('🔍 Petinya kecil & nyaru, ada di sekitar sini. Zoom & cari pelan-pelan!')});b.append(c);
     if(!me)b.append(el('p','hk-me','🔑 Login Kartu Komen dulu biar hartanya masuk ke Receh-mu.'))}
   const P=HK.pemburu||[];pl.innerHTML='';pb.hidden=!P.length;
-  P.slice(0,8).forEach(e=>{const li=el('li'),d=new Date(e.at+252e5);li.append(el('span',null,(e.emas?'✨':'📦')+' @'+e.u),el('span',null,HK_HARI[d.getUTCDay()]+' '+({siang:'☀️',sore:'🌇',malam:'🌙'}[e.k]||'')+' · '+(HK_KS[e.kat]||'')));pl.append(li)})}
+  P.slice(0,60).forEach(e=>{const li=el('li'),d=new Date(e.at+252e5);li.append(el('span',null,(e.emas?'✨':'📦')+' @'+e.u),el('span',null,HK_HARI[d.getUTCDay()]+' '+({siang:'☀️',sore:'🌇',malam:'🌙'}[e.k]||'')+' · '+(HK_KS[e.kat]||'')));pl.append(li)})}
 // gambar peti di peta (kecil & nyaru; kilau sesekali)
 function drawHarta(v,t){const s=hkAktif();if(!s||!HK_POS||hkSaya()>=(HK.maks||3))return;const {x,y}=HK_POS,z=v.z,sx=x*z+v.ox,sy=y*z+v.oy;if(sx<-60||sy<-60||sx>v.W+60||sy>v.H+60)return;
   const emas=!!s.qaEmas;ctx.setTransform(z,0,0,z,v.ox,v.oy);const w=T*.62,h=T*.42,x0=x-w/2,y0=y-h/2;
@@ -4034,7 +4034,7 @@ function drawMarkasHK(v,t){if(!STQA||!DESA||!DESA.MHK||(!HK_QA&&Date.now()<HK_MU
   ctx.fillStyle='#1C2520';ctx.beginPath();ctx.roundRect(sx0,sy0,sw,sh,T*.18);ctx.fill();ctx.fillStyle='#F2C230';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`800 ${T*.36}px Poppins,'Noto Color Emoji',sans-serif`;ctx.fillText('🏴 MARKAS HARTA KARUN',cx,sy0+sh*.52);
   const s=hkAktif();if(s&&HK_POS&&hkBuka()){const k=((t||0)%1.6)/1.6;ctx.fillStyle='#D8392F';ctx.beginPath();ctx.arc(sx0+sw-T*.1,sy0+T*.05,T*(.22+.06*Math.sin(k*6.28)),0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font=`800 ${T*.28}px Poppins,sans-serif`;ctx.fillText('!',sx0+sw-T*.1,sy0+T*.07)}
   ctx.setTransform(1,0,0,1,0,0)}
-window.__HK={data:()=>HK,pos:()=>HK_POS,muat:hkMuat,tempat:hkTempat};
+window.__HK={render:()=>renderHarta(),data:()=>HK,pos:()=>HK_POS,muat:hkMuat,tempat:hkTempat};
 window.__NAGA={jl:s=>nagaJalur(s),o3:()=>openDemoNaga(),tiang:()=>nagaTiang(),pt:()=>NAGA_PT,pilih:u=>{const k=kkResIdx(u);if(k>=0)select({kind:'r',i:k},{instant:true})}}; // untuk tes
 function gentoKetuk(G,cx,cy){SND.play('pop',.8);document.querySelectorAll('.gento-pop').forEach(x=>x.remove());
   const me=(kkGet()||{}).u,own=G.u===me||!!window.__GENTO_QA,pulang=G.roam.pulang;

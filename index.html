@@ -474,6 +474,7 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 .eksc-it.milik .eksc-rp{background:#E6F4EA;border-color:#2F9E6A}
 .eksc-list.eksc-scroll{overflow-y:auto;overscroll-behavior:contain;padding:2px 6px 6px 2px;margin-right:-6px}
 .eksc-kosong{list-style:none;background:#fff;border:2px dashed #1C4E80;border-radius:16px;padding:14px;text-align:center;font-size:14px;font-weight:600;color:#2D5378}
+.bt-wkt{font-size:11.5px;color:#7A867E;font-weight:500}
 </style>
 </head>
 <body>
@@ -4273,7 +4274,7 @@ function reaksiBox(r){const w=el('div','rx'),row=el('div','rx-row'),st=el('div',
       if(!self){if(info&&info.sudah)b.disabled=true;b.onclick=()=>reaksiKirim(r,k,()=>muat())}row.append(b)});
     st.innerHTML='';const tm=el('span',null,`👀 ${info?info.tamu:0} hari ini`+(info&&info.sudah?' · ✓ sudah mampir':''));const bb=el('button','rx-bt',`📖 Buku Tamu (${info?info.buku.length:0})`);bb.type='button';bb.onclick=()=>{bk.hidden=!bk.hidden};st.append(tm,bb);
     bk.innerHTML='';if(info&&info.buku.length)info.buku.forEach(o=>{const d=el('div'),av=el('span','av');const k2=kkResIdx(o.u);av.style.background=k2>=0?NK.roofHex(RES[k2]):'#ccc';const tx=el('span'),a=el('a',null,'@'+o.u);a.onclick=()=>{if(k2>=0)select({kind:'r',i:k2})};
-      tx.append(a,document.createTextNode(' '),rxIc(o.r));tx.lastChild.style.cssText='display:inline';const im=tx.querySelector('img');if(im)im.style.cssText='width:14px;height:14px;vertical-align:-2px';if(o.pesan)tx.append(el('i',null,'💬 '+o.pesan));d.append(av,tx);bk.append(d)});
+      tx.append(a,document.createTextNode(' '),rxIc(o.r));tx.lastChild.style.cssText='display:inline';if(o.at){const hw=x=>new Date(x+252e5).toISOString().slice(0,10),dd=(Date.parse(hw(Date.now()))-Date.parse(hw(+o.at)))/864e5,w=new Date(+o.at+252e5),jm=String(w.getUTCHours()).padStart(2,'0')+'.'+String(w.getUTCMinutes()).padStart(2,'0');tx.append(el('small','bt-wkt',' · '+(dd<1?'hari ini':dd<2?'kemarin':w.getUTCDate()+' '+['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][w.getUTCMonth()])+' '+jm))}const im=tx.querySelector('img');if(im)im.style.cssText='width:14px;height:14px;vertical-align:-2px';if(o.pesan)tx.append(el('i',null,'💬 '+o.pesan));d.append(av,tx);bk.append(d)});
     else bk.append(el('p','kk-muted','Belum ada tamu. Jadilah yang pertama mampir!'))};
   const muat=()=>QA9?Promise.resolve(qaRxInfo(String(r.name).toLowerCase())).then(j=>{info=j;render()}):fetch('/api/kartu?aksi=reaksi-info&u='+encodeURIComponent(r.name),{headers:(kkGet()||{}).t?{Authorization:'Bearer '+kkGet().t}:{}}).then(x=>x.ok?x.json():null).then(j=>{if(j&&j.n){info=j;render()}}).catch(()=>{});
   w.append(row,st,bk);render();muat();return w}

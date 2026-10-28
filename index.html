@@ -3442,7 +3442,7 @@ function kkIntro(body,u,note){body.innerHTML='';
 function kkKunci(body,u,res){body.innerHTML='';
   body.append(el('h3',null,'Komen kunci ini'),el('p',null,'Komen kalimat ini dari akun @'+u+' di postingan Kartu Komen (di-pin di profil @negerikomen):'));
   const f=el('div','kk-frasa',res.frasa);f.onclick=()=>kkSalin(res.frasa);body.append(f);
-  const mnt=Math.max(1,Math.round((res.sampai-Date.now())/60000));body.append(el('p','kk-muted',`Berlaku ${mnt} menit. Bisa juga dikomen di video terbaru.`));
+  const mnt=Math.max(1,Math.round((res.sampai-Date.now())/60000));body.append(el('p','kk-muted',`Berlaku ${mnt} menit. 📌 Komen di postingan yang di-pin ya, biar pasti terbaca!`));
   const row=el('div','kk-row');const ig=el('a','btn dark','Buka Instagram');ig.href=KK_IG;ig.target='_blank';ig.rel='noopener';
   row.append(kkBtn('📋 Salin','',()=>kkSalin(res.frasa)),ig);body.append(row);
   const msg=el('p','kk-msg');const cek=kkBtn('Aku sudah komen','gold3',async()=>{cek.disabled=true;msg.textContent='Mengecek komentar…';msg.className='kk-msg';

@@ -583,7 +583,8 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
         <h3>Cara jadi warga</h3>
         <ol class="steps">
           <li><div><b>Follow @negerikomen</b><span>Follower = warga resmi. Yang unfollow, rumahnya digusur.</span></div></li>
-          <li><div><b>Komen di video terbaru</b><span>Tulis nama, warna genteng, dan warna tembok. Contoh: “Budi, genteng merah, tembok biru”.</span></div></li>
+          <li><div><b>Komen di postingan TERBARU</b><span>Tulis nama, warna genteng, dan warna tembok. Contoh: “Budi, genteng merah, tembok biru”.</span></div></li>
+          <li><div><b>Ambil Kartu Komen 🔑</b><span>Setelah rumahmu muncul, cari namamu di kolom atas, ketuk 🔑 Kartu Komen, lalu komen kuncinya di postingan <b>yang di-pin 📌</b> paling atas profil @negerikomen.</span></div></li>
           <li><div><b>Ikut tantangan kepala desa</b><span>Sesekali Pak Kades kasih tantangan acak: voting bangunan, kuis, kontes, nama dusun, sampai misteri di peta. Pantau terus videonya, usulan dengan like terbanyak bisa jadi kenyataan di kampung!</span></div></li>
         </ol>
         <a class="btn dark" href="https://www.instagram.com/negerikomen/" target="_blank" rel="noopener">Buka Instagram @negerikomen</a>
@@ -2515,12 +2516,12 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
 }
   box.append(left,acts,resX())}
 function jwLangkah(){const j=new Date(Date.now()+252e5),m=j.getUTCHours()*60+j.getUTCMinutes(),lewat=m>=15*60+30;
-  return [['Follow <b>@negerikomen</b> di Instagram',''],['Komen di <b>video terbaru</b> @negerikomen',lewat?'Batas hari ini (15.30) sudah lewat, komenmu masuk rumah <b>besok</b> 👍':'Sebelum <b>15.30 WIB</b> hari ini. Boleh tulis warna, contoh: "genteng biru, tembok putih"'],['Rumahmu muncul di peta jam <b>19.00 WIB</b>','Cari namamu di kolom atas, lalu ambil Kartu Komen 🔑']]}
+  return [['Follow <b>@negerikomen</b> di Instagram',''],['Komen di <b>postingan terbaru</b> @negerikomen',lewat?'Batas hari ini (15.30) sudah lewat, komenmu masuk rumah <b>besok</b> 👍':'Sebelum <b>15.30 WIB</b> hari ini. Boleh tulis warna, contoh: "genteng biru, tembok putih"'],['Rumahmu muncul di peta jam <b>19.00 WIB</b>','Cari namamu di kolom atas, ambil Kartu Komen 🔑, lalu komen kuncinya di postingan yang di-pin 📌']]}
 function jwIsi(ol){ol.innerHTML='';jwLangkah().forEach(([a,b])=>{const li=document.createElement('li'),d=document.createElement('div');d.innerHTML=a+(b?'<small>'+b+'</small>':'');li.append(d);ol.append(li)})}
 setTimeout(()=>{try{const k=kkGet();if(k&&k.u)$('jadiWarga').hidden=true}catch(e){}},0);try{$('jadiWarga').onclick=()=>{const c=$('caraWarga');if(!c)return;c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2400)}}catch(e){console.error(e)}
 function showMiss(q){sel=null;dirty=true;const box=$('result');box.className='result miss';box.innerHTML='';box.hidden=false;
   const left=el('div');const ol=el('ol','jw-l');jwIsi(ol);left.append(el('h2',null,`Belum ada rumah untuk “${q}” 👀`),el('p',null,'Gampang kok, ikuti 3 langkah ini:'),ol);
-  const a=el('a','btn gent','💬 Komen di video terbaru');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';
+  const a=el('a','btn gent','💬 Komen di postingan terbaru');a.href='https://www.instagram.com/negerikomen/';a.target='_blank';a.rel='noopener';
   const acts=el('div','acts');acts.append(a);box.append(left,acts,resX())}
 function copy(text){const done=()=>toast('Link disalin. Bagikan ke temanmu!');
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,()=>fallback());else fallback();

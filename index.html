@@ -1713,21 +1713,23 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   if(!o.noRides)drawRides(res,t);
   if(life){
     const SHIRT=['#C4502F','#2F74B5','#2E9C6A','#E2B23A','#8E5AA8','#FFFFFF'];
-    blocks.forEach(([bx,by])=>{
+    const vblk=blocks.filter(([bx,by])=>bx>=bx0&&bx<=bx1&&by>=by0&&by<=by1E); // hemat: orang/hewan cuma di blok yang kelihatan
+    const kecil=z/(window.__CDPR||window.devicePixelRatio||1)>.6; // ayam & kucing cuma saat di-zoom (di zoom jauh cuma titik, tapi berat)
+    vblk.forEach(([bx,by])=>{
       const gx=bx*S*T+T/2,gy=by*S*T+T/2,gs=(S-1)*T,inset=-T*0.06,sd=gs-2*inset,x0=gx+inset,y0=gy+inset;
       const n=1+(ih(bx,by,71)<0.5?1:0)+(res.length>20?1:0);
       for(let i=0;i<n;i++){const sp=12+ih(bx,by,73+i)*10,dir=ih(bx,by,79+i)<0.5?1:-1;
         const d=mod(ih(bx,by,83+i)*sd*4+t*sp*dir,sd*4);let x,y;
         if(d<sd){x=x0+d;y=y0}else if(d<2*sd){x=x0+sd;y=y0+d-sd}else if(d<3*sd){x=x0+sd-(d-2*sd);y=y0+sd}else{x=x0;y=y0+sd-(d-3*sd)}
         person(x,y,SHIRT[Math.floor(ih(bx,by,89+i)*SHIRT.length)],Math.sin(t*8+i)*0.6)}
-      if(ih(bx,by,97)<0.7)for(let c=0;c<2;c++){const tx=C+bx*S+2+Math.floor(ih(bx,by,101+c)*3),ty=C+by*S+2+Math.floor(ih(bx,by,103+c)*3);
+      if(kecil&&ih(bx,by,97)<0.7)for(let c=0;c<2;c++){const tx=C+bx*S+2+Math.floor(ih(bx,by,101+c)*3),ty=C+by*S+2+Math.floor(ih(bx,by,103+c)*3);
         if(used.has(key(tx,ty)))continue;
         chicken(wx(tx)+Math.sin(t*0.6+c*3+bx)*T*0.25,wx(ty)+Math.cos(t*0.5+c*2+by)*T*0.2,t,ih(bx,by,107+c))}
-      if(ih(bx,by,151)<.75)for(let c=0;c<2;c++){const tx=C+bx*S+1+Math.floor(ih(bx,by,153+c)*(S-2)),ty=C+by*S+1+Math.floor(ih(bx,by,157+c)*(S-2));if(used.has(key(tx,ty)))continue;
+      if(kecil&&ih(bx,by,151)<.75)for(let c=0;c<2;c++){const tx=C+bx*S+1+Math.floor(ih(bx,by,153+c)*(S-2)),ty=C+by*S+1+Math.floor(ih(bx,by,157+c)*(S-2));if(used.has(key(tx,ty)))continue;
         const sd=ih(bx,by,161+c);kucing(wx(tx)+(sd<.4?0:Math.sin(t*.25+c+bx)*T*.3),wx(ty)+T*.42,t,sd)}
     });
     const seen=new Set();let farmers=0;
-    blocks.forEach(([bx,by])=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const nx=bx+dx,ny=by+dy,k2=nx+','+ny;
+    vblk.forEach(([bx,by])=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const nx=bx+dx,ny=by+dy,k2=nx+','+ny;
       if(act.has(k2)||seen.has(k2)||farmers>=6)return;seen.add(k2);if(ih(nx,ny,113)>0.45)return;farmers++;
       farmer(nx*S*T+T*(1+ih(nx,ny,127)*3.5)+Math.sin(t*0.3+nx)*4,ny*S*T+T*(1+ih(nx,ny,131)*3.5),ih(nx,ny,137))}));
     // sawah & ladang di luar kampung: hewan, saung, petani (cuma petak yang kelihatan)
@@ -1743,7 +1745,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
       ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,4.4,0,7);ctx.fill();ctx.fillStyle='#3A2A1E';ctx.beginPath();ctx.arc(x,y+bob-0.4,2.7,0,7);ctx.fill()};
     const park=(x,y,k,vert)=>drawVehicle(x,y,!vert,1,k);
     const diners=(px,py,n,seed)=>{for(let j=0;j<n;j++){const a=seed*2.1+j*(Math.PI*2/n);sit(px+Math.cos(a)*11,py+Math.sin(a)*11,SH2[Math.floor(ih(seed,j,151)*SH2.length)],seed+j)}};
-    bld.forEach((b,i)=>{const m=anim('b',i);if(m.a<=0)return;const X=wx(b.x)-T/2,Y=wx(b.y)-T/2,cx=wx(b.x),cy=wx(b.y);
+    bld.forEach((b,i)=>{const m=anim('b',i);if(m.a<=0)return;const X=wx(b.x)-T/2,Y=wx(b.y)-T/2,cx=wx(b.x),cy=wx(b.y);if(X>vx1+T||Y>vy1+T||X+T*4<vx0||Y+T*4<vy0)return;
       ctx.save();ctx.globalAlpha*=m.a;
       if(b.type==='padang'){diners(X+18,Y+104,2,i+1);diners(X+102,Y+104,2,i+3);park(X+44,Y+106,0.7,true);park(X+56,Y+106,0.9,true);park(X+68,Y+106,0.75,true)}
       else if(b.type==='bakso'){diners(X+80,Y+84,2,i+2);diners(X+98,Y+104,1,i+5);diners(X+70,Y+108,2,i+7);sit(X+36,Y+66,'#FFFFFF',i);park(X+28,Y+108,0.8,true);park(X+40,Y+108,0.66,true)}

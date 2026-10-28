@@ -31,7 +31,7 @@ window.NK_DATA = {
   "fKode": "entry.1738076910"
  },
  "quest": { "name": "UFO Nyasar", "tanggal": "2026-10-24", "start": "19:30", "end": "20:00", "code": "UFO NYASAR 24" },
- "goalKampung": { "judul": "Bantu Pak Kades Bangun Kecamatan Negeri Komen", "target": 300, "awal": 0 },
+ "goalKampung": { "judul": "Bantu Pak Kades Bangun Kecamatan Negeri Komen", "target": 600, "awal": 0 },
  "setir": true,
  "gento": true,
  "gentoMain": true,

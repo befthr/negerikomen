@@ -3189,11 +3189,11 @@ window.NK_DATA = {
   { "type": "tb", "name": "TB Genteng Jaya Jaya Joss", "short": "TB Genteng Jaya Joss", "by": "negerikomen", "day": 5, "x": 53, "y": 47, "w": 3, "staff": [] },
   { "type": "sekolah", "name": "SMP Negeri 1 Negeri Komen", "by": "simson__01", "day": 5, "x": 59, "y": 41, "w": 3, "atap": "#2F5E9E", "staff": [] },
   { "type": "tk", "name": "TK Al-Mudaaris Al-Hasanah", "by": "alifrmnxhrn", "day": 5, "x": 29, "y": 41, "w": 3, "staff": [] },
-  { "type": "hiburan", "name": "Taman Hiburan Pantai", "by": "ryukaarvellacevana", "day": 10, "x": 35, "y": 53, "w": 3, "ikut": [-1, 1.15], "staff": [] },
-  { "type": "monumen", "name": "Monumen & Museum Desa", "by": "ayubi_glen", "day": 10, "x": 35, "y": 35, "w": 3, "staff": [] },
-  { "type": "tps", "name": "TPS Dusun Perjuangan", "by": "alifrmnxhrn", "day": 10, "x": 53, "y": 35, "w": 3, "staff": [] },
+  { "type": "hiburan", "name": "Taman Hiburan Pantai", "by": "ryukaarvellacevana", "day": 10, "x": 29, "y": 53, "w": 3, "ikut": [-1, 1.15], "staff": [] },
+  { "type": "monumen", "name": "Monumen & Museum Desa", "by": "ayubi_glen", "day": 10, "x": 29, "y": 35, "w": 3, "staff": [] },
+  { "type": "tps", "name": "TPS Dusun Perjuangan", "by": "alifrmnxhrn", "day": 10, "x": 65, "y": 41, "w": 3, "staff": [] },
   { "type": "bandara", "name": "Bandara Negeri Komen", "by": "_kykoo.12", "day": 10, "x": 59, "y": 35, "w": 3, "staff": [] },
-  { "type": "pasarmalam", "name": "Pasar Malam", "by": "eriinvm_", "day": 10, "x": 53, "y": 53, "w": 3, "staff": [] }
+  { "type": "pasarmalam", "name": "Pasar Malam", "by": "eriinvm_", "day": 10, "x": 59, "y": 53, "w": 3, "staff": [] }
  ],
  "awards": [
   { "user": "mroqibh_gntz", "badges": [ "Warga Pertama", "Penyumbang Pertama" ], "note": "Warga pertama sekaligus penyumbang genteng pertama Negeri Komen. Makasih, Maharaja!", "until": "2026-10-27" }

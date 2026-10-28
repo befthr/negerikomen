@@ -3969,8 +3969,7 @@ function hkTulis(b,bd,pb,pl,modal){b.innerHTML='';const s=hkAktif(),me=(kkGet()|
   if(!L.length){const li=el('li');li.append(el('span',null,'😴'),el('span',null,'Hari ini nggak ada peti lagi. Besok lagi ya!'));ul.append(li)}
   b.append(ul);
   if(penuh&&me){b.append(el('p','hk-me','🙌 Kamu udah menang '+menang+'× pekan ini. Kasih kesempatan yang lain ya, Senin depan bisa berburu lagi!'))}
-  else if(s&&HK_POS){const c=kkBtn('🗺️ Cari di peta','hk-cari',()=>{if(modal)kkTutup();scrollMap();flyTo({cx:HK_POS.area.cx,cy:HK_POS.area.cy,zoom:clampZ(.5)},1100);toast('🔍 Petinya kecil & nyaru, ada di sekitar sini. Zoom & cari pelan-pelan!')});b.append(c);
-    if(!me)b.append(el('p','hk-me','🔑 Login Kartu Komen dulu biar hartanya masuk ke Receh-mu.'))}
+  else if(s&&HK_POS){if(!me)b.append(el('p','hk-me','🔑 Login Kartu Komen dulu biar hartanya masuk ke Receh-mu.'))}
   const P=HK.pemburu||[];pl.innerHTML='';pb.hidden=!P.length;
   P.slice(0,60).forEach(e=>{const li=el('li'),d=new Date(e.at+252e5);li.append(el('span',null,(e.emas?'✨':'📦')+' @'+e.u),el('span',null,HK_HARI[d.getUTCDay()]+' '+({siang:'☀️',sore:'🌇',malam:'🌙'}[e.k]||'')+' · '+(HK_KS[e.kat]||'')));pl.append(li)})}
 // gambar peti di peta (kecil & nyaru; kilau sesekali)
@@ -4008,7 +4007,7 @@ async function hkStory(ev){const c=document.createElement('canvas');c.width=1080
 // 🏴 Markas Harta Karun: bangunan di desa baru dekat gerbang. Ketuk → panduan, petunjuk & status peti hari ini, Pemburu Harta pekan ini
 function hkMarkas(){SND.play('pop',.8);const body=kkModal(),w=el('div','hk hk-markas');w.style.cssText='box-shadow:none;border:0;background:none;padding:0';
   const bd=el('span','hk-badge');bd.style.cssText='position:static;display:inline-block;margin:0 0 8px';w.append(el('h3',null,'🏴 Markas Harta Karun'),bd);
-  const pd=el('ol','hkm-pd');[['🔍','Baca petunjuk peti hari ini di bawah'],['🗺️','Cari peti kecil yang nyaru di peta, zoom pelan-pelan'],['👆','Ketuk petinya. Yang pertama ngetuk menang Receh!']].forEach(([i,t])=>{const li=el('li');li.append(el('span',null,i),el('span',null,t));pd.append(li)});
+  const pd=el('ol','hkm-pd');[['🔍','Baca petunjuk peti hari ini di bawah'],['🗺️','Jelajahi peta sendiri, petinya kecil & nyaru. Zoom pelan-pelan!'],['👆','Ketuk petinya. Yang pertama ngetuk menang Receh!']].forEach(([i,t])=>{const li=el('li');li.append(el('span',null,i),el('span',null,t));pd.append(li)});
   w.append(pd);const isi=el('div','hkm-body');w.append(isi);const pb=el('div','hk-pb');pb.append(el('b',null,'🏆 Pemburu Harta pekan ini'),el('ul'));w.append(pb);
   w.append(el('p','hk-rule','2–3 peti tiap hari: ☀️ siang 12.00–14.00 · 🌇 sore 15.30–17.30 · 🌙 malam 19.00–21.00. Peti biasa 1–2 Receh, kadang ada peti emas ✨. Maks 3× menang per pekan, wajib login Kartu Komen 🔑'));
   body.append(w);if(!hkBuka()){isi.append(el('p','hk-me','⏳ Markas buka Rabu 28 Okt jam 19.00. Peti pertama muncul malam ini!'));pb.hidden=true;bd.className='hk-badge wait';bd.textContent='SEGERA';return}

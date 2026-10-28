@@ -1794,6 +1794,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   // robot raksasa: digambar paling atas (lebih tinggi dari semua rumah)
   {const SV=window.__SETIR;if(SV&&SV.id==='robot'&&!ROBOT_POS.some(o=>o.u===SV.u))ROBOT_POS.push({x:SV.x,y:SV.y,s:1,sd:0,u:SV.u})}
   // 🐱🌙 MBULAN: siang bobo di atap / jalan-jalan lewat jalan desa, malam jadi bulan melayang
+  {const sd=new Set();for(let i=MBUL_POS.length-1;i>=0;i--){const u=MBUL_POS[i].r.name;if(sd.has(u))MBUL_POS.splice(i,1);else sd.add(u)}}
   MBUL_POS.forEach(o=>{const n=window.__MALAM_N||0,main=(window.MBUL_MODE||'main')==='main',bulan=n>.5,S=o.s,c=ctx;let X=o.hx,Y=o.hy,ang=0,jalan=false;
     if(!bulan){const p=main?rideOf(o.r,{id:'sepeda'},4,t):null;if(p){X=p.x;Y=p.y;ang=p.ang;jalan=true}else{Y-=3*S}}
     else{const tt=(t||0);if(main){X+=Math.cos(tt*.05+o.sd)*T*3.2;Y+=Math.sin(tt*.08+o.sd)*T*2-T*.4}else Y-=T*.45}
@@ -2295,8 +2296,8 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   {const RB=(window.__ROBOT||[]).find(o=>o.roam&&!(window.__SETIR&&window.__SETIR.u===o.u));} // label kecil, tidak menonjol; info pemilik muncul kalau GENTO diketuk
   if(NAGA_PT&&NAGA_PT.milik)tryTag(v.ox+NAGA_PT.x*z,v.oy+(NAGA_PT.y-T*1.1)*z-4*dpr,'🐉 NAGASARI','',false,false,false);
   // barang eksklusif yang bisa jalan-jalan: label seragam gaya NAGASARI (nama barang saja; pemilik muncul kalau diketuk)
-  (window.__ROBOT||[]).forEach(o=>{if(!o.roam||o.roam.pulang||(window.__SETIR&&window.__SETIR.u===o.u))return;const lf=o.roam.lf||0;tryTag(v.ox+o.roam.x*z,v.oy+(o.roam.y-14*lf-T*1.3)*z-4*dpr,'🤖 GENTO','',false,false,false)});
-  (window.__MBUL||[]).forEach(o=>{const P=o.P;if(!P||!(P.jalan||P.bulan))return;tryTag(v.ox+P.x*z,v.oy+(P.y-o.s*(P.bulan?50:26))*z-4*dpr,P.bulan?'🌙 MBULAN':'🐱 MBULAN','',false,false,false)});
+  {const sd=new Set();(window.__ROBOT||[]).forEach(o=>{if(!o.roam||o.roam.pulang||(window.__SETIR&&window.__SETIR.u===o.u)||sd.has(o.u))return;sd.add(o.u);const lf=o.roam.lf||0;tryTag(v.ox+o.roam.x*z,v.oy+(o.roam.y-14*lf-T*1.3)*z-4*dpr,'🤖 GENTO','',false,false,false)})}
+  {const sd=new Set();(window.__MBUL||[]).forEach(o=>{const P=o.P;if(!P||!(P.jalan||P.bulan)||sd.has(o.r.name))return;sd.add(o.r.name);tryTag(v.ox+P.x*z,v.oy+(P.y-o.s*(P.bulan?50:26))*z-4*dpr,P.bulan?'🌙 MBULAN':'🐱 MBULAN','',false,false,false)})}
   if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true,true);
     // 4 rumah terdekat di depan/belakang kendaraan tetap diberi nama, biar tahu lagi lewat rumah siapa
     RES.map(r=>({r,d:Math.hypot(NK.wx(r.x)-W_.x,NK.wx(r.y)-W_.y)})).filter(o=>o.d<T*6&&o.r.name!==W_.u).sort((a,b)=>a.d-b.d).slice(0,12).reduce((n,{r})=>{if(n>=4)return n;const p0=placed.length,[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy),'@'+r.name,'',false);return n+(placed.length>p0?1:0)},0)}

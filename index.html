@@ -1872,7 +1872,7 @@ const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
 const KERJA_IK={rental:['🎮','PENJAGA RENTAL'],posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG']};
 const KERJA_IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
-const bKey=b=>b.type+'@'+b.x+','+b.y;
+const bKey=b=>b.type+'@'+(b._ox!=null?b._ox:b.x)+','+(b._oy!=null?b._oy:b.y);
 function hitungKerja(){RES.forEach(r=>{delete r.kerja});const add=(b,x)=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}};BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>add(b,x)));
   // karyawan bangunan desa baru (bukan di BLD), contoh di data.js: "karyawanDesa":[{"type":"rental","user":"namaig","role":"Penjaga Rental","until":"2026-11-27"}]
   (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>x&&add({type:x.type,name:x.type==='rental'?'playadalahmain':(x.tempat||'')},x))}
@@ -1880,8 +1880,9 @@ function hitungKerja(){RES.forEach(r=>{delete r.kerja});const add=(b,x)=>{if(!x|
 window.itemsPek=itemsPek;function itemsPek(r){const it=Array.isArray(r.items)?r.items:[];return r.kerja&&r.kerja.prop==='rental'&&!it.some(o=>o.id==='konsol')&&it.length<3?[...it,{id:'konsol'}]:it}
 hitungKerja();
 // karyawan yang diatur sendiri oleh pemilik bangunan (dari database) digabung ke data kampung
+function bMetaTxt(b){const bo=bossOf(b),n=staffOf(b).length;return (bo?bossTxt(b,bo):'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 Diresmikan ${resmi(b.day)}`}
 function stafPlus(m){let ubah=false;BLD.forEach(b=>{if(!b._st0)b._st0=Array.isArray(b.staff)?b.staff:[];const add=(m||{})[bKey(b)]||[];const nx=b._st0.concat(add);if(JSON.stringify(nx)!==JSON.stringify(b.staff||[])){b.staff=nx;ubah=true}});
-  if(ubah){hitungKerja();try{renderKaryawan()}catch(e){}dirty=true}}
+  if(ubah){hitungKerja();try{renderKaryawan()}catch(e){}try{document.querySelectorAll('#bList [data-bi]').forEach(m=>{const b=BLD[+m.dataset.bi];if(b)m.textContent=bMetaTxt(b)})}catch(e){}dirty=true}}
 const KAV=Math.max(D.kavling||50,RES.length);
 const FREE_N=Math.max(0,KAV-RES.length);
 const FREE=NK.freePlots(RES,BLD,Math.min(FREE_N,60));
@@ -2161,7 +2162,7 @@ $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length)})`;
 BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(({b,i})=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.q=[b.name,(NK.BTYPES[b.type]||{}).label,b.by,...staffOf(b).map(x=>x.user)].join(' ').toLowerCase();
   const ic=document.createElement('span');ic.className='ico';ic.textContent=ICON[b.type]||'🏠';
   const nm=document.createElement('b');nm.textContent=b.name||(NK.BTYPES[b.type]||{}).label||'Bangunan';
-  const meta=document.createElement('span');{const bo=bossOf(b),n=staffOf(b).length;meta.textContent=(bo?bossTxt(b,bo):'👑 Kepala desa')+(b.type==='tugu'?'':` · ${n} karyawan`)+` · 📅 Diresmikan ${resmi(b.day)}`}
+  const meta=document.createElement('span');meta.dataset.bi=i;meta.textContent=bMetaTxt(b);
   bt.append(ic,nm,meta);bt.onclick=()=>{select({kind:'b',i});scrollMap()};li.append(bt);$('bList').append(li)});
 BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama');
 // fasilitas di desa baru (digambar terpisah di peta): ditaruh paling atas, bisa difilter per desa
@@ -2408,7 +2409,7 @@ function frame(now){
     cam.cx=fly.from.cx+(fly.to.cx-fly.from.cx)*e;cam.cy=fly.from.cy+(fly.to.cy-fly.from.cy)*e;cam.zoom=zf;if(k>=1)fly=null;dirty=true}
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
-    try{BLD.forEach(b=>{if(!b.ikut)return;const r=RES[kkResIdx(b.by)];if(r&&r.lok==='pantai'&&!r._tr){b.x=r.x+b.ikut[0];b.y=r.y+b.ikut[1];b._luar=1}else b._luar=0})}catch(e){}
+    try{BLD.forEach(b=>{if(!b.ikut)return;if(b._ox==null){b._ox=b.x;b._oy=b.y}const r=RES[kkResIdx(b.by)];if(r&&r.lok==='pantai'&&!r._tr){b.x=r.x+b.ikut[0];b.y=r.y+b.ikut[1];b._luar=1}else{b.x=b._ox;b.y=b._oy;b._luar=0}})}catch(e){}
     {const _t0=DBG?performance.now():0;NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});if(DBG)DBG.m.dunia=(DBG.m.dunia||0)*.9+(performance.now()-_t0)*.1}
     {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}

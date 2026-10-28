@@ -437,6 +437,33 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 #result>div:first-child>h2,#result>div:first-child>p:first-of-type{padding-right:44px}
 #result .rx-row{flex-wrap:wrap;row-gap:6px}#result .rx-b{flex:0 0 auto}#result .rx-b .nm{overflow:visible;text-overflow:clip}
 @media (max-width:420px){#result>.acts{gap:6px}#result>.acts>.btn{font-size:13px;padding-left:4px;padding-right:4px;letter-spacing:-.01em}}
+.hk{position:relative;background:#FFF4CF;border:2px solid #1C2520;box-shadow:0 4px 0 #1C2520}
+.hk h3{margin:0 0 10px;padding-right:118px;color:#1C2520;font-size:15px;letter-spacing:0;text-transform:none;font-weight:800}
+.hk-badge{position:absolute;top:13px;right:12px;font-weight:800;font-size:10.5px;letter-spacing:.06em;padding:4px 9px;border-radius:999px;background:#8A8A7A;color:#fff}
+.hk-badge.ada{background:#D8392F;animation:hkKedip 1.4s ease-in-out infinite}.hk-badge.ok{background:#2F9E6A}.hk-badge.wait{background:#1C2520;color:#F2C230}
+@keyframes hkKedip{50%{opacity:.55}}
+.hk-hint{background:#1C2520;color:#fff;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}
+.hk-hint b{color:#F2C230}
+.hk-st{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:5px;font-size:13.5px;line-height:1.4}
+.hk-st li{display:flex;gap:6px}.hk-st li span:first-child{flex:none}
+.hk .btn.hk-cari{width:100%;margin-top:12px;background:#F2C230;color:#1C2520;border:2px solid #1C2520;font-weight:800}
+.hk-me{margin:8px 0 0;font-size:13px;background:#fff;border:1.5px dashed #C9A227;border-radius:10px;padding:7px 10px}
+.hk-pb{margin-top:12px;background:#fff;border:2px solid #1C2520;border-radius:12px;padding:10px 12px}
+.hk-pb b{font-size:14px}.hk-pb ul{list-style:none;margin:6px 0 0;padding:0}
+.hk-pb li{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:5px 0;border-top:1.5px dashed #E4D9B5}.hk-pb li:first-child{border-top:0}
+.hk-pb li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.hk-pb li span:last-child{flex:none;color:#5b5b4f;text-align:right;white-space:nowrap}
+.hkm-pd{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}.hkm-pd li{display:flex;gap:8px;align-items:center;background:#FFF4CF;border:2px solid #1C2520;border-radius:12px;padding:7px 10px;font-size:13.5px;font-weight:600}.hkm-pd li span:first-child{font-size:18px}
+.hk-markas h3{margin:0 0 12px;font-size:20px;color:#1C2520}
+.hk-rule{margin:10px 0 0;font-size:12px;line-height:1.45;color:#5b5b4f}
+.hkwin{position:fixed;inset:0;z-index:130;background:rgba(16,22,18,.62);display:flex;align-items:center;justify-content:center;padding:16px}
+.hkwin>div{background:#fff;border:4px solid #1C2520;border-radius:22px;box-shadow:0 8px 0 #1C2520;padding:22px 20px 18px;max-width:340px;width:100%;text-align:center}
+.hkwin .ic{font-size:64px;line-height:1;animation:hkLoncat .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes hkLoncat{0%{transform:scale(.2) translateY(30px);opacity:0}100%{transform:none;opacity:1}}
+.hkwin h3{margin:8px 0 4px;font-size:22px}.hkwin p{margin:4px 0;color:#444;font-size:14px}
+.hkwin .rc{display:inline-flex;align-items:center;gap:6px;margin:10px 0 4px;background:#F2C230;border:2.5px solid #1C2520;border-radius:12px;padding:6px 16px;font-weight:800;font-size:20px}
+.hkwin .rc img{width:22px;height:22px}
+.hkwin.emas>div{background:linear-gradient(#FFF6D5,#fff)}
+.hkwin .btn{width:100%;margin-top:8px}
 </style>
 </head>
 <body>
@@ -493,6 +520,14 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
       </div>
       <div class="aduan" role="note"><span class="ad-ic">🙋</span><span class="ad-tx"><b>Ada kendala?</b> Kartu Komen nggak bisa dibuka atau rumahmu belum muncul? <b>DM Pak Kades</b> aja!</span><a class="ad-btn" href="https://ig.me/m/negerikomen" target="_blank" rel="noopener">💬 DM @negerikomen</a></div>
       <p class="domain-baru" style="margin:10px 0 0;padding:8px 12px;border:1.5px dashed #C9B98A;border-radius:12px;background:#FFF8E6;font-size:13px;line-height:1.45;text-align:center">🔗 Alamat baru, lebih gampang diingat: <b>negerikomen.my.id</b></p>
+
+      <div class="card hk" id="harta" hidden>
+        <span class="hk-badge" id="hkBadge"></span>
+        <h3>🔍 Harta Karun Hari Ini</h3>
+        <div id="hkBody"></div>
+        <div class="hk-pb" id="hkPb" hidden><b>🏆 Pemburu Harta pekan ini</b><ul id="hkPbList"></ul></div>
+        <p class="hk-rule">2–3 peti tiap hari: ☀️ siang 12.00–14.00 · 🌇 sore 15.30–17.30 · 🌙 malam 19.00–21.00. Yang <b>pertama ngetuk</b> menang Receh. Kadang ada <b>peti emas</b> ✨. Maks 3× menang per pekan, wajib login Kartu Komen 🔑</p>
+      </div>
 
       <div class="card award" id="award" hidden>
         <h3>🏅 Papan Penghargaan</h3>
@@ -1981,7 +2016,7 @@ if(AWARDS.length&&false){/* Papan Penghargaan disembunyikan (sudah lebih dari se
 const KEJUTAN=[
   {d:'2026-10-26',ic:'🏞️',q:'Kampung lama akhirnya punya nama…',n:'Gerbang Desa Awalkomen',buka:true},
   {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan',buka:!(window.NK_DATA&&window.NK_DATA.pindahan===false)},
-  {d:'2026-10-28',ic:'🔍',q:'Pak Kades menyembunyikan sesuatu di peta…',n:'Harta Karun Harian'},
+  {d:'2026-10-28',ic:'🔍',q:'Pak Kades menyembunyikan sesuatu di peta…',n:'Harta Karun Harian',get buka(){return Date.now()>=Date.UTC(2026,9,28,12,0)}},
   {d:'2026-10-29',ic:'📺',q:'Ada yang mau siaran…',n:'TV Komen Nasional'},
   {d:'2026-10-30',ic:'🎈',q:'Lihat ke langit malam nanti…',n:'Balon Genteng'},
   {d:'2026-10-31',ic:'🧺',q:'Kampung bakal makin rame…',n:'Pasar Senggol'}];
@@ -2305,10 +2340,11 @@ function frame(now){
   if(!reduce||dirty||sel){
     const t=now/1000,z=cam.zoom*dpr,v={W:cv.width,H:cv.height,z,ox:cv.width/2-cam.cx*z,oy:cv.height/2-cam.cy*z};
     {const _t0=DBG?performance.now():0;NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});if(DBG)DBG.m.dunia=(DBG.m.dunia||0)*.9+(performance.now()-_t0)*.1}
-    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);drawStadion(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
+    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     {const _t0=DBG?performance.now():0;try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.langit=(DBG.m.langit||0)*.9+(performance.now()-_t0)*.1}
     {const _t0=DBG?performance.now():0;try{drawMalam(v,t)}catch(e){}if(DBG)DBG.m.malam=(DBG.m.malam||0)*.9+(performance.now()-_t0)*.1}
+    try{drawHarta(v,reduce?0:t)}catch(e){console.error(e)}
     {const _t0=DBG?performance.now():0;try{drawNaga(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.naga=(DBG.m.naga||0)*.9+(performance.now()-_t0)*.1}
     try{if(PILIH)drawPilih(v,reduce?0:t)}catch(e){console.error(e)}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
@@ -2337,6 +2373,8 @@ function lepasSel(){sel=null;$('result').hidden=true;dirty=true;try{if(location.
 function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
   const wxp=cam.cx+(px-cw/2)/cam.zoom,wyp=cam.cy+(py-ch/2)/cam.zoom,tx=Math.round(wxp/T)+C,ty=Math.round(wyp/T)+C;
   try{if(pdhKetuk(wxp,wyp))return}catch(e){console.error(e)}
+  try{if(hkKetukCek(wxp,wyp))return}catch(err){console.error(err)}
+  if(STQA&&DESA&&DESA.MHK&&(HK_QA||Date.now()>=HK_MULAI)){const q=DESA.MHK;if(wxp>q.x-T*.6&&wxp<q.x+q.w+T*1.4&&wyp>q.y-T*1.3&&wyp<q.y+q.h){lepasSel();hkMarkas();return}}
   try{if(nagaKetukCek(wxp,wyp,e.clientX,e.clientY))return}catch(err){console.error(err)}
   {const G=(window.__ROBOT||[]).find(o=>o.roam&&Math.hypot(wxp-o.roam.x,wyp-(o.roam.y-14*(o.roam.lf||0)))<Math.max(T*2,34/cam.zoom));if(G){gentoKetuk(G,e.clientX,e.clientY);return}}
   if(qOn){const p=questPos(reduce?0:performance.now()/1000);if(Math.hypot(wxp-p.x,wyp-p.y)<T*1.8){sel=null;SND.play('ting',.9);window.QA_IKUT=false;showResult({kind:'q'});dirty=true;return}}
@@ -3885,6 +3923,118 @@ function nagaData(j){if(NAGA_QA||!j||!j.naga)return;window.NAGA_OWNER=j.naga.own
   const pas=()=>{window.NAGA_OWNER=nq==='tiang'?null:'lembarpeta';if(nq==='sembur'){const n=Date.now(),L=window.NAGA_SEMBUR||[];if(!L.length||n-L[0].at>12000)window.NAGA_SEMBUR=[{u:'lembarpeta',t:'ryukaarvellacevana',at:n},...L].slice(0,1)}};
   pas();setInterval(pas,1000);setTimeout(()=>{try{const H=nq==='tiang'?nagaTiang():nq==='sembur'?(()=>{const i=kkResIdx('ryukaarvellacevana');return i>=0?{x:NK.wx(RES[i].x),y:NK.wx(RES[i].y)}:null})():nagaRumah();scrollMap();if(H)flyTo({cx:H.x,cy:H.y-T*2,zoom:clampZ(nq==='tiang'?1.2:.75)},900);
     toast(nq==='tiang'?'Mode uji Naga: belum dimiliki, ditali di Tiang Layangan 🐉 (cuma di perangkatmu)':nq==='main'?'Mode uji Naga: dimiliki @lembarpeta, terbang keliling 🐉 (cuma di perangkatmu). Buka info rumah mana pun buat coba tombol sembur.':'Mode uji Naga: sembur kembang api ke rumah @ryukaarvellacevana tiap 12 detik 🎆')}catch(e){}},2600)}}
+/* ===== 🔍 Harta Karun Harian =====
+   Data dari /api/kartu?aksi=harta-info (jadwal rahasia di server; tempat peti baru dikirim saat peti sudah muncul).
+   ?harta=qa → mode uji di perangkat sendiri (peti palsu, klaim tidak ke server). &kat=waduk|hutan|gunung|gerbang|pekarangan|sawah|pantai */
+const HK_QA=(()=>{const q=new URLSearchParams(location.search);return q.get('harta')==='qa'?{kat:q.get('kat')||'waduk',emas:q.get('emas')==='1'}:null})();
+let HK=null,HK_POS=null,HK_T=0;
+const HK_KAT={hutan:'hutan barat Desa Awalkomen',waduk:'pinggir waduk',gunung:'kebun kaki gunung',gerbang:'dekat gerbang desa',pekarangan:'pekarangan warga',sawah:'sawah desa',pantai:'tepi pantai'};
+const HK_KS={hutan:'hutan',waduk:'waduk',gunung:'gunung',gerbang:'gerbang',pekarangan:'pekarangan',sawah:'sawah',pantai:'pantai'};
+const HK_HARI=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+function hkJam(m){return String(Math.floor(m/60)).padStart(2,'0')+'.'+String(m%60).padStart(2,'0')}
+function hkJamMs(ms){const d=new Date(ms+252e5);return String(d.getUTCHours()).padStart(2,'0')+'.'+String(d.getUTCMinutes()).padStart(2,'0')}
+function hkSaya(){const me=(kkGet()||{}).u;if(!me||!HK)return 0;return (HK.pemburu||[]).filter(e=>e.u===me).length}
+function hkAktif(){if(!HK)return null;const s=(HK.slot||[]).find(x=>x.st==='ada');if(!s)return null;if(!HK_QA&&Date.now()>=s.sampai)return null;return s}
+// posisi peti (koordinat dunia) + petunjuk, dihitung dari kategori & angka acak kiriman server
+function hkTempat(s){if(!s)return null;let D;try{D=desaBangun()}catch(e){return null}const f=s.f||0,g=s.g||0,pick=a=>a[Math.min(a.length-1,Math.floor(f*a.length))];
+  let x,y,hint;const eks=l=>(D.EKS||[]).filter(e=>e.lok===l);
+  if(s.kat==='hutan'){const F=D.F,L=(D.trees||[]).filter(o=>o.x>F.x0+T*2&&o.x<F.x1-T*2&&o.y>F.y0+T*2&&o.y<F.y1);const o=L.length?pick(L):{x:F.x1-T*4,y:(F.y0+F.y1)/2};x=o.x+T*.55;y=o.y+T*.3;hint='Di balik pohon rindang, di hutan sebelah barat Desa Awalkomen 🌳'}
+  else if(s.kat==='waduk'){const L=eks('waduk'),e=L.length?pick(L):null,hx=e?NK.wx(e.x):D.wd.x,hy=e?NK.wx(e.y):D.wd.y-D.wd.ry,dx=D.wd.x-hx,dy=D.wd.y-hy,d=Math.hypot(dx,dy)||1;x=hx+dx/d*T*2.2;y=hy+dy/d*T*2.2;hint='Dekat sesuatu yang biru dan basah, tempat perahu bersandar… 🚣'}
+  else if(s.kat==='gunung'){const L=eks('gunung'),e=L.length?pick(L):{x:0,y:0};x=NK.wx(e.x)+(g<.5?-1:1)*T*1.3;y=NK.wx(e.y)+T*.9;hint='Tempat tinggi dan sejuk, di antara kebun kaki gunung ⛰️'}
+  else if(s.kat==='pantai'){const L=eks('pantai'),e=L.length?pick(L):{x:0,y:0};x=NK.wx(e.x)+(g-.5)*T*2;y=NK.wx(e.y)+T*2.2;hint='Pasir, ombak, dan rumah-rumah tepi pantai… 🏖️'}
+  else if(s.kat==='sawah'){const W=D.sawah,i=Math.min(W.cols-1,Math.floor(f*W.cols)),j=Math.min(W.rows-1,Math.floor(g*W.rows));x=W.x+i*W.w+W.w/2;y=W.y+j*W.h+W.h/2;hint='Di antara padi, di sawah Desa Komen-Komen Sejahtera 🌾'}
+  else if(s.kat==='pekarangan'){const k=s.u?kkResIdx(s.u):-1,r=k>=0?RES[k]:RES[Math.floor(f*RES.length)];x=NK.wx(r.x)+T*.55;y=NK.wx(r.y)+T*.5;
+    const w=String(r.roof||'').toLowerCase(),ok=(typeof WARNA_W!=='undefined'?WARNA_W:[]).includes(w)||/^[a-z -]{3,12}$/.test(w);hint='Di pekarangan rumah warga'+(ok?' beratap '+w:'')+', username-nya diawali huruf “'+String(r.name)[0].toUpperCase()+'” 🏡'}
+  else{const G=D.gate;x=G.x+T*(2+f*3);y=G.y+T*(3.6+g*.6);hint='Dekat pintu masuk Desa Komen-Komen Sejahtera 🚪'}
+  const ax=x+(g-.5)*T*14,ay=y+(f-.5)*T*9;return {x,y,hint,area:{cx:ax,cy:ay}}}
+function hkData(j){if(!j||!Array.isArray(j.slot))return;HK=j;HK_T=Date.now();const s=hkAktif();HK_POS=s?hkTempat(s):null;dirty=true;try{renderHarta()}catch(e){console.error(e)}}
+function hkQaData(){const now=Date.now();HK={tgl:'qa',now,maks:3,mulai:0,slot:[{k:'siang',ic:'☀️',a:720,b:840,st:'ketemu',oleh:'lembarpeta',at:now-36e5*5,hadiah:2,emas:false,kat:'sawah',muncul:now-36e5*6},{k:'sore',ic:'🌇',a:930,b:1050,st:'ada',muncul:now-6e5,sampai:now+36e5,kat:HK_QA.kat,f:.37,g:.62,u:null,qaEmas:HK_QA.emas},{k:'malam',ic:'🌙',a:1140,b:1260,st:'nanti'}],
+  pemburu:[{u:'lembarpeta',at:now-36e5*5,k:'siang',kat:'sawah',hadiah:2,emas:false},{u:'scnydpi',at:now-864e5,k:'malam',kat:'gunung',hadiah:4,emas:true},{u:'ryukaarvellacevana',at:now-864e5*2,k:'sore',kat:'waduk',hadiah:1,emas:false}]};HK_T=now;const s=hkAktif();HK_POS=s?hkTempat(s):null;dirty=true;try{renderHarta()}catch(e){console.error(e)}}
+async function hkMuat(){if(HK_QA){if(!HK)hkQaData();return}try{const r=await fetch('/api/kartu?aksi=harta-info');if(r.ok)hkData(await r.json())}catch(e){}}
+// polling: tiap 30 dtk selama jendela peti, tiap 5 menit di luar jendela
+function hkJendela(){const d=new Date(Date.now()+252e5),m=d.getUTCHours()*60+d.getUTCMinutes();return (m>=715&&m<=845)||(m>=925&&m<=1055)||(m>=1135&&m<=1265)}
+setInterval(()=>{if(document.hidden)return;const gap=hkJendela()?30e3:300e3;if(Date.now()-HK_T>=gap-500)hkMuat();else{const s=hkAktif();if(HK&&!s&&HK_POS){HK_POS=null;dirty=true}try{renderHarta()}catch(e){}}},15e3);
+setTimeout(hkMuat,1200);
+function hkBuka(){return !!HK&&(!!HK_QA||Date.now()>=(HK.mulai||0))}
+function renderHarta(){const box=$('harta');if(!box)return;if(!hkBuka()){box.hidden=true;return}box.hidden=false;hkTulis($('hkBody'),$('hkBadge'),$('hkPb'),$('hkPbList'));const m=document.querySelector('#kk .hk-markas');if(m)hkTulis(m.querySelector('.hkm-body'),m.querySelector('.hk-badge'),m.querySelector('.hk-pb'),m.querySelector('.hk-pb ul'),true)}
+function hkTulis(b,bd,pb,pl,modal){b.innerHTML='';const s=hkAktif(),me=(kkGet()||{}).u,menang=hkSaya(),penuh=menang>=(HK.maks||3),L=HK.slot||[];
+  if(s&&!penuh){bd.className='hk-badge ada';bd.textContent='● ADA DI PETA'}else if(L.some(x=>x.st==='nanti')){bd.className='hk-badge wait';bd.textContent='⏳ SEGERA'}else if(L.some(x=>x.st==='ketemu')){bd.className='hk-badge ok';bd.textContent='✅ DITEMUKAN'}else{bd.className='hk-badge';bd.textContent=L.length?'💨 KABUR':'BESOK LAGI'}
+  if(s&&HK_POS&&!penuh){const h=el('div','hk-hint');h.append(el('b',null,'🗺️ Petunjuk: '),document.createTextNode('“'+HK_POS.hint+'”'));b.append(h)}
+  const ul=el('ul','hk-st');L.forEach(x=>{const li=el('li'),nm='Peti '+x.k;let t;
+    if(x.st==='ada')t=nm+' · muncul '+hkJamMs(x.muncul)+' · belum ada yang nemu 👀 (kabur jam '+hkJam(x.b)+')';
+    else if(x.st==='ketemu')t=nm+' · '+(x.emas?'✨ PETI EMAS ':'')+'ditemukan @'+x.oleh+' di '+(HK_KAT[x.kat]||'peta')+' (+'+x.hadiah+' Receh)';
+    else if(x.st==='kabur')t=nm+' · nggak ketemu, hartanya kabur 💨';
+    else t=nm+' · muncul antara '+hkJam(x.a)+'–'+hkJam(x.b);
+    li.append(el('span',null,x.st==='ketemu'?'✅':x.st==='kabur'?'💨':x.st==='ada'?x.ic:'⏳'),el('span',null,t));ul.append(li)});
+  if(!L.length){const li=el('li');li.append(el('span',null,'😴'),el('span',null,'Hari ini nggak ada peti lagi. Besok lagi ya!'));ul.append(li)}
+  b.append(ul);
+  if(penuh&&me){b.append(el('p','hk-me','🙌 Kamu udah menang '+menang+'× pekan ini. Kasih kesempatan yang lain ya, Senin depan bisa berburu lagi!'))}
+  else if(s&&HK_POS){const c=kkBtn('🗺️ Cari di peta','hk-cari',()=>{if(modal)kkTutup();scrollMap();flyTo({cx:HK_POS.area.cx,cy:HK_POS.area.cy,zoom:clampZ(.5)},1100);toast('🔍 Petinya kecil & nyaru, ada di sekitar sini. Zoom & cari pelan-pelan!')});b.append(c);
+    if(!me)b.append(el('p','hk-me','🔑 Login Kartu Komen dulu biar hartanya masuk ke Receh-mu.'))}
+  const P=HK.pemburu||[];pl.innerHTML='';pb.hidden=!P.length;
+  P.slice(0,8).forEach(e=>{const li=el('li'),d=new Date(e.at+252e5);li.append(el('span',null,(e.emas?'✨':'📦')+' @'+e.u),el('span',null,HK_HARI[d.getUTCDay()]+' '+({siang:'☀️',sore:'🌇',malam:'🌙'}[e.k]||'')+' · '+(HK_KS[e.kat]||'')));pl.append(li)})}
+// gambar peti di peta (kecil & nyaru; kilau sesekali)
+function drawHarta(v,t){const s=hkAktif();if(!s||!HK_POS||hkSaya()>=(HK.maks||3))return;const {x,y}=HK_POS,z=v.z,sx=x*z+v.ox,sy=y*z+v.oy;if(sx<-60||sy<-60||sx>v.W+60||sy>v.H+60)return;
+  const emas=!!s.qaEmas;ctx.setTransform(z,0,0,z,v.ox,v.oy);const w=T*.62,h=T*.42,x0=x-w/2,y0=y-h/2;
+  ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(x+T*.06,y+h*.62,w*.6,h*.28,0,0,7);ctx.fill();
+  ctx.fillStyle=emas?'#C99A1C':'#8A5A2B';ctx.fillRect(x0,y0,w,h);ctx.fillStyle=emas?'#E9BE3A':'#A86E36';ctx.beginPath();ctx.moveTo(x0,y0+h*.05);ctx.quadraticCurveTo(x,y0-h*.75,x0+w,y0+h*.05);ctx.closePath();ctx.fill();
+  ctx.fillStyle=emas?'#FFF1A8':'#E8C34A';ctx.fillRect(x0,y0+h*.02,w,h*.13);ctx.fillRect(x-w*.07,y0-h*.1,w*.14,h*.55);ctx.strokeStyle='#3B2414';ctx.lineWidth=T*.035;ctx.strokeRect(x0,y0,w,h);
+  const k=((t||0)%3.2)/3.2;if(k<.22){const a=Math.sin(k/.22*Math.PI),r=T*(.18+.25*a);ctx.globalAlpha=a;ctx.fillStyle='#FFF6C8';ctx.beginPath();for(let i=0;i<8;i++){const ang=i*Math.PI/4,rr=i%2?r*.28:r;ctx.lineTo(x+w*.32+Math.cos(ang)*rr,y0-h*.4+Math.sin(ang)*rr)}ctx.closePath();ctx.fill();ctx.globalAlpha=1}
+  ctx.setTransform(1,0,0,1,0,0)}
+function hkKetukCek(wxp,wyp){const s=hkAktif();if(!s||!HK_POS||hkSaya()>=(HK.maks||3))return false;if(Math.hypot(wxp-HK_POS.x,wyp-HK_POS.y)>Math.max(T*.9,26/cam.zoom))return false;hkKlaim(s);return true}
+let HK_SIBUK=false;
+async function hkKlaim(s){if(HK_SIBUK)return;try{SND.play('pop',.9)}catch(e){}
+  const k=kkGet();if(!k||!k.u){toast('🔑 Wah ketemu! Login Kartu Komen dulu biar hartanya masuk ke Receh-mu, lalu ketuk lagi.');try{kkBuka('')}catch(e){}return}
+  HK_SIBUK=true;let r;try{r=HK_QA?{ok:true,u:k.u,k:s.k,kat:s.kat,hadiah:s.qaEmas?4:2,emas:!!s.qaEmas,menang:hkSaya()+1,maks:3}:await kkApi('harta',{k:s.k},true)}finally{HK_SIBUK=false}
+  if(!r.ok){toast(r.error||'Gagal ambil harta');hkMuat();return}
+  const ev={u:r.u||k.u,at:Date.now(),k:r.k,kat:r.kat,hadiah:r.hadiah,emas:r.emas};
+  if(HK){HK.pemburu=[ev,...(HK.pemburu||[])];HK.slot=(HK.slot||[]).map(x=>x.k===s.k?{k:x.k,ic:x.ic,a:x.a,b:x.b,st:'ketemu',oleh:ev.u,at:ev.at,hadiah:ev.hadiah,emas:ev.emas,kat:ev.kat,muncul:x.muncul}:x)}
+  HK_POS=null;dirty=true;try{renderHarta()}catch(e){}hkMenang(ev,r.menang||1,r.maks||3);if(!HK_QA)setTimeout(hkMuat,4000)}
+function hkMenang(ev,n,maks){const o=el('div','hkwin'+(ev.emas?' emas':'')),b=el('div');o.append(b);
+  b.append(el('div','ic',ev.emas?'✨':'📦'),el('h3',null,ev.emas?'PETI EMAS!':'Kamu nemu harta karun!'),el('p',null,'Di '+(HK_KAT[ev.kat]||'peta')+' '+({siang:'☀️',sore:'🌇',malam:'🌙'}[ev.k]||'')));
+  const rc=el('div','rc');const im=document.createElement('img');im.src='receh.svg';im.alt='';rc.append(document.createTextNode('+'+ev.hadiah+' '),im,document.createTextNode(' Receh'));b.append(rc);
+  b.append(el('p',null,'Udah masuk ke Kartu Komen-mu · menang '+n+'/'+maks+' pekan ini'));
+  b.append(kkBtn('📤 Pamer ke story','gold3',()=>hkStory(ev)),kkBtn('Tutup','sm',()=>o.remove()));o.addEventListener('click',e=>{if(e.target===o)o.remove()});document.body.append(o);try{SND.play('ting',1)}catch(e){}}
+async function hkStory(ev){const c=document.createElement('canvas');c.width=1080;c.height=1920;const g=c.getContext('2d'),F="'Poppins','Noto Color Emoji',sans-serif";
+  g.fillStyle=ev.emas?'#FFF1C2':'#F3EBD3';g.fillRect(0,0,1080,1920);g.fillStyle='#1C2520';g.beginPath();g.roundRect(70,150,940,1620,60);g.fill();g.fillStyle=ev.emas?'#FFF8DD':'#FFFBEF';g.beginPath();g.roundRect(90,170,900,1580,48);g.fill();
+  g.textAlign='center';g.fillStyle='#1C2520';g.beginPath();g.roundRect(300,240,480,70,35);g.fill();g.fillStyle='#F2C230';g.font='800 34px '+F;g.fillText('🔍 HARTA KARUN HARIAN',540,288);
+  g.font='300px '+F;g.fillText(ev.emas?'✨':'📦',540,720);g.fillStyle='#1C2520';g.font='800 84px '+F;g.fillText(ev.emas?'PETI EMAS!':'KETEMU!',540,880);
+  g.font='700 56px '+F;g.fillText('@'+ev.u,540,990);g.font='500 42px '+F;g.fillStyle='#444';g.fillText('nemu harta karun di '+(HK_KAT[ev.kat]||'peta'),540,1070);
+  g.fillStyle='#F2C230';g.beginPath();g.roundRect(330,1150,420,120,30);g.fill();g.strokeStyle='#1C2520';g.lineWidth=8;g.stroke();g.fillStyle='#1C2520';g.font='800 64px '+F;g.fillText('+'+ev.hadiah+' Receh',540,1232);
+  g.font='600 40px '+F;g.fillStyle='#1C2520';g.fillText('Siapa nemu peti berikutnya? 👀',540,1420);g.font='700 44px '+F;g.fillText('negerikomen.my.id',540,1620);g.font='500 36px '+F;g.fillStyle='#5b5b4f';g.fillText('@negerikomen',540,1680);
+  const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],'harta-karun-negerikomen.png',{type:'image/png'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:'Aku nemu harta karun di Negeri Komen! 🔍 negerikomen.my.id'});return}}catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;document.body.append(a);a.click();a.remove();toast('📥 Gambar disimpan. Unggah ke story & tag @negerikomen ya!')}
+// 🏴 Markas Harta Karun: bangunan di desa baru dekat gerbang. Ketuk → panduan, petunjuk & status peti hari ini, Pemburu Harta pekan ini
+function hkMarkas(){SND.play('pop',.8);const body=kkModal(),w=el('div','hk hk-markas');w.style.cssText='box-shadow:none;border:0;background:none;padding:0';
+  const bd=el('span','hk-badge');bd.style.cssText='position:static;display:inline-block;margin:0 0 8px';w.append(el('h3',null,'🏴 Markas Harta Karun'),bd);
+  const pd=el('ol','hkm-pd');[['🔍','Baca petunjuk peti hari ini di bawah'],['🗺️','Cari peti kecil yang nyaru di peta, zoom pelan-pelan'],['👆','Ketuk petinya. Yang pertama ngetuk menang Receh!']].forEach(([i,t])=>{const li=el('li');li.append(el('span',null,i),el('span',null,t));pd.append(li)});
+  w.append(pd);const isi=el('div','hkm-body');w.append(isi);const pb=el('div','hk-pb');pb.append(el('b',null,'🏆 Pemburu Harta pekan ini'),el('ul'));w.append(pb);
+  w.append(el('p','hk-rule','2–3 peti tiap hari: ☀️ siang 12.00–14.00 · 🌇 sore 15.30–17.30 · 🌙 malam 19.00–21.00. Peti biasa 1–2 Receh, kadang ada peti emas ✨. Maks 3× menang per pekan, wajib login Kartu Komen 🔑'));
+  body.append(w);if(!hkBuka()){isi.append(el('p','hk-me','⏳ Markas buka Rabu 28 Okt jam 19.00. Peti pertama muncul malam ini!'));pb.hidden=true;bd.className='hk-badge wait';bd.textContent='SEGERA';return}
+  hkTulis(isi,bd,pb,pb.querySelector('ul'),true)}
+const HK_MULAI=Date.UTC(2026,9,28,12,0); // Rabu 28 Okt 19.00 WIB
+function drawMarkasHK(v,t){if(!STQA||!DESA||!DESA.MHK||(!HK_QA&&Date.now()<HK_MULAI))return;const {x,y,w,h}=DESA.MHK,z=v.z,sx=x*z+v.ox,sy=y*z+v.oy;if(sx>v.W+50||sy>v.H+50||sx+w*z<-50||sy+h*z<-80)return;ctx.setTransform(z,0,0,z,v.ox,v.oy);
+  const cx=x+w*.5,by=y+h*.92;ctx.fillStyle='#C9A86A';ctx.beginPath();ctx.ellipse(cx,by-T*.4,w*.55,h*.33,0,0,7);ctx.fill();
+  // tenda bergaris
+  const tx0=x+w*.12,tx1=x+w*.78,ty=y+h*.18,tb=by-T*.3;ctx.fillStyle='rgba(0,0,0,.18)';ctx.beginPath();ctx.moveTo(tx0+T*.3,tb);ctx.lineTo((tx0+tx1)/2+T*.4,ty+T*.3);ctx.lineTo(tx1+T*.3,tb);ctx.fill();
+  for(let i=0;i<6;i++){const a=tx0+(tx1-tx0)*i/6,b=tx0+(tx1-tx0)*(i+1)/6;ctx.fillStyle=i%2?'#F3E6C4':'#C4402F';ctx.beginPath();ctx.moveTo((tx0+tx1)/2,ty);ctx.lineTo(a,tb);ctx.lineTo(b,tb);ctx.closePath();ctx.fill()}
+  ctx.fillStyle='#2A1C12';ctx.beginPath();ctx.moveTo((tx0+tx1)/2,ty+h*.28);ctx.lineTo((tx0+tx1)/2-T*.55,tb);ctx.lineTo((tx0+tx1)/2+T*.55,tb);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#3B2414';ctx.lineWidth=T*.06;ctx.beginPath();ctx.moveTo(tx0,tb);ctx.lineTo((tx0+tx1)/2,ty);ctx.lineTo(tx1,tb);ctx.stroke();
+  // tiang bendera
+  const fx=x+w*.92,fy=y+T*.2;ctx.fillStyle='#5A3A22';ctx.fillRect(fx-T*.05,fy,T*.1,by-fy-T*.2);const wv=Math.sin((t||0)*4)*T*.12;
+  ctx.fillStyle='#1C2520';ctx.beginPath();ctx.moveTo(fx,fy);ctx.quadraticCurveTo(fx+T*.6,fy-T*.1+wv,fx+T*1.2,fy+T*.05);ctx.lineTo(fx+T*1.2,fy+T*.75);ctx.quadraticCurveTo(fx+T*.6,fy+T*.65+wv,fx,fy+T*.8);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(fx+T*.6,fy+T*.4+wv*.5,T*.2,0,7);ctx.fill();
+  // peti besar di depan
+  const px=x+w*.06,py=by-T*.95,pw=T*1.1,ph=T*.72;ctx.fillStyle='#8A5A2B';ctx.fillRect(px,py,pw,ph);ctx.fillStyle='#A86E36';ctx.beginPath();ctx.moveTo(px,py);ctx.quadraticCurveTo(px+pw/2,py-ph*.7,px+pw,py);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#E8C34A';ctx.fillRect(px,py,pw,ph*.13);ctx.fillRect(px+pw*.43,py-ph*.1,pw*.14,ph*.5);ctx.strokeStyle='#3B2414';ctx.lineWidth=T*.04;ctx.strokeRect(px,py,pw,ph);
+  ctx.fillStyle='#FFE27A';[[0,-.9],[.5,-.75],[.85,-.5]].forEach(([a,b])=>{ctx.beginPath();ctx.arc(px+pw*.2+a*T*.5,py+b*T*.4,T*.09,0,7);ctx.fill()});
+  // papan nama
+  const sw=w*1.05,sh=T*.85,sx0=cx-sw/2,sy0=y-T*1.55;ctx.fillStyle='#5A3A22';ctx.fillRect(sx0+T*.3,sy0+sh,T*.12,T*1.1);ctx.fillRect(sx0+sw-T*.42,sy0+sh,T*.12,T*1.1);
+  ctx.fillStyle='#1C2520';ctx.beginPath();ctx.roundRect(sx0,sy0,sw,sh,T*.18);ctx.fill();ctx.fillStyle='#F2C230';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`800 ${T*.36}px Poppins,'Noto Color Emoji',sans-serif`;ctx.fillText('🏴 MARKAS HARTA KARUN',cx,sy0+sh*.52);
+  const s=hkAktif();if(s&&HK_POS&&hkBuka()){const k=((t||0)%1.6)/1.6;ctx.fillStyle='#D8392F';ctx.beginPath();ctx.arc(sx0+sw-T*.1,sy0+T*.05,T*(.22+.06*Math.sin(k*6.28)),0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font=`800 ${T*.28}px Poppins,sans-serif`;ctx.fillText('!',sx0+sw-T*.1,sy0+T*.07)}
+  ctx.setTransform(1,0,0,1,0,0)}
+window.__HK={data:()=>HK,pos:()=>HK_POS,muat:hkMuat,tempat:hkTempat};
 window.__NAGA={jl:s=>nagaJalur(s),o3:()=>openDemoNaga(),tiang:()=>nagaTiang(),pt:()=>NAGA_PT,pilih:u=>{const k=kkResIdx(u);if(k>=0)select({kind:'r',i:k},{instant:true})}}; // untuk tes
 function gentoKetuk(G,cx,cy){SND.play('pop',.8);document.querySelectorAll('.gento-pop').forEach(x=>x.remove());
   const me=(kkGet()||{}).u,own=G.u===me||!!window.__GENTO_QA,pulang=G.roam.pulang;
@@ -4490,7 +4640,8 @@ let DESA=null;function desaBangun(){if(DESA)return DESA;const K=BB,kw=K.x1-K.x0,
   const tepiR=a=>1+.07*Math.sin(a*3+.7)+.05*Math.sin(a*7+2)+.03*Math.sin(a*15);
   const ring=[];for(let i=0;i<2600;i++){const a=R()*6.2832,d=tepiR(a)*(.93+R()*.5);ring.push({x:wc.x+Math.cos(a)*wc.rx*d*1.05,y:wc.y+Math.sin(a)*wc.ry*d*1.05,s:1.1+R()*.7,k:R()<.6})}
   const jalanX1=Math.min(E.x1+T*6,Math.max(OT.x+OT.w,wd.x,SH.x+T*2.6,...DB.filter(([bx,by])=>by===-1||by===1).map(([bx])=>(bx+1)*S*T))+T*1.6);
-  DESA={jalanX1,EKS,DB,DK,DBC,RG,OT,SH,MTI,GANG,GJ,wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
+  const MHK={x:gate.x-T*7,y:jalanY+T*5,w:T*4.6,h:T*3.6};for(let i=trees.length-1;i>=0;i--){const o=trees[i];if(o.x>MHK.x-T*1.5&&o.x<MHK.x+MHK.w+T*1.5&&o.y>MHK.y-T*2.5&&o.y<MHK.y+MHK.h+T)trees.splice(i,1)}
+  DESA={MHK,jalanX1,EKS,DB,DK,DBC,RG,OT,SH,MTI,GANG,GJ,wc,tepiR,ring,RT,GM,K,E,M,F,wd,hills,trees,gate,jalanY,sungai1,sungai2,sungai3,rumah,sawah,R,bounds:{x0:F.x0-T*4,x1:E.x1+T*6,y0:M.y0-T*4,y1:E.y1+T*8}};return DESA}
 function papan(cx,cy,teks,fs,fg,bg,pad){ctx.font=`800 ${fs}px Poppins,'Noto Color Emoji',sans-serif`;const w=ctx.measureText(teks).width+(pad||fs*1.2),h=fs*2;ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(cx-w/2,cy-h/2,w,h,fs*.35);ctx.fill();ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(teks,cx,cy+fs*.05)}
 /* hemat: saat zoom jauh, Desa Komen-Komen Sejahtera (hutan, waduk, gunung, pantai, sawah) digambar ke kanvas cadangan tiap ±10 dtk, lalu ditempel.
    Kendaraan pindahan, GENTO, NAGASARI, stadion tetap digambar langsung. Kalau layar melihat di luar area cadangan → gambar langsung seperti biasa. */

@@ -464,6 +464,16 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 .hkwin .rc img{width:22px;height:22px}
 .hkwin.emas>div{background:linear-gradient(#FFF6D5,#fff)}
 .hkwin .btn{width:100%;margin-top:8px}
+.eksc-tabs{position:relative;display:flex;gap:6px;margin:0 0 10px;background:rgba(255,255,255,.6);border:2px solid #1C4E80;border-radius:999px;padding:4px}
+.eksc-tab{flex:1;font:inherit;font-size:13px;font-weight:800;color:#123B66;background:none;border:0;border-radius:999px;padding:7px 8px;cursor:pointer;white-space:nowrap}
+.eksc-tab i{font-style:normal;display:inline-block;min-width:20px;margin-left:3px;padding:0 6px;border-radius:999px;background:#DDF0FF;font-size:12px}
+.eksc-tab.on{background:#123B66;color:#fff}.eksc-tab.on i{background:#F2C230;color:#1C2520}
+.eksc-top{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.eksc-rp{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:800;color:#1C2520;background:#FFF1B8;border:1.5px solid #C9A227;border-radius:999px;padding:1px 8px}
+.eksc-rp img{width:14px;height:14px}
+.eksc-it.milik .eksc-rp{background:#E6F4EA;border-color:#2F9E6A}
+.eksc-list.eksc-scroll{overflow-y:auto;overscroll-behavior:contain;padding:2px 6px 6px 2px;margin-right:-6px}
+.eksc-kosong{list-style:none;background:#fff;border:2px dashed #1C4E80;border-radius:16px;padding:14px;text-align:center;font-size:14px;font-weight:600;color:#2D5378}
 </style>
 </head>
 <body>
@@ -2054,14 +2064,23 @@ function robotSejak(id){id=id||'robot';const o=(window.BELANJA||[]).find(o=>o&&o
 // barang eksklusif (cuma 1 di kampung) + lencana 💎 Pemilik Eksklusif
 const EKS_DAF=[['robot','🤖','GENTO',()=>window.ROBOT_OWNER],['patromax','🏮','Patromax',()=>window.PATRO_OWNER],['sorot','🔦','Lampu Sorot Langit',()=>window.SOROT_OWNER],['naga','🐉','NAGASARI',()=>window.NAGA_OWNER]];
 function eksMilik(u){u=String(u||'').toLowerCase();return EKS_DAF.filter(([id,ic,nm,ow])=>ow()&&String(ow()).toLowerCase()===u).map(([id,ic,nm])=>ic+' '+nm)}
+let EKS_TAB=null;
 function renderEksklusif(){const box=$('eksList');if(!box)return;box.innerHTML='';
-  EKS_DAF.slice().sort((a,b)=>((KK_ITEM[b[0]]||{}).h||0)-((KK_ITEM[a[0]]||{}).h||0)).forEach(([id,ic,nm,ow])=>{const o=ow(),li=el('li','eksc-it'+(o?' milik':' kosong')),bt=document.createElement('button');bt.type='button';
-    const ik=el('span','eksc-ic');ik.append(kkItemSVG(id));const tx=el('span','eksc-tx');tx.append(el('b',null,nm),o?el('span','eksc-own','👑 @'+o):el('span','eksc-free','✨ Belum ada pemilik'),el('small',null,o?'💎 Pemilik Eksklusif · sejak '+robotSejak(id):KK_ITEM[id].h+' Receh · siapa cepat dia dapat!'));
-    bt.append(ik,tx,el('span','eksc-3d','👀 3D'));bt.onclick=()=>{id==='robot'?openDemoGento():id==='naga'?openDemoNaga():id==='sorot'?openDemoSorot():openDemoPatromax()};li.append(bt);box.append(li)});$('eksCard').hidden=false;return;
-  EKS_DAF.forEach(([id,ic,nm,ow])=>{const o=ow(),li=document.createElement('li'),bt=document.createElement('button');bt.type='button';
-    bt.append(el('span','ico',ic),el('b',null,nm+(o?' · 👑 @'+o:'')),el('span',null,o?'💎 Pemilik Eksklusif · sejak '+robotSejak(id):'Belum ada pemilik · '+KK_ITEM[id].h+' Receh · siapa cepat dia dapat!'));
-    bt.onclick=()=>{id==='robot'?openDemoGento():id==='naga'?openDemoNaga():id==='sorot'?openDemoSorot():openDemoPatromax()};bt.append(el('span',null,'👀 Ketuk buat lihat 3D'));li.append(bt);box.append(li)});$('eksCard').hidden=false}
-function renderBelanjaFeed(){const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO',patromax:'🏮 Patromax',sorot:'🔦 Lampu Sorot Langit',naga:'🐉 NAGASARI',konsol:'🎮 playadalahmain 1.0'};
+  const L=EKS_DAF.slice().sort((a,b)=>((KK_ITEM[b[0]]||{}).h||0)-((KK_ITEM[a[0]]||{}).h||0)),ada=L.filter(x=>!x[3]()),laku=L.filter(x=>x[3]());
+  if(!EKS_TAB)EKS_TAB=laku.length?'laku':'ada';
+  let tb=$('eksTabs');if(!tb){tb=el('div','eksc-tabs');tb.id='eksTabs';box.parentNode.insertBefore(tb,box)}tb.innerHTML='';
+  [['laku','👑 Sudah laku',laku.length],['ada','✨ Masih tersedia',ada.length]].forEach(([k,t,n])=>{const b=el('button','eksc-tab'+(EKS_TAB===k?' on':''));b.type='button';b.append(document.createTextNode(t+' '),el('i',null,String(n)));b.onclick=()=>{EKS_TAB=k;renderEksklusif()};tb.append(b)});
+  const rp=n=>{const s=el('span','eksc-rp');const im=document.createElement('img');im.src='receh.svg';im.alt='';s.append(im,document.createTextNode(n+' Receh'));return s};
+  const isi=EKS_TAB==='ada'?ada:laku;
+  if(!isi.length)box.append(el('li','eksc-kosong',EKS_TAB==='ada'?'Semua barang eksklusif sudah laku! Tunggu barang baru ya 👀':'Belum ada yang laku. Jadilah pemilik pertama!'));
+  isi.forEach(([id,ic,nm,ow])=>{const o=ow(),h=(KK_ITEM[id]||{}).h||0,li=el('li','eksc-it'+(o?' milik':' kosong')),bt=document.createElement('button');bt.type='button';
+    const ik=el('span','eksc-ic');ik.append(kkItemSVG(id));const tx=el('span','eksc-tx'),top=el('span','eksc-top');top.append(el('b',null,nm),rp(h));
+    if(o){top.lastChild.remove();const sj=String(robotSejak(id)).replace(/ \d\d\.\d\d$/,'');tx.append(top,el('span','eksc-own','👑 @'+o),el('small',null,'💎 Berhasil dibeli dengan '+h+' Receh'+(/\d/.test(sj)?' · '+sj:'')))}
+    else tx.append(top,el('span','eksc-free','✨ Belum ada pemilik'),el('small',null,'Beli lewat Kartu Komen · siapa cepat dia dapat!'));
+    bt.append(ik,tx,el('span','eksc-3d','👀 3D'));bt.onclick=()=>{id==='robot'?openDemoGento():id==='naga'?openDemoNaga():id==='sorot'?openDemoSorot():openDemoPatromax()};li.append(bt);box.append(li)});
+  box.style.maxHeight='';box.classList.toggle('eksc-scroll',isi.length>3);if(isi.length>3)requestAnimationFrame(()=>{const it=box.children;if(it.length>3){const t=it[0].offsetTop,b=it[3].offsetTop;box.style.maxHeight=(b-t+28)+'px'}});
+  $('eksCard').hidden=false}
+function renderBelanjaFeed(){try{renderEksklusif()}catch(e){}const box=$('okbList');if(!box)return;const KD={motor:'🛵 Motor',sepeda:'🚲 Sepeda',robot:'🤖 GENTO',patromax:'🏮 Patromax',sorot:'🔦 Lampu Sorot Langit',naga:'🐉 NAGASARI',konsol:'🎮 playadalahmain 1.0'};
   const lalu=t=>{const d=Math.round((Date.now()-t)/1000);return d<60?'baru saja':d<3600?Math.round(d/60)+' menit lalu':d<86400?Math.round(d/3600)+' jam lalu':Math.round(d/86400)+' hari lalu'};
   const L=(window.BELANJA||[]).map(o=>{let t='';if(o.j==='warna')t='🎨 Ganti warna rumah';else if(o.j==='emas')t='🚩 Bendera emas';else if(o.j==='ruko')t='🏪 Buka ruko';else if(o.j==='tingkat')t='🏢 Rumah tingkat '+(o.l||2);
     else if(o.j==='item'){const v=(o.it||[]).map(id=>KD[id]||(KK_ITEM[id]?'🛍️ '+KK_ITEM[id].n:'')).filter(Boolean);if(v.length)t=v.join(', ')}
@@ -5106,7 +5125,7 @@ window.addEventListener('hashchange',fromLink);
 <div class="nkm" id="nkm" hidden><div class="nkm-s" role="dialog" aria-label="Menu"><div class="gr"></div><h4>Mau ke mana?</h4><div id="nkmList"></div></div></div>
 <script>
 (function(){const fab=document.getElementById('nkmFab'),m=document.getElementById('nkm'),L=document.getElementById('nkmList');
-const IT=[['🔍','Cari rumahku','Ketik nama / @username','q'],['📢','Loker','Lowongan kerja di kampung','loker'],['🆕','Warga baru','Daftar warga terbaru','newList'],['🏛️','Fasilitas kampung','Cari bangunan & bosnya','bSearch'],['🏠','Cara jadi warga','3 langkah, gratis','caraWarga'],['🧱','Traktir & Toko Pak Kades','Genteng, Receh, belanja','trak'],['🎁','Kalender Kejutan','Fitur baru tiap malam','kejutan','BARU'],['🪪','Kartu Komen','Buka kartumu / cara ambil kartu','#kk']];
+const IT=[['🔍','Cari rumahku','Ketik nama / @username','q'],['🗺️','Harta Karun Hari Ini','Clue peti & Pemburu Harta','harta','BARU'],['🏠','Cara jadi warga','Komen di postingan terbaru, gratis','caraWarga'],['🪪','Kartu Komen','Kunci dikomen di postingan yang di-pin 📌','#kk'],['⚙️','Grafik & layar penuh','Peta berat? Pilih Hemat','gfxbar'],['📢','Loker','Lowongan kerja di kampung','loker'],['🆕','Warga baru','Daftar warga terbaru','newList'],['🏛️','Fasilitas kampung','Cari bangunan & bosnya','bSearch'],['🧱','Traktir & Toko Pak Kades','Genteng, Receh, goal Kecamatan','trak'],['🎁','Kalender Kejutan','Fitur baru tiap malam','kejutan']];
 function tutup(){m.hidden=true}
 function ke(id){tutup();
  if(id==='#kk'){try{window.nkKartu()}catch(e){console.error(e)}return}

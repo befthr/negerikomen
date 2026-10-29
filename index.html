@@ -2466,7 +2466,7 @@ function frame(now){
     // mode Hemat saat peta digeser/di-zoom: seluruh gambar peta (+ tepi) dibuat sekali, lalu cuma digeser → perangkat lemah tetap lancar
     if(GFX==='hemat'&&window.__GESER&&!fly&&!PILIH&&!qOn&&!(sel&&sel.kind==='d')){let F=window.__FC;const mx=Math.round(v.W*.3),my=Math.round(v.H*.3);
       if(F&&F.z!==z){if(!F.zt||Math.abs(F.zl-z)>1e-6){F.zt=now;F.zl=z}}
-      const geser=F&&F.z===z&&F.W===v.W&&F.H===v.H&&Math.abs(v.ox-F.ox)<F.mx-2&&Math.abs(v.oy-F.oy)<F.my-2,skala=F&&F.z!==z&&F.W===v.W&&now-F.zt<250;
+      const geser=F&&F.z===z&&F.W===v.W&&F.H===v.H&&Math.abs(v.ox-F.ox)<F.mx-2&&Math.abs(v.oy-F.oy)<F.my-2,skala=F&&F.z!==z&&F.W===v.W&&now-F.zt<250&&z/F.z>.8&&z/F.z<1.25;
       if(geser){ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(F.c,Math.round(v.ox-F.ox-F.mx),Math.round(v.oy-F.oy-F.my))}
       else if(skala){const k=z/F.z;ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#2F5E3A';ctx.fillRect(0,0,v.W,v.H);ctx.drawImage(F.c,v.ox-(F.ox+F.mx)*k,v.oy-(F.oy+F.my)*k,F.c.width*k,F.c.height*k)}
       else{F=F||{c:document.createElement('canvas')};F.c.width=v.W+2*mx;F.c.height=v.H+2*my;const fv={W:F.c.width,H:F.c.height,z,ox:v.ox+mx,oy:v.oy+my},pc=ctx;ctx=F.c.getContext('2d');NK.use(ctx);try{gambar(fv)}finally{ctx=pc;NK.use(pc)}
@@ -5062,6 +5062,12 @@ function drawDesaTimurRaw(v,t){if(!STQA)return;const z=v.z,G=desaTimurGeo(),VX0=
   // rumah warga desa timur
   const mg=T*2;RES.forEach((r,i)=>{if(r.lok||r._tr||!NK.inDT(r.x,r.y))return;const X=NK.wx(r.x),Y=NK.wx(r.y);if(X<VX0-mg||X>VX1+mg||Y<VY0-mg||Y>VY1+mg)return;NK.drawHouse(r,1,1)});
   ctx.restore()}
+// dunia di luar gambar cadangan desa: hutan lalu pantai & laut (pola sama persis dengan tepi gambar cadangan) → tidak ada kotak/garis sambungan
+function duniaLuar(X0,Y0,X1,Y1){const J=NK.JALUR,SL=S*T,ySea=(J.by1+1)*SL+T*7.4,Yf=ySea+T*20.2,L=[[-1e9,Yf-T*1.2,'#2F5E3A'],[Yf-T*1.2,Yf,'#EAD7A4'],[Yf,Yf+T*2.2,'#7FD0D2'],[Yf+T*2.2,Yf+T*6,'#4FB2C4'],[Yf+T*6,Yf+T*13,'#3A93B5'],[Yf+T*13,1e9,'#2F7AA3']];
+  const pita=(ax,bx)=>{if(bx<=ax)return;L.forEach(([ya,yb,c])=>{const a=Math.max(ya,Y0-1),b=Math.min(yb,Y1+1);if(b>a){ctx.fillStyle=c;ctx.fillRect(ax,a,bx-ax,b-a)}})};
+  const W0=desaBangun().wc,x0=W0.x-W0.rx*1.22+T,x1=Math.max(W0.x+W0.rx*1.22,(NK.DT.bx1+1)*S*T+T*24)-T,y0=W0.y-W0.ry*1.22+T,y1=W0.y+W0.ry*1.5-T; // tumpang 1 petak di bawah gambar cadangan → tanpa garis tipis di sambungan
+  pita(X0-1,Math.min(x0,X1+1));pita(Math.max(x1,X0-1),X1+1);const cx0=Math.max(x0-T,X0-1),cx1=Math.min(x1+T,X1+1);
+  if(Y0<y0&&cx1>cx0){ctx.fillStyle='#2F5E3A';ctx.fillRect(cx0,Y0-1,cx1-cx0,y0-Y0+1)}if(Y1>y1&&cx1>cx0){ctx.fillStyle='#2F7AA3';ctx.fillRect(cx0,y1,cx1-cx0,Y1-y1+1)}}
 // mode Hemat saat zoom dekat: lapisan desa (+ Desa Baru) digambar sekali ke kanvas seluas layar + tepi, lalu tinggal digeser saat peta digeser.
 // Saat zoom berubah, gambar lama diperbesar/diperkecil dulu, digambar ulang setelah zoom berhenti (perangkat lemah tidak tersendat).
 let VC=null,VCZ={z:0,t:0};
@@ -5077,15 +5083,15 @@ function desaPandang(v,t){const z=v.z,now=performance.now(),VX0=-v.ox/z,VY0=-v.o
 window.__desaPandangOn=v=>v.z>.375&&!window.__NO_HCACHE&&(window.__GFX==='hemat'||(window.__GFX==='seimbang'&&window.__GERAK));
 function drawDesaC(v,t){if(!STQA)return;const z=v.z;if(window.__desaPandangOn(v)){desaPandang(v,t);return}if(z>.375||window.__NO_HCACHE){drawDesa(v,t);return}
   // kotak cadangan tetap = seluruh dunia desa (elips + hutan tepi + laut selatan), tidak ikut batas geser kamera → layar lebar (tablet) tetap pakai cadangan
-  const W0=desaBangun().wc,KD=.2,x0=W0.x-W0.rx*1.22,x1=W0.x+W0.rx*1.22,y0=W0.y-W0.ry*1.22,y1=W0.y+W0.ry*1.5,VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z;
-  if(VX0<x0||VY0<y0||VX1>x1||VY1>y1){ctx.setTransform(z,0,0,z,v.ox,v.oy);ctx.fillStyle='#2F5E3A';if(VX0<x0)ctx.fillRect(VX0-1,VY0-1,x0-VX0+1,VY1-VY0+2);if(VX1>x1)ctx.fillRect(x1,VY0-1,VX1-x1+1,VY1-VY0+2);if(VY0<y0)ctx.fillRect(VX0-1,VY0-1,VX1-VX0+2,y0-VY0+1);if(VY1>y1){ctx.fillStyle='#2E6FA0';ctx.fillRect(VX0-1,y1,VX1-VX0+2,VY1-y1+1)}}
+  const W0=desaBangun().wc,KD=.2,x0=W0.x-W0.rx*1.22,x1=Math.max(W0.x+W0.rx*1.22,(NK.DT.bx1+1)*S*T+T*24),y0=W0.y-W0.ry*1.22,y1=W0.y+W0.ry*1.5,VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z;
+  if(VX0<x0||VY0<y0||VX1>x1||VY1>y1){ctx.setTransform(z,0,0,z,v.ox,v.oy);duniaLuar(VX0,VY0,VX1,VY1)}
   const key=(window.__HCV||0)+'|'+RES.length+'|'+Math.floor(Date.now()/(window.__GFX==='hemat'?120000:10000)); // hemat: jarang digambar ulang (tiap gambar ulang macet ±0,5 dtk di perangkat lemah)
   const rk=[x0,y0,x1,y1].map(Math.round).join(',');
   // kanvas cadangan selalu cocok dengan kotak dunianya (kotak bisa berubah saat batas geser diperluas) + dibatasi 4096 px biar aman di perangkat
-  if(!DC||DC.rk!==rk){const kd=Math.min(KD,4096/(x1-x0),4096/(y1-y0));DC={c:document.createElement('canvas'),key:'',rk,kd};DC.c.width=Math.ceil((x1-x0)*kd);DC.c.height=Math.ceil((y1-y0)*kd);DC.x=DC.c.getContext('2d')}
+  if(!DC||DC.rk!==rk){const kd=Math.min(KD,4096/(x1-x0),4096/(y1-y0));const pd=T*2;DC={c:document.createElement('canvas'),key:'',rk,kd,px:x0-pd,py:y0-pd};DC.c.width=Math.ceil((x1-x0+2*pd)*kd);DC.c.height=Math.ceil((y1-y0+2*pd)*kd);DC.x=DC.c.getContext('2d')}
   if(!DC.x){drawDesa(v,t);return}
-  if(DC.key!==key){let ok=true;const pcDC=ctx;ctx=DC.x;NK.use(DC.x);try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,DC.c.width,DC.c.height);drawDesa({W:DC.c.width,H:DC.c.height,z:DC.kd,ox:-x0*DC.kd,oy:-y0*DC.kd},t)}catch(e){ok=false;console.error(e)}finally{ctx=pcDC;NK.use(pcDC)}if(!ok){DC=null;drawDesa(v,t);return}DC.key=key}
-  ctx.setTransform(z,0,0,z,v.ox,v.oy);blitCrop(ctx,DC.c,x0,y0,x1,y1,VX0,VY0,VX1,VY1)}
+  if(DC.key!==key){let ok=true;const pcDC=ctx;ctx=DC.x;NK.use(DC.x);try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,DC.c.width,DC.c.height);drawDesa({W:DC.c.width,H:DC.c.height,z:DC.kd,ox:-DC.px*DC.kd,oy:-DC.py*DC.kd},t)}catch(e){ok=false;console.error(e)}finally{ctx=pcDC;NK.use(pcDC)}if(!ok){DC=null;drawDesa(v,t);return}DC.key=key}
+  ctx.setTransform(z,0,0,z,v.ox,v.oy);blitCrop(ctx,DC.c,DC.px,DC.py,DC.px+DC.c.width/DC.kd,DC.py+DC.c.height/DC.kd,Math.max(VX0,x0),Math.max(VY0,y0),Math.min(VX1,x1),Math.min(VY1,y1))}
 // ⚡ infrastruktur desa (gaya tampak atas, sedikit & diam → ringan): tower SUTET, kabel, gardu, menara air, tower BTS
 // 🏙️ infrastruktur tambahan (statis, digambar sekali ke kanvas cadangan saat zoom jauh → ringan): lampu jalan desa, halte angkot, pintu air irigasi, pos damkar, TPS & bank sampah, Pertamini
 function lampuTitik(x,y,hx,hy){const c=ctx;c.fillStyle='rgba(0,0,0,.22)';c.beginPath();c.ellipse(x+4,y+5,3,2.4,0,0,7);c.fill();c.strokeStyle='#55595D';c.lineWidth=2;c.beginPath();c.moveTo(x,y);c.lineTo(x+hx*9,y+hy*9);c.stroke();

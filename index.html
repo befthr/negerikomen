@@ -2464,14 +2464,14 @@ function frame(now){
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
     {const _t0=DBG?performance.now():0;ctx.setTransform(1,0,0,1,0,0);drawLabels(v,reduce?0:t);if(DBG){DBG.m.label=(DBG.m.label||0)*.9+(performance.now()-_t0)*.1;dbgTick(now)}}};
     // mode Hemat saat peta digeser/di-zoom: seluruh gambar peta (+ tepi) dibuat sekali, lalu cuma digeser → perangkat lemah tetap lancar
-    if(GFX==='hemat'&&window.__GESER&&!fly&&!PILIH&&!qOn&&!(sel&&sel.kind==='d')){let F=window.__FC;const mx=Math.round(v.W*.3),my=Math.round(v.H*.3);
+    if(GFX==='hemat'&&(window.__GESER||fly)&&!PILIH&&!qOn&&!(sel&&sel.kind==='d')){let F=window.__FC;const zm=F&&F.z!==z,mx=Math.round(v.W*(zm?.12:.3)),my=Math.round(v.H*(zm?.12:.3)); // saat zoom: tepi kecil biar gambar ulang cepat
       if(F&&F.z!==z){if(!F.zt||Math.abs(F.zl-z)>1e-6){F.zt=now;F.zl=z}}
-      const geser=F&&F.z===z&&F.W===v.W&&F.H===v.H&&Math.abs(v.ox-F.ox)<F.mx-2&&Math.abs(v.oy-F.oy)<F.my-2,skala=F&&F.z!==z&&F.W===v.W&&now-F.zt<250&&z/F.z>.8&&z/F.z<1.25;
+      const geser=F&&F.z===z&&F.W===v.W&&F.H===v.H&&Math.abs(v.ox-F.ox)<F.mx-2&&Math.abs(v.oy-F.oy)<F.my-2,skala=F&&F.z!==z&&F.W===v.W&&(now-F.zt<250||fly)&&z/F.z>.6&&z/F.z<1.7;
       if(geser){ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(F.c,Math.round(v.ox-F.ox-F.mx),Math.round(v.oy-F.oy-F.my))}
       else if(skala){const k=z/F.z;ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#2F5E3A';ctx.fillRect(0,0,v.W,v.H);ctx.drawImage(F.c,v.ox-(F.ox+F.mx)*k,v.oy-(F.oy+F.my)*k,F.c.width*k,F.c.height*k)}
       else{F=F||{c:document.createElement('canvas')};F.c.width=v.W+2*mx;F.c.height=v.H+2*my;const fv={W:F.c.width,H:F.c.height,z,ox:v.ox+mx,oy:v.oy+my},pc=ctx;ctx=F.c.getContext('2d');NK.use(ctx);try{gambar(fv)}finally{ctx=pc;NK.use(pc)}
         Object.assign(F,{z,W:v.W,H:v.H,ox:v.ox,oy:v.oy,mx,my,zt:0,zl:z});window.__FC=F;ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(F.c,-mx,-my)}}
-    else{if(window.__FC&&!window.__GESER)window.__FC.z=-1;gambar(v)}
+    else{if(window.__FC&&!window.__GESER&&!fly)window.__FC.z=-1;gambar(v)}
     dirty=false; // label pakai koordinat layar: reset transform (drawNaga dkk meninggalkan transform dunia)
   }
   if(reduce&&now-MALAM_T>60000){MALAM_T=now;dirty=true}

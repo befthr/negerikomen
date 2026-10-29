@@ -2581,7 +2581,7 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
       el('p',null,[r.nick,`Warga #${s.i+2}`,`pindah hari ke-${r.day||1}`,r.roof?'atap '+(/^#/.test(r.roof)?'ungu custom':r.roof):''].filter(Boolean).join(' · ')));left.append(r.lok?lokasiEksEl(r):lokasiEl(r.x,r.y));
     {const pk=perksOf(r);if(pk.length){const bd=el('div','badges perks');pk.forEach(t=>bd.append(perkEl(t)));left.append(bd)}}
     if(NK.jobOn(r)){const bd=el('div','badges');const t=el('i',null,'');t.append(helm(),document.createTextNode('Tukang Proyek'+(r.job.until?' · s/d '+new Date(r.job.until+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'')));bd.append(t);left.append(bd)}
-    {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}    if(r.custom&&r.custom.title){left.append(el('p','promo','🏆 Orang Kaya Baru: '+String(r.custom.title).slice(0,120)))}
+    {const aw=awardOf(r);if(aw){const bd=el('div','badges');aw.badges.forEach(b=>bd.append(el('i',null,'🏅 '+b)));left.append(bd)}}    // label promo lama 'Orang Kaya Baru' sudah dihapus (gelar & bendera emas tetap tampil lewat badge)
     {const L=(r.name==='lembarpeta'&&Array.isArray(r.links)?r.links:[]).filter(x=>x&&/^https:\/\/(www\.)?(instagram\.com|youtube\.com|youtu\.be|tiktok\.com)\//.test(String(x.u))).slice(0,4);
       if(L.length){const p=el('p','rlinks');p.append(document.createTextNode('🔗 '));L.forEach((x,k)=>{if(k)p.append(document.createTextNode(' · '));const a=el('a',null,String(x.t||'Link').slice(0,20));a.href=x.u;a.target='_blank';a.rel='noopener';p.append(a)});left.append(p)}}
     if(NK.shopOn(r,TODAY)){const sh=r.shop,src=safeImg(sh.img);

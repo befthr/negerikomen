@@ -2199,10 +2199,10 @@ BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama'
   {ic:'🎮',nm:'Rental playadalahmain',meta:'👑 Kepala desa · '+nRental+' karyawan',go:ke(()=>{const q=DESA.RT;return {x:q.x+q.w/2,y:q.y+q.h/2}})},
   {ic:'🤖',nm:'Hanggar GENTO',meta:'🤖 Rumah robot GENTO',go:ke(()=>{const g=DESA.GM;return {x:g.x+g.w/2,y:g.y+g.h/2}})}];
  // fasilitas umum desa (infrastruktur): ketuk → peta terbang ke sana lalu buka 3D
- const infGo=nm=>()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===nm);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}};
+ const infGo=nm=>()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===nm);if(!o)return;if(o.k==='lumbung'){flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(bukaPanen,1000);return}flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}};
  const INFL=[['⚡','Gardu Induk','⚡ Listrik desa','baru',NAMA_DESA],['🚒','Pos Damkar','🚒 Pemadam kebakaran','baru',NAMA_DESA],['🚌','Halte Angkot','🚌 Angkutan desa','baru',NAMA_DESA],['⛽','Pertamini','⛽ Bensin eceran','baru',NAMA_DESA],['🌾','Pintu Air Irigasi','🌾 Pengairan sawah','baru',NAMA_DESA],
    ['♻️','TPS & Bank Sampah','♻️ Kebersihan','lama',NAMA_DESA_LAMA],['⚡','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','lama',NAMA_DESA_LAMA],['💧','Menara Air Desa Awalkomen','💧 Air bersih','lama',NAMA_DESA_LAMA],
-   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['🚌','Halte Angkot Desa Baru','🚌 Angkutan desa','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']].concat(tvOn()?[['📺','Stasiun TVKN','📺 Televisi','baru',NAMA_DESA]]:[]);
+   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['🚌','Halte Angkot Desa Baru','🚌 Angkutan desa','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']].concat(tvOn()?[['📺','Stasiun TVKN','📺 Televisi','baru',NAMA_DESA]]:[]).concat(panenOn()?[['🌾','Lumbung Pak Tani','🌾 Mini game Panen Sawah','baru',NAMA_DESA]]:[]);
  {const L0=$('bList');INFL.slice().reverse().forEach(([ic,nm,meta,dk,lok])=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa=dk;li.dataset.q=(nm+' '+meta+' '+lok+' fasilitas umum').toLowerCase();
    bt.append(el('span','ico',ic),el('b',null,nm),el('span',null,meta+' · 🏛️ Fasilitas umum · 📍 '+lok));bt.onclick=infGo(nm);li.append(bt);L0.prepend(li)})}
  const nInfB=INFL.filter(q=>q[3]==='baru').length,nInfT=INFL.filter(q=>q[3]==='timur').length,nInfL=INFL.length-nInfB-nInfT;
@@ -2512,7 +2512,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){lepasSel();SND.play('pop',.8);bukaRental();return}}
   if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){lepasSel();SND.play('pop',.8);const ow=window.ROBOT_OWNER,k=ow?RES.findIndex(r=>String(r.name).toLowerCase()===ow):-1;if(k>=0){toast(gentoDiRumah()?'🤖 GENTO lagi di rumah @'+ow:'🤖 GENTO milik @'+ow+' lagi istirahat di hanggar');select({kind:'r',i:k});return}openDemoGento();return}}
   if(STQA&&DESA&&NAMA_DESA_OLEH){const g=DESA.gate;if(Math.abs(wxp-g.x)<T*6.8&&Math.abs(wyp-g.y)<T*2.5){const k=RES.findIndex(r=>String(r.name).toLowerCase()===NAMA_DESA_OLEH);if(k>=0){lepasSel();SND.play('pop',.8);toast('🏷️ '+NAMA_DESA+' — usulan @'+NAMA_DESA_OLEH);select({kind:'r',i:k});return}}}
-  if(STQA){const fo=infraKetuk(wxp,wyp);if(fo){lepasSel();SND.play('pop',.8);open3D(null,-1,{type:'infra_'+fo.k,infra:true,name:fo.name,label:fo.label,ket:fo.ket,day:11,by:'negerikomen'});return}}
+  if(STQA){const fo=infraKetuk(wxp,wyp);if(fo&&fo.k==='lumbung'){lepasSel();SND.play('pop',.8);bukaPanen();return}if(fo){lepasSel();SND.play('pop',.8);open3D(null,-1,{type:'infra_'+fo.k,infra:true,name:fo.name,label:fo.label,ket:fo.ket,day:11,by:'negerikomen'});return}}
   if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){lepasSel();SND.play('pop',.8);bukaLiga(LIGA_QA);return}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
   const ri=RES.findIndex(o=>o.x===tx&&o.y===ty);if(ri>=0)return select({kind:'r',i:ri});
@@ -5187,8 +5187,70 @@ function infraTV(x,y){const c=ctx,w=T*5.6,h=T*3.2,k=T; // studio TVKN + halaman 
   c.fillStyle='#DADFE3';c.beginPath();c.ellipse(vx-k*.25,vy-k*.08,k*.34,k*.26,0,0,7);c.fill();c.strokeStyle='#8A9096';c.lineWidth=1.5;c.stroke();
   c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='📺 TVKN · Stasiun TV';const tw=c.measureText(lbl).width+k*.5;c.fillRect(x-tw/2,y-h/2-k*.72,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-h/2-k*.44)}
 const D_TVPATH=()=>{const D=desaBangun();return D.OT.x+D.OT.w+T*.42};
+// 🌾 Lumbung Pak Tani + mini game Panen Sawah (gratis, 3x/hari, ranking harian, 20 besar dapat Receh). Buka 30 Okt 12.00 WIB (?panen=1 untuk uji)
+function panenOn(){return /[?&]panen=1/.test(location.search)||Date.now()>=Date.UTC(2026,9,30,5,0)}window.panenOn=panenOn;
+const LUMBUNG_POS=()=>{const S2=desaBangun().sawah;return {x:S2.x+T*8,y:S2.y+S2.rows*S2.h+T*3.2}};
+function infraLumbung(x,y){const c=ctx,k=T;
+  c.fillStyle='#C9A86A';c.beginPath();c.ellipse(x,y+k*.2,k*2.5,k*1.6,0,0,7);c.fill();
+  // saung bambu (atap rumbia)
+  const sx=x-k*.9,sy=y-k*.15,sw=k*2.2,sh=k*1.5;c.fillStyle='rgba(0,0,0,.2)';c.fillRect(sx-sw/2+5,sy-sh/2+6,sw,sh);
+  c.fillStyle='#C8A24A';c.fillRect(sx-sw/2,sy-sh/2,sw,sh);c.strokeStyle='#9C7A2C';c.lineWidth=2;for(let i=1;i<6;i++){c.beginPath();c.moveTo(sx-sw/2+i*sw/6,sy-sh/2);c.lineTo(sx-sw/2+i*sw/6,sy+sh/2);c.stroke()}
+  c.strokeStyle='#7A5A1E';c.lineWidth=3;c.beginPath();c.moveTo(sx-sw/2,sy);c.lineTo(sx+sw/2,sy);c.stroke();
+  // lumbung bulat
+  const lx=x+k*1.15,ly=y-k*.25;c.fillStyle='rgba(0,0,0,.22)';c.beginPath();c.arc(lx+5,ly+6,k*.85,0,7);c.fill();c.fillStyle='#B5652B';c.beginPath();c.arc(lx,ly,k*.85,0,7);c.fill();
+  c.strokeStyle='#8A4A1C';c.lineWidth=2;for(let i=0;i<10;i++){const a=i/10*6.283;c.beginPath();c.moveTo(lx,ly);c.lineTo(lx+Math.cos(a)*k*.85,ly+Math.sin(a)*k*.85);c.stroke()}c.fillStyle='#F2C230';c.beginPath();c.arc(lx,ly,k*.14,0,7);c.fill();
+  // karung gabah
+  c.fillStyle='#EADCB8';c.strokeStyle='#A8956A';c.lineWidth=1.5;[[-.2,1.0],[.25,1.05],[.7,1.0],[.25,.7]].forEach(([dx,dy])=>{const kx=x+dx*k,ky=y+dy*k;c.beginPath();c.ellipse(kx,ky,k*.26,k*.2,0,0,7);c.fill();c.stroke()});
+  c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='🌾 LUMBUNG PAK TANI · Panen Sawah';const tw=c.measureText(lbl).width+k*.5;c.textAlign='center';c.textBaseline='middle';c.fillRect(x-tw/2,y-k*1.95,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-k*1.67)}
+let PANEN_CSS=false;function panenCss(){if(PANEN_CSS)return;PANEN_CSS=true;const st=document.createElement('style');st.textContent=`
+.pn-rk{list-style:none;margin:8px 0 0;padding:0}.pn-rk li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;font-size:14px}.pn-rk li:nth-child(odd){background:#F6F1E3}.pn-rk li.me{outline:2px solid #F2C230;background:#FFF6D6}
+.pn-rk .n{width:26px;font-weight:800;text-align:center}.pn-rk .u{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pn-rk .v{font-weight:800}.pn-rk .h{font-size:12px;color:#8A6A10;min-width:54px;text-align:right}
+.pn-g{position:fixed;inset:0;z-index:130;background:#7FB069;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14px 12px;font-family:Poppins,'Noto Color Emoji',sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pn-hud{width:min(440px,100%);display:flex;justify-content:space-between;align-items:center;background:#1C2520;color:#F2C230;border-radius:14px;padding:8px 14px;font-weight:800;font-size:18px}
+.pn-grid{width:min(440px,100%);aspect-ratio:4/5;margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;background:#5E8F48;border-radius:16px;border:4px solid #1C2520;box-shadow:0 6px 0 #1C2520}
+.pn-p{position:relative;border-radius:10px;background:#8A6A44;border:3px solid #6E5232;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;overflow:hidden}
+.pn-p.h{background:#6FAE4A;border-color:#4E8A32}.pn-p.k{background:#E8C23A;border-color:#B8921A;animation:pnk .5s ease-in-out infinite alternate}.pn-p.e{background:#FFE27A;border-color:#E2A800;box-shadow:0 0 16px #FFE27A}.pn-p.b{background:#8A6A44}
+@keyframes pnk{from{transform:scale(1)}to{transform:scale(1.04)}}
+.pn-pop{position:absolute;font-weight:800;font-size:22px;color:#fff;-webkit-text-stroke:4px #1C2520;paint-order:stroke fill;pointer-events:none;animation:pnpop .7s ease-out forwards}@keyframes pnpop{to{transform:translateY(-34px);opacity:0}}
+.pn-big{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:96px;color:#fff;-webkit-text-stroke:12px #1C2520;paint-order:stroke fill;pointer-events:none;z-index:131}
+.pn-tip{width:min(440px,100%);margin-top:10px;text-align:center;color:#1C2520;font-weight:700;font-size:14px}`;document.head.append(st)}
+async function bukaPanen(){panenCss();const body=kkModal();body.append(el('p','kk-muted','Memuat Lumbung Pak Tani…'));
+  if(!panenOn()){body.innerHTML='';body.append(el('h3',null,'🌾 Lumbung Pak Tani'),el('p',null,'Lumbung lagi disiapin Pak Tani… Pantau terus kabarnya ya 👀'));return}
+  const k=kkGet(),j=k?await kkApi('panen-saya',{},true):await kkApi('panen-papan');body.innerHTML='';
+  body.append(el('h3',null,'🌾 Panen Sawah'),el('p',null,'Panen padi yang menguning sebelum dimakan burung pipit! 45 detik, gratis 3x sehari. Skor terbaikmu masuk ranking hari ini.'));
+  const hd=el('p','kk-note','🏆 Tiap tengah malam, 20 besar dapat Receh: juara 1 dapat 5, juara 2 dapat 3, juara 3 dapat 2, peringkat 4–20 dapat 1 Receh.');body.append(hd);
+  if(!j||j.ok===false){body.append(el('p','kk-msg err',(j&&j.error)||'Gagal memuat'));return}
+  const me=j.saya;if(k){const sisa=me?me.sisa:3;const b=kkBtn(sisa>0?`🌾 Main sekarang · sisa ${sisa}/3`:'Jatah hari ini habis · besok lagi ya','gold3',()=>panenMain());if(!(sisa>0))b.disabled=true;body.append(b);
+    if(me&&me.best!=null)body.append(el('p','kk-muted',`Skor terbaikmu hari ini: ${me.best} karung · peringkat ${me.rank}`))}
+  else body.append(el('p','kk-note','🔑 Ambil Kartu Komen dulu buat ikut main: cari namamu di kolom atas, ketuk 🔑 Kartu Komen.'));
+  const H=j.hadiah||[];body.append(el('b',null,'📊 Ranking hari ini'));const ul=el('ul','pn-rk');
+  if(!(j.top||[]).length)ul.append(el('li',null,'Belum ada yang panen hari ini. Jadi yang pertama!'));
+  (j.top||[]).forEach((o,i)=>{const li=el('li',k&&o.u===k.u?'me':'');li.append(el('span','n',['🥇','🥈','🥉'][i]||String(i+1)),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+(H[i]||0)+' Receh'));ul.append(li)});body.append(ul);
+  if((j.kemarin||[]).length){body.append(el('b',null,'👑 Juara kemarin'));const u2=el('ul','pn-rk');j.kemarin.slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+o.n+' Receh'));u2.append(li)});body.append(u2)}}
+window.bukaPanen=bukaPanen;
+async function panenMain(){const r=await kkApi('panen-mulai',{},true);if(!r.ok){toast(r.error||'Gagal mulai');return}kkTutup();panenCss();
+  const DUR=45,g=el('div','pn-g'),hud=el('div','pn-hud'),sk=el('span',null,'🌾 0'),wk=el('span',null,'⏱️ 45'),cb=el('span',null,'');hud.append(sk,cb,wk);
+  const grid=el('div','pn-grid'),tip=el('div','pn-tip','Ketuk padi KUNING 🌾 · jangan ketuk yang hijau · 🌟 padi emas = +5');g.append(hud,grid,tip);document.body.append(g);
+  const P=[...Array(20)].map((_,i)=>{const d=el('div','pn-p');d.dataset.i=i;grid.append(d);return {d,st:'',t:0,dl:0,emas:false}});
+  let skor=0,combo=0,t0=0,akhir=false;const big=t=>{const b=el('div','pn-big',t);document.body.append(b);setTimeout(()=>b.remove(),650)};
+  const pop=(p,t)=>{const s=el('span','pn-pop',t);p.d.append(s);setTimeout(()=>s.remove(),700)};
+  const set=(p,st,dl)=>{p.st=st;p.dl=dl;p.d.className='pn-p'+(st==='h'?' h':st==='k'?(p.emas?' e':' k'):st==='b'?' b':'');p.d.textContent=st==='h'?'🌱':st==='k'?(p.emas?'🌟':'🌾'):st==='b'?'🐦':''};
+  const ketuk=p=>{if(akhir||!t0)return;if(p.st==='k'){combo++;const n=(p.emas?5:1)+(combo>=10?1:0);skor+=n;pop(p,'+'+n);try{SND.play(p.emas?'ting':'pop',.5)}catch(_){}set(p,'',0)}
+    else if(p.st==='h'){combo=0;skor=Math.max(0,skor-1);pop(p,'-1');try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}}sk.textContent='🌾 '+skor;cb.textContent=combo>=5?'🔥 x'+combo:''};
+  P.forEach(p=>p.d.addEventListener('pointerdown',e=>{e.preventDefault();ketuk(p)}));
+  for(const n of ['3','2','1']){big(n);await new Promise(z=>setTimeout(z,700))}big('PANEN!');t0=performance.now();
+  await new Promise(done=>{let nextSpawn=0;const tick=()=>{const now=performance.now(),el2=(now-t0)/1000;if(el2>=DUR){done();return}
+      wk.textContent='⏱️ '+Math.ceil(DUR-el2);const lv=el2/DUR,gap=.75-.4*lv,matang=2.2-1.0*lv,tahan=1.9-.8*lv;
+      if(el2>=nextSpawn){const kos=P.filter(p=>!p.st);if(kos.length){const p=kos[Math.floor(Math.random()*kos.length)];p.emas=Math.random()<.07;set(p,'h',el2+matang*(0.8+Math.random()*.4))}nextSpawn=el2+gap*(0.7+Math.random()*.6)}
+      P.forEach(p=>{if(p.st&&el2>=p.dl){if(p.st==='h')set(p,'k',el2+tahan*(0.85+Math.random()*.3));else if(p.st==='k'){set(p,'b',el2+.45);combo=0;cb.textContent=''}else if(p.st==='b')set(p,'',0)}});
+      requestAnimationFrame(tick)};requestAnimationFrame(tick)});
+  akhir=true;big('SELESAI!');tip.textContent='Menyimpan skor…';const r2=await kkApi('panen-skor',{tok:r.tok,v:skor},true);
+  const box=el('div');box.style.cssText='position:fixed;inset:0;z-index:132;background:rgba(16,22,18,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+  const c=el('div');c.style.cssText='background:#fff;border:4px solid #1C2520;border-radius:20px;box-shadow:0 8px 0 #1C2520;padding:22px;max-width:340px;width:100%;text-align:center;font-family:Poppins,sans-serif';
+  c.append(el('div',null,'🌾'),el('h3',null,`${skor} karung gabah!`),el('p',null,r2.ok?`Skor terbaikmu hari ini: ${r2.best} · peringkat ${r2.rank}`:(r2.error||'Skor gagal disimpan')),el('p','kk-muted',`Sisa main hari ini: ${r.sisa}/3`));c.firstChild.style.fontSize='48px';
+  const ok=kkBtn('Lihat ranking','sm gold3',()=>{box.remove();g.remove();bukaPanen()});c.append(ok);box.append(c);document.body.append(box);try{SND.play('ting',.8)}catch(_){}}
 // 📋 daftar fasilitas desa (posisi tunggal untuk gambar, jalan akses, ketuk → 3D, dan pohon menyingkir)
-function infraDaftar(){if(window.__INFD&&window.__INFDtv===tvOn())return window.__INFD;window.__INFDtv=tvOn();window.__INFJ=null;const D=desaBangun(),L=[];const A=(k,nm,lb,ket,x,y,w,h,timur)=>L.push({k,name:nm,label:lb,ket,x,y,w,h,timur:!!timur});
+function infraDaftar(){const kunciI=tvOn()+'|'+panenOn();if(window.__INFD&&window.__INFDtv===kunciI)return window.__INFD;window.__INFDtv=kunciI;window.__INFJ=null;const D=desaBangun(),L=[];const A=(k,nm,lb,ket,x,y,w,h,timur)=>L.push({k,name:nm,label:lb,ket,x,y,w,h,timur:!!timur});
   A('gardu','Gardu Induk','⚡ Listrik desa','Pusat listrik semua desa. Kabel SUTET dari sini menyalakan rumah warga Desa Awalkomen, Desa Komen-Komen Sejahtera, sampai Desa Baru di balik terowongan.',3300,2350+T*2.2,T*4.4,T*3);
   A('gardu','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','Gardu kecil di ujung jalur SUTET, membagi listrik ke rumah-rumah di Desa Awalkomen.',2060,1650+T*2.6,T*4.4,T*3);
   A('damkar','Pos Damkar','🚒 Pemadam kebakaran','Pos pemadam kebakaran desa, lengkap dengan mobil damkar dan tandon air. Siaga 24 jam!',3300-T*6.5,2350+T*2.2,T*5.4,T*3.2);
@@ -5196,6 +5258,7 @@ function infraDaftar(){if(window.__INFD&&window.__INFDtv===tvOn())return window.
   A('pertamini','Pertamini','⛽ Bensin eceran','Kios bensin eceran di pinggir jalan desa. Isi dulu sebelum lewat terowongan!',D.OT.x-T*9.5,D.jalanY-T*1.7,T*1.7,T*1.2);
   A('halte','Halte Angkot','🚌 Angkutan desa','Tempat angkot ngetem. Angkot biru keliling Desa Awalkomen, Desa Komen-Komen Sejahtera, dan Desa Baru.',D.OT.x+T*3,D.jalanY+T*1.55,T*3.2,T*1.4);
   A('menara','Menara Air Desa Awalkomen','💧 Air bersih','Tandon air di atas menara: air dialirkan ke rumah-rumah warga pakai gaya gravitasi.',2080,-700,T*2.4,T*2.6);
+  if(panenOn()){const P=LUMBUNG_POS();A('lumbung','Lumbung Pak Tani','🌾 Mini game Panen Sawah','Lumbung padi di samping sawah terasering. Ketuk buat main Panen Sawah: gratis 3x sehari, 20 besar tiap hari dapat Receh!',P.x,P.y,T*5,T*3.6,0)}
   if(tvOn()){const P=TV_POS();A('tv','Stasiun TVKN','📺 Televisi','Stasiun TV Komen Nasional (TVKN). Dari studio inilah Mbak Tena siaran Breaking News Negeri Komen. Mobil liputan siaga di halaman, menara pemancarnya kelihatan dari jauh.',P.x,P.y+T*.6,T*5.8,T*5,0);A('tv','Menara Pemancar TVKN','📺 Televisi','Menara pemancar TV Komen Nasional. Lampu merah di puncaknya berkedip biar kelihatan pesawat.',P.mx,P.my,T*2.7,T*2.7,0)}
   {const S2=D.sawah,P=D.sungaiH[0],yy=S2.y+T*4.5;let rx=null;for(let k=0;k<P.length-1;k++){const a=P[k],b=P[k+1];if((a[1]-yy)*(b[1]-yy)<=0&&a[1]!==b[1]){rx=a[0]+(yy-a[1])/(b[1]-a[1])*(b[0]-a[0]);break}}
    if(rx)A('pintuair','Pintu Air Irigasi','🌾 Pengairan sawah','Pintu air mengatur aliran sungai ke saluran irigasi sawah terasering. Dibuka pagi, ditutup kalau sawah sudah cukup air.',rx-T*.2,yy,T*1.4,T*1.6)}
@@ -5430,7 +5493,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   {const g=[3300,2350];infraJalur([[2060,1650],[2300,2050],[2800,2300],g],1);infraJalur([g,[4000,2700],[4900,2780],[5650,2650],[6250,2500],[6620,2420]],1);infraGardu(g[0],g[1]+T*2.2,'⚡ GARDU INDUK');infraGardu(2060,1650+T*2.6,'');infraAir(2080,-700)}
   {const S2=D.sawah,sx=S2.x+S2.cols*S2.w,P=D.sungaiH[0];let rx=null;for(let k=0;k<P.length-1;k++){const a=P[k],b=P[k+1],yy=S2.y+T*4.5;if((a[1]-yy)*(b[1]-yy)<=0&&a[1]!==b[1]){rx=a[0]+(yy-a[1])/(b[1]-a[1])*(b[0]-a[0]);break}}
    if(rx&&rx>sx)infraPintuAir(rx-T*.2,S2.y+T*4.5,sx+T*.4,S2.y+S2.rows*S2.h-T*.4,S2.y+T*.6);
-   infraDamkar(3300-T*6.5,2350+T*2.2);infraTPS(D.K.x1+T*4.2,T*26,'♻️ TPS & BANK SAMPAH');infraPertamini(D.OT.x-T*9.5,D.jalanY-T*1.7);infraHalte(D.OT.x+T*3,D.jalanY+T*1.55);if(tvOn()){const P=TV_POS();infraMenaraTV(P.mx,P.my,t);infraTV(P.x,P.y)}lampuDesa(v,false)}
+   infraDamkar(3300-T*6.5,2350+T*2.2);infraTPS(D.K.x1+T*4.2,T*26,'♻️ TPS & BANK SAMPAH');infraPertamini(D.OT.x-T*9.5,D.jalanY-T*1.7);infraHalte(D.OT.x+T*3,D.jalanY+T*1.55);if(tvOn()){const P=TV_POS();infraMenaraTV(P.mx,P.my,t);infraTV(P.x,P.y)}if(panenOn()){const P=LUMBUNG_POS();infraLumbung(P.x,P.y)}lampuDesa(v,false)}
   // rumah desa baru
   D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang

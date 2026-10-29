@@ -358,13 +358,13 @@ async function panenBayar(pre) {
       const u = a[i], v = +a[i + 1], n = PANEN_HADIAH[i / 2]; J.push({ u, v, n });
       if (pre === 'panen:' && n > 0) cmds.push(['HINCRBY', 'saldo', u, n], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at: now, n, ket: '🌾 Juara ' + (i / 2 + 1) + ' Panen Sawah (' + tg + ')' })], ['LTRIM', 'saldo:log:' + u, 0, 49]);
     }
-    cmds.push(['SET', pre + 'juara:' + tg, JSON.stringify(J), 'EX', 30 * 864e2]);
+    cmds.push(['SET', pre + 'juara:' + tg, JSON.stringify(J), 'EX', 40 * 864e2]);
     await kvMany(cmds);
   }
 }
 async function panenPapan(pre, u, nh) {
   await panenBayar(pre); const tg = tglWIB(), kem = tglWIB(-1);
-  const HR = [...Array(Math.max(1, Math.min(14, +nh || 3)))].map((_, i) => tglWIB(-(i + 1))); // riwayat juara: 3 hari (Lumbung) s/d 14 hari (gedung Riwayat Para Gamer) — hemat perintah database
+  const HR = [...Array(Math.max(1, Math.min(30, +nh || 3)))].map((_, i) => tglWIB(-(i + 1))); // riwayat juara: 3 hari (Lumbung) s/d 30 hari (gedung Riwayat Para Gamer) — hemat perintah database
   const [a, jk, ...rw] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem], ...HR.map(d => ['GET', pre + 'juara:' + d])]);
   const top = []; for (let i = 0; a && i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1] });
   const riwayat = HR.map((d, i) => ({ tgl: d, juara: (jparse(rw[i]) || []).slice(0, 3) })).filter(x => x.juara.length);

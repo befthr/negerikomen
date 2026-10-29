@@ -2202,7 +2202,7 @@ BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama'
  const infGo=nm=>()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===nm);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}};
  const INFL=[['⚡','Gardu Induk','⚡ Listrik desa','baru',NAMA_DESA],['🚒','Pos Damkar','🚒 Pemadam kebakaran','baru',NAMA_DESA],['🚌','Halte Angkot','🚌 Angkutan desa','baru',NAMA_DESA],['⛽','Pertamini','⛽ Bensin eceran','baru',NAMA_DESA],['🌾','Pintu Air Irigasi','🌾 Pengairan sawah','baru',NAMA_DESA],
    ['♻️','TPS & Bank Sampah','♻️ Kebersihan','lama',NAMA_DESA_LAMA],['⚡','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','lama',NAMA_DESA_LAMA],['💧','Menara Air Desa Awalkomen','💧 Air bersih','lama',NAMA_DESA_LAMA],
-   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']];
+   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['🚌','Halte Angkot Desa Baru','🚌 Angkutan desa','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']];
  {const L0=$('bList');INFL.slice().reverse().forEach(([ic,nm,meta,dk,lok])=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa=dk;li.dataset.q=(nm+' '+meta+' '+lok+' fasilitas umum').toLowerCase();
    bt.append(el('span','ico',ic),el('b',null,nm),el('span',null,meta+' · 🏛️ Fasilitas umum · 📍 '+lok));bt.onclick=infGo(nm);li.append(bt);L0.prepend(li)})}
  const nInfB=INFL.filter(q=>q[3]==='baru').length,nInfT=INFL.filter(q=>q[3]==='timur').length,nInfL=INFL.length-nInfB-nInfT;
@@ -5021,7 +5021,7 @@ function drawDesaTimurRaw(v,t){if(!STQA)return;const z=v.z,G=desaTimurGeo(),VX0=
     [[1,1],[-1,1],[1,-1],[-1,-1]].forEach(([sx,sy])=>{const jh=hz(r,sx>0?c:c-1),jv=vt(c,sy>0?r:r-1);if(!jh||!jv)return;const j=RK[jh]>=RK[jv]?jh:jv,rr=T*(j==='besar'?.9:j==='aspal'?.75:.55);
      const bh=jh==='besar'?3:jh==='aspal'?1.5:1,bv=jv==='besar'?3:jv==='aspal'?1.5:1;
      if(lap===0)fil(X+sx*(JW[jv]/2+bv),Y+sy*(JW[jh]/2+bh),sx,sy,rr,JB[j]);else fil(X+sx*JW[jv]/2,Y+sy*JW[jh]/2,sx,sy,rr,JC[j])})}};
-  const ujung=G.brX?G.brX+T*5:G.x1+T*.56,ujungJ=lap=>[[G.pe,G.x0],[G.x1,ujung]].forEach(([a0,a1])=>{if(lap===0){ctx.fillStyle=JB.besar;ctx.fillRect(a0,G.jy-JW.besar/2-3,a1-a0,JW.besar+6)}else{ctx.fillStyle=JC.besar;ctx.fillRect(a0,G.jy-JW.besar/2,a1-a0,JW.besar)}});
+  const ujung=G.brX?G.brX+T*8.6:G.x1+T*.56,ujungJ=lap=>[[G.pe,G.x0],[G.x1,ujung]].forEach(([a0,a1])=>{if(lap===0){ctx.fillStyle=JB.besar;ctx.fillRect(a0,G.jy-JW.besar/2-3,a1-a0,JW.besar+6)}else{ctx.fillStyle=JC.besar;ctx.fillRect(a0,G.jy-JW.besar/2,a1-a0,JW.besar)}});
   ujungJ(0);SGJ.forEach(o=>segR(o,0));sudut(0);ujungJ(1);SGJ.forEach(o=>segR(o,1));sudut(1);SGJ.forEach(o=>segR(o,2));
   if(G.brX){const bx=G.brX,bw=T*2.6,bh=T*1.5;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(bx-bw/2+4,G.jy-bh/2+5,bw,bh);ctx.fillStyle='#8E5A3C';ctx.fillRect(bx-bw/2,G.jy-bh/2,bw,bh);ctx.fillStyle='#A9714A';for(let k=0;k<9;k++)ctx.fillRect(bx-bw/2+k*bw/9+1,G.jy-bh/2+2,bw/9-2,bh-4);
     ctx.fillStyle='#5A3A22';ctx.fillRect(bx-bw/2,G.jy-bh/2-4,bw,5);ctx.fillRect(bx-bw/2,G.jy+bh/2-1,bw,5);[-.5,-.17,.17,.5].forEach(f=>{ctx.fillRect(bx+f*bw-3,G.jy-bh/2-7,6,8);ctx.fillRect(bx+f*bw-3,G.jy+bh/2-1,6,8)});
@@ -5066,7 +5066,7 @@ function drawDesaTimurRaw(v,t){if(!STQA)return;const z=v.z,G=desaTimurGeo(),VX0=
   // ⚡ ujung jaringan listrik di Desa Baru + menara air + 📡 BTS di puncak Gunung Terowongan
   try{infraJalan(v,true)}catch(e){console.error(e)}
   {const gb=[G.x0-T*3,G.y1-T*1.5];infraJalur([[6620,2420],[gb[0]-T*4,gb[1]+T*1.5],gb],1);infraGardu(gb[0],gb[1]+T*2.4,'');infraAir(G.x0+SL*2.5,G.y0+SL*2.5);infraBTS(G.gx+T*.3,G.jy-G.gry*.42,t)}
-  infraTPS(G.x0-T*7.5,T*9,'♻️ TPS');lampuDesa(v,true);
+  infraTPS(G.x0-T*7.5,T*9,'♻️ TPS');infraHalte(G.brX?G.brX+T*4.8:G.x1+T*3,G.jy+T*1.55);lampuDesa(v,true);
   // pohon di sekeliling desa
   G.trees.forEach(o=>{if(o.x<VX0-T||o.x>VX1+T||o.y<VY0-T||o.y>VY1+T||infraDekat(o.x,o.y)||o.x<G.pe+T*1.5||(o.x<G.x0+T&&Math.abs(o.y-G.jy)<T*4.2)||(Math.abs(o.x-(G.x0-T*5))<T*5&&Math.abs(o.y-(G.y1))<T*4)||(G.brX&&Math.abs(o.y-G.jy)<T*2&&o.x>G.x1))return;const s2=o.s;ctx.fillStyle='rgba(0,0,0,.16)';ctx.beginPath();ctx.ellipse(o.x+T*.18,o.y+T*.22,T*.42*s2,T*.28*s2,0,0,7);ctx.fill();
     if(o.k){ctx.fillStyle='#2F6B3A';ctx.beginPath();ctx.moveTo(o.x,o.y-T*.7*s2);ctx.lineTo(o.x+T*.4*s2,o.y+T*.3*s2);ctx.lineTo(o.x-T*.4*s2,o.y+T*.3*s2);ctx.closePath();ctx.fill()}else{ctx.fillStyle='#3F8A3A';ctx.beginPath();ctx.arc(o.x,o.y,T*.46*s2,0,7);ctx.fill();ctx.fillStyle='#5BA84A';ctx.beginPath();ctx.arc(o.x-T*.12*s2,o.y-T*.12*s2,T*.24*s2,0,7);ctx.fill()}});
@@ -5111,10 +5111,10 @@ function lampuTitik(x,y,hx,hy){const c=ctx;c.fillStyle='rgba(0,0,0,.22)';c.begin
 function lampuDesaPos(){if(window.__LD)return window.__LD;const D=desaBangun(),Y=D.jalanY,L=[],cross=[];
   D.sungaiH.slice(0,2).forEach(P=>{for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];if((a[1]-Y)*(b[1]-Y)<=0&&a[1]!==b[1])cross.push(a[0]+(Y-a[1])/(b[1]-a[1])*(b[0]-a[0]))}});
   const bebas=x=>cross.every(c=>Math.abs(x-c)>T*2.6)&&Math.abs(x-D.gate.x)>T*5.5&&Math.abs(x-(D.OT.x+T*3))>T*2.2&&Math.abs(x-(D.OT.x-T*9.5))>T*1.8;
-  let k=0;for(let x=D.gate.x+T*8.5;x<(()=>{try{return desaTimurGeo().pw}catch(e){return D.jalanX1}})()-T*2.5;x+=T*4.2,k++){if(!bebas(x))continue;const sd=k%2?1:-1;L.push({x,y:Y+sd*(T*.56+7),hx:0,hy:-sd})}
+  let k=0;for(let x=D.gate.x+T*8.5;x<(()=>{try{return desaTimurGeo().pw}catch(e){return D.jalanX1}})()-T*2.5;x+=T*4.2,k++){if(!bebas(x))continue;L.push({x,y:Y-(T*.56+7),hx:0,hy:1})}
   try{const G=desaTimurGeo(),Q=NK.DT,SL=G.SL,cxB=Math.round((Q.bx0+Q.bx1+1)/2),off=T*.56+7;
-    for(let bx=Q.bx0;bx<=Q.bx1;bx++)[.25,.75].forEach((f,i)=>{const x=(bx+f)*SL,sd=i?1:-1;L.push({x,y:G.jy+sd*off,hx:0,hy:-sd})});
-    for(let by=Q.by0;by<=Q.by1;by++)[.25,.75].forEach((f,i)=>{const y=(by+f)*SL,sd=i?1:-1;if(Math.abs(y-G.jy)<T)return;L.push({x:cxB*SL+sd*off,y,hx:-sd,hy:0})});
+    for(let bx=Q.bx0;bx<=Q.bx1;bx++)[.25,.75].forEach(f=>{const x=(bx+f)*SL;L.push({x,y:G.jy-off,hx:0,hy:1})});
+    for(let by=Q.by0;by<=Q.by1;by++)[.25,.75].forEach(f=>{const y=(by+f)*SL;if(Math.abs(y-G.jy)<T)return;L.push({x:cxB*SL-off,y,hx:1,hy:0})});
     for(let x=G.x1+T*2.5;x<(G.brX||G.x1+T*4)-T*2;x+=T*4)L.push({x,y:G.jy-off,hx:0,hy:1})}catch(e){}
   return window.__LD=L}
 function lampuDesa(v,timur){const VX0=-v.ox/v.z,VY0=-v.oy/v.z,VX1=(v.W-v.ox)/v.z,VY1=(v.H-v.oy)/v.z,W0=(NK.DT.bx0*S*T)-T*2;
@@ -5165,6 +5165,7 @@ function infraDaftar(){if(window.__INFD)return window.__INFD;const D=desaBangun(
    A('gardu','Gardu Listrik Desa Baru','⚡ Listrik desa','Ujung jalur SUTET yang menyeberangi pegunungan. Dari sini listrik dibagi ke Desa Baru.',G.x0-T*3,G.y1-T*1.5+T*2.4,T*4.4,T*3,1);
    A('menara','Menara Air Desa Baru','💧 Air bersih','Menara air Desa Baru, tandonnya diisi dari mata air di utara desa.',G.x0+SL*2.5,G.y0+SL*2.5,T*2.4,T*2.6,1);
    A('bts','Tower BTS','📡 Sinyal','Tower BTS di puncak Gunung Terowongan. Biar sinyal tetap kencang buat komen di @negerikomen 😄',G.gx+T*.3,G.jy-G.gry*.42,T*1.4,T*3,1);
+   A('halte','Halte Angkot Desa Baru','🚌 Angkutan desa','Halte di ujung jalan Desa Baru, akhir trayek angkot. Angkot biru putar balik di sini, lalu kembali lewat terowongan ke Desa Awalkomen.',(G.brX?G.brX+T*4.8:G.x1+T*3),G.jy+T*1.55,T*3.2,T*1.4,1);
    A('tps','TPS Desa Baru','♻️ Kebersihan','TPS kecil Desa Baru. Sampah diangkut truk tiap pagi.',G.x0-T*7.5,T*9,T*2.8,T*2.4,1)}catch(e){}
   return window.__INFD=L}
 // jalan akses aspal kecil untuk fasilitas yang perlu kendaraan (truk sampah, mobil damkar, mobil PLN)
@@ -5193,10 +5194,10 @@ function dalamTerowongan(x,y){try{const G=desaTimurGeo();return x>G.pw+T*.9&&x<G
 window.dalamTerowongan=dalamTerowongan;
 // 🚐 angkot biru bolak-balik kampung lama ⇄ Desa Baru lewat terowongan, berhenti di halte (lajur kiri, seperti di Indonesia)
 function drawAngkot(v,t){if(v.z<.1)return;const D=desaBangun(),Y=D.jalanY,ha=infraDaftar().find(o=>o.k==='halte');let G=null;try{G=desaTimurGeo()}catch(e){}
-  const xa=D.K.x1-T*6,xb=G?G.x0+G.SL*2.5:D.jalanX1,V=T*1.6,L=xb-xa,hx=ha?ha.x-T*.4:null,STOP=8,END=6,leg=L/V,cyc=2*leg+STOP+2*END;
+  const xa=D.K.x1-T*6,xb=G?(G.brX?G.brX+T*4.4:G.x1+T*2.6):D.jalanX1,V=T*1.6,L=xb-xa,hx=ha?ha.x-T*.4:null,STOP=8,END=6,leg=L/V,cyc=2*leg+STOP+2*END;
   const z=v.z,VX0=-v.ox/z,VX1=(v.W-v.ox)/z,VY0=-v.oy/z,VY1=(v.H-v.oy)/z;if(VY1<Y-T*2||VY0>Y+T*2)return;
   [0,.5].forEach((ph,n)=>{let u=((t||0)+ph*cyc+n*7)%cyc,x,dir;
-    if(u<leg){x=xa+u*V;dir=1}else if(u<leg+END){x=xb;dir=1}else{u-=leg+END;dir=-1;const th=(xb-hx)/V;
+    if(u<leg){x=xa+u*V;dir=1}else if(u<leg+END){x=xb;dir=-1}else{u-=leg+END;dir=-1;const th=(xb-hx)/V;
       if(hx==null){x=xb-Math.min(u,leg)*V}else if(u<th)x=xb-u*V;else if(u<th+STOP)x=hx;else x=Math.max(xa,hx-(u-th-STOP)*V)}
     if(dalamTerowongan(x,Y))return; // di dalam terowongan
     if(x<VX0-T*2||x>VX1+T*2)return;const yJ=G&&x>(G.pw+G.pe)/2?G.jy:Y,y=yJ+(dir>0?-T*.28:T*.28),aw=T*1.25,ah=T*.62,c=ctx;

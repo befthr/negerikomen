@@ -5188,7 +5188,7 @@ function infraTV(x,y){const c=ctx,w=T*5.6,h=T*3.2,k=T; // studio TVKN + halaman 
   c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='📺 TVKN · Stasiun TV';const tw=c.measureText(lbl).width+k*.5;c.fillRect(x-tw/2,y-h/2-k*.72,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-h/2-k*.44)}
 const D_TVPATH=()=>{const D=desaBangun();return D.OT.x+D.OT.w+T*.42};
 // 🌾 Lumbung Pak Tani + mini game Panen Sawah (gratis, 3x/hari, ranking harian, 20 besar dapat Receh). Buka 30 Okt 12.00 WIB (?panen=1 untuk uji)
-function panenOn(){return /[?&]panen=1/.test(location.search)||Date.now()>=Date.UTC(2026,9,30,5,0)}window.panenOn=panenOn;
+function panenOn(){return /[?&]panen(qa)?=1/.test(location.search)||Date.now()>=Date.UTC(2026,9,30,5,0)}window.panenOn=panenOn;
 const LUMBUNG_POS=()=>{const S2=desaBangun().sawah;return {x:S2.x+T*8,y:S2.y+S2.rows*S2.h+T*3.2}};
 function infraLumbung(x,y){const c=ctx,k=T;
   c.fillStyle='#C9A86A';c.beginPath();c.ellipse(x,y+k*.2,k*2.5,k*1.6,0,0,7);c.fill();
@@ -5216,7 +5216,7 @@ let PANEN_CSS=false;function panenCss(){if(PANEN_CSS)return;PANEN_CSS=true;const
 .pn-tip{width:min(440px,100%);margin-top:10px;text-align:center;color:#1C2520;font-weight:700;font-size:14px}`;document.head.append(st)}
 async function bukaPanen(){panenCss();const body=kkModal();body.append(el('p','kk-muted','Memuat Lumbung Pak Tani…'));
   if(!panenOn()){body.innerHTML='';body.append(el('h3',null,'🌾 Lumbung Pak Tani'),el('p',null,'Lumbung lagi disiapin Pak Tani… Pantau terus kabarnya ya 👀'));return}
-  const k=kkGet(),j=k?await kkApi('panen-saya',{},true):await kkApi('panen-papan');body.innerHTML='';
+  const k=kkGet(),QAp=/[?&]panenqa=1/.test(location.search),j=k?await kkApi('panen-saya',{qa:QAp},true):await kkApi('panen-papan'+(QAp?'&qa=1':''));body.innerHTML='';
   body.append(el('h3',null,'🌾 Panen Sawah'),el('p',null,'Panen padi yang menguning sebelum dimakan burung pipit! 45 detik, gratis 3x sehari. Skor terbaikmu masuk ranking hari ini.'));
   const hd=el('p','kk-note','🏆 Tiap tengah malam, 20 besar dapat Receh: juara 1 dapat 5, juara 2 dapat 3, juara 3 dapat 2, peringkat 4–20 dapat 1 Receh.');body.append(hd);
   if(!j||j.ok===false){body.append(el('p','kk-msg err',(j&&j.error)||'Gagal memuat'));return}
@@ -5228,7 +5228,7 @@ async function bukaPanen(){panenCss();const body=kkModal();body.append(el('p','k
   (j.top||[]).forEach((o,i)=>{const li=el('li',k&&o.u===k.u?'me':'');li.append(el('span','n',['🥇','🥈','🥉'][i]||String(i+1)),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+(H[i]||0)+' Receh'));ul.append(li)});body.append(ul);
   if((j.kemarin||[]).length){body.append(el('b',null,'👑 Juara kemarin'));const u2=el('ul','pn-rk');j.kemarin.slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+o.n+' Receh'));u2.append(li)});body.append(u2)}}
 window.bukaPanen=bukaPanen;
-async function panenMain(){const r=await kkApi('panen-mulai',{},true);if(!r.ok){toast(r.error||'Gagal mulai');return}kkTutup();panenCss();
+async function panenMain(){const QAp=/[?&]panenqa=1/.test(location.search),r=await kkApi('panen-mulai',{qa:QAp},true);if(!r.ok){toast(r.error||'Gagal mulai');return}kkTutup();panenCss();
   const DUR=45,g=el('div','pn-g'),hud=el('div','pn-hud'),sk=el('span',null,'🌾 0'),wk=el('span',null,'⏱️ 45'),cb=el('span',null,'');hud.append(sk,cb,wk);
   const grid=el('div','pn-grid'),tip=el('div','pn-tip','Ketuk padi KUNING 🌾 · jangan ketuk yang hijau · 🌟 padi emas = +5');g.append(hud,grid,tip);document.body.append(g);
   const P=[...Array(20)].map((_,i)=>{const d=el('div','pn-p');d.dataset.i=i;grid.append(d);return {d,st:'',t:0,dl:0,emas:false}});
@@ -5244,7 +5244,7 @@ async function panenMain(){const r=await kkApi('panen-mulai',{},true);if(!r.ok){
       if(el2>=nextSpawn){const kos=P.filter(p=>!p.st);if(kos.length){const p=kos[Math.floor(Math.random()*kos.length)];p.emas=Math.random()<.07;set(p,'h',el2+matang*(0.8+Math.random()*.4))}nextSpawn=el2+gap*(0.7+Math.random()*.6)}
       P.forEach(p=>{if(p.st&&el2>=p.dl){if(p.st==='h')set(p,'k',el2+tahan*(0.85+Math.random()*.3));else if(p.st==='k'){set(p,'b',el2+.45);combo=0;cb.textContent=''}else if(p.st==='b')set(p,'',0)}});
       requestAnimationFrame(tick)};requestAnimationFrame(tick)});
-  akhir=true;big('SELESAI!');tip.textContent='Menyimpan skor…';const r2=await kkApi('panen-skor',{tok:r.tok,v:skor},true);
+  akhir=true;big('SELESAI!');tip.textContent='Menyimpan skor…';const r2=await kkApi('panen-skor',{tok:r.tok,v:skor,qa:QAp},true);
   const box=el('div');box.style.cssText='position:fixed;inset:0;z-index:132;background:rgba(16,22,18,.6);display:flex;align-items:center;justify-content:center;padding:16px';
   const c=el('div');c.style.cssText='background:#fff;border:4px solid #1C2520;border-radius:20px;box-shadow:0 8px 0 #1C2520;padding:22px;max-width:340px;width:100%;text-align:center;font-family:Poppins,sans-serif';
   c.append(el('div',null,'🌾'),el('h3',null,`${skor} karung gabah!`),el('p',null,r2.ok?`Skor terbaikmu hari ini: ${r2.best} · peringkat ${r2.rank}`:(r2.error||'Skor gagal disimpan')),el('p','kk-muted',`Sisa main hari ini: ${r.sisa}/3`));c.firstChild.style.fontSize='48px';

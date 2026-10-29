@@ -798,16 +798,16 @@ export default async function handler(req, res) {
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       const L = Array.isArray(body.list) ? body.list.slice(0, 300) : []; if (!L.length) return res.status(400).json({ error: 'Daftar kosong' });
       DATA = null; const D = await dataKampung(req), pd = await pindahSemua();
-      const pakai = new Set((D.residents || []).map(r => r.x + ',' + r.y)); Object.values(pd).forEach(v => { if (v && !v.lok) pakai.add(v.x + ',' + v.y) });
+      const pakai = new Set((D.residents || []).map(r => r.x + ',' + r.y)); Object.values(pd).forEach(v => { if (v) pakai.add(v.x + ',' + v.y) });
       (D.buildings || []).forEach(b => { const w = b.w || 3; for (let i = 0; i < w; i++) for (let j = 0; j < w; j++) pakai.add((b.x + i) + ',' + (b.y + j)) });
       const ada = new Set((D.residents || []).map(r => String(r.name).toLowerCase())), ok = [], tolak = [], cmds = [];
       for (const o of L) { const u = cleanU(o && o.name);
         if (!okU(u)) { tolak.push({ u: String(o && o.name || ''), why: 'username tidak valid' }); continue }
         if (ada.has(u)) { tolak.push({ u, why: 'sudah jadi warga' }); continue }
         // beberapa calon kavling dari perangkat kades; ambil yang pertama masih kosong menurut server
-        const C = (Array.isArray(o.cand) && o.cand.length ? o.cand : [o]).slice(0, 40).map(p => [Math.round(+p.x), Math.round(+p.y)]), hit = C.find(([x, y]) => kavBaruOk(x, y) && !pakai.has(x + ',' + y));
+        const C = (Array.isArray(o.cand) && o.cand.length ? o.cand : [o]).slice(0, 40).map(p => [Math.round(+p.x), Math.round(+p.y)]), hit = C.find(([x, y]) => (kavBaruOk(x, y) || DKS.has(x + ',' + y)) && !pakai.has(x + ',' + y)); // kampung lama penuh → kavling Desa Komen-Komen Sejahtera
         if (!hit) { tolak.push({ u, why: 'kavling tidak tersedia' }); continue } const [x, y] = hit;
-        const r = { name: u, x, y, day: +D.day || 0, at: Date.now() }; const nk = String(o.nick || '').trim().slice(0, 24); if (nk) r.nick = nk;
+        const r = { name: u, x, y, day: +D.day || 0, at: Date.now() }; if (DKS.has(x + ',' + y)) r.lok = 'desa'; const nk = String(o.nick || '').trim().slice(0, 24); if (nk) r.nick = nk;
         if (WARNA_OK.includes(o.roof)) r.roof = o.roof; if (WARNA_OK.includes(o.wall)) r.wall = o.wall;
         ada.add(u); pakai.add(x + ',' + y); ok.push(u); cmds.push(['HSET', 'warga:baru', u, JSON.stringify(r)]) }
       if (cmds.length) await kvMany(cmds); DATA = null;

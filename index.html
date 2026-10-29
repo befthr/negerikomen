@@ -3709,11 +3709,13 @@ async function kkBuka(u){const body=kkModal();const k=kkGet();u=String(u||(k&&k.
   if(k&&k.u===u){body.append(el('p','kk-muted','Memuat kartu…'));const res=await kkApi('saya',null,true);if(!res.ok){body.innerHTML='';kkIntro(body,u,res.error);return}kkTampil(body,res.kartu);return}
   kkIntro(body,u,k&&k.u!==u?`Perangkat ini sedang memegang kartu @${k.u}. Kalau kamu ambil kartu @${u}, kartu itu diganti.`:null)}
 function kkIntro(body,u,note){body.innerHTML='';
+  // kunci yang sudah diambil tapi belum dicek (halaman sempat dimuat ulang saat buka Instagram) → langsung tampilkan lagi lengkap dengan tombol "Aku sudah komen"
+  try{const pk=JSON.parse(localStorage.getItem('nk-kunci')||'null');if(pk&&pk.u===u&&pk.frasa&&Date.now()<pk.sampai){kkKunci(body,u,pk);return}}catch(_){}
   body.append(el('h3',null,'🔑 Kartu Komen @'+u),el('p',null,'Kartu Komen membuktikan rumah ini milikmu. Dengan kartu, kamu bisa ganti rumah ke versi lamanya, ubah warna, pasang bendera emas atau item di pekarangan, dan ikut ranking mini game.'));
   if(note)body.append(el('p','kk-note',note));
   const ol=el('ol','kk-steps');['Tekan "Ambil kunci" di bawah','Komen kuncinya di postingan Kartu Komen (yang di-pin paling atas di profil @negerikomen)','Balik ke sini, tekan "Aku sudah komen"'].forEach(t=>ol.append(el('li',null,t)));
   body.append(ol,kkBtn('Ambil kunci','gold3',async e=>{e.target.disabled=true;const res=await kkApi('kunci',{u});e.target.disabled=false;if(!res.ok){toast(res.error);return}kkKunci(body,u,res)}))}
-function kkKunci(body,u,res){body.innerHTML='';
+function kkKunci(body,u,res){body.innerHTML='';try{localStorage.setItem('nk-kunci',JSON.stringify({u,frasa:res.frasa,sampai:res.sampai}))}catch(_){}
   body.append(el('h3',null,'Komen kunci ini'),el('p',null,'Komen kalimat ini dari akun @'+u+' di postingan Kartu Komen (di-pin di profil @negerikomen):'));
   const f=el('div','kk-frasa',res.frasa);f.onclick=()=>kkSalin(res.frasa);body.append(f);
   const mnt=Math.max(1,Math.round((res.sampai-Date.now())/60000));body.append(el('p','kk-muted',`Berlaku ${mnt} menit. 📌 Komen di postingan yang di-pin ya, biar pasti terbaca!`));
@@ -3722,8 +3724,8 @@ function kkKunci(body,u,res){body.innerHTML='';
   const msg=el('p','kk-msg');const cek=kkBtn('Aku sudah komen','gold3',async()=>{cek.disabled=true;msg.textContent='Mengecek komentar…';msg.className='kk-msg';
     const r2=await kkApi('cek',{u});cek.disabled=false;
     if(!r2.ok){msg.textContent=r2.error||'Belum ketemu';msg.className='kk-msg err';return}
-    kkSet({t:r2.token,u});try{SND.play('ting',.7)}catch(_){}kkTampil(body,r2.kartu,true);kkRefreshPanel()});
-  body.append(cek,msg)}
+    kkSet({t:r2.token,u});try{localStorage.removeItem('nk-kunci')}catch(_){}try{SND.play('ting',.7)}catch(_){}kkTampil(body,r2.kartu,true);kkRefreshPanel()});
+  const baru=kkBtn('↻ Ambil kunci baru','sm',()=>{try{localStorage.removeItem('nk-kunci')}catch(_){}kkIntro(body,u)});body.append(cek,msg,baru)}
 function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
   if(baru)body.append(el('h3',null,'Kartu Komen aktif! 🎉'));body.append(kkKartuEl(c));
   const i=kkResIdx(c.u);

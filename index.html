@@ -3620,7 +3620,7 @@ const QA9=(()=>{try{return new URLSearchParams(location.search).get('qa9')}catch
 const QS={saldo:30,tiket:{truk:0,heli:0},jedaSampai:0,pindahKu:null,rx:{},rxSudah:{}};
 function qaKasar(t){const K=['anjing','anjir','bangsat','bajingan','kontol','memek','ngentot','goblok','tolol','bego','tai','asu','babi','jancok','kampret','brengsek','bodoh','idiot','fuck','shit'];const n=String(t||'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4|@/g,'a').replace(/5/g,'s');const w=n.replace(/[^a-z\s]/g,' ').split(/\s+/).map(x=>x.replace(/(.)\1+/g,'$1'));const r=n.replace(/[^a-z]/g,'').replace(/(.)\1+/g,'$1');return w.some(x=>K.includes(x))||['anjing','kontol','memek','ngentot','bangsat','goblok'].some(k=>r.includes(k))}
 function qaKartu(){return {u:'lembarpeta',nick:'Lembar Peta (uji)',nomor:1320,hari:5,saldo:QS.saldo,tiket:{...QS.tiket},pindahJeda:Math.max(0,QS.jedaSampai-Date.now()),pindahKu:QS.pindahKu,items:{own:[],pajang:[]},pesan:{},bangunan:[],jatah:{total:3,terpakai:0,sisa:3},reset:new Date(Date.now()+7*864e5).toISOString(),admin:false,tingkat:1,versi:1,dipakai:0,kabarLamar:[],emas:false}}
-async function qa9Api(aksi,b){await new Promise(z=>setTimeout(z,250));const ok=x=>Object.assign({ok:true,kartu:qaKartu()},x||{}),no=(e,x)=>Object.assign({ok:false,error:e},x||{});
+async function qa9Api(aksi,b){if(aksi==='minta-warna'&&QA_WB){await new Promise(z=>setTimeout(z,300));return {ok:true,langsung:true,gratis:true,kartu:qaKartu()}}await new Promise(z=>setTimeout(z,250));const ok=x=>Object.assign({ok:true,kartu:qaKartu()},x||{}),no=(e,x)=>Object.assign({ok:false,error:e},x||{});
   if(aksi==='saya')return {ok:true,kartu:qaKartu()};
   if(aksi==='pindah-beli'){const h=PDH[b.jenis]&&PDH[b.jenis].h;if(!h)return no('Jenis tiket tidak dikenal');if(QS.tiket[b.jenis]>=1)return no('Kamu masih punya tiket. Pakai dulu buat pindah ya!');if(QS.saldo<h)return no('Recehan belum cukup. Butuh '+h+' Receh.');QS.saldo-=h;QS.tiket[b.jenis]++;if(b.jenis==='heli')QS.tiket.truk++;return ok()}
   if(aksi==='pindah'){const j=b.jenis;if(QS.tiket[j]<1)return no('Kamu belum punya tiket.');if(QS.jedaSampai>Date.now())return no('Kamu baru pindah. Bisa pindah lagi 7 hari lagi.');
@@ -3786,7 +3786,7 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
   const msg=el('p','kk-msg'),row=el('div','kk-row');
   {const gr=kkGratisWarna(c,i);if(gr)body.append(el('p','kk-note','🎁 Warga baru: ganti warna pertama GRATIS (berlaku 7 hari sejak rumahmu dibangun).'));
   row.append(kkGBtn('Lanjut · ',gr?'Gratis':'1 Receh','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R,n,...(NL>1?{atas:A}:{})},true);bt.disabled=false;
-      if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}if(res.langsung){try{SND.play('ting',.9)}catch(_){}toast('🎨 Warna rumahmu sudah diganti, gratis! 🎉');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1600);return}kkKode(body,{jenis:'warna',harga:1,...res})}))}
+      if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}if(res.langsung){try{SND.play('ting',.9)}catch(_){}toast('🎨 Warna rumahmu sudah diganti, gratis! 🎉');if(QA_WB){window.__QA_WB_PAKAI=1;try{const r=RES[i];r.wall=W;r.roof=R;delete r.style;window.__HCV=(window.__HCV||0)+1;dirty=true;kkTutup();select({kind:'r',i});scrollMap()}catch(_){kkTampil(body,res.kartu)}return}kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1600);return}kkKode(body,{jenis:'warna',harga:1,...res})}))}
   body.append(msg,row)}
 // popup Ya/Tidak sebelum konfirmasi/tolak pesanan
 const KLBL=h=>+h===7?'7 hari':+h===14?'2 pekan':'1 bulan';const KG=g=>+g>0?'💰 Gaji tetap '+g+' Receh/pekan':'🎁 Bonus bebas';const KGP=g=>+g>0?' · 💰 Gaji tetap '+g+' Receh/pekan':''; // tampilan warga: bonus bebas tidak disebut (biar tidak berharap)
@@ -4590,7 +4590,9 @@ function kkWargaAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'�
   w.append(ta,row,msg);body.append(w)}
 // warga baru (masuk mulai 29 Okt 2026 / Hari 11) dapat ganti warna pertama gratis selama 7 hari
 const GRATIS_MULAI=Date.UTC(2026,9,28,17,0);function wargaGratis(r){const at=+r.at||0,d=+r.day||0;if(at)return at>=GRATIS_MULAI&&Date.now()-at<7*864e5;return d>=11&&(D.day-d)<7}
-const kkGratisWarna=(c,i)=>c&&c.gratisWarna!=null?!!c.gratisWarna:wargaGratis(RES[i]||{}); // server tahu jatah gratis sudah dipakai atau belum
+// QA: ?qa9=1&wargabaru=1 → akun uji @lembarpeta dianggap warga baru (simulasi ganti warna gratis, tidak menyimpan apa pun)
+const QA_WB=!!(QA9&&/[?&]wargabaru=1/.test(location.search));if(QA_WB)setTimeout(()=>{try{kkBuka('lembarpeta')}catch(e){console.error(e)}},2500);
+const kkGratisWarna=(c,i)=>QA_WB?!window.__QA_WB_PAKAI:c&&c.gratisWarna!=null?!!c.gratisWarna:wargaGratis(RES[i]||{}); // server tahu jatah gratis sudah dipakai atau belum
 function wargaBaruTerapkan(L){if(!Array.isArray(L)||!L.length)return;let n=0;
   L.forEach(v=>{if(!v||!v.name||!Number.isFinite(+v.x)||!Number.isFinite(+v.y)||kkResIdx(v.name)>=0)return;const r={name:String(v.name),x:+v.x,y:+v.y,day:+v.day||D.day};if(v.at)r.at=+v.at;['nick','roof','wall'].forEach(k=>{if(v[k])r[k]=v[k]});
     RES.push(r);const i=RES.length-1;try{IDX.push({i,u:norm(r.name),n:norm(r.nick),t:''})}catch(e){}try{showNew.push({r,i})}catch(e){}n++});

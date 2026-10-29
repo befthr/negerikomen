@@ -381,6 +381,14 @@ export default async function handler(req, res) {
     if (aksi === 'panen-papan' && req.method === 'GET') { // 🌾 ranking Panen Sawah hari ini + juara kemarin (publik)
       return res.status(200).json(await panenPapan((req.query && req.query.qa) ? 'panenqa:' : 'panen:', null, req.query && req.query.hari));
     }
+    if (aksi === 'panen-hari' && req.method === 'GET') { // 🌾 ranking lengkap satu hari yang sudah lewat (maks 10 hari ke belakang; data ranking kedaluwarsa 10 hari)
+      const tg = String((req.query && req.query.tg) || ''), pre = (req.query && req.query.qa) ? 'panenqa:' : 'panen:';
+      const boleh = [...Array(10)].map((_, i) => tglWIB(-(i + 1)));
+      if (!boleh.includes(tg)) return res.status(400).json({ error: 'Ranking hari itu sudah tidak tersimpan' });
+      const a = await kv(['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES']) || [], top = [];
+      for (let i = 0; i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1], n: PANEN_HADIAH[i / 2] || 0 });
+      return res.status(200).json({ tgl: tg, top });
+    }
     // ranking konsol playadalahmain (publik): 10 besar tiap game. ?qa=1 = papan uji (terpisah dari papan asli)
     if (aksi === 'konsol-rank' && req.method === 'GET') {
       const pre = (req.query && req.query.qa) ? 'konsolqa:' : 'konsol:';

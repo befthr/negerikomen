@@ -2176,7 +2176,10 @@ function rankList(box,max){box.innerHTML='';const JI=juraganIdx();const L=supRan
     b.append(el('span','rkn'+(rank<=3?' rkt':''),MEDAL(rank)),rn,el('span','rc',g?fmt(g)+' Genteng':''));
     b.onclick=()=>{if(!$('v3').hidden)close3D();select({kind:'r',i});scrollMap()};li.append(b);box.append(li)});
   const more=Math.max(0,L.length-(max||99))+OTH;if(more){const li=el('li','roth');li.append(el('span','rkn','➕'),el('span','rn',`dan ${fmt(more)} warga lainnya`),(()=>{const sp=el('span','rc'),gi=el('img','kk-gico');gi.src='genteng.png';gi.alt='';sp.append(gi);return sp})());box.append(li)}return L.length+OTH}
-function jhFill(ol){ol.innerHTML='';const H=(D.juraganHistory||[]);const MO=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];const dt=x=>{const m=String(x).match(/(\d+)-(\d+)-(\d+)(?:[ T](\d+:\d+))?/);return m?`${+m[3]} ${MO[m[2]-1]}${m[4]?' '+m[4].replace(':','.'):''}`:x};
+// riwayat Juragan = data.js + pergantian yang dicatat otomatis server (juraganLog), urut lama → baru
+function jhGabung(){const H=(D.juraganHistory||[]).map(h=>Object.assign({},h));const L=(window.JUR_LOG||[]).slice().reverse();const wib=at=>new Date(+at+252e5).toISOString().slice(0,16);
+  L.forEach(e=>{const last=H[H.length-1];if(last&&last.u===e.u)return;if(last&&!last.to)last.to=wib(e.at);H.push({u:e.u,from:wib(e.at),g:e.g,note:e.dari?'nyalip @'+e.dari:''})});return H}
+function jhFill(ol){ol.innerHTML='';const H=jhGabung();const MO=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];const dt=x=>{const m=String(x).match(/(\d+)-(\d+)-(\d+)(?:[ T](\d+:\d+))?/);return m?`${+m[3]} ${MO[m[2]-1]}${m[4]?' '+m[4].replace(':','.'):''}`:x};
   H.forEach((h,k)=>{const li=el('li',h.to?null:'now');li.append(el('span','jn',h.to?`${k+1}.`:'👑'));const d=el('div');const a=el('a',null,'@'+h.u);a.href='#'+encodeURIComponent(h.u);a.onclick=e=>{e.preventDefault();const i=RES.findIndex(r=>r.name===h.u);if(i>=0){if(!$('v3').hidden)close3D();select({kind:'r',i});scrollMap()}};const gNow=!h.to?(()=>{const k=kkResIdx(h.u);return k>=0?(+RES[k].donor||h.g):h.g})():h.g;d.append(a,document.createTextNode(gNow?` · ${fmt(gNow)} Genteng`+(!h.to&&gNow!==h.g?` (naik dari ${fmt(h.g)})`:''):''));d.append(el('small',null,`📅 ${dt(h.from)} – ${h.to?dt(h.to):'sekarang'}${h.note?' · '+h.note:''}`));li.append(d);ol.append(li)});return H.length}
 function renderSups(){const box=$('supList');const tot=supRank().length;if(!tot){$('sups').hidden=true;return}$('sups').hidden=false;
   const all=rankList(box);$('supTitle').textContent=`Pendukung kampung (${fmt(all)})`;$('jhist').hidden=!jhFill($('jhList'))}
@@ -4817,8 +4820,8 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);
   Object.entries(j.jalan||{}).forEach(([u,v])=>{const i=kkResIdx(u);if(i>=0)RES[i].jalan=v});
-  Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
-  if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length)try{renderSups()}catch(e){}
+  window.JUR_LOG=j.juraganLog||[];Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
+  if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length||(j.juraganLog||[]).length)try{renderSups()}catch(e){}
   try{const jj=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(jj>=0)RES[jj].juragan=true;dirty=true}catch(e){} // pita Juragan ikut traktiran terbaru
   {const sg=(()=>{try{return JSON.stringify([j.ruko,j.tingkat,j.atas,j.item,j.jalan,j.pilihan,j.donasi,j.emas,j.robot,j.patromax,j.sorot])}catch(e){return Math.random()+''}})();if(sg!==window.__PSIG){window.__PSIG=sg;setTimeout(()=>{window.__HCV=(window.__HCV||0)+1},0)}} // hemat: gambar ulang cuma kalau datanya berubah  Object.entries(j.pilihan).forEach(([u,p])=>{const i=kkResIdx(u);if(i<0)return;const V=histOf(RES[i]);if(p.nv===V.length&&p.n<V.length-1)kkPakaiLokal(i,p.n)});
   if(sel)showResult(sel)}).catch(()=>{});

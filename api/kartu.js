@@ -415,8 +415,20 @@ export default async function handler(req, res) {
       for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
+      let juraganLog = [];
+      try { // 👑 catat otomatis tiap kali Juragan Genteng berganti (data.js + donasi live), biar Riwayat Juragan selalu terbarui
+        const DK = await dataKampung(req), tot = {};
+        (DK.residents || []).forEach(r => { const g = +r.donor || (r.sup ? 2 : 0); if (g) tot[r.name] = g });
+        Object.entries(donasi).forEach(([u, n]) => { if (n > 0) tot[u] = (tot[u] || 0) + n });
+        const L = Object.entries(tot).sort((x, y) => y[1] - x[1]);
+        juraganLog = ((await kv(['LRANGE', 'juragan:log', 0, 49])) || []).map(jparse).filter(Boolean);
+        if (L.length && L[0][1] >= 2 && !(L[1] && L[1][1] === L[0][1])) {
+          const H = DK.juraganHistory || [], akhir = juraganLog[0] ? juraganLog[0].u : (H.length ? H[H.length - 1].u : null);
+          if (akhir !== L[0][0]) { const e = { u: L[0][0], g: L[0][1], at: Date.now(), dari: akhir }; await kv(['LPUSH', 'juragan:log', JSON.stringify(e)]); juraganLog.unshift(e) }
+        }
+      } catch (e) { }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });

@@ -2432,7 +2432,7 @@ function patromaxGelap(v,t,n){const W=v.W,H=v.H,z=v.z,T=NK.T,PP=window.__PATRO||
     ctx.globalCompositeOperation='lighter';const r2=r*.55;g=ctx.createRadialGradient(x,y,0,x,y,r2);g.addColorStop(0,`rgba(255,214,120,${.5*n})`);g.addColorStop(.35,`rgba(255,200,100,${.2*n})`);g.addColorStop(1,'rgba(255,200,100,0)');ctx.fillStyle=g;ctx.fillRect(x-r2,y-r2,2*r2,2*r2)});ctx.restore()}
 // Lampu Sorot Langit: berkas cahaya ke langit + @username pemilik di awan (malam, atau saat dites)
 function sorotLangit(v,t,n){const SP=window.__SOROT||[];if(!SP.length)return;const k=Math.max(n,window.__SOROT_TES?1:0);if(k<=.05)return;const z=v.z,T=NK.T,dp=window.__CDPR||window.devicePixelRatio||1;ctx.save();ctx.setTransform(1,0,0,1,0,0);
-  SP.forEach(o=>{const x=v.ox+o.x*z,y=v.oy+o.y*z,Lw=T*10*z,L=Lw>y+60*dp?Lw:Math.max(150*dp,Math.min(Lw,y-34*dp)),sw=Math.sin(t*.5+o.sd)*.14,tx=x+Math.sin(sw)*L,ty=y-Math.cos(sw)*L;
+  SP.forEach(o=>{const aK=-.25+Math.sin(t*.5+o.sd)*.25,x=v.ox+(o.x+Math.sin(aK)*16*o.s)*z,y=v.oy+(o.y-Math.cos(aK)*16*o.s)*z,Lw=T*10*z,L=Lw>y+60*dp?Lw:Math.max(150*dp,Math.min(Lw,y-34*dp)),sw=aK,tx=x+Math.sin(sw)*L,ty=y-Math.cos(sw)*L;
     if(Math.max(x,tx)<-300*dp||Math.min(x,tx)>v.W+300*dp||Math.max(y,ty)<-120*dp||Math.min(y,ty)>v.H+120*dp)return;
     const nm='@'+o.r.name,fs=Math.round(17*dp);ctx.font=`800 ${fs}px Poppins,system-ui,sans-serif`;const tw=ctx.measureText(nm).width,rx=tw/2+26*dp,ry=fs*1.25;
     // berkas cahaya lembut: beberapa lapis trapesium (tepi memudar), terang di pangkal, pudar ke ujung

@@ -364,9 +364,11 @@ async function panenBayar(pre) {
 }
 async function panenPapan(pre, u) {
   await panenBayar(pre); const tg = tglWIB(), kem = tglWIB(-1);
-  const [a, jk] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem]]);
+  const HR = [...Array(14)].map((_, i) => tglWIB(-(i + 1))); // riwayat juara 14 hari terakhir
+  const [a, jk, ...rw] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem], ...HR.map(d => ['GET', pre + 'juara:' + d])]);
   const top = []; for (let i = 0; a && i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1] });
-  const out = { tgl: tg, top, kemarin: jparse(jk) || [], hadiah: PANEN_HADIAH, maks: PANEN_MAIN };
+  const riwayat = HR.map((d, i) => ({ tgl: d, juara: (jparse(rw[i]) || []).slice(0, 3) })).filter(x => x.juara.length);
+  const out = { tgl: tg, top, kemarin: jparse(jk) || [], riwayat, hadiah: PANEN_HADIAH, maks: PANEN_MAIN };
   if (u) { const [m, b, rk] = await kvMany([['GET', pre + 'main:' + tg + ':' + u], ['ZSCORE', pre + 'rank:' + tg, u], ['ZREVRANK', pre + 'rank:' + tg, u]]); out.saya = { main: +m || 0, sisa: pre === 'panenqa:' ? PANEN_MAIN : Math.max(0, PANEN_MAIN - (+m || 0)), best: b == null ? null : +b, rank: rk == null ? null : +rk + 1 } }
   return out;
 }

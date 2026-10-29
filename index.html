@@ -5214,7 +5214,8 @@ let PANEN_CSS=false;function panenCss(){if(PANEN_CSS)return;PANEN_CSS=true;const
 .pn-pop{position:absolute;font-weight:800;font-size:22px;color:#fff;-webkit-text-stroke:4px #1C2520;paint-order:stroke fill;pointer-events:none;animation:pnpop .7s ease-out forwards}@keyframes pnpop{to{transform:translateY(-34px);opacity:0}}
 .pn-big{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:96px;color:#fff;-webkit-text-stroke:12px #1C2520;paint-order:stroke fill;pointer-events:none;z-index:131}
 .pn-tip{width:min(440px,100%);margin-top:10px;text-align:center;color:#1C2520;font-weight:700;font-size:14px}`;document.head.append(st)}
-async function bukaPanen(){panenCss();const body=kkModal();body.append(el('p','kk-muted','Memuat Lumbung Pak Tani…'));
+async function bukaPanen(){panenCss();const body=kkModal();{const m=$('kk'),t0=Date.now();if(m)m.onclick=e=>{if(e.target===m&&Date.now()-t0>600)kkTutup()}} // ketukan peta jangan langsung menutup popup (klik susulan di perangkat sentuh)
+  body.append(el('p','kk-muted','Memuat Lumbung Pak Tani…'));
   if(!panenOn()){body.innerHTML='';body.append(el('h3',null,'🌾 Lumbung Pak Tani'),el('p',null,'Lumbung lagi disiapin Pak Tani… Pantau terus kabarnya ya 👀'));return}
   const k=kkGet(),QAp=/[?&]panenqa=1/.test(location.search),j=k?await kkApi('panen-saya',{qa:QAp},true):await kkApi('panen-papan'+(QAp?'&qa=1':''));body.innerHTML='';
   body.append(el('h3',null,'🌾 Panen Sawah'),el('p',null,'Panen padi yang menguning sebelum dimakan burung pipit! 45 detik, gratis 3x sehari. Skor terbaikmu masuk ranking hari ini.'));

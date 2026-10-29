@@ -260,7 +260,8 @@ async function infoKartu(D, u) {
   const lw = pl.length ? pl[pl.length - 2] || [] : [], plSeen = pl.length ? +pl[pl.length - 1] || 0 : 0;
   const pelamarOf = k => { const a = pl[k] || [], o = []; for (let i = 0; i + 1 < a.length; i += 2) { const v = jparse(a[i + 1]); if (v) o.push({ user: a[i], ...v }) } return o.sort((x, y) => x.at - y.at) };
   const bangunan = milik.map((b, k) => ({ buka: !!lw[k], pelamar: pelamarOf(k), seen: plSeen, key: bKey(b), name: b.name || 'Bangunan', type: b.type, roles: ROLE_B[b.type] || ROLE_DEF, maks: MAKS_STAF, staf: stafAktif(jparse(stv[k])), kontrak: hariK(lw[k]), gaji: gajiK(lw[k]), pilihanKontrak: KONTRAK_OK }));
-  return { u, bangunan, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
+  let gratisWarna = false; try { const rr = warga(D, u); if (rr) { const at = +rr.at || 0, hw = +rr.day || 0, MULAI = Date.UTC(2026, 9, 28, 17, 0); const baru = at ? (at >= MULAI && Date.now() - at < 7 * 864e5) : (hw >= 11 && (+D.day || 0) - hw < 7); gratisWarna = baru && !(+(await kv(['SISMEMBER', 'warna:gratis', u]))) } } catch (e) { }
+  return { u, gratisWarna, bangunan, nick: r && r.nick || null, nomor: r ? D.residents.indexOf(warga(D, u)) + 2 : null, hari: r ? (+r.day || 1) : null,
     versi: V.length, dipakai: pil ? pil.n : V.length - 1, jatah: { total: JATAH, terpakai: dipakai, sisa: Math.max(0, JATAH - dipakai) },
     reset: new Date(w0 + 7 * 864e5).toISOString(), admin: u === OWNER,
     emas: !!(r && r.sup) || !!em, ruko: jparse(rk), tingkat: Math.max(+(r && r.tingkat) || 1, +((jparse(tk) || {}).lantai) || 1), atas: (jparse(tk) || {}).atas || (r && r.atas) || null, items: kol && Array.isArray(kol.own) ? kol : { own: [], pajang: [] }, pesan,

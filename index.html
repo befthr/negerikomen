@@ -1796,7 +1796,7 @@ function drawWorld(v,w,t,o={}){ITEM_T=t||0;
   {const sd=new Set();for(let i=MBUL_POS.length-1;i>=0;i--){const u=MBUL_POS[i].r.name;if(sd.has(u))MBUL_POS.splice(i,1);else sd.add(u)}}
   const gambarMbul=o=>{const n=window.__MALAM_N||0,main=window.mbulMain?window.mbulMain():true,bulan=n>.5,S=o.s,c=ctx;let X=o.hx,Y=o.hy,ang=0,jalan=false;
     if(!bulan){const pv=window.__MBUL_PV,p=main?rideOf(pv?Object.assign({},o.r,{jalan:{id:'sepeda',at:pv-2000}}):o.r,{id:'sepeda'},4,t):null;if(p){X=p.x;Y=p.y;ang=p.ang;jalan=true}else{Y-=3*S}}
-    else{const tt=(t||0);if(main){X+=Math.cos(tt*.05+o.sd)*T*3.2;Y+=Math.sin(tt*.08+o.sd)*T*2-T*.4}else Y-=T*.45}
+    else{const tt=(t||0);if(main){X+=Math.cos(tt*.05+o.sd)*T*3.2;Y+=Math.sin(tt*.08+o.sd)*T*.8-T*2.8}else Y-=T*2.6}
     o.P={x:X,y:Y,bulan,jalan};
     {const TR=(window.__MBTR||(window.__MBTR={}));let tr=TR[o.r.name]||(TR[o.r.name]=[]);if(!jalan){tr.length=0}else{const L=tr[tr.length-1];if(!L||Math.hypot(L[0]-X,L[1]-Y)>2.2){tr.push([X,Y]);if(tr.length>140)tr.shift()}
       const nF=Math.min(6,Math.floor(tr.length/14)),tt=t||0; // warga & hewan sekitar ikut ngintil karena gemas (makin lama makin banyak, maks 6)

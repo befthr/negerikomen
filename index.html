@@ -2292,7 +2292,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
-  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true,true)}}
+  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);if(hs<20){ctx.save();ctx.globalAlpha=.88;tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'',false,true,false);ctx.restore()}else tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true,true)}} // dari jauh: chip kecil tanpa gelar, biar tidak menutupi rumah/MBULAN
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.short||b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});

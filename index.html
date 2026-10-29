@@ -2198,10 +2198,18 @@ BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama'
   {ic:'⚽',nm:'Stadion Desa',meta:'👑 Kepala desa · ⚽ Liga Dusun',go:()=>{bukaStadion()}},
   {ic:'🎮',nm:'Rental playadalahmain',meta:'👑 Kepala desa · '+nRental+' karyawan',go:ke(()=>{const q=DESA.RT;return {x:q.x+q.w/2,y:q.y+q.h/2}})},
   {ic:'🤖',nm:'Hanggar GENTO',meta:'🤖 Rumah robot GENTO',go:ke(()=>{const g=DESA.GM;return {x:g.x+g.w/2,y:g.y+g.h/2}})}];
+ // fasilitas umum desa (infrastruktur): ketuk → peta terbang ke sana lalu buka 3D
+ const infGo=nm=>()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===nm);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}};
+ const INFL=[['⚡','Gardu Induk','⚡ Listrik desa','baru',NAMA_DESA],['🚒','Pos Damkar','🚒 Pemadam kebakaran','baru',NAMA_DESA],['🚌','Halte Angkot','🚌 Angkutan desa','baru',NAMA_DESA],['⛽','Pertamini','⛽ Bensin eceran','baru',NAMA_DESA],['🌾','Pintu Air Irigasi','🌾 Pengairan sawah','baru',NAMA_DESA],
+   ['♻️','TPS & Bank Sampah','♻️ Kebersihan','lama',NAMA_DESA_LAMA],['⚡','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','lama',NAMA_DESA_LAMA],['💧','Menara Air Desa Awalkomen','💧 Air bersih','lama',NAMA_DESA_LAMA],
+   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','baru','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','baru','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','baru','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','baru','Desa Baru']];
+ {const L0=$('bList');INFL.slice().reverse().forEach(([ic,nm,meta,dk,lok])=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa=dk;li.dataset.q=(nm+' '+meta+' '+lok+' fasilitas umum').toLowerCase();
+   bt.append(el('span','ico',ic),el('b',null,nm),el('span',null,meta+' · 🏛️ Fasilitas umum · 📍 '+lok));bt.onclick=infGo(nm);li.append(bt);L0.prepend(li)})}
+ const nInfB=INFL.filter(q=>q[3]==='baru').length,nInfL=INFL.length-nInfB;
  const L=$('bList');BARU.slice().reverse().forEach(f=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa='baru';li.dataset.q=(f.nm+' '+f.meta+' '+NAMA_DESA).toLowerCase();
    bt.append(el('span','ico',f.ic),el('b',null,f.nm),el('span',null,f.meta+' · 📍 '+NAMA_DESA));bt.onclick=f.go;li.append(bt);L.prepend(li)});
- $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length+BARU.length)})`;
- const tb=el('div','jtabs bdesa');window.B_DESA='semua';const N={semua:BLD.length+BARU.length,lama:BLD.length,baru:BARU.length};
+ $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length+BARU.length+INFL.length)})`;
+ const tb=el('div','jtabs bdesa');window.B_DESA='semua';const N={semua:BLD.length+BARU.length+INFL.length,lama:BLD.length+nInfL,baru:BARU.length+nInfB};
  [['semua','Semua'],['baru','🏞️ '+NAMA_DESA.replace(/^Desa /,'')],['lama','🏡 '+NAMA_DESA_LAMA.replace(/^Desa /,'')]].forEach(([k,t])=>{const b=el('button',k==='semua'?'on':'');b.type='button';b.dataset.k=k;b.append(t+' ',el('small',null,String(N[k])));b.onclick=()=>{window.B_DESA=k;tb.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));$('bSearch').oninput({target:$('bSearch')})};tb.append(b)});
  $('bSearch').before(tb)}
 $('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,''),dk=window.B_DESA||'semua';let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=(!q||li.dataset.q.includes(q))&&(dk==='semua'||li.dataset.desa===dk);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0;$('bList').closest('.bscroll').scrollTop=0};

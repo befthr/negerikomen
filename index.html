@@ -4458,7 +4458,7 @@ function drawPindahan(v,t){if(!STQA)return;try{drawNagaTiang(v,t)}catch(e){}ctx.
     const end=o.at+o.dur*1000;if(now<end){const X=NK.wx(o.x),Y=NK.wx(o.y);ctx.strokeStyle='#C4502F';ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.strokeRect(X-T*.42,Y-T*.42,T*.84,T*.84);ctx.setLineDash([]);
       if(s&&s.fase!=='jemput'){const ax=NK.wx(o.dari.x),ay=NK.wx(o.dari.y);ctx.fillStyle='rgba(120,100,80,.35)';ctx.fillRect(ax-T*.36,ay-T*.3,T*.72,T*.6);ctx.strokeStyle='rgba(60,50,40,.6)';ctx.setLineDash([4,4]);ctx.strokeRect(ax-T*.36,ay-T*.3,T*.72,T*.6);ctx.setLineDash([])}
       else if(r){/* rumah masih di tempat lama sampai dijemput */NK.drawHouse(r,1,1)}}
-    if(!s)return;if(o.via==='truk'){if(window.dalamTerowongan&&dalamTerowongan(s.x,s.y))return;ctx.save();if(Math.abs(s.y)<T*3)klipTerowongan(ctx);pdhTruk(s.x,s.y,s.ang,s.bawa,r,t||0);ctx.restore();TRK=1}else HL.push([s,r])});
+    if(!s)return;if(o.via==='truk'){if(window.dalamTerowongan&&dalamTerowongan(s.x,s.y))return;ctx.save();if(Math.abs(s.y)<T*3){klipTerowongan(ctx);try{klipGerbang(ctx,D,desaTimurGeo())}catch(e){}}pdhTruk(s.x,s.y,s.ang,s.bawa,r,t||0);ctx.restore();TRK=1}else HL.push([s,r])});
   if(TRK)try{gerbangPapan(D)}catch(e){} // truk lewat di bawah papan gerbang
   // volume suara ikut jarak kendaraan ke tengah layar
   if(SND.on){let vt=0,vh=0;const zf=Math.min(1,v.z*1.4);Object.entries(window.PINDAH).forEach(([u,o])=>{if(Date.now()>o.at+o.dur*1000)return;const s=pdhStatus(u,o,now);if(!s)return;const d=Math.hypot(s.x-cam.cx,s.y-cam.cy)*v.z,k=Math.max(0,1-d/520)*zf;if(o.via==='truk')vt=Math.max(vt,k);else vh=Math.max(vh,k*(.35+.65*(s.lift||0)))});try{SND.kend(vt,vh)}catch(e){}}
@@ -5088,12 +5088,12 @@ function desaPandang(v,t){const z=v.z,now=performance.now(),VX0=-v.ox/z,VY0=-v.o
     const vv={W,H,z,ox:-x0*z,oy:-y0*z};let ok=true;const pcVC=ctx;ctx=VC.x;NK.use(VC.x);try{ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);drawDesa(vv,t);try{drawDesaTimurRaw(vv,t)}catch(e){console.error(e)}}catch(e){ok=false;console.error(e)}finally{ctx=pcVC;NK.use(pcVC)}
     if(!ok){VC=null;drawDesa(v,t);return}Object.assign(VC,{x0,y0,x1:x0+W/z,y1:y0+H/z,z,key})}
   ctx.setTransform(1,0,0,1,0,0);{const dx=Math.round(v.ox+VC.x0*z),dy=Math.round(v.oy+VC.y0*z),sx=Math.max(0,-dx),sy=Math.max(0,-dy),sw=Math.min(VC.c.width-sx,v.W-dx-sx),sh=Math.min(VC.c.height-sy,v.H-dy-sy);if(sw>0&&sh>0)ctx.drawImage(VC.c,sx,sy,sw,sh,dx+sx,dy+sy,sw,sh)}}
-window.__desaPandangOn=v=>v.z>.375&&!window.__NO_HCACHE&&(window.__GFX==='hemat'||(window.__GFX==='seimbang'&&window.__GERAK));
+window.__desaPandangOn=v=>v.z>.375&&!window.__NO_HCACHE&&(window.__GFX==='hemat'||window.__GFX==='seimbang');
 function drawDesaC(v,t){if(!STQA)return;const z=v.z;if(window.__desaPandangOn(v)){desaPandang(v,t);return}if(z>.375||window.__NO_HCACHE){drawDesa(v,t);return}
   // kotak cadangan tetap = seluruh dunia desa (elips + hutan tepi + laut selatan), tidak ikut batas geser kamera → layar lebar (tablet) tetap pakai cadangan
   const W0=desaBangun().wc,KD=.2,x0=W0.x-W0.rx*1.22,x1=Math.max(W0.x+W0.rx*1.22,(NK.DT.bx1+1)*S*T+T*24),y0=W0.y-W0.ry*1.22,y1=W0.y+W0.ry*1.5,VX0=-v.ox/z,VY0=-v.oy/z,VX1=(v.W-v.ox)/z,VY1=(v.H-v.oy)/z;
   if(VX0<x0||VY0<y0||VX1>x1||VY1>y1){ctx.setTransform(z,0,0,z,v.ox,v.oy);duniaLuar(VX0,VY0,VX1,VY1)}
-  const key=(window.__HCV||0)+'|'+RES.length+'|'+Math.floor(Date.now()/(window.__GFX==='hemat'?120000:10000)); // hemat: jarang digambar ulang (tiap gambar ulang macet ±0,5 dtk di perangkat lemah)
+  const key=(window.__HCV||0)+'|'+RES.length+'|'+Math.floor(Date.now()/120000); // hemat: jarang digambar ulang (tiap gambar ulang macet ±0,5 dtk di perangkat lemah)
   const rk=[x0,y0,x1,y1].map(Math.round).join(',');
   // kanvas cadangan selalu cocok dengan kotak dunianya (kotak bisa berubah saat batas geser diperluas) + dibatasi 4096 px biar aman di perangkat
   if(!DC||DC.rk!==rk){const kd=Math.min(KD,4096/(x1-x0),4096/(y1-y0));const pd=T*2;DC={c:document.createElement('canvas'),key:'',rk,kd,px:x0-pd,py:y0-pd};DC.c.width=Math.ceil((x1-x0+2*pd)*kd);DC.c.height=Math.ceil((y1-y0+2*pd)*kd);DC.x=DC.c.getContext('2d')}
@@ -5180,6 +5180,9 @@ function infraDekat(x,y){const I=infraDaftar();if(I.some(o=>Math.abs(x-o.x)<o.w/
   const ds=(a,b)=>{const vx=b[0]-a[0],vy=b[1]-a[1],l=vx*vx+vy*vy||1;let u=((x-a[0])*vx+(y-a[1])*vy)/l;u=Math.max(0,Math.min(1,u));return Math.hypot(x-a[0]-u*vx,y-a[1]-u*vy)};
   return infraJalanRute().some(P=>P.some((p,i)=>P[i+1]&&ds(p,P[i+1])<T*1.1))}
 function infraKetuk(wx,wy){return infraDaftar().find(o=>Math.abs(wx-o.x)<o.w/2+T*.4&&Math.abs(wy-o.y)<o.h/2+T*.4)}
+// papan gerbang melintang di atas jalan: kendaraan lewat DI BAWAH papan (bagian yang tertutup papan tidak digambar)
+function klipGerbang(c,D,G){const R=[[D.gate.x,D.gate.y,T*6.9,T*2.5],[D.K.x1-T*2.4,D.jalanY,T*2.7,T*2.7]];if(G)R.push([G.x0-T*3.2,G.jy,T*2.7,T*2.7]);
+  c.beginPath();c.rect(-1e6,-1e6,2e7,2e6);R.forEach(([x,y,hw,hh])=>c.rect(x-hw,y-hh,hw*2,hh*2+T*.35));c.clip('evenodd')}
 // kendaraan di antara dua mulut terowongan tidak digambar (sedang di dalam gunung)
 // potong gambar kendaraan di garis portal: bagian yang sudah masuk lorong tidak kelihatan
 function klipTerowongan(c){try{const G=desaTimurGeo();c.beginPath();c.rect(-1e6,-1e6,G.pw-T*.95+1e6,2e6);c.rect(G.pe+T*.95,-1e6,1e7,2e6);c.clip()}catch(e){}}
@@ -5193,9 +5196,8 @@ function drawAngkot(v,t){if(v.z<.1)return;const D=desaBangun(),Y=D.jalanY,ha=inf
     if(u<leg){x=xa+u*V;dir=1}else if(u<leg+END){x=xb;dir=1}else{u-=leg+END;dir=-1;const th=(xb-hx)/V;
       if(hx==null){x=xb-Math.min(u,leg)*V}else if(u<th)x=xb-u*V;else if(u<th+STOP)x=hx;else x=Math.max(xa,hx-(u-th-STOP)*V)}
     if(dalamTerowongan(x,Y))return; // di dalam terowongan
-    if(Math.abs(x-D.gate.x)<T*4.6||Math.abs(x-(D.K.x1-T*2.4))<T*2.9||(G&&Math.abs(x-(G.x0-T*3.2))<T*2.9))return; // lewat di bawah papan gerbang
     if(x<VX0-T*2||x>VX1+T*2)return;const yJ=G&&x>(G.pw+G.pe)/2?G.jy:Y,y=yJ+(dir>0?-T*.28:T*.28),aw=T*1.25,ah=T*.62,c=ctx;
-    c.save();c.setTransform(z,0,0,z,v.ox,v.oy);klipTerowongan(c);c.translate(x,y);if(dir<0)c.scale(-1,1);
+    c.save();c.setTransform(z,0,0,z,v.ox,v.oy);klipTerowongan(c);klipGerbang(c,D,G);c.translate(x,y);if(dir<0)c.scale(-1,1);
     c.fillStyle='rgba(0,0,0,.22)';c.fillRect(-aw/2+3,-ah/2+4,aw,ah);c.fillStyle='#3B7FD0';c.beginPath();c.roundRect(-aw/2,-ah/2,aw,ah,T*.12);c.fill();
     c.fillStyle='#BFE0FF';c.fillRect(aw/2-T*.3,-ah/2+T*.07,T*.2,ah-T*.14);c.fillStyle='#2E64A8';c.fillRect(-aw/2+T*.1,-ah/2+T*.1,aw-T*.5,ah-T*.2);c.fillStyle='#F2C230';c.fillRect(-aw/2+T*.14,-T*.04,aw-T*.58,T*.08);
     c.fillStyle='#FFF2B8';c.fillRect(aw/2-T*.06,-ah/2+T*.05,T*.06,T*.1);c.fillRect(aw/2-T*.06,ah/2-T*.15,T*.06,T*.1);c.restore()})}

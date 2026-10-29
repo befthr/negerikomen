@@ -367,7 +367,7 @@ async function panenPapan(pre, u) {
   const [a, jk] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem]]);
   const top = []; for (let i = 0; a && i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1] });
   const out = { tgl: tg, top, kemarin: jparse(jk) || [], hadiah: PANEN_HADIAH, maks: PANEN_MAIN };
-  if (u) { const [m, b, rk] = await kvMany([['GET', pre + 'main:' + tg + ':' + u], ['ZSCORE', pre + 'rank:' + tg, u], ['ZREVRANK', pre + 'rank:' + tg, u]]); out.saya = { main: +m || 0, sisa: Math.max(0, PANEN_MAIN - (+m || 0)), best: b == null ? null : +b, rank: rk == null ? null : +rk + 1 } }
+  if (u) { const [m, b, rk] = await kvMany([['GET', pre + 'main:' + tg + ':' + u], ['ZSCORE', pre + 'rank:' + tg, u], ['ZREVRANK', pre + 'rank:' + tg, u]]); out.saya = { main: +m || 0, sisa: pre === 'panenqa:' ? PANEN_MAIN : Math.max(0, PANEN_MAIN - (+m || 0)), best: b == null ? null : +b, rank: rk == null ? null : +rk + 1 } }
   return out;
 }
 export default async function handler(req, res) {
@@ -550,24 +550,27 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, penuh, setor, kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'panen-saya') { const qa = !!body.qa; if (qa && s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' }); return res.status(200).json(await panenPapan(qa ? 'panenqa:' : 'panen:', s.u)) }
-    if (aksi === 'panen-mulai') { // jatah 3x main per hari (WIB)
+    if (aksi === 'panen-mulai') { // jatah 3x main per hari (WIB) dihitung saat skor tersimpan, jadi gangguan sinyal / game gagal tampil tidak memakan jatah
       const qa = !!body.qa; if (qa && s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
       if (!qa && Date.now() < PANEN_BUKA) return res.status(400).json({ error: 'Lumbung Pak Tani buka 30 Oktober jam 12.00 WIB 🌾' });
       const pre = qa ? 'panenqa:' : 'panen:', tg = tglWIB(); await panenBayar(pre);
-      const k = pre + 'main:' + tg + ':' + s.u, n = await kv(['INCR', k]); if (n === 1) await kv(['EXPIRE', k, 2 * 864e2]);
-      if (n > PANEN_MAIN) { await kv(['DECR', k]); return res.status(400).json({ error: 'Jatah panen hari ini udah habis (3x). Besok main lagi ya! 🌾', sisa: 0 }) }
+      const [m0, mu0] = await kvMany([['GET', pre + 'main:' + tg + ':' + s.u], ['GET', pre + 'mulai:' + tg + ':' + s.u]]), main = +m0 || 0, mulai = +mu0 || 0;
+      if (!qa && main >= PANEN_MAIN) return res.status(400).json({ error: 'Jatah panen hari ini udah habis (3x). Besok main lagi ya! 🌾', sisa: 0 });
+      if (!qa && mulai >= PANEN_MAIN * 3) return res.status(400).json({ error: 'Kebanyakan mulai tanpa selesai hari ini. Besok main lagi ya 🙏', sisa: 0 });
       const tok = crypto.randomBytes(12).toString('base64url');
-      await kv(['SET', pre + 'sesi:' + tok, JSON.stringify({ u: s.u, at: Date.now(), tg }), 'EX', 600]);
-      return res.status(200).json({ ok: true, tok, sisa: PANEN_MAIN - n });
+      await kvMany([['INCR', pre + 'mulai:' + tg + ':' + s.u], ['EXPIRE', pre + 'mulai:' + tg + ':' + s.u, 2 * 864e2], ['SET', pre + 'sesi:' + tok, JSON.stringify({ u: s.u, at: Date.now(), tg }), 'EX', 600]]);
+      return res.status(200).json({ ok: true, tok, sisa: qa ? PANEN_MAIN : PANEN_MAIN - main });
     }
-    if (aksi === 'panen-skor') { // skor dicek: sesi valid, durasi main wajar, skor masuk akal
+    if (aksi === 'panen-skor') { // skor dicek: sesi valid, durasi main wajar, skor masuk akal; baru di sini jatah main terpakai
       const qa = !!body.qa, pre = qa ? 'panenqa:' : 'panen:', tok = String(body.tok || '').slice(0, 40), v = Math.floor(+body.v);
       const ss = jparse(await kv(['GET', pre + 'sesi:' + tok])); if (!ss || ss.u !== s.u) return res.status(400).json({ error: 'Sesi main tidak dikenal. Main lagi ya.' });
       await kv(['DEL', pre + 'sesi:' + tok]); const dur = Date.now() - ss.at;
       if (!(v >= 0 && v <= PANEN_MAX) || dur < 40000 || v > Math.ceil(dur / 1000) * 6) return res.status(400).json({ error: 'Skor tidak valid' });
+      const mk = pre + 'main:' + ss.tg + ':' + s.u, n = await kv(['INCR', mk]); if (n === 1) await kv(['EXPIRE', mk, 2 * 864e2]);
+      if (!qa && n > PANEN_MAIN) { await kv(['DECR', mk]); return res.status(400).json({ error: 'Jatah panen hari ini udah habis (3x). Skor ini tidak dihitung.' }) }
       const key = pre + 'rank:' + ss.tg; await kv(['ZADD', key, 'GT', String(v), s.u]); await kv(['EXPIRE', key, 10 * 864e2]);
       const [b, rk] = await kvMany([['ZSCORE', key, s.u], ['ZREVRANK', key, s.u]]);
-      return res.status(200).json({ ok: true, v, best: +b, rank: rk == null ? null : +rk + 1 });
+      return res.status(200).json({ ok: true, v, best: +b, rank: rk == null ? null : +rk + 1, sisa: qa ? PANEN_MAIN : Math.max(0, PANEN_MAIN - n) });
     }
     if (aksi === 'konsol-skor') { // simpan skor pemilik konsol (skor tertinggi saja); QA hanya kades, ke papan uji
       const g = String(body.g || ''), v = Math.floor(+body.v), qa = !!body.qa;

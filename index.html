@@ -5221,7 +5221,7 @@ async function bukaPanen(){panenCss();const body=kkModal();{const m=$('kk'),t0=D
   body.append(el('h3',null,'🌾 Panen Sawah'),el('p',null,'Panen padi yang menguning sebelum dimakan burung pipit! 45 detik, gratis 3x sehari. Skor terbaikmu masuk ranking hari ini.'));
   const hd=el('p','kk-note','🏆 20 besar tiap hari dapat Receh: juara 1 dapat 5, juara 2 dapat 3, juara 3 dapat 2, peringkat 4–20 dapat 1 Receh.');body.append(hd);
   if(!j||j.ok===false){body.append(el('p','kk-msg err',(j&&j.error)||'Gagal memuat'));return}
-  const me=j.saya;if(k){const sisa=me?me.sisa:3;const b=kkBtn(sisa>0?`🌾 Main sekarang · sisa ${sisa}/3`:'Jatah hari ini habis · besok lagi ya','gold3',()=>panenMain());if(!(sisa>0))b.disabled=true;body.append(b);
+  const me=j.saya;if(k){const sisa=me?me.sisa:3;const pm=el('p','kk-msg'),lbl=sisa>0?`🌾 Main sekarang · sisa ${sisa}/3`:'Jatah hari ini habis · besok lagi ya',b=kkBtn(lbl,'gold3',async()=>{b.disabled=true;b.textContent='⏳ Menyiapkan sawah…';pm.textContent='';const er=await panenMain();if(er){b.disabled=false;b.textContent=lbl;pm.className='kk-msg err';pm.textContent=er}});if(!(sisa>0))b.disabled=true;body.append(b,pm);
     if(me&&me.best!=null)body.append(el('p','kk-muted',`Skor terbaikmu hari ini: ${me.best} karung · peringkat ${me.rank}`))}
   else body.append(el('p','kk-note','🔑 Ambil Kartu Komen dulu buat ikut main: cari namamu di kolom atas, ketuk 🔑 Kartu Komen.'));
   const H=j.hadiah||[];body.append(el('b',null,`📊 Ranking hari ini (${(j.top||[]).length} warga)`));
@@ -5231,7 +5231,7 @@ async function bukaPanen(){panenCss();const body=kkModal();{const m=$('kk'),t0=D
   (j.top||[]).forEach((o,i)=>{const li=el('li',k&&o.u===k.u?'me':'');li.append(el('span','n',['🥇','🥈','🥉'][i]||String(i+1)),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h',H[i]?'+'+H[i]+' Receh':''));ul.append(li)});body.append(ul);
   if((j.kemarin||[]).length){body.append(el('b',null,'👑 Juara kemarin'));const u2=el('ul','pn-rk');j.kemarin.slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+o.n+' Receh'));u2.append(li)});body.append(u2)}}
 window.bukaPanen=bukaPanen;
-async function panenMain(){const QAp=/[?&]panenqa=1/.test(location.search),r=await kkApi('panen-mulai',{qa:QAp},true);if(!r.ok){toast(r.error||'Gagal mulai');return}kkTutup();panenCss();
+async function panenMain(){const QAp=/[?&]panenqa=1/.test(location.search),r=await Promise.race([kkApi('panen-mulai',{qa:QAp},true),new Promise(z=>setTimeout(()=>z({ok:false,error:'Sinyal lagi lemot, coba ketuk lagi ya 🙏'}),15000))]);if(!r.ok)return r.error||'Gagal mulai, coba lagi ya';kkTutup();panenCss();
   const DUR=45,g=el('div','pn-g'),hud=el('div','pn-hud'),sk=el('span',null,'🌾 0'),wk=el('span',null,'⏱️ 45'),cb=el('span',null,'');hud.append(sk,cb,wk);
   const grid=el('div','pn-grid'),tip=el('div','pn-tip','Ketuk padi KUNING 🌾 · jangan ketuk yang hijau · 🌟 padi emas = +5');g.append(hud,grid,tip);document.body.append(g);
   const P=[...Array(20)].map((_,i)=>{const d=el('div','pn-p');d.dataset.i=i;grid.append(d);return {d,st:'',t:0,dl:0,emas:false}});
@@ -5250,7 +5250,7 @@ async function panenMain(){const QAp=/[?&]panenqa=1/.test(location.search),r=awa
   akhir=true;big('SELESAI!');tip.textContent='Menyimpan skor…';const r2=await kkApi('panen-skor',{tok:r.tok,v:skor,qa:QAp},true);
   const box=el('div');box.style.cssText='position:fixed;inset:0;z-index:132;background:rgba(16,22,18,.6);display:flex;align-items:center;justify-content:center;padding:16px';
   const c=el('div');c.style.cssText='background:#fff;border:4px solid #1C2520;border-radius:20px;box-shadow:0 8px 0 #1C2520;padding:22px;max-width:340px;width:100%;text-align:center;font-family:Poppins,sans-serif';
-  c.append(el('div',null,'🌾'),el('h3',null,`${skor} karung gabah!`),el('p',null,r2.ok?`Skor terbaikmu hari ini: ${r2.best} · peringkat ${r2.rank}`:(r2.error||'Skor gagal disimpan')),el('p','kk-muted',`Sisa main hari ini: ${r.sisa}/3`));c.firstChild.style.fontSize='48px';
+  c.append(el('div',null,'🌾'),el('h3',null,`${skor} karung gabah!`),el('p',null,r2.ok?`Skor terbaikmu hari ini: ${r2.best} · peringkat ${r2.rank}`:(r2.error||'Skor gagal disimpan')),el('p','kk-muted',`Sisa main hari ini: ${r2.ok&&r2.sisa!=null?r2.sisa:r.sisa}/3`));c.firstChild.style.fontSize='48px';
   const ok=kkBtn('Lihat ranking','sm gold3',()=>{box.remove();g.remove();bukaPanen()});c.append(ok);box.append(c);document.body.append(box);try{SND.play('ting',.8)}catch(_){}}
 // 📋 daftar fasilitas desa (posisi tunggal untuk gambar, jalan akses, ketuk → 3D, dan pohon menyingkir)
 function infraDaftar(){const kunciI=tvOn()+'|'+panenOn();if(window.__INFD&&window.__INFDtv===kunciI)return window.__INFD;window.__INFDtv=kunciI;window.__INFJ=null;const D=desaBangun(),L=[];const A=(k,nm,lb,ket,x,y,w,h,timur)=>L.push({k,name:nm,label:lb,ket,x,y,w,h,timur:!!timur});

@@ -348,7 +348,7 @@ async function cariKomen(u, frasa) {
 
 // 🌾 Panen Sawah: mini game gratis harian (Lumbung Pak Tani). 3x main/hari, skor terbaik masuk ranking harian (reset 00.00 WIB).
 // Hadiah otomatis untuk 20 besar kemarin, dibayar saat papan/ main pertama dibuka setelah ganti hari.
-const PANEN_BUKA = Date.UTC(2026, 9, 30, 5, 0), PANEN_MAIN = 3, PANEN_MAX = 260, PANEN_HADIAH = [5, 3, 2, ...Array(17).fill(1)];
+const PANEN_BUKA = Date.UTC(2026, 9, 30, 6, 0), PANEN_MAIN = 3, PANEN_MAX = 260, PANEN_HADIAH = [5, 3, 2, ...Array(17).fill(1)];
 async function panenBayar(pre) {
   for (let d = 3; d >= 1; d--) {
     const tg = tglWIB(-d);
@@ -552,7 +552,7 @@ export default async function handler(req, res) {
     if (aksi === 'panen-saya') { const qa = !!body.qa; if (qa && s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' }); return res.status(200).json(await panenPapan(qa ? 'panenqa:' : 'panen:', s.u)) }
     if (aksi === 'panen-mulai') { // jatah 3x main per hari (WIB) dihitung saat skor tersimpan, jadi gangguan sinyal / game gagal tampil tidak memakan jatah
       const qa = !!body.qa; if (qa && s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
-      if (!qa && Date.now() < PANEN_BUKA) return res.status(400).json({ error: 'Lumbung Pak Tani buka 30 Oktober jam 12.00 WIB 🌾' });
+      if (!qa && Date.now() < PANEN_BUKA) return res.status(400).json({ error: 'Lumbung Pak Tani buka 30 Oktober jam 13.00 WIB 🌾' });
       const pre = qa ? 'panenqa:' : 'panen:', tg = tglWIB(); await panenBayar(pre);
       const [m0, mu0] = await kvMany([['GET', pre + 'main:' + tg + ':' + s.u], ['GET', pre + 'mulai:' + tg + ':' + s.u]]), main = +m0 || 0, mulai = +mu0 || 0;
       if (!qa && main >= PANEN_MAIN) return res.status(400).json({ error: 'Jatah panen hari ini udah habis (3x). Besok main lagi ya! 🌾', sisa: 0 });

@@ -5190,8 +5190,8 @@ function infraTV(x,y){const c=ctx,w=T*5.6,h=T*3.2,k=T; // studio TVKN + halaman 
   c.fillStyle='#DADFE3';c.beginPath();c.ellipse(vx-k*.25,vy-k*.08,k*.34,k*.26,0,0,7);c.fill();c.strokeStyle='#8A9096';c.lineWidth=1.5;c.stroke();
   c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='📺 TVKN · Stasiun TV';const tw=c.measureText(lbl).width+k*.5;c.fillRect(x-tw/2,y-h/2-k*.72,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-h/2-k*.44)}
 const D_TVPATH=()=>{const D=desaBangun();return D.OT.x+D.OT.w+T*.42};
-// 🌾 Lumbung Pak Tani + mini game Panen Sawah (gratis, 3x/hari, ranking harian, 20 besar dapat Receh). Buka 30 Okt 12.00 WIB (?panen=1 untuk uji)
-function panenOn(){return /[?&]panen(qa)?=1/.test(location.search)||Date.now()>=Date.UTC(2026,9,30,5,0)}window.panenOn=panenOn;
+// 🌾 Lumbung Pak Tani + mini game Panen Sawah (gratis, 3x/hari, ranking harian, 20 besar dapat Receh). Buka 30 Okt 13.00 WIB, habis Jumatan (?panen=1 untuk uji)
+function panenOn(){return /[?&]panen(qa)?=1/.test(location.search)||Date.now()>=Date.UTC(2026,9,30,6,0)}window.panenOn=panenOn;
 const LUMBUNG_POS=()=>{const S2=desaBangun().sawah;return {x:S2.x+T*8,y:S2.y+S2.rows*S2.h+T*3.2}};
 function infraLumbung(x,y){const c=ctx,k=T;
   c.fillStyle='#C9A86A';c.beginPath();c.ellipse(x,y+k*.2,k*2.5,k*1.6,0,0,7);c.fill();

@@ -2402,7 +2402,7 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
   try{mbulBulan(v,t,n)}catch(e){console.error(e)}
   ctx.restore();return n>0}
 // dari jauh bulan MBULAN dibesarkan & diangkat di atas label nama pemilik (label ukurannya tetap di layar)
-function mbulKZ(z){return Math.max(1,Math.min(12,.6/z))}
+function mbulKZ(z){return Math.max(1,Math.min(2,.45/z))} // sedikit dibesarkan dari jauh, tapi tetap ikut mengecil seperti benda lain di peta
 function mbulAngkat(z,S){const d=window.__CDPR||window.devicePixelRatio||1;return Math.max(0,34*d/z+11*(S||.6)*3.4*mbulKZ(z)-NK.T*2.8)} // tepat di atas label nama pemilik, tidak kejauhan
 // MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
 function mbulLok(v){const L=window.__MBUL_LOK;if(!L||!L.length||!window.__GAMBAR_MBUL)return;const M=window.__MBUL||[];const ada=new Set(M.map(o=>o.r.name));const baru=L.filter(o=>!ada.has(o.r.name));if(!baru.length)return;M.push(...baru);ctx.save();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);window.__GAMBAR_MBUL(baru);ctx.restore()}

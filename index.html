@@ -5182,7 +5182,7 @@ function infraTV(x,y){const c=ctx,w=T*5.6,h=T*3.2,k=T; // studio TVKN + halaman 
   c.fillStyle='#C8102E';c.fillRect(vx-k*.85,vy+k*.12,k*1.7,k*.14);c.fillStyle='#7FB8E0';c.fillRect(vx+k*.5,vy-k*.36,k*.3,k*.72);
   c.fillStyle='#DADFE3';c.beginPath();c.ellipse(vx-k*.25,vy-k*.08,k*.34,k*.26,0,0,7);c.fill();c.strokeStyle='#8A9096';c.lineWidth=1.5;c.stroke();
   c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='📺 TVKN · Stasiun TV';const tw=c.measureText(lbl).width+k*.5;c.fillRect(x-tw/2,y-h/2-k*.72,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-h/2-k*.44)}
-const D_TVPATH=()=>{const D=desaBangun();return D.OT.x+D.OT.w+T*.05};
+const D_TVPATH=()=>{const D=desaBangun();return D.OT.x+D.OT.w+T*.42};
 // 📋 daftar fasilitas desa (posisi tunggal untuk gambar, jalan akses, ketuk → 3D, dan pohon menyingkir)
 function infraDaftar(){if(window.__INFD&&window.__INFDtv===tvOn())return window.__INFD;window.__INFDtv=tvOn();window.__INFJ=null;const D=desaBangun(),L=[];const A=(k,nm,lb,ket,x,y,w,h,timur)=>L.push({k,name:nm,label:lb,ket,x,y,w,h,timur:!!timur});
   A('gardu','Gardu Induk','⚡ Listrik desa','Pusat listrik semua desa. Kabel SUTET dari sini menyalakan rumah warga Desa Awalkomen, Desa Komen-Komen Sejahtera, sampai Desa Baru di balik terowongan.',3300,2350+T*2.2,T*4.4,T*3);

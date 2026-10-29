@@ -2279,7 +2279,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   const placed=[];const fits=r=>!placed.some(p=>r.x<p.x+p.w&&r.x+r.w>p.x&&r.y<p.y+p.h&&r.y+r.h>p.y);
   const measure=(name,sub,fs)=>{ctx.font=`700 ${fs}px Figtree`;let w=ctx.measureText(name).width;if(sub){ctx.font=`500 ${fs*.78}px Figtree`;w=Math.max(w,ctx.measureText(sub).width)}
     return {w:w+fs,h:(sub?fs*2.15:fs*1.45)+fs*.45}};
-  const tryTag=(x,y,name,sub,own,force,big)=>{if(x<-200||y<-60||x>cv.width+200||y>cv.height+200)return;const f=big?fs:fsS;if(!big&&hs<24)sub='';const m=measure(name,sub,f);
+  const tryTag=(x,y,name,sub,own,force,big)=>{if(x<-200||y<-60||x>cv.width+200||y>cv.height+200)return;const f=big?fs:fsS;if(!big&&hs<24&&sub!=='Juragan Genteng')sub='';const m=measure(name,sub,f);
     const r={x:x-m.w/2,y:y-m.h,w:m.w,h:m.h};if(!force&&!fits(r))return;placed.push(r);NK.tag(x,y,name,sub,f,true,own&&big,!big)};
   // terpilih
   if(sel&&sel.kind!=='d'&&!SETIR){const p=targetOf(sel),[sx,sy]=[v.ox+p.x*z,v.oy+p.y*z];
@@ -2292,7 +2292,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true,true)}}
   {const [sx,sy]=toS(NK.OWNER.x,NK.OWNER.y);if(!(sel&&sel.kind==='o'))tryTag(sx,lift(sy),'@negerikomen','Kepala desa',true,hs>9)}
-  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);if(hs<20){ctx.save();ctx.globalAlpha=.88;tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'',false,true,false);ctx.restore()}else tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true,true)}} // dari jauh: chip kecil tanpa gelar, biar tidak menutupi rumah/MBULAN
+  {const j=JUR;if(j>=0&&!(sel&&sel.kind==='r'&&sel.i===j)){const r=RES[j],[sx,sy]=toS(r.x,r.y);if(hs<20){ctx.save();ctx.globalAlpha=.88;tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',false,true,false);ctx.restore()}else tryTag(sx,lift(sy)-hs*.5*dpr,'👑 @'+r.name,'Juragan Genteng',true,true,true)}} // dari jauh: chip kecil (gelar tetap ada), biar tidak menutupi rumah/MBULAN
   if(hs>=14)BLD.forEach((b,i)=>{if(sel&&sel.kind==='b'&&sel.i===i)return;const w=b.w||3;const [sx,sy]=toS(b.x+(w-1)/2,b.y+(w-1)/2);
     tryTag(sx,sy-(w===1?hs*.4:hs*1.4)*dpr,b.short||b.name||'Bangunan','',false)});
   if(hs>=10&&hs<24)SHOPS.forEach(o=>{if(o.i<0)return;if(sel&&sel.kind==='r'&&sel.i===o.i)return;const [sx,sy]=toS(o.r.x,o.r.y);tryTag(sx,lift(sy),'🏪 '+o.r.shop.name,'',false)});
@@ -5668,7 +5668,8 @@ async function open3D(r,i,bd0){document.querySelectorAll('.v3skill').forEach(x=>
   const D0=dist;let ctrY=1.3,fitD=D0;
   const fit=()=>{const b=new T.Box3().setFromObject(g),h=Math.max(0,b.max.y);ctrY=Math.max(1.3,h*.45);
     fitD=Math.max(D0,Math.min(g.userData.raksasa?46:20,(h*.55+.9)/Math.tan(17.5*Math.PI/180)*1.08));dist=fitD};fit();const DMAX=g.userData.raksasa?50:20;if(g.userData.raksasa)Object.assign(sun.shadow.camera,{left:-12,right:12,top:20,bottom:-6}),sun.shadow.camera.updateProjectionMatrix();
-  const place=()=>{cam.position.set(Math.sin(yaw)*Math.cos(pitch)*dist,ctrY-.1+Math.sin(pitch)*dist,Math.cos(yaw)*Math.cos(pitch)*dist);cam.lookAt(0,ctrY,0)};
+  const yRumah=Math.min(ctrY,1.3+(Math.max(1,Math.min(3,+(r&&r.tingkat)||1))-1)*.9); // makin di-zoom, kamera makin turun ke rumah (GENTO tinggi tidak bikin rumah kepotong)
+  const place=()=>{const k=Math.max(0,Math.min(1,(dist-6)/Math.max(1,fitD-6))),cy=yRumah+(ctrY-yRumah)*k;cam.position.set(Math.sin(yaw)*Math.cos(pitch)*dist,cy-.1+Math.sin(pitch)*dist,Math.cos(yaw)*Math.cos(pitch)*dist);cam.lookAt(0,cy,0)};
   const size=()=>{const w=cv.clientWidth,h=cv.clientHeight;rd.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()};size();
   const pts=new Map();
   cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});auto=false;if(pts.size===2){const [a,b]=[...pts.values()];drag={d:Math.hypot(a.x-b.x,a.y-b.y),dist}}};

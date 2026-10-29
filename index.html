@@ -2299,7 +2299,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   {const RB=(window.__ROBOT||[]).find(o=>o.roam&&!(window.__SETIR&&window.__SETIR.u===o.u));} // label kecil, tidak menonjol; info pemilik muncul kalau GENTO diketuk
   if(NAGA_PT&&NAGA_PT.milik)tryTag(v.ox+NAGA_PT.x*z,v.oy+(NAGA_PT.y-T*1.1)*z-4*dpr,'🐉 NAGASARI','',false,false,false);
   // MBULAN: label gaya NAGASARI/GENTO (nama barang saja; pemilik muncul kalau diketuk). GENTO sudah punya label sendiri (digambar bareng sprite)
-  {const sd=new Set();(window.__MBUL||[]).forEach(o=>{const P=o.P;if(!P||!(P.jalan||P.bulan)||sd.has(o.r.name))return;sd.add(o.r.name);tryTag(v.ox+P.x*z,v.oy+(P.y-o.s*(P.bulan?50:26))*z-4*dpr,P.bulan?'🌙 MBULAN':'🐱 MBULAN','',false,false,false)})}
+  {const sd=new Set();(window.__MBUL||[]).forEach(o=>{const P=o.P;if(!P||!(P.jalan||P.bulan)||sd.has(o.r.name))return;sd.add(o.r.name);tryTag(v.ox+P.x*z,v.oy+(P.y-(P.bulan?(Math.max(1,Math.min(2.4,.6/z))-1)*NK.T*2.2+o.s*50*Math.max(1,Math.min(2.4,.6/z)):o.s*26))*z-4*dpr,P.bulan?'🌙 MBULAN':'🐱 MBULAN','',false,false,false)})}
   if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true,true);
     // 4 rumah terdekat di depan/belakang kendaraan tetap diberi nama, biar tahu lagi lewat rumah siapa
     RES.map(r=>({r,d:Math.hypot(NK.wx(r.x)-W_.x,NK.wx(r.y)-W_.y)})).filter(o=>o.d<T*6&&o.r.name!==W_.u).sort((a,b)=>a.d-b.d).slice(0,12).reduce((n,{r})=>{if(n>=4)return n;const p0=placed.length,[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy),'@'+r.name,'',false);return n+(placed.length>p0?1:0)},0)}
@@ -2401,10 +2401,12 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
   try{sorotLangit(v,t,n)}catch(e){}
   try{mbulBulan(v,t,n)}catch(e){console.error(e)}
   ctx.restore();return n>0}
+// MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
+function mbulLok(v){const L=window.__MBUL_LOK;if(!L||!L.length||!window.__GAMBAR_MBUL)return;const M=window.__MBUL||[];const ada=new Set(M.map(o=>o.r.name));const baru=L.filter(o=>!ada.has(o.r.name));if(!baru.length)return;M.push(...baru);ctx.save();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);window.__GAMBAR_MBUL(baru);ctx.restore()}
 function mbulBulan(v,t,n){const c=ctx,z=v.z,T=NK.T;(window.__MBUL||[]).forEach(o=>{if(!o.P||!o.P.bulan)return;const S=o.s,E=(x,y,a,b,f,rt)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,rt||0,0,7);c.fill()},L=(w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round'};
   c.save();c.setTransform(z,0,0,z,v.ox,v.oy);c.globalCompositeOperation='source-over';c.globalAlpha=1;
   {const pg=c.createRadialGradient(o.P.x,o.P.y+T*.5,0,o.P.x,o.P.y+T*.5,T*1.6);pg.addColorStop(0,`rgba(255,240,190,${.35*n})`);pg.addColorStop(1,'rgba(255,240,190,0)');c.fillStyle=pg;c.beginPath();c.ellipse(o.P.x,o.P.y+T*.5,T*1.6,T*1.1,0,0,7);c.fill()}
-  c.translate(o.P.x,o.P.y);c.scale(S*3.4,S*3.4);const g=c.createRadialGradient(0,0,0,0,0,30);g.addColorStop(0,'rgba(255,236,170,.7)');g.addColorStop(.5,'rgba(255,226,150,.22)');g.addColorStop(1,'rgba(255,226,150,0)');c.fillStyle=g;c.beginPath();c.arc(0,0,30,0,7);c.fill();
+  {const kz=Math.max(1,Math.min(2.4,.6/z));c.translate(o.P.x,o.P.y-(kz-1)*T*2.2);c.scale(S*3.4*kz,S*3.4*kz)}const g=c.createRadialGradient(0,0,0,0,0,30);g.addColorStop(0,'rgba(255,236,170,.7)');g.addColorStop(.5,'rgba(255,226,150,.22)');g.addColorStop(1,'rgba(255,226,150,0)');c.fillStyle=g;c.beginPath();c.arc(0,0,30,0,7);c.fill();
       const bb=Math.sin((t||0)*1.3+o.sd)*.8;c.translate(0,bb);c.fillStyle='#FFE9A8';c.strokeStyle='#E9C46A';c.lineWidth=1.2;[[-1,1],[1,-1]].forEach(([d])=>{c.beginPath();c.moveTo(d*4,-8);c.lineTo(d*8,-13.5);c.lineTo(d*9.5,-6);c.closePath();c.fill();c.stroke()});
       c.beginPath();c.arc(0,0,10,0,7);c.fill();c.stroke();E(5,-4,1.8,1.8,'#EBC46A');E(-5,5,1.4,1.4,'#EBC46A');E(4,6,1,1,'#EBC46A');
       L(1.1,'#8A5424');c.beginPath();c.arc(-4,-.5,1.8,.2,Math.PI-.2);c.stroke();c.beginPath();c.arc(4,-.5,1.8,.2,Math.PI-.2);c.stroke();E(-5.5,2.6,1.5,1,'#FFB09A');E(5.5,2.6,1.5,1,'#FFB09A');c.beginPath();c.arc(-1,2.6,1,0,Math.PI);c.arc(1,2.6,1,Math.PI,0,true);c.stroke();
@@ -2461,7 +2463,7 @@ function frame(now){
     try{BLD.forEach(b=>{if(!b.ikut)return;if(b._ox==null){b._ox=b.x;b._oy=b.y}const r=RES[kkResIdx(b.by)];if(r&&r.lok==='pantai'&&!r._tr){b.x=r.x+b.ikut[0];b.y=r.y+b.ikut[1];b._luar=1}else{b.x=b._ox;b.y=b._oy;b._luar=0}})}catch(e){}
     const gambar=v=>{
     {const _t0=DBG?performance.now():0;NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});if(DBG)DBG.m.dunia=(DBG.m.dunia||0)*.9+(performance.now()-_t0)*.1}
-    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);try{drawDesaTimur(v,reduce?0:t)}catch(e){console.error(e)}try{drawAngkot(v,reduce?0:t)}catch(e){console.error(e)}drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
+    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);try{mbulLok(v)}catch(e){console.error(e)}try{drawDesaTimur(v,reduce?0:t)}catch(e){console.error(e)}try{drawAngkot(v,reduce?0:t)}catch(e){console.error(e)}drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     {const _t0=DBG?performance.now():0;try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.langit=(DBG.m.langit||0)*.9+(performance.now()-_t0)*.1}
     {const _t0=DBG?performance.now():0;try{drawMalam(v,t)}catch(e){}if(DBG)DBG.m.malam=(DBG.m.malam||0)*.9+(performance.now()-_t0)*.1}
@@ -4463,7 +4465,7 @@ function gerbangPapan(D){
 }
 function drawPindahan(v,t){if(!STQA)return;try{drawNagaTiang(v,t)}catch(e){}ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);const now=Date.now(),D=desaBangun();try{drawMarkas(v,t)}catch(e){}try{drawMonumen(v,t)}catch(e){}
   // warga di kavling eksklusif (di luar grid kampung): fasilitas + rumah
-  {const RP=window.__ROBOT||[],n0=RP.length,MP=window.__MBUL||[],m0=MP.length;RES.forEach(r=>{if(!r.lok||r._tr)return;try{drawFasilitas(r,t||0)}catch(e){}NK.drawHouse(r,1,1)});if(RP.length>n0&&window.__GAMBAR_ROBOT)try{window.__GAMBAR_ROBOT(RP.slice(n0))}catch(e){}if(MP.length>m0&&window.__GAMBAR_MBUL)window.__GAMBAR_MBUL(MP.slice(m0))}
+  {const RP=window.__ROBOT||[],n0=RP.length,MP=window.__MBUL||[],m0=MP.length;RES.forEach(r=>{if(!r.lok||r._tr)return;try{drawFasilitas(r,t||0)}catch(e){}NK.drawHouse(r,1,1)});if(RP.length>n0&&window.__GAMBAR_ROBOT)try{window.__GAMBAR_ROBOT(RP.slice(n0))}catch(e){}window.__MBUL_LOK=MP.splice(m0)}
   // mode pilih kavling: kavling bebas menyala
   // perjalanan yang sedang berlangsung
   let TRK=0;const HL=[];Object.entries(window.PINDAH).forEach(([u,o])=>{const s=pdhStatus(u,o,now);const i=kkResIdx(u),r=i>=0?RES[i]:null;

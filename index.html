@@ -5203,7 +5203,7 @@ function infraLumbung(x,y){const c=ctx,k=T;
   c.fillStyle='#EADCB8';c.strokeStyle='#A8956A';c.lineWidth=1.5;[[-.2,1.0],[.25,1.05],[.7,1.0],[.25,.7]].forEach(([dx,dy])=>{const kx=x+dx*k,ky=y+dy*k;c.beginPath();c.ellipse(kx,ky,k*.26,k*.2,0,0,7);c.fill();c.stroke()});
   c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='🌾 LUMBUNG PAK TANI · Panen Sawah';const tw=c.measureText(lbl).width+k*.5;c.textAlign='center';c.textBaseline='middle';c.fillRect(x-tw/2,y-k*1.95,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-k*1.67)}
 let PANEN_CSS=false;function panenCss(){if(PANEN_CSS)return;PANEN_CSS=true;const st=document.createElement('style');st.textContent=`
-.pn-rk{list-style:none;margin:8px 0 0;padding:0}.pn-rk li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;font-size:14px}.pn-rk li:nth-child(odd){background:#F6F1E3}.pn-rk li.me{outline:2px solid #F2C230;background:#FFF6D6}
+.pn-rk{list-style:none;margin:8px 0 0;padding:0}.pn-rk.sc{max-height:208px;overflow-y:auto;overscroll-behavior:contain;border:2px solid #EFE6CC;border-radius:12px;padding:4px}.pn-rk li.pisah{justify-content:center;color:#8A6A10;font-size:12px;font-weight:700;background:none}.pn-rk li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;font-size:14px}.pn-rk li:nth-child(odd){background:#F6F1E3}.pn-rk li.me{outline:2px solid #F2C230;background:#FFF6D6}
 .pn-rk .n{width:26px;font-weight:800;text-align:center}.pn-rk .u{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pn-rk .v{font-weight:800}.pn-rk .h{font-size:12px;color:#8A6A10;min-width:54px;text-align:right}
 .pn-g{position:fixed;inset:0;z-index:130;background:#7FB069;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14px 12px;font-family:Poppins,'Noto Color Emoji',sans-serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .pn-hud{width:min(440px,100%);display:flex;justify-content:space-between;align-items:center;background:#1C2520;color:#F2C230;border-radius:14px;padding:8px 14px;font-weight:800;font-size:18px}
@@ -5219,14 +5219,16 @@ async function bukaPanen(){panenCss();const body=kkModal();{const m=$('kk'),t0=D
   if(!panenOn()){body.innerHTML='';body.append(el('h3',null,'🌾 Lumbung Pak Tani'),el('p',null,'Lumbung lagi disiapin Pak Tani… Pantau terus kabarnya ya 👀'));return}
   const k=kkGet(),QAp=/[?&]panenqa=1/.test(location.search),j=k?await kkApi('panen-saya',{qa:QAp},true):await kkApi('panen-papan'+(QAp?'&qa=1':''));body.innerHTML='';
   body.append(el('h3',null,'🌾 Panen Sawah'),el('p',null,'Panen padi yang menguning sebelum dimakan burung pipit! 45 detik, gratis 3x sehari. Skor terbaikmu masuk ranking hari ini.'));
-  const hd=el('p','kk-note','🏆 Tiap tengah malam, 20 besar dapat Receh: juara 1 dapat 5, juara 2 dapat 3, juara 3 dapat 2, peringkat 4–20 dapat 1 Receh.');body.append(hd);
+  const hd=el('p','kk-note','🏆 20 besar tiap hari dapat Receh: juara 1 dapat 5, juara 2 dapat 3, juara 3 dapat 2, peringkat 4–20 dapat 1 Receh.');body.append(hd);
   if(!j||j.ok===false){body.append(el('p','kk-msg err',(j&&j.error)||'Gagal memuat'));return}
   const me=j.saya;if(k){const sisa=me?me.sisa:3;const b=kkBtn(sisa>0?`🌾 Main sekarang · sisa ${sisa}/3`:'Jatah hari ini habis · besok lagi ya','gold3',()=>panenMain());if(!(sisa>0))b.disabled=true;body.append(b);
     if(me&&me.best!=null)body.append(el('p','kk-muted',`Skor terbaikmu hari ini: ${me.best} karung · peringkat ${me.rank}`))}
   else body.append(el('p','kk-note','🔑 Ambil Kartu Komen dulu buat ikut main: cari namamu di kolom atas, ketuk 🔑 Kartu Komen.'));
-  const H=j.hadiah||[];body.append(el('b',null,'📊 Ranking hari ini'));const ul=el('ul','pn-rk');
+  const H=j.hadiah||[];body.append(el('b',null,`📊 Ranking hari ini (${(j.top||[]).length} warga)`));
+  {const w=new Date(Date.now()+252e5),sisa=1440-(w.getUTCHours()*60+w.getUTCMinutes()),jj=Math.floor(sisa/60),mm=sisa%60;body.append(el('p','kk-note',`⏰ Poin ditutup jam 23.59 WIB (${jj?jj+' jam ':''}${mm} menit lagi). Pemenang diumumkan & Receh otomatis masuk setelah tengah malam, lalu ranking mulai dari nol.`))}
+  const ul=el('ul','pn-rk sc');
   if(!(j.top||[]).length)ul.append(el('li',null,'Belum ada yang panen hari ini. Jadi yang pertama!'));
-  (j.top||[]).forEach((o,i)=>{const li=el('li',k&&o.u===k.u?'me':'');li.append(el('span','n',['🥇','🥈','🥉'][i]||String(i+1)),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+(H[i]||0)+' Receh'));ul.append(li)});body.append(ul);
+  (j.top||[]).forEach((o,i)=>{const li=el('li',k&&o.u===k.u?'me':'');li.append(el('span','n',['🥇','🥈','🥉'][i]||String(i+1)),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h',H[i]?'+'+H[i]+' Receh':''));ul.append(li)});body.append(ul);
   if((j.kemarin||[]).length){body.append(el('b',null,'👑 Juara kemarin'));const u2=el('ul','pn-rk');j.kemarin.slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h','+'+o.n+' Receh'));u2.append(li)});body.append(u2)}}
 window.bukaPanen=bukaPanen;
 async function panenMain(){const QAp=/[?&]panenqa=1/.test(location.search),r=await kkApi('panen-mulai',{qa:QAp},true);if(!r.ok){toast(r.error||'Gagal mulai');return}kkTutup();panenCss();

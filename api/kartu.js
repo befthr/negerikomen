@@ -364,7 +364,7 @@ async function panenBayar(pre) {
 }
 async function panenPapan(pre, u) {
   await panenBayar(pre); const tg = tglWIB(), kem = tglWIB(-1);
-  const [a, jk] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 19, 'WITHSCORES'], ['GET', pre + 'juara:' + kem]]);
+  const [a, jk] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem]]);
   const top = []; for (let i = 0; a && i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1] });
   const out = { tgl: tg, top, kemarin: jparse(jk) || [], hadiah: PANEN_HADIAH, maks: PANEN_MAIN };
   if (u) { const [m, b, rk] = await kvMany([['GET', pre + 'main:' + tg + ':' + u], ['ZSCORE', pre + 'rank:' + tg, u], ['ZREVRANK', pre + 'rank:' + tg, u]]); out.saya = { main: +m || 0, sisa: Math.max(0, PANEN_MAIN - (+m || 0)), best: b == null ? null : +b, rank: rk == null ? null : +rk + 1 } }

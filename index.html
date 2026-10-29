@@ -2102,14 +2102,14 @@ const KEJUTAN=[
   {d:'2026-10-26',ic:'🏞️',q:'Kampung lama akhirnya punya nama…',n:'Gerbang Desa Awalkomen',buka:true},
   {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan',buka:!(window.NK_DATA&&window.NK_DATA.pindahan===false)},
   {d:'2026-10-28',ic:'🔍',q:'Pak Kades menyembunyikan sesuatu di peta…',n:'Harta Karun Harian',get buka(){return Date.now()>=Date.UTC(2026,9,28,12,0)}},
-  {d:'2026-10-29',ic:'📺',q:'Ada yang mau siaran…',n:'TV Komen Nasional'},
+  {d:'2026-10-29',ic:'📺',q:'Ada yang mau siaran…',n:'TV Komen Nasional · Breaking News Mbak Tena',get buka(){return tvOn()},go:'Stasiun TVKN'},
   {d:'2026-10-30',ic:'🎈',q:'Lihat ke langit malam nanti…',n:'Balon Genteng'},
   {d:'2026-10-31',ic:'🧺',q:'Kampung bakal makin rame…',n:'Pasar Senggol'}];
 function renderKejutan(){const box=$('kjtList');if(!box)return;box.innerHTML='';
   const H=['Min','Sen','Sel','Rab','Kam','Jum','Sab'],now=new Date(Date.now()+252e5),hari=now.toISOString().slice(0,10),menit=now.getUTCHours()*60+now.getUTCMinutes();
   KEJUTAN.forEach(k=>{const dt=new Date(k.d+'T00:00:00Z'),li=document.createElement('li'),kd=el('span','kd'),ki=el('span','ki'),kt=el('span','kt');
     kd.append(H[dt.getUTCDay()],el('b',null,String(dt.getUTCDate())));
-    if(k.buka){li.className='open';ki.textContent=k.ic;kt.append(el('small',null,'✅ UDAH BUKA'),el('b',null,k.n))}
+    if(k.buka){li.className='open';ki.textContent=k.ic;kt.append(el('small',null,'✅ UDAH BUKA'),el('b',null,k.n));if(k.go){li.style.cursor='pointer';li.onclick=()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===k.go);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}}}}
     else if(k.d===hari){li.className='today';ki.textContent=k.ic;const sisa=19*60-menit;
       kt.append(el('small',null,sisa>0?'🔓 DIBUKA MALAM INI 19.00'+(sisa<=180?' · '+(sisa>=60?Math.floor(sisa/60)+' jam ':'')+(sisa%60?sisa%60+' menit ':'')+'lagi':''):'🔓 SEBENTAR LAGI'),el('i',null,k.q))}
     else if(k.d<hari){li.className='lock';ki.textContent='⏳';kt.append(el('small',null,'SEBENTAR LAGI'),el('i',null,k.q))}
@@ -2202,7 +2202,7 @@ BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama'
  const infGo=nm=>()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===nm);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}};
  const INFL=[['⚡','Gardu Induk','⚡ Listrik desa','baru',NAMA_DESA],['🚒','Pos Damkar','🚒 Pemadam kebakaran','baru',NAMA_DESA],['🚌','Halte Angkot','🚌 Angkutan desa','baru',NAMA_DESA],['⛽','Pertamini','⛽ Bensin eceran','baru',NAMA_DESA],['🌾','Pintu Air Irigasi','🌾 Pengairan sawah','baru',NAMA_DESA],
    ['♻️','TPS & Bank Sampah','♻️ Kebersihan','lama',NAMA_DESA_LAMA],['⚡','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','lama',NAMA_DESA_LAMA],['💧','Menara Air Desa Awalkomen','💧 Air bersih','lama',NAMA_DESA_LAMA],
-   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['🚌','Halte Angkot Desa Baru','🚌 Angkutan desa','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']];
+   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['🚌','Halte Angkot Desa Baru','🚌 Angkutan desa','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']].concat(tvOn()?[['📺','Stasiun TVKN','📺 Televisi','baru',NAMA_DESA]]:[]);
  {const L0=$('bList');INFL.slice().reverse().forEach(([ic,nm,meta,dk,lok])=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa=dk;li.dataset.q=(nm+' '+meta+' '+lok+' fasilitas umum').toLowerCase();
    bt.append(el('span','ico',ic),el('b',null,nm),el('span',null,meta+' · 🏛️ Fasilitas umum · 📍 '+lok));bt.onclick=infGo(nm);li.append(bt);L0.prepend(li)})}
  const nInfB=INFL.filter(q=>q[3]==='baru').length,nInfT=INFL.filter(q=>q[3]==='timur').length,nInfL=INFL.length-nInfB-nInfT;
@@ -3338,6 +3338,12 @@ function build3DB(b){const T=THREE,g=new T.Group();
       cyl(.04,.04,1.8,'#1C2520',1.9,.9,.4,8);box(.5,.36,.04,'#2D6CDF',1.9,1.7,.4);jalan(5,1.4,0,1.5);truk('#3B7FD0',-.6,1.5,0)}
     else if(k==='menara'){[[-.6,-.6],[.6,-.6],[.6,.6],[-.6,.6]].forEach(([x,z])=>box(.1,2.6,.1,'#6E747A',x,1.3,z));cyl(.95,.95,1,'#5FA9DB',0,3.1,0);cyl(.98,.98,.1,'#8AC2E6',0,3.65,0);box(1.5,.06,1.5,'#6E747A',0,2.55,0);for(let y=.6;y<2.6;y+=.65){box(1.2,.04,.04,'#6E747A',0,y,.6);box(1.2,.04,.04,'#6E747A',0,y,-.6)}}
     else if(k==='bts'){[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]].forEach(([x,z])=>{const m=box(.07,4.2,.07,'#C9CDD1',x*.6,2.1,z*.6);});for(let y=.5;y<4.2;y+=.6)box(.55,.04,.55,'#C4402F',0,y,0);[0,2.1,4.2].forEach(a=>{const p=box(.35,.6,.08,'#E8E2D6',Math.cos(a)*.35,3.8,Math.sin(a)*.35);p.rotation.y=-a});const lp=new T.Mesh(new T.SphereGeometry(.09,10,8),new T.MeshBasicMaterial({color:'#FF3B30'}));lp.position.y=4.35;g.add(lp);box(1,.7,.7,'#B8B0A0',1.3,.35,.6)}
+    else if(k==='tv'){box(4.6,2,2.6,'#E9E3D6',.6,1,-.4);box(4.7,.16,2.7,'#24324A',.6,2.08,-.4);sign('TVKN','#C8102E','#FFFFFF',1.5,.5,1.2,1.5,.92);[-.9,0,.9].forEach(x=>box(.7,.5,.05,'#6FB4E6',x,.75,.92));
+      const dsh=new T.Mesh(new T.SphereGeometry(.55,20,12,0,Math.PI*2,0,Math.PI/2.4),M('#F4F1EA'));dsh.rotation.x=-Math.PI/2.6;dsh.position.set(-.8,2.6,-.6);g.add(dsh);cyl(.05,.05,.5,'#9AA0A6',-.8,2.35,-.6,8);
+      const on=new T.Mesh(new T.SphereGeometry(.12,10,8),new T.MeshBasicMaterial({color:'#FF3B30'}));on.position.set(2.6,1.7,.95);g.add(on);
+      [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]].forEach(([x,z])=>box(.08,5.6,.08,'#C9CDD1',-3.2+x*.7,2.8,-.6+z*.7));for(let y=.4;y<5.6;y+=.7)box(.6,.05,.6,y%1.4<.7?'#C4402F':'#F4F1EA',-3.2,y,-.6);
+      const tl=new T.Mesh(new T.SphereGeometry(.1,10,8),new T.MeshBasicMaterial({color:'#FF3B30'}));tl.position.set(-3.2,5.75,-.6);g.add(tl);
+      jalan(5.4,1.6,.6,1.9);const van=truk('#F4F6F8',-.4,1.9,0);const vd=new T.Mesh(new T.SphereGeometry(.28,14,8,0,Math.PI*2,0,Math.PI/2.4),M('#DADFE3'));vd.position.set(-.6,1.15,1.9);vd.rotation.x=-.6;g.add(vd);box(1.52,.1,.72,'#C8102E',-.4,.55,1.9)}
     else if(k==='pintuair'){box(4.4,.2,1.4,'#4F9FD8',0,.1,0);box(4.4,.24,.2,'#B9AE95',0,.12,.8);box(4.4,.24,.2,'#B9AE95',0,.12,-.8);box(.5,1.4,1.8,'#A9A397',0,.7,0);box(.08,.9,1.3,'#5E6B73',.3,.55,0);
       const wh=new T.Mesh(new T.TorusGeometry(.35,.05,8,20),M('#C4402F'));wh.position.set(0,1.75,0);wh.rotation.y=Math.PI/2;g.add(wh);box(.05,.7,.05,'#C4402F',0,1.75,0);box(1.6,.08,1.2,'#8B8577',-1.7,.25,1.6)}
     return {g,flag:null}}
@@ -5150,8 +5156,35 @@ function infraPertamini(x,y){const c=ctx,w=T*1.7,h=T*1.2; // kios bensin eceran 
   c.fillStyle='rgba(0,0,0,.2)';c.fillRect(x-w/2+5,y-h/2+6,w,h);c.fillStyle='#E9E3D6';c.fillRect(x-w/2,y-h/2,w,h);c.fillStyle='#C4402F';c.fillRect(x-w/2,y-h/2,w,T*.32);c.fillStyle='#2D6CDF';c.fillRect(x-w/2,y-h/2+T*.32,w,T*.1);
   [-.45,.45].forEach(o=>{c.fillStyle='#C4402F';c.fillRect(x+o*T-T*.22,y-T*.02,T*.44,T*.5);c.fillStyle='#F2C230';c.fillRect(x+o*T-T*.14,y+T*.06,T*.28,T*.16)});
   c.fillStyle='#fff';c.font=`800 ${T*.2}px Poppins,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('PERTAMINI',x,y-h/2+T*.17)}
+// 📺 Stasiun TV Komen Nasional (TVKN): muncul mulai Kalender Kejutan 29 Okt 19.00 WIB (?tvkn=1 untuk uji)
+function tvOn(){return /[?&]tvkn=1/.test(location.search)||Date.now()>=Date.UTC(2026,9,29,12,0)}window.tvOn=tvOn;
+const TV_POS=()=>{const D=desaBangun();return {x:D.OT.x+T*3,y:D.OT.y-T*6.8,mx:D.OT.x-T*3.2,my:D.OT.y-T*8.4}};
+function infraMenaraTV(x,y,t){const c=ctx,k=T*1.4; // menara pemancar tinggi: kaki rangka merah-putih + bayangan panjang
+  c.fillStyle='rgba(20,28,24,.2)';c.beginPath();c.moveTo(x-k*.7,y+k*.2);c.lineTo(x+k*.7,y+k*.2);c.lineTo(x+k*4.4,y+k*2.8);c.lineTo(x+k*4,y+k*3.1);c.closePath();c.fill();
+  c.fillStyle='#B8B0A0';c.fillRect(x-k*.95,y-k*.75,k*1.9,k*1.9);
+  const L=[[-.7,-.5],[.7,-.5],[.7,.9],[-.7,.9]];c.lineWidth=3;
+  L.forEach(([a,b],i)=>{c.strokeStyle=i%2?'#C4402F':'#F4F1EA';c.beginPath();c.moveTo(x+a*k,y+b*k);c.lineTo(x,y-k*.15);c.stroke()});
+  c.strokeStyle='#C4402F';c.lineWidth=2;c.strokeRect(x-k*.5,y-k*.35,k,k*.95);c.strokeStyle='#F4F1EA';c.strokeRect(x-k*.3,y-k*.25,k*.6,k*.6);
+  c.strokeStyle='#C4402F';c.lineWidth=2.4;c.beginPath();c.moveTo(x,y-k*.15);c.lineTo(x,y-k*1.1);c.stroke();
+  c.fillStyle='#E9ECEF';[-1,1].forEach(o=>{c.fillRect(x+o*k*.22-k*.08,y-k*.75,k*.16,k*.3)});
+  c.fillStyle=(Math.floor((t||0)*1.5)%2)?'#FF3B30':'#8E1C16';c.beginPath();c.arc(x,y-k*1.15,k*.14,0,7);c.fill()}
+function infraTV(x,y){const c=ctx,w=T*5.6,h=T*3.2,k=T; // studio TVKN + halaman parkir + mobil liputan
+  const fx0=x-w/2,fy=y+h/2,fx1=D_TVPATH();c.fillStyle='#A9A397';c.fillRect(fx0-k*.2,fy-k*.2,fx1-fx0+k*.2,k*1.7);c.fillStyle='#BDB6A6';c.fillRect(fx0,fy,fx1-fx0,k*1.3);
+  c.strokeStyle='#F4F1EA';c.lineWidth=2;for(let i=0;i<3;i++){const px=fx0+k*2.3+i*k*1.15;c.beginPath();c.moveTo(px,fy+k*.15);c.lineTo(px,fy+k*1.15);c.stroke()}
+  c.fillStyle='rgba(0,0,0,.2)';c.fillRect(x-w/2+6,y-h/2+7,w,h);
+  c.fillStyle='#E9E3D6';c.fillRect(x-w/2,y-h/2,w,h);c.fillStyle='#24324A';c.fillRect(x-w/2,y-h/2,w,h*.62);c.fillStyle='#2E3E5C';c.fillRect(x-w/2,y-h/2,w,h*.1);
+  c.fillStyle='#6FB4E6';for(let i=0;i<5;i++)c.fillRect(x-w/2+k*.35+i*k*1.02,y+h*.18,k*.7,k*.5);c.fillStyle='#55595D';c.fillRect(x+w/2-k*1.2,y+h*.12,k*.8,h*.38);
+  c.fillStyle='#F4F1EA';c.beginPath();c.ellipse(x-w*.28,y-h*.18,k*.62,k*.5,-.5,0,7);c.fill();c.strokeStyle='#9AA0A6';c.lineWidth=2;c.stroke();c.fillStyle='#9AA0A6';c.beginPath();c.arc(x-w*.28,y-h*.18,k*.1,0,7);c.fill();
+  c.fillStyle='#C8102E';c.fillRect(x-k*.2,y-h*.38,k*2.6,k*.78);c.fillStyle='#fff';c.font=`900 ${k*.5}px Poppins,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('TVKN',x+k*1.1,y-h*.38+k*.41);
+  c.fillStyle='#FF3B30';c.beginPath();c.arc(x+w/2-k*.45,y-h*.32,k*.16,0,7);c.fill();
+  // mobil liputan: van putih bergaris merah + parabola di atap
+  const vx=fx0+k*1.1,vy=fy+k*.65;c.fillStyle='rgba(0,0,0,.22)';c.fillRect(vx-k*.85+4,vy-k*.42+5,k*1.7,k*.84);c.fillStyle='#F4F6F8';c.fillRect(vx-k*.85,vy-k*.42,k*1.7,k*.84);
+  c.fillStyle='#C8102E';c.fillRect(vx-k*.85,vy+k*.12,k*1.7,k*.14);c.fillStyle='#7FB8E0';c.fillRect(vx+k*.5,vy-k*.36,k*.3,k*.72);
+  c.fillStyle='#DADFE3';c.beginPath();c.ellipse(vx-k*.25,vy-k*.08,k*.34,k*.26,0,0,7);c.fill();c.strokeStyle='#8A9096';c.lineWidth=1.5;c.stroke();
+  c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='📺 TVKN · Stasiun TV';const tw=c.measureText(lbl).width+k*.5;c.fillRect(x-tw/2,y-h/2-k*.72,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-h/2-k*.44)}
+const D_TVPATH=()=>{const D=desaBangun();return D.OT.x+D.OT.w+T*.05};
 // 📋 daftar fasilitas desa (posisi tunggal untuk gambar, jalan akses, ketuk → 3D, dan pohon menyingkir)
-function infraDaftar(){if(window.__INFD)return window.__INFD;const D=desaBangun(),L=[];const A=(k,nm,lb,ket,x,y,w,h,timur)=>L.push({k,name:nm,label:lb,ket,x,y,w,h,timur:!!timur});
+function infraDaftar(){if(window.__INFD&&window.__INFDtv===tvOn())return window.__INFD;window.__INFDtv=tvOn();window.__INFJ=null;const D=desaBangun(),L=[];const A=(k,nm,lb,ket,x,y,w,h,timur)=>L.push({k,name:nm,label:lb,ket,x,y,w,h,timur:!!timur});
   A('gardu','Gardu Induk','⚡ Listrik desa','Pusat listrik semua desa. Kabel SUTET dari sini menyalakan rumah warga Desa Awalkomen, Desa Komen-Komen Sejahtera, sampai Desa Baru di balik terowongan.',3300,2350+T*2.2,T*4.4,T*3);
   A('gardu','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','Gardu kecil di ujung jalur SUTET, membagi listrik ke rumah-rumah di Desa Awalkomen.',2060,1650+T*2.6,T*4.4,T*3);
   A('damkar','Pos Damkar','🚒 Pemadam kebakaran','Pos pemadam kebakaran desa, lengkap dengan mobil damkar dan tandon air. Siaga 24 jam!',3300-T*6.5,2350+T*2.2,T*5.4,T*3.2);
@@ -5159,6 +5192,7 @@ function infraDaftar(){if(window.__INFD)return window.__INFD;const D=desaBangun(
   A('pertamini','Pertamini','⛽ Bensin eceran','Kios bensin eceran di pinggir jalan desa. Isi dulu sebelum lewat terowongan!',D.OT.x-T*9.5,D.jalanY-T*1.7,T*1.7,T*1.2);
   A('halte','Halte Angkot','🚌 Angkutan desa','Tempat angkot ngetem. Angkot biru keliling Desa Awalkomen, Desa Komen-Komen Sejahtera, dan Desa Baru.',D.OT.x+T*3,D.jalanY+T*1.55,T*3.2,T*1.4);
   A('menara','Menara Air Desa Awalkomen','💧 Air bersih','Tandon air di atas menara: air dialirkan ke rumah-rumah warga pakai gaya gravitasi.',2080,-700,T*2.4,T*2.6);
+  if(tvOn()){const P=TV_POS();A('tv','Stasiun TVKN','📺 Televisi','Stasiun TV Komen Nasional (TVKN). Dari studio inilah Mbak Tena siaran Breaking News Negeri Komen. Mobil liputan siaga di halaman, menara pemancarnya kelihatan dari jauh.',P.x,P.y+T*.6,T*5.8,T*5,0);A('tv','Menara Pemancar TVKN','📺 Televisi','Menara pemancar TV Komen Nasional. Lampu merah di puncaknya berkedip biar kelihatan pesawat.',P.mx,P.my,T*2.7,T*2.7,0)}
   {const S2=D.sawah,P=D.sungaiH[0],yy=S2.y+T*4.5;let rx=null;for(let k=0;k<P.length-1;k++){const a=P[k],b=P[k+1];if((a[1]-yy)*(b[1]-yy)<=0&&a[1]!==b[1]){rx=a[0]+(yy-a[1])/(b[1]-a[1])*(b[0]-a[0]);break}}
    if(rx)A('pintuair','Pintu Air Irigasi','🌾 Pengairan sawah','Pintu air mengatur aliran sungai ke saluran irigasi sawah terasering. Dibuka pagi, ditutup kalau sawah sudah cukup air.',rx-T*.2,yy,T*1.4,T*1.6)}
   try{const G=desaTimurGeo(),SL=G.SL;
@@ -5392,7 +5426,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
   {const g=[3300,2350];infraJalur([[2060,1650],[2300,2050],[2800,2300],g],1);infraJalur([g,[4000,2700],[4900,2780],[5650,2650],[6250,2500],[6620,2420]],1);infraGardu(g[0],g[1]+T*2.2,'⚡ GARDU INDUK');infraGardu(2060,1650+T*2.6,'');infraAir(2080,-700)}
   {const S2=D.sawah,sx=S2.x+S2.cols*S2.w,P=D.sungaiH[0];let rx=null;for(let k=0;k<P.length-1;k++){const a=P[k],b=P[k+1],yy=S2.y+T*4.5;if((a[1]-yy)*(b[1]-yy)<=0&&a[1]!==b[1]){rx=a[0]+(yy-a[1])/(b[1]-a[1])*(b[0]-a[0]);break}}
    if(rx&&rx>sx)infraPintuAir(rx-T*.2,S2.y+T*4.5,sx+T*.4,S2.y+S2.rows*S2.h-T*.4,S2.y+T*.6);
-   infraDamkar(3300-T*6.5,2350+T*2.2);infraTPS(D.K.x1+T*4.2,T*26,'♻️ TPS & BANK SAMPAH');infraPertamini(D.OT.x-T*9.5,D.jalanY-T*1.7);infraHalte(D.OT.x+T*3,D.jalanY+T*1.55);lampuDesa(v,false)}
+   infraDamkar(3300-T*6.5,2350+T*2.2);infraTPS(D.K.x1+T*4.2,T*26,'♻️ TPS & BANK SAMPAH');infraPertamini(D.OT.x-T*9.5,D.jalanY-T*1.7);infraHalte(D.OT.x+T*3,D.jalanY+T*1.55);if(tvOn()){const P=TV_POS();infraMenaraTV(P.mx,P.my,t);infraTV(P.x,P.y)}lampuDesa(v,false)}
   // rumah desa baru
   D.rumah.forEach(h=>{if(!vis(h.x,h.y,T*2))return;const w=T*1.4,hh=T*1.1;ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(h.x+4,h.y+5,w,hh);ctx.fillStyle='#F4EFE3';ctx.fillRect(h.x,h.y+hh*.62,w,hh*.38);ctx.fillStyle=h.c;ctx.fillRect(h.x,h.y,w,hh*.66);ctx.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<w;i+=T*.3)ctx.fillRect(h.x+i,h.y,2,hh*.66)});
   // gerbang

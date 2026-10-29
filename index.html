@@ -3784,7 +3784,7 @@ function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r
   if(NL>1){bw.firstChild.textContent='Dinding lantai 1';const rows=A.map((_,k)=>baris('Dinding lantai '+(k+2),()=>A[k],v=>A[k]=v,nm=>NK.wallHex({wall:nm,x:0,y:0})));body.append(bw,...rows,br);bw._upd();rows.forEach(x=>x._upd());br._upd()}
   else{body.append(bw,br);bw._upd();br._upd()}
   const msg=el('p','kk-msg'),row=el('div','kk-row');
-  {const rw=RES[i]||{},gr=(+rw.day||0)>=11&&(D.day-(+rw.day||0))<7;if(gr)body.append(el('p','kk-note','🎁 Warga baru: ganti warna pertama GRATIS (berlaku 7 hari sejak rumahmu dibangun).'));
+  {const rw=RES[i]||{},gr=wargaGratis(rw);if(gr)body.append(el('p','kk-note','🎁 Warga baru: ganti warna pertama GRATIS (berlaku 7 hari sejak rumahmu dibangun).'));
   row.append(kkGBtn('Lanjut · ',gr?'Gratis':'1 Receh','gold3',async e=>{const bt=e.currentTarget;bt.disabled=true;const res=await kkApi('minta-warna',{wall:W,roof:R,n,...(NL>1?{atas:A}:{})},true);bt.disabled=false;
       if(!res.ok){msg.textContent=res.error||'Gagal';msg.className='kk-msg err';return}if(res.langsung){try{SND.play('ting',.9)}catch(_){}toast('🎨 Warna rumahmu sudah diganti, gratis! 🎉');kkTampil(body,res.kartu);setTimeout(()=>location.reload(),1600);return}kkKode(body,{jenis:'warna',harga:1,...res})}))}
   body.append(msg,row)}
@@ -4588,8 +4588,10 @@ function kkWargaAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'�
       if(!L.length){toast('Belum ada warga baru di database');return}const t='WARGA_BARU '+JSON.stringify(L.map(o=>({name:o.name,x:o.x,y:o.y,day:o.day,nick:o.nick,roof:o.roof,wall:o.wall})));kkSalin(t);toast(`📋 ${L.length} warga baru disalin. Tempel ke Claude sebelum render video`)}),
     kkBtn('↩️ Batalkan warga','sm',async e=>{const t=prompt('Username warga baru yang mau dibatalkan (pisah koma):');if(!t)return;const r=await kkApi('hapus-warga',{target:t},true);msg.className='kk-msg'+(r.ok?'':' err');msg.textContent=r.ok?`↩️ Dibatalkan: ${r.n} warga (hilang dari peta setelah halaman dimuat ulang)`:(r.error||'Gagal')}));
   w.append(ta,row,msg);body.append(w)}
+// warga baru (masuk mulai 29 Okt 2026 / Hari 11) dapat ganti warna pertama gratis selama 7 hari
+const GRATIS_MULAI=Date.UTC(2026,9,28,17,0);function wargaGratis(r){const at=+r.at||0,d=+r.day||0;if(at)return at>=GRATIS_MULAI&&Date.now()-at<7*864e5;return d>=11&&(D.day-d)<7}
 function wargaBaruTerapkan(L){if(!Array.isArray(L)||!L.length)return;let n=0;
-  L.forEach(v=>{if(!v||!v.name||!Number.isFinite(+v.x)||!Number.isFinite(+v.y)||kkResIdx(v.name)>=0)return;const r={name:String(v.name),x:+v.x,y:+v.y,day:+v.day||D.day};['nick','roof','wall'].forEach(k=>{if(v[k])r[k]=v[k]});
+  L.forEach(v=>{if(!v||!v.name||!Number.isFinite(+v.x)||!Number.isFinite(+v.y)||kkResIdx(v.name)>=0)return;const r={name:String(v.name),x:+v.x,y:+v.y,day:+v.day||D.day};if(v.at)r.at=+v.at;['nick','roof','wall'].forEach(k=>{if(v[k])r[k]=v[k]});
     RES.push(r);const i=RES.length-1;try{IDX.push({i,u:norm(r.name),n:norm(r.nick),t:''})}catch(e){}try{showNew.push({r,i})}catch(e){}n++});
   if(!n)return;window.__HCV=(window.__HCV||0)+1;dirty=true;try{$('sWarga').textContent=fmt(RES.length+1)}catch(e){}
   try{const hn=RES.filter(r=>r.day===D.day).length;if(hn>=10)$('newTitle').textContent=`Warga baru hari ke-${D.day} (${fmt(hn)})`;window.__renderNew&&window.__renderNew()}catch(e){}

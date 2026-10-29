@@ -578,8 +578,9 @@ export default async function handler(req, res) {
         if ((now.wall || null) === wall && (now.roof || null) === roof && !atasBeda) return res.status(400).json({ error: 'Warnanya sama dengan rumah versi itu.' });
         isi = { wall, roof, style, ...(atas ? { atas } : {}), harga: 1 };
         // 🎁 warga baru (mulai Hari 11, ajakan "komen RUMAH" = warna acak): ganti warna pertama GRATIS selama 7 hari sejak rumahnya dibangun
-        const hariIni = +D.day || 0, hariWarga = +r.day || 0;
-        if (hariWarga >= 11 && hariIni - hariWarga < 7 && (await kv(['SADD', 'warna:gratis', s.u])) === 1) {
+        const hariIni = +D.day || 0, hariWarga = +r.day || 0, at = +r.at || 0, MULAI = Date.UTC(2026, 9, 28, 17, 0); // warga baru mulai 29 Okt (Hari 11): pakai waktu masuk kalau ada
+        const baru = at ? (at >= MULAI && Date.now() - at < 7 * 864e5) : (hariWarga >= 11 && hariIni - hariWarga < 7);
+        if (baru && (await kv(['SADD', 'warna:gratis', s.u])) === 1) {
           const A2 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = 'WARNA-'; for (let i = 0; i < 4; i++) kode += A2[crypto.randomInt(A2.length)];
           const v = { u: s.u, jenis: 'warna', ...isi, harga: 0, bayar: 0, trk: [], gratis: true, at: Date.now(), status: 'menunggu' };
           try { await terapkan(kv, kvMany, 'warna', kode, v, true, 'otomatis') } catch (e) { await kv(['SREM', 'warna:gratis', s.u]); throw e }

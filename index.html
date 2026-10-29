@@ -250,7 +250,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3vw,28px);l
 .bsearch{width:100%;margin:2px 0 10px;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;font:500 14px var(--f-body);background:#F7F8F3;color:var(--ink)}
 #okbList{border-top:1.5px dashed #E2D6A8;margin-top:6px}#okbList li{border-bottom:1.5px dashed #E2D6A8}#okbList li:last-child{border-bottom:0}
 #okbList{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-#kryList{max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#kryTabs{margin:0 0 6px}#kryTabs small,.bdesa small{opacity:.7;margin-left:2px}.bdesa{margin:0 0 8px}#okbList::-webkit-scrollbar{width:6px}#okbList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
+#kryList{max-height:300px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#kryTabs{margin:0 0 6px}#kryTabs small,.bdesa small{opacity:.7;margin-left:2px}.bdesa{margin:0 0 8px;flex-wrap:wrap;overflow:visible}.bdesa button{flex:0 0 auto}#okbList::-webkit-scrollbar{width:6px}#okbList::-webkit-scrollbar-thumb{background:#E2C978;border-radius:6px}
 #bList{border-top:1.5px dashed #D6DDD0;gap:0}#bList li{border-bottom:1.5px dashed #D6DDD0}#bList li:last-child{border-bottom:0}
 .bscroll{max-height:236px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}.bscroll::-webkit-scrollbar{width:6px}.bscroll::-webkit-scrollbar-thumb{background:#C9D1C6;border-radius:6px}
 .blist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
@@ -2202,15 +2202,15 @@ BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama'
  const infGo=nm=>()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===nm);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}};
  const INFL=[['⚡','Gardu Induk','⚡ Listrik desa','baru',NAMA_DESA],['🚒','Pos Damkar','🚒 Pemadam kebakaran','baru',NAMA_DESA],['🚌','Halte Angkot','🚌 Angkutan desa','baru',NAMA_DESA],['⛽','Pertamini','⛽ Bensin eceran','baru',NAMA_DESA],['🌾','Pintu Air Irigasi','🌾 Pengairan sawah','baru',NAMA_DESA],
    ['♻️','TPS & Bank Sampah','♻️ Kebersihan','lama',NAMA_DESA_LAMA],['⚡','Gardu Listrik Desa Awalkomen','⚡ Listrik desa','lama',NAMA_DESA_LAMA],['💧','Menara Air Desa Awalkomen','💧 Air bersih','lama',NAMA_DESA_LAMA],
-   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','baru','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','baru','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','baru','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','baru','Desa Baru']];
+   ['⚡','Gardu Listrik Desa Baru','⚡ Listrik desa','timur','Desa Baru'],['💧','Menara Air Desa Baru','💧 Air bersih','timur','Desa Baru'],['📡','Tower BTS','📡 Sinyal · puncak Gunung Terowongan','timur','Desa Baru'],['♻️','TPS Desa Baru','♻️ Kebersihan','timur','Desa Baru']];
  {const L0=$('bList');INFL.slice().reverse().forEach(([ic,nm,meta,dk,lok])=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa=dk;li.dataset.q=(nm+' '+meta+' '+lok+' fasilitas umum').toLowerCase();
    bt.append(el('span','ico',ic),el('b',null,nm),el('span',null,meta+' · 🏛️ Fasilitas umum · 📍 '+lok));bt.onclick=infGo(nm);li.append(bt);L0.prepend(li)})}
- const nInfB=INFL.filter(q=>q[3]==='baru').length,nInfL=INFL.length-nInfB;
+ const nInfB=INFL.filter(q=>q[3]==='baru').length,nInfT=INFL.filter(q=>q[3]==='timur').length,nInfL=INFL.length-nInfB-nInfT;
  const L=$('bList');BARU.slice().reverse().forEach(f=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';li.dataset.desa='baru';li.dataset.q=(f.nm+' '+f.meta+' '+NAMA_DESA).toLowerCase();
    bt.append(el('span','ico',f.ic),el('b',null,f.nm),el('span',null,f.meta+' · 📍 '+NAMA_DESA));bt.onclick=f.go;li.append(bt);L.prepend(li)});
  $('bTitle').textContent=`Fasilitas kampung (${fmt(BLD.length+BARU.length+INFL.length)})`;
- const tb=el('div','jtabs bdesa');window.B_DESA='semua';const N={semua:BLD.length+BARU.length+INFL.length,lama:BLD.length+nInfL,baru:BARU.length+nInfB};
- [['semua','Semua'],['baru','🏞️ '+NAMA_DESA.replace(/^Desa /,'')],['lama','🏡 '+NAMA_DESA_LAMA.replace(/^Desa /,'')]].forEach(([k,t])=>{const b=el('button',k==='semua'?'on':'');b.type='button';b.dataset.k=k;b.append(t+' ',el('small',null,String(N[k])));b.onclick=()=>{window.B_DESA=k;tb.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));$('bSearch').oninput({target:$('bSearch')})};tb.append(b)});
+ const tb=el('div','jtabs bdesa');window.B_DESA='semua';const N={semua:BLD.length+BARU.length+INFL.length,lama:BLD.length+nInfL,baru:BARU.length+nInfB,timur:nInfT};
+ [['semua','Semua'],['baru','🏞️ '+NAMA_DESA.replace(/^Desa /,'')],['lama','🏡 '+NAMA_DESA_LAMA.replace(/^Desa /,'')],['timur','⛰️ Desa Baru']].forEach(([k,t])=>{const b=el('button',k==='semua'?'on':'');b.type='button';b.dataset.k=k;b.append(t+' ',el('small',null,String(N[k])));b.onclick=()=>{window.B_DESA=k;tb.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));$('bSearch').oninput({target:$('bSearch')})};tb.append(b)});
  $('bSearch').before(tb)}
 $('bSearch').oninput=e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,''),dk=window.B_DESA||'semua';let n=0;$('bList').querySelectorAll('li').forEach(li=>{const ok=(!q||li.dataset.q.includes(q))&&(dk==='semua'||li.dataset.desa===dk);li.hidden=!ok;if(ok)n++});$('bNone').hidden=n>0;$('bList').closest('.bscroll').scrollTop=0};
 

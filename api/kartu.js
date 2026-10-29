@@ -362,9 +362,9 @@ async function panenBayar(pre) {
     await kvMany(cmds);
   }
 }
-async function panenPapan(pre, u) {
+async function panenPapan(pre, u, nh) {
   await panenBayar(pre); const tg = tglWIB(), kem = tglWIB(-1);
-  const HR = [...Array(14)].map((_, i) => tglWIB(-(i + 1))); // riwayat juara 14 hari terakhir
+  const HR = [...Array(Math.max(1, Math.min(14, +nh || 3)))].map((_, i) => tglWIB(-(i + 1))); // riwayat juara: 3 hari (Lumbung) s/d 14 hari (gedung Riwayat Para Gamer) — hemat perintah database
   const [a, jk, ...rw] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem], ...HR.map(d => ['GET', pre + 'juara:' + d])]);
   const top = []; for (let i = 0; a && i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1] });
   const riwayat = HR.map((d, i) => ({ tgl: d, juara: (jparse(rw[i]) || []).slice(0, 3) })).filter(x => x.juara.length);
@@ -379,7 +379,7 @@ export default async function handler(req, res) {
   const body = (req.body && typeof req.body === 'object') ? req.body : jparse(req.body) || {};
   try {
     if (aksi === 'panen-papan' && req.method === 'GET') { // 🌾 ranking Panen Sawah hari ini + juara kemarin (publik)
-      return res.status(200).json(await panenPapan((req.query && req.query.qa) ? 'panenqa:' : 'panen:'));
+      return res.status(200).json(await panenPapan((req.query && req.query.qa) ? 'panenqa:' : 'panen:', null, req.query && req.query.hari));
     }
     // ranking konsol playadalahmain (publik): 10 besar tiap game. ?qa=1 = papan uji (terpisah dari papan asli)
     if (aksi === 'konsol-rank' && req.method === 'GET') {

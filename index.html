@@ -2299,7 +2299,7 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   {const RB=(window.__ROBOT||[]).find(o=>o.roam&&!(window.__SETIR&&window.__SETIR.u===o.u));} // label kecil, tidak menonjol; info pemilik muncul kalau GENTO diketuk
   if(NAGA_PT&&NAGA_PT.milik)tryTag(v.ox+NAGA_PT.x*z,v.oy+(NAGA_PT.y-T*1.1)*z-4*dpr,'🐉 NAGASARI','',false,false,false);
   // MBULAN: label gaya NAGASARI/GENTO (nama barang saja; pemilik muncul kalau diketuk). GENTO sudah punya label sendiri (digambar bareng sprite)
-  {const sd=new Set();(window.__MBUL||[]).forEach(o=>{const P=o.P;if(!P||!(P.jalan||P.bulan)||sd.has(o.r.name))return;sd.add(o.r.name);tryTag(v.ox+P.x*z,v.oy+(P.y-(P.bulan?mbulAngkat(z)+o.s*50*mbulKZ(z):o.s*26))*z-4*dpr,P.bulan?'🌙 MBULAN':'🐱 MBULAN','',false,false,false)})}
+  {const sd=new Set();(window.__MBUL||[]).forEach(o=>{const P=o.P;if(!P||!(P.jalan||P.bulan)||sd.has(o.r.name))return;sd.add(o.r.name);tryTag(v.ox+P.x*z,v.oy+(P.y-(P.bulan?mbulAngkat(z,o.s)+o.s*50*mbulKZ(z):o.s*26))*z-4*dpr,P.bulan?'🌙 MBULAN':'🐱 MBULAN','',false,false,false)})}
   if(SETIR&&window.__SETIR){const W_=window.__SETIR;tryTag(v.ox+W_.x*z,v.oy+W_.y*z-16*dpr,'@'+W_.u,SETIR.rb?'🤖 jalan-jalan pakai GENTO':SETIR.mt?'🛵 lagi keliling':'🚲 lagi keliling',true,true,true);
     // 4 rumah terdekat di depan/belakang kendaraan tetap diberi nama, biar tahu lagi lewat rumah siapa
     RES.map(r=>({r,d:Math.hypot(NK.wx(r.x)-W_.x,NK.wx(r.y)-W_.y)})).filter(o=>o.d<T*6&&o.r.name!==W_.u).sort((a,b)=>a.d-b.d).slice(0,12).reduce((n,{r})=>{if(n>=4)return n;const p0=placed.length,[sx,sy]=toS(r.x,r.y);tryTag(sx,lift(sy),'@'+r.name,'',false);return n+(placed.length>p0?1:0)},0)}
@@ -2402,14 +2402,14 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
   try{mbulBulan(v,t,n)}catch(e){console.error(e)}
   ctx.restore();return n>0}
 // dari jauh bulan MBULAN dibesarkan & diangkat di atas label nama pemilik (label ukurannya tetap di layar)
-function mbulKZ(z){return Math.max(1,Math.min(3.6,.6/z))}
-function mbulAngkat(z){const d=window.__CDPR||window.devicePixelRatio||1;return Math.max((mbulKZ(z)-1)*NK.T*2.2,95*d/z-NK.T*2.8)}
+function mbulKZ(z){return Math.max(1,Math.min(12,.6/z))}
+function mbulAngkat(z,S){const d=window.__CDPR||window.devicePixelRatio||1;return Math.max(0,34*d/z+11*(S||.6)*3.4*mbulKZ(z)-NK.T*2.8)} // tepat di atas label nama pemilik, tidak kejauhan
 // MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
 function mbulLok(v){const L=window.__MBUL_LOK;if(!L||!L.length||!window.__GAMBAR_MBUL)return;const M=window.__MBUL||[];const ada=new Set(M.map(o=>o.r.name));const baru=L.filter(o=>!ada.has(o.r.name));if(!baru.length)return;M.push(...baru);ctx.save();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);window.__GAMBAR_MBUL(baru);ctx.restore()}
 function mbulBulan(v,t,n){const c=ctx,z=v.z,T=NK.T;(window.__MBUL||[]).forEach(o=>{if(!o.P||!o.P.bulan)return;const S=o.s,E=(x,y,a,b,f,rt)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,rt||0,0,7);c.fill()},L=(w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round'};
   c.save();c.setTransform(z,0,0,z,v.ox,v.oy);c.globalCompositeOperation='source-over';c.globalAlpha=1;
   {const pg=c.createRadialGradient(o.P.x,o.P.y+T*.5,0,o.P.x,o.P.y+T*.5,T*1.6);pg.addColorStop(0,`rgba(255,240,190,${.35*n})`);pg.addColorStop(1,'rgba(255,240,190,0)');c.fillStyle=pg;c.beginPath();c.ellipse(o.P.x,o.P.y+T*.5,T*1.6,T*1.1,0,0,7);c.fill()}
-  {const kz=mbulKZ(z);c.translate(o.P.x,o.P.y-mbulAngkat(z));c.scale(S*3.4*kz,S*3.4*kz)}const g=c.createRadialGradient(0,0,0,0,0,30);g.addColorStop(0,'rgba(255,236,170,.7)');g.addColorStop(.5,'rgba(255,226,150,.22)');g.addColorStop(1,'rgba(255,226,150,0)');c.fillStyle=g;c.beginPath();c.arc(0,0,30,0,7);c.fill();
+  {const kz=mbulKZ(z);c.translate(o.P.x,o.P.y-mbulAngkat(z,S));c.scale(S*3.4*kz,S*3.4*kz)}const g=c.createRadialGradient(0,0,0,0,0,30);g.addColorStop(0,'rgba(255,236,170,.7)');g.addColorStop(.5,'rgba(255,226,150,.22)');g.addColorStop(1,'rgba(255,226,150,0)');c.fillStyle=g;c.beginPath();c.arc(0,0,30,0,7);c.fill();
       const bb=Math.sin((t||0)*1.3+o.sd)*.8;c.translate(0,bb);c.fillStyle='#FFE9A8';c.strokeStyle='#E9C46A';c.lineWidth=1.2;[[-1,1],[1,-1]].forEach(([d])=>{c.beginPath();c.moveTo(d*4,-8);c.lineTo(d*8,-13.5);c.lineTo(d*9.5,-6);c.closePath();c.fill();c.stroke()});
       c.beginPath();c.arc(0,0,10,0,7);c.fill();c.stroke();E(5,-4,1.8,1.8,'#EBC46A');E(-5,5,1.4,1.4,'#EBC46A');E(4,6,1,1,'#EBC46A');
       L(1.1,'#8A5424');c.beginPath();c.arc(-4,-.5,1.8,.2,Math.PI-.2);c.stroke();c.beginPath();c.arc(4,-.5,1.8,.2,Math.PI-.2);c.stroke();E(-5.5,2.6,1.5,1,'#FFB09A');E(5.5,2.6,1.5,1,'#FFB09A');c.beginPath();c.arc(-1,2.6,1,0,Math.PI);c.arc(1,2.6,1,Math.PI,0,true);c.stroke();

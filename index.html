@@ -2103,13 +2103,13 @@ const KEJUTAN=[
   {d:'2026-10-27',ic:'🚚',q:'Sesuatu yang besar bakal lewat jalan desa…',n:'Jasa Pindahan',buka:!(window.NK_DATA&&window.NK_DATA.pindahan===false)},
   {d:'2026-10-28',ic:'🔍',q:'Pak Kades menyembunyikan sesuatu di peta…',n:'Harta Karun Harian',get buka(){return Date.now()>=Date.UTC(2026,9,28,12,0)}},
   {d:'2026-10-29',ic:'📺',q:'Ada yang mau siaran…',n:'TV Komen Nasional · Breaking News Mbak Tena',get buka(){return tvOn()},go:'Stasiun TVKN'},
-  {d:'2026-10-30',ic:'🎈',q:'Lihat ke langit malam nanti…',n:'Balon Genteng'},
+  {d:'2026-10-30',ic:'🌾',q:'Ada yang mau panen siang ini…',n:'Mini Game Panen Sawah',get buka(){return panenOn()},go:'Lumbung Pak Tani'},
   {d:'2026-10-31',ic:'🧺',q:'Kampung bakal makin rame…',n:'Pasar Senggol'}];
 function renderKejutan(){const box=$('kjtList');if(!box)return;box.innerHTML='';
   const H=['Min','Sen','Sel','Rab','Kam','Jum','Sab'],now=new Date(Date.now()+252e5),hari=now.toISOString().slice(0,10),menit=now.getUTCHours()*60+now.getUTCMinutes();
   KEJUTAN.forEach(k=>{const dt=new Date(k.d+'T00:00:00Z'),li=document.createElement('li'),kd=el('span','kd'),ki=el('span','ki'),kt=el('span','kt');
     kd.append(H[dt.getUTCDay()],el('b',null,String(dt.getUTCDate())));
-    if(k.buka){li.className='open';ki.textContent=k.ic;kt.append(el('small',null,'✅ UDAH BUKA'),el('b',null,k.n));if(k.go){li.style.cursor='pointer';li.onclick=()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===k.go);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}}}}
+    if(k.buka){li.className='open';ki.textContent=k.ic;kt.append(el('small',null,'✅ UDAH BUKA'),el('b',null,k.n));if(k.go){li.style.cursor='pointer';li.onclick=()=>{try{if(!DESA)desaBangun();const o=infraDaftar().find(q=>q.name===k.go);if(!o)return;flyTo({cx:o.x,cy:o.y,zoom:clampZ(.9)},900);scrollMap();if(o.k==='lumbung'){setTimeout(bukaPanen,1000);return}setTimeout(()=>open3D(null,-1,{type:'infra_'+o.k,infra:true,name:o.name,label:o.label,ket:o.ket,day:11,by:'negerikomen'}),1000)}catch(e){console.error(e)}}}}
     else if(k.d===hari){li.className='today';ki.textContent=k.ic;const sisa=19*60-menit;
       kt.append(el('small',null,sisa>0?'🔓 DIBUKA MALAM INI 19.00'+(sisa<=180?' · '+(sisa>=60?Math.floor(sisa/60)+' jam ':'')+(sisa%60?sisa%60+' menit ':'')+'lagi':''):'🔓 SEBENTAR LAGI'),el('i',null,k.q))}
     else if(k.d<hari){li.className='lock';ki.textContent='⏳';kt.append(el('small',null,'SEBENTAR LAGI'),el('i',null,k.q))}

@@ -986,14 +986,15 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, mode });
     }
     if (aksi === 'karpet') { // pemilik Karpet Terbang: atur otomatis/manual, atau terbangkan rumah sekarang (mode manual)
-      const m = String(body.m || ''); if (!['auto', 'manual', 'terbang'].includes(m)) return res.status(400).json({ error: 'Perintah tidak dikenal' });
+      const m = String(body.m || ''); if (!['auto', 'manual', 'terbang', 'pulang'].includes(m)) return res.status(400).json({ error: 'Perintah tidak dikenal' });
       const pem = await kv(['GET', 'karpet:pemilik']); if (String(pem || '').toLowerCase() !== s.u) return res.status(403).json({ error: 'Ini bukan Karpet Terbang-mu.' });
       const lama = jparse(await kv(['GET', 'karpet:mode'])) || { set: 'auto' }, now = Date.now();
       let mode;
       if (m === 'terbang') { if (lama.set !== 'manual') return res.status(400).json({ error: 'Ubah ke mode Manual dulu ya.' });
         if (lama.at && now - lama.at < 150000) return res.status(429).json({ error: 'Rumahmu masih terbang, tunggu mendarat dulu ya.' });
         mode = { set: 'manual', at: now } }
-      else mode = { set: m, at: lama.at || 0 };
+      else if (m === 'pulang') mode = { ...lama, at: lama.set === 'manual' ? 0 : (lama.at || 0), pul: now }; // suruh rumah pulang sekarang
+      else mode = { ...lama, set: m, at: lama.at || 0 };
       await kv(['SET', 'karpet:mode', JSON.stringify(mode)]);
       return res.status(200).json({ ok: true, mode });
     }

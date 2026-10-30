@@ -126,7 +126,7 @@ const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 14 : (kini >= 2 ? 3 : 17); // t
 const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
 const KONSOL_G = ['penalti', 'genteng', 'pancing', 'bakso', 'ayam', 'karung', 'layang', 'memori', 'pinang', 'kentongan', 'karet', 'pesawat', 'tambang', 'egrang'];
 const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 400, karung: 80, layang: 600, memori: 140, pinang: 40, kentongan: 80, karet: 400, pesawat: 3000, tambang: 60, egrang: 5000 };
-const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, patromax: 12, sorot: 19, naga: 25, mbulan: 20, konsol: 4, bougenville: 2 };
+const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, patromax: 12, sorot: 19, naga: 25, mbulan: 20, karpet: 30, konsol: 4, bougenville: 2 };
 const MAKS_PAJANG = 3; // ⚙️ batas item dipajang di pekarangan (ubah juga di api/_terapkan.js). Web ikut otomatis.
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
 const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => { const h = +String(v || '').split(':')[0]; return KONTRAK_OK.includes(h) ? h : KONTRAK_HARI };
@@ -169,7 +169,7 @@ async function simpanStatus(jenis, kode, status) {
 }
 // Robot Raksasa: cuma 1 di seluruh kampung. Dipesan → dikunci 14 hari untuk pemesannya; lunas → milik permanen.
 const ROBOT = 'robot:pemilik';
-async function lepasRobot(u) { for (const ek of ['robot', 'patromax', 'sorot', 'naga', 'mbulan']) { if ((await kv(['GET', ek + ':pemilik'])) !== u) continue; const k = await koleksi(u); if (!k.own.some(o => o.id === ek)) await kv(['DEL', ek + ':pemilik']) } }
+async function lepasRobot(u) { for (const ek of ['robot', 'patromax', 'sorot', 'naga', 'mbulan', 'karpet']) { if ((await kv(['GET', ek + ':pemilik'])) !== u) continue; const k = await koleksi(u); if (!k.own.some(o => o.id === ek)) await kv(['DEL', ek + ':pemilik']) } }
 async function koleksi(u) { const v = jparse(await kv(['HGET', 'itemplus', u])); return v && Array.isArray(v.own) ? v : { own: [], pajang: [] } }
 const hariIni = () => { const w = new Date(Date.now() + 7 * 3600e3); return Math.round((Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - Date.UTC(2026, 9, 18)) / 864e5) };
 
@@ -438,7 +438,7 @@ export default async function handler(req, res) {
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
       for (let i = 0; i + 1 < rx.length; i += 2) { const e = jparse(rx[i + 1]); if (e && e.length) extra[rx[i]] = e }
-      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx, srt, gmd, pdh, plog, ngp, ngs, ngmd, wbr, mbp, mbm] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:kecamatan'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik'], ['GET', 'sorot:pemilik'], ['GET', 'robot:mode'], ['HGETALL', 'pindah'], ['LRANGE', 'pindah:log', 0, 11], ['GET', 'naga:pemilik'], ['LRANGE', 'naga:sembur', 0, 29], ['GET', 'naga:mode'], ['HGETALL', 'warga:baru'], ['GET', 'mbulan:pemilik'], ['GET', 'mbulan:mode']]);
+      const [re, rr, ri, rd, rj, gg, rt, rb, bl, sp, lwg, pmx, srt, gmd, pdh, plog, ngp, ngs, ngmd, wbr, mbp, mbm, kpp, kpm] = await kvMany([['HKEYS', 'emasplus'], ['HGETALL', 'rukoplus'], ['HGETALL', 'itemplus'], ['HGETALL', 'donasi'], ['HGETALL', 'jalan'], ['GET', 'goal:kecamatan'], ['HGETALL', 'tingkatplus'], ['GET', 'robot:pemilik'], ['LRANGE', 'belanja:log', 0, 59], ['HGETALL', 'stafplus'], ['HGETALL', 'lowongan'], ['GET', 'patromax:pemilik'], ['GET', 'sorot:pemilik'], ['GET', 'robot:mode'], ['HGETALL', 'pindah'], ['LRANGE', 'pindah:log', 0, 11], ['GET', 'naga:pemilik'], ['LRANGE', 'naga:sembur', 0, 29], ['GET', 'naga:mode'], ['HGETALL', 'warga:baru'], ['GET', 'mbulan:pemilik'], ['GET', 'mbulan:mode'], ['GET', 'karpet:pemilik'], ['GET', 'karpet:mode']]);
       const tingkat = {}, atas = {}; for (let i = 0; rt && i + 1 < rt.length; i += 2) { const v = jparse(rt[i + 1]); if (v && v.lantai > 1) tingkat[rt[i]] = v.lantai; if (v && Array.isArray(v.atas)) atas[rt[i]] = v.atas }
       const jalan = {}; for (let i = 0; rj && i + 1 < rj.length; i += 2) { const v = jparse(rj[i + 1]); if (v && Date.now() - v.at < 120000) jalan[rj[i]] = v }
       const staf = {}; for (let i = 0; sp && i + 1 < sp.length; i += 2) { const v = stafAktif(jparse(sp[i + 1])); if (v.length) staf[sp[i]] = v.map(x => ({ user: x.user, role: x.role, sejak: x.sejak, until: x.until })) }
@@ -465,7 +465,7 @@ export default async function handler(req, res) {
         }
       } catch (e) { }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, modif, maksPajang: MAKS_PAJANG, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, modif, maksPajang: MAKS_PAJANG, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, karpet: { owner: kpp || null, mode: jparse(kpm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });
@@ -756,10 +756,10 @@ export default async function handler(req, res) {
           await terapkan(kv, kvMany, 'item', kode, v, true, 'otomatis');
           return res.status(200).json({ ok: true, langsung: true, kode, jenis: 'item', harga: isi.harga, kartu: await infoKartu(D, s.u) });
         }
-        const EKS = ['robot', 'patromax', 'sorot', 'naga', 'mbulan'], ek = EKS.find(id => ids.includes(id));
+        const EKS = ['robot', 'patromax', 'sorot', 'naga', 'mbulan', 'karpet'], ek = EKS.find(id => ids.includes(id));
         if (ek && ids.filter(id => EKS.includes(id)).length > 1) return res.status(400).json({ error: 'Beli barang eksklusif satu per satu ya.' });
         if (ek) { // barang eksklusif (GENTO / Patromax): beli langsung pakai Recehan, sekaligus. Tidak ada pesanan menggantung → tidak ada yang bayar dobel.
-          const KEY = ek + ':pemilik', NM = { robot: 'GENTO', patromax: 'Patromax', sorot: 'Lampu Sorot Langit', naga: 'NAGASARI', mbulan: 'MBULAN' }[ek];
+          const KEY = ek + ':pemilik', NM = { robot: 'GENTO', patromax: 'Patromax', sorot: 'Lampu Sorot Langit', naga: 'NAGASARI', mbulan: 'MBULAN', karpet: 'Karpet Terbang' }[ek];
           const p = await kv(['GET', KEY]); if (p) return res.status(400).json({ error: NM + ' cuma ada 1 di kampung, dan sudah dimiliki @' + p + '.' });
           if ((info.saldo || 0) < isi.harga) return res.status(400).json({ error: `${NM} cuma bisa dibeli pakai Recehan. Recehan-mu ${info.saldo || 0} Receh, butuh ${isi.harga} Receh. Isi Recehan dulu ya!` });
           if (!(await kv(['SET', KEY, s.u, 'NX']))) return res.status(400).json({ error: 'Yah, ' + NM + ' baru saja dibeli warga lain.' });
@@ -773,7 +773,7 @@ export default async function handler(req, res) {
         }
       }
       const lama = await kv(['GET', jenis + ':user:' + s.u]); if (lama) { await simpanStatus(jenis, lama, 'diganti'); await kv(['SREM', jenis + ':antre', lama]) }
-      if (jenis === 'item' && !['robot', 'patromax', 'sorot', 'naga', 'mbulan'].some(id => isi.items.includes(id))) await lepasRobot(s.u);
+      if (jenis === 'item' && !['robot', 'patromax', 'sorot', 'naga', 'mbulan', 'karpet'].some(id => isi.items.includes(id))) await lepasRobot(s.u);
       const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let kode = JENIS[jenis].awal + '-'; for (let i = 0; i < 4; i++) kode += A[crypto.randomInt(A.length)];
       await kvMany([['SET', jenis + ':req:' + kode, JSON.stringify({ u: s.u, jenis, ...isi, at: Date.now(), status: 'menunggu' }), ...EXP(jenis)],
         ['SET', jenis + ':user:' + s.u, kode, ...EXP(jenis)], ['SADD', jenis + ':antre', kode]]);
@@ -983,6 +983,18 @@ export default async function handler(req, res) {
       const pem = await kv(['GET', 'naga:pemilik']); if (String(pem || '').toLowerCase() !== s.u) return res.status(403).json({ error: 'Ini bukan NAGASARI-mu.' });
       if (!(await kv(['SET', 'naga:cd', '1', 'NX', 'EX', 8]))) return res.status(429).json({ error: 'Sebentar ya, NAGASARI baru aja dapat perintah.' });
       const mode = { m, at: Date.now() }; await kv(['SET', 'naga:mode', JSON.stringify(mode), 'EX', 3 * 864e2]);
+      return res.status(200).json({ ok: true, mode });
+    }
+    if (aksi === 'karpet') { // pemilik Karpet Terbang: atur otomatis/manual, atau terbangkan rumah sekarang (mode manual)
+      const m = String(body.m || ''); if (!['auto', 'manual', 'terbang'].includes(m)) return res.status(400).json({ error: 'Perintah tidak dikenal' });
+      const pem = await kv(['GET', 'karpet:pemilik']); if (String(pem || '').toLowerCase() !== s.u) return res.status(403).json({ error: 'Ini bukan Karpet Terbang-mu.' });
+      const lama = jparse(await kv(['GET', 'karpet:mode'])) || { set: 'auto' }, now = Date.now();
+      let mode;
+      if (m === 'terbang') { if (lama.set !== 'manual') return res.status(400).json({ error: 'Ubah ke mode Manual dulu ya.' });
+        if (lama.at && now - lama.at < 150000) return res.status(429).json({ error: 'Rumahmu masih terbang, tunggu mendarat dulu ya.' });
+        mode = { set: 'manual', at: now } }
+      else mode = { set: m, at: lama.at || 0 };
+      await kv(['SET', 'karpet:mode', JSON.stringify(mode)]);
       return res.status(200).json({ ok: true, mode });
     }
     if (aksi === 'mbulan-mode') { // pemilik MBULAN: suruh main (jalan-jalan / melayang keliling) atau suruh pulang (bobo di atap 1 jam)

@@ -126,7 +126,7 @@ const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 14 : (kini >= 2 ? 3 : 17); // t
 const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
 const KONSOL_G = ['penalti', 'genteng', 'pancing', 'bakso', 'ayam', 'karung', 'layang', 'memori', 'pinang', 'kentongan', 'karet', 'pesawat', 'tambang', 'egrang'];
 const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 400, karung: 80, layang: 600, memori: 140, pinang: 40, kentongan: 80, karet: 400, pesawat: 3000, tambang: 60, egrang: 5000 };
-const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, patromax: 12, sorot: 19, naga: 25, mbulan: 20, karpet: 30, konsol: 4, bougenville: 2 };
+const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, patromax: 12, sorot: 19, naga: 25, mbulan: 20, karpet: 25, konsol: 4, bougenville: 2 };
 const MAKS_PAJANG = 3; // ⚙️ batas item dipajang di pekarangan (ubah juga di api/_terapkan.js). Web ikut otomatis.
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
 const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => { const h = +String(v || '').split(':')[0]; return KONTRAK_OK.includes(h) ? h : KONTRAK_HARI };

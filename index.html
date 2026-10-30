@@ -2900,7 +2900,7 @@ function atapModif3D(g,T,M,AT,roof,y0,adaDiAtas){const add=m=>{m.castShadow=true
     const d=add(new T.Mesh(new T.SphereGeometry(1,32,16,0,Math.PI*2,0,Math.PI/2),M(roof,{roughness:.45,metalness:.15})));d.scale.set(1.45,1.25,1.2);d.position.y=y0+.14;
     if(!adaDiAtas){const k=add(new T.Mesh(new T.ConeGeometry(.08,.45,10),M('#F2C230',{metalness:.5,roughness:.3})));k.position.y=y0+1.6}}}
 function depanModif3D(g,T,M,box,J,P){const kaca='#BFE3F2',bingkai='#FFFFFF',zf=1.31;
-  const jendela=(x,y,zz,rot)=>{const G=new T.Group();G.position.set(x,y,zz);G.rotation.y=rot||0;g.add(G);const B=(w,h,d,c,px,py,pz)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c,c===kaca?{metalness:.2,roughness:.15}:{}));m.position.set(px,py,pz);m.castShadow=true;G.add(m);return m};
+  const jendela=(x,y,zz,rot,sk)=>{const G=new T.Group();if(sk)G.scale.set(sk,sk,1);G.position.set(x,y,zz);G.rotation.y=rot||0;g.add(G);const B=(w,h,d,c,px,py,pz)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c,c===kaca?{metalness:.2,roughness:.15}:{}));m.position.set(px,py,pz);m.castShadow=true;G.add(m);return m};
     if(J==='bulat'){const k=new T.Mesh(new T.CylinderGeometry(.34,.34,.06,24),M(kaca,{metalness:.2,roughness:.15}));k.rotation.x=Math.PI/2;G.add(k);const t=new T.Mesh(new T.TorusGeometry(.36,.05,8,24),M(bingkai));G.add(t);B(.05,.62,.02,bingkai,0,0,.04)}
     else if(J==='lengkung'){B(.6,.55,.06,kaca,0,-.1,0);const a=new T.Mesh(new T.CylinderGeometry(.3,.3,.06,20,1,false,0,Math.PI),M(kaca,{metalness:.2,roughness:.15}));a.rotation.set(Math.PI/2,0,Math.PI/2);a.rotation.order='ZXY';a.position.y=.17;G.add(a);B(.7,.08,.08,bingkai,0,-.4,.02)}
     else if(J==='besar'){B(1.0,.85,.06,kaca,0,0,0);B(.05,.85,.07,'#555',0,0,.02);B(1.1,.08,.08,bingkai,0,-.45,.02)}
@@ -2910,7 +2910,7 @@ function depanModif3D(g,T,M,box,J,P){const kaca='#BFE3F2',bingkai='#FFFFFF',zf=1
   else if(P==='lengkung'){box(.72,1.05,.06,'#6B4527',0,.52,zf);const a=new T.Mesh(new T.CylinderGeometry(.36,.36,.06,20,1,false,0,Math.PI),M('#6B4527'));a.rotation.set(Math.PI/2,0,Math.PI/2);a.rotation.order='ZXY';a.position.set(0,1.05,zf);g.add(a);box(.06,.06,.02,'#F2C230',.22,.55,1.35)}
   else if(P==='garasi'){box(1.3,1.15,.06,'#9AA3A8',0,.58,zf);for(let k=0;k<6;k++)box(1.3,.03,.08,'#6E777C',0,.12+k*.19,1.33)}
   else{box(.7,1.2,.06,'#6B4527',0,.6,1.31);box(.06,.06,.02,'#F2C230',.22,.6,1.35)}
-  const lebar=P==='garasi'?1.25:1.05;[[-lebar],[lebar]].forEach(([x])=>jendela(x*(P==='garasi'?1.12:1),1.15,zf));jendela(1.61,1.15,0,Math.PI/2);jendela(-1.61,1.15,0,-Math.PI/2)}
+  const gr=P==='garasi',lebar=gr?1.13:1.05,sk=gr?(J==='besar'?.68:.92):(J==='besar'?.9:1);[[-lebar],[lebar]].forEach(([x])=>jendela(x,1.15,zf,0,sk));jendela(1.61,1.15,0,Math.PI/2);jendela(-1.61,1.15,0,-Math.PI/2)}
 function build3DRumah(r){const T=THREE,g=new T.Group();
   const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:0},o||{}));
   const box=(w,h,d,c,x,y,z)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;g.add(m);return m};

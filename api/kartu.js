@@ -118,7 +118,7 @@ const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','
 // 🛠️ Modif Rumah: warga atur sendiri dari pilihan yang tersedia, bayar 8 Receh tiap simpan, langsung jadi
 const MODIF = { atap: ['pelana', 'limas', 'joglo', 'datar', 'kubah'], tembok: ['polos', 'bata', 'kayu', 'batu', 'batik'], jendela: ['kotak', 'bulat', 'lengkung', 'besar'], pintu: ['kayu', 'ganda', 'lengkung', 'garasi'], genteng: ['tanah', 'metal', 'sirap', 'rumbia'], pagar: ['tanpa', 'kayu', 'bambu', 'besi', 'tanaman'], jalan: ['biasa', 'paving', 'batu', 'kerikil'], lampu: ['biasa', 'hangat'], halaman: ['rumput', 'garis', 'bunga', 'kebun'], pohon: ['rindang', 'cemara', 'kelapa', 'trembesi'] };
 const MODIF_URUT = ['atap', 'tembok', 'jendela', 'pintu', 'genteng', 'pagar', 'jalan', 'lampu', 'halaman', 'pohon']; // urutan isi md 'a|b|c|...' (riwayat rumah)
-const MODIF_HARGA = () => 8;
+const MODIF_HARGA = () => 12;
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
 // pesanan ubah rumah & item (harga dalam Genteng)
 const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };
@@ -647,7 +647,7 @@ export default async function handler(req, res) {
       const PEK = ['pagar', 'jalan', 'halaman', 'pohon'], pek = body.bagian === 'pekarangan', lama = jparse(await kv(['HGET', 'modifplus', s.u])); // 🌳 Modif pekarangan (4 Receh) = pagar + jalan setapak; sisanya Modif rumah (8 Receh)
       const m = {}; for (const k of Object.keys(MODIF)) { const ambil = pek ? PEK.includes(k) : !PEK.includes(k); const v = String((ambil ? (body.m || {})[k] : (lama && lama[k])) || MODIF[k][0]); if (!MODIF[k].includes(v)) return res.status(400).json({ error: 'Pilihan ' + k + ' tidak tersedia.' }); m[k] = v }
       const wall = String(pek ? ((lama && lama.wall) || r.wall || 'krem') : (body.wall || '')), roof = String(pek ? ((lama && lama.roof) || r.roof || 'merah') : (body.roof || '')); if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna tembok dan atap dulu.' });
-      const harga = pek ? 4 : MODIF_HARGA(!!lama);
+      const harga = pek ? 6 : MODIF_HARGA(!!lama);
       const tkInfo = jparse(await kv(['HGET', 'tingkatplus', s.u])) || {}, nLt = Math.max(1, Math.min(3, +tkInfo.lantai || +r.tingkat || 1)); let atas = pek ? ((lama && lama.atas) || null) : null; // rumah tingkat: warna tiap lantai atas ikut diatur
       if (!pek && nLt > 1 && Array.isArray(body.atas)) { atas = body.atas.slice(0, nLt - 1).map(String); if (atas.length !== nLt - 1 || !atas.every(okWarna)) return res.status(400).json({ error: 'Pilih warna tiap lantai dulu.' }) }
       if (lama && Object.keys(MODIF).every(k => lama[k] === m[k]) && lama.wall === wall && lama.roof === roof && JSON.stringify(atas || null) === JSON.stringify(lama.atas || null)) return res.status(400).json({ error: pek ? 'Pekarangannya sama persis dengan sekarang.' : 'Modifnya sama persis dengan rumahmu sekarang.' });

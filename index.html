@@ -2476,8 +2476,8 @@ function karpetTerbang(v,t){const p=karpetFase(),ow=window.KARPET_OWNER,i=ow?kkR
   let X,Y,ang;if(p<.12){const u=e2(p/.12),[ex,ey]=E(a0);X=HX+(ex-HX)*u;Y=HY+(ey-HY)*u;ang=Math.atan2(ey-HY,ex-HX)}else if(p<.88){const a=a0+(p-.12)/.76*6.2832;[X,Y]=E(a);ang=a+Math.PI/2}else{const u=e2((p-.88)/.12),[ex,ey]=E(a0);X=ex+(HX-ex)*u;Y=ey+(HY-ey)*u;ang=Math.atan2(HY-ey,HX-ex)}
   const lh=T*1.7*Math.min(1,p/.05,(1-p)/.05),tt=t||0,z=v.z;ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);
   if(p>.04&&p<.96){ctx.save();ctx.setLineDash([T*.14,T*.1]);ctx.lineWidth=T*.06;ctx.strokeStyle='rgba(28,37,32,.55)';ctx.fillStyle='rgba(230,215,168,.55)';ctx.beginPath();ctx.roundRect(HX-T*.45,HY-T*.4,T*.9,T*.8,T*.12);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.font=`${T*.42}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🪄',HX,HY);ctx.restore()} // kavling kosong: penanda rumah lagi terbang
-  ctx.fillStyle='rgba(20,30,20,.22)';ctx.beginPath();ctx.ellipse(X+lh*.35,Y+lh*.25,T*2*Math.min(4,Math.max(1,.32/(z/dpr))),T*1.4*Math.min(4,Math.max(1,.32/(z/dpr))),0,0,7);ctx.fill();
-  const sc=Math.min(4,Math.max(1,.32/(z/dpr))); // zoom jauh: karpet & rumah diperbesar biar tetap kelihatan
+  ctx.fillStyle='rgba(20,30,20,.22)';ctx.beginPath();ctx.ellipse(X+lh*.35,Y+lh*.25,T*2,T*1.4,0,0,7);ctx.fill();
+  const sc=1; // ukuran tetap (ikut skala peta), tidak membesar saat zoom jauh
   ctx.save();ctx.translate(X,Y-lh);ctx.scale(sc,sc);{const w=T*2.2,h=T*1.7;ctx.beginPath();for(let k=0;k<=12;k++){const xx=-w+k*w/6,yy=-h+Math.sin(tt*5+k*.8)*T*.06;k?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}for(let k=12;k>=0;k--){const xx=-w+k*w/6,yy=h+Math.sin(tt*5+k*.8)*T*.06;ctx.lineTo(xx,yy)}ctx.closePath();ctx.fillStyle='#A8322A';ctx.fill();ctx.lineWidth=T*.06;ctx.strokeStyle='#F2C230';ctx.stroke();
     ctx.strokeStyle='#1F4E8C';ctx.lineWidth=T*.05;ctx.strokeRect(-w*.78,-h*.72,w*1.56,h*1.44);ctx.fillStyle='#F2C230';for(let k=0;k<7;k++)[-1,1].forEach(sd=>ctx.fillRect(-w+k*w/3-1.5,sd*(h+T*.05)-(sd<0?T*.18:0),3,T*.18))}
   ctx.scale(1.25,1.25);ctx.translate(-HX,-HY);NK.drawHouse(r,1,1);ctx.restore();

@@ -2283,6 +2283,13 @@ function drawDusunSel(v,t){const k=sel.k,q=DSN_Q[k],z=v.z,X=x=>v.ox+x*z,Y=y=>v.o
   ctx.strokeStyle=DSN_COL[k];ctx.lineWidth=6*dpr;ctx.setLineDash([18*dpr,12*dpr]);ctx.lineDashOffset=-t*40*dpr;ctx.strokeRect(X(q.x0)+5*dpr,Y(q.y0)+5*dpr,(q.x1-q.x0)*z-10*dpr,(q.y1-q.y0)*z-10*dpr);
   ctx.restore()}
 window.__qaDusun=k=>selectDusun(k);
+function dusunBaruBox(){const D=desaBangun(),SL=S*T,xs=(D.SB||[]).map(b=>b[0]),ys=(D.SB||[]).map(b=>b[1]);const x0=Math.min(...xs)*SL,x1=(Math.max(...xs)+1)*SL,y0=Math.min(...ys)*SL,y1=(Math.max(...ys)+1)*SL;return {x0,x1,y0,y1,cx:(x0+x1)/2,cy:(y0+y1)/2}}
+function selectDusunBaru(){sel={kind:'sb'};const q=dusunBaruBox();flyTo({cx:q.cx,cy:q.cy,zoom:clampZ(Math.min(cw/(q.x1-q.x0),ch/(q.y1-q.y0))*.9)},900);showResult(sel);dirty=true;try{SND.play('pop',.8)}catch(e){}}
+let SB_EDGE=null;function drawDusunBaruSel(v,t){const D=desaBangun(),SL=S*T,z=v.z;if(!SB_EDGE){const has=new Set((D.SB||[]).map(b=>b.join(',')));if(D.SPARK)for(let bx=D.SPARK.bx0;bx<=D.SPARK.bx1;bx++)has.add(bx+','+D.SPARK.by);SB_EDGE=[];has.forEach(k=>{const [bx,by]=k.split(',').map(Number),x0=bx*SL,y0=by*SL,x1=x0+SL,y1=y0+SL;
+    if(!has.has(bx+','+(by-1)))SB_EDGE.push([x0,y0,x1,y0]);if(!has.has(bx+','+(by+1)))SB_EDGE.push([x0,y1,x1,y1]);if(!has.has((bx-1)+','+by))SB_EDGE.push([x0,y0,x0,y1]);if(!has.has((bx+1)+','+by))SB_EDGE.push([x1,y0,x1,y1])});SB_EDGE.blk=[...has].map(k=>k.split(',').map(Number))}
+  ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);ctx.fillStyle='rgba(242,194,48,.14)';SB_EDGE.blk.forEach(([bx,by])=>ctx.fillRect(bx*SL,by*SL,SL,SL));
+  ctx.lineCap='round';ctx.strokeStyle='#1C2520';ctx.lineWidth=10*dpr/z;ctx.beginPath();SB_EDGE.forEach(([a,b,c,d])=>{ctx.moveTo(a,b);ctx.lineTo(c,d)});ctx.stroke();
+  ctx.strokeStyle='#E05A9A';ctx.lineWidth=6*dpr/z;ctx.setLineDash([18*dpr/z,12*dpr/z]);ctx.lineDashOffset=-t*40*dpr/z;ctx.stroke();ctx.restore()}
 function selectDusun(k){sel={kind:'d',k};const q=DSN_Q[k];flyTo({cx:q.cx,cy:q.cy,zoom:clampZ(Math.min(cw/(q.x1-q.x0),ch/(q.y1-q.y0))*1.05)},900);showResult(sel);dirty=true;SND.play('pop',.8)}
 function homeView(){const w=BB.x1-BB.x0,h=BB.y1-BB.y0;fitZ=Math.min(cw/(w+T*2),ch/(h+T*3));
   minZ=Math.max(.06,fitZ*.55);try{if(STQA){const b=desaBangun().bounds;minZ=Math.min(minZ,Math.min(cw/(b.x1-b.x0),ch/(b.y1-b.y0))*.95)}}catch(e){}return {cx:(BB.x0+BB.x1)/2,cy:(BB.y0+BB.y1)/2+T*.5,zoom:fitZ*1.15}}
@@ -2297,6 +2304,7 @@ const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 
 function targetOf(s){
   if(s.kind==='d'){const q=DSN_Q[s.k];return {x:q.cx,y:q.cy}}
+  if(s.kind==='sb'){const B=dusunBaruBox();return {x:B.cx,y:B.cy}}
   if(s.kind==='r'){const r=RES[s.i];return {x:NK.wx(r.x),y:NK.wx(r.y)}}
   if(s.kind==='o')return {x:NK.wx(NK.OWNER.x),y:NK.wx(NK.OWNER.y)};
   const b=BLD[s.i],w=b.w||3;return {x:NK.wx(b.x)+(w-1)*T/2,y:NK.wx(b.y)+(w-1)*T/2};
@@ -2317,12 +2325,12 @@ function drawLabels(v,t){if(typeof PILIH!=='undefined'&&PILIH)return;
   const tryTag=(x,y,name,sub,own,force,big)=>{if(x<-200||y<-60||x>cv.width+200||y>cv.height+200)return;const f=big?fs:fsS;if(!big&&hs<24&&sub!=='Juragan Genteng')sub='';const m=measure(name,sub,f);
     const r={x:x-m.w/2,y:y-m.h,w:m.w,h:m.h};if(!force&&!fits(r))return;placed.push(r);NK.tag(x,y,name,sub,f,true,own&&big,!big)};
   // terpilih
-  if(sel&&sel.kind!=='d'&&!SETIR){const p=targetOf(sel),[sx,sy]=[v.ox+p.x*z,v.oy+p.y*z];
+  if(sel&&sel.kind!=='d'&&sel.kind!=='sb'&&!SETIR){const p=targetOf(sel),[sx,sy]=[v.ox+p.x*z,v.oy+p.y*z];
     const rad=(sel.kind==='b'?T*1.9:T*.8)*z*(1+.07*Math.sin(t*6));
     ctx.save();ctx.strokeStyle='#F2C230';ctx.lineWidth=5*dpr;ctx.beginPath();ctx.arc(sx,sy,Math.max(rad,18*dpr),0,7);ctx.stroke();
     ctx.strokeStyle='rgba(28,37,32,.85)';ctx.lineWidth=1.5*dpr;ctx.stroke();ctx.restore()}
   const lift=y=>y-hs*.45*dpr;
-  if(sel&&sel.kind!=='d'&&!SETIR){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
+  if(sel&&sel.kind!=='d'&&sel.kind!=='sb'&&!SETIR){const p=targetOf(sel),sx=v.ox+p.x*z,sy=v.oy+p.y*z;
     if(sel.kind==='r'){const r=RES[sel.i];tryTag(sx,lift(sy)-((r.sup||NK.shopOn(r,TODAY))?hs*.5*dpr:0),NK.shopOn(r,TODAY)?'🏪 '+r.shop.name:(r.juragan?'👑 @':'@')+r.name,NK.shopOn(r,TODAY)?'@'+r.name:(r.juragan?'Juragan Genteng · ':'')+(NK.jobOn(r)?'Tukang Proyek · ':'')+`Warga #${sel.i+2} · hari ke-${r.day||1}`+(r.sup&&!r.juragan?' · pendukung':'')+(papanOf(r)?' · 🪧 '+papanOf(r):''),true,true,true)}
     else if(sel.kind==='o')tryTag(sx,lift(sy),'@negerikomen','Kepala desa · warga #1',true,true,true);
     else{const b=BLD[sel.i];tryTag(sx,sy-(T*1.5)*z,b.name||'Bangunan',b.by&&b.by!=='negerikomen'?bossTxt(b,b.by):'',true,true,true)}}
@@ -2521,11 +2529,11 @@ function frame(now){
     try{drawHarta(v,reduce?0:t)}catch(e){console.error(e)}
     {const _t0=DBG?performance.now():0;try{drawNaga(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.naga=(DBG.m.naga||0)*.9+(performance.now()-_t0)*.1}
     try{if(PILIH)drawPilih(v,reduce?0:t)}catch(e){console.error(e)}
-    if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);
+    if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);if(sel&&sel.kind==='sb')try{drawDusunBaruSel(v,reduce?0:t)}catch(e){}
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
     {const _t0=DBG?performance.now():0;ctx.setTransform(1,0,0,1,0,0);drawLabels(v,reduce?0:t);if(DBG){DBG.m.label=(DBG.m.label||0)*.9+(performance.now()-_t0)*.1;dbgTick(now)}}};
     // mode Hemat saat peta digeser/di-zoom: seluruh gambar peta (+ tepi) dibuat sekali, lalu cuma digeser → perangkat lemah tetap lancar
-    if(GFX==='hemat'&&(window.__GESER||fly)&&!PILIH&&!qOn&&!(sel&&sel.kind==='d')){let F=window.__FC;const zm=F&&F.z!==z,mx=Math.round(v.W*(zm?.12:.3)),my=Math.round(v.H*(zm?.12:.3)); // saat zoom: tepi kecil biar gambar ulang cepat
+    if(GFX==='hemat'&&(window.__GESER||fly)&&!PILIH&&!qOn&&!(sel&&(sel.kind==='d'||sel.kind==='sb'))){let F=window.__FC;const zm=F&&F.z!==z,mx=Math.round(v.W*(zm?.12:.3)),my=Math.round(v.H*(zm?.12:.3)); // saat zoom: tepi kecil biar gambar ulang cepat
       if(F&&F.z!==z){if(!F.zt||Math.abs(F.zl-z)>1e-6){F.zt=now;F.zl=z}}
       const geser=F&&F.z===z&&F.W===v.W&&F.H===v.H&&Math.abs(v.ox-F.ox)<F.mx-2&&Math.abs(v.oy-F.oy)<F.my-2,skala=F&&F.z!==z&&F.W===v.W&&(now-F.zt<250||fly)&&z/F.z>.6&&z/F.z<1.7;
       if(geser){ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(F.c,Math.round(v.ox-F.ox-F.mx),Math.round(v.oy-F.oy-F.my))}
@@ -2565,7 +2573,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){lepasSel();SND.play('pop',.8);bukaRental();return}}
   if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){lepasSel();SND.play('pop',.8);const ow=window.ROBOT_OWNER,k=ow?RES.findIndex(r=>String(r.name).toLowerCase()===ow):-1;if(k>=0){toast(gentoDiRumah()?'🤖 GENTO lagi di rumah @'+ow:'🤖 GENTO milik @'+ow+' lagi istirahat di hanggar');select({kind:'r',i:k});return}openDemoGento();return}}
   if(STQA&&DESA&&NAMA_DESA_OLEH){const g=DESA.gate;if(Math.abs(wxp-g.x)<T*6.8&&Math.abs(wyp-g.y)<T*2.5){const k=RES.findIndex(r=>String(r.name).toLowerCase()===NAMA_DESA_OLEH);if(k>=0){lepasSel();SND.play('pop',.8);toast('🏷️ '+NAMA_DESA+' — usulan @'+NAMA_DESA_OLEH);select({kind:'r',i:k});return}}}
-  if(STQA&&DESA&&DESA.SPARK){const P=DESA.SPARK,SL=S*T,cx=(P.bx0+P.bx1+1)*SL/2,cy=P.by*SL+SL*.5;if(Math.abs(wxp-cx)<T*4.5&&wyp>cy-T*2.2&&wyp<cy+T*1.6){lepasSel();try{SND.play('pop',.8)}catch(e){}bukaDusunBaru();return}}
+  if(STQA&&DESA&&DESA.SPARK){const P=DESA.SPARK,SL=S*T,cx=(P.bx0+P.bx1+1)*SL/2,cy=P.by*SL+SL*.5;if(Math.abs(wxp-cx)<T*4.5&&wyp>cy-T*2.2&&wyp<cy+T*1.6){selectDusunBaru();return}}
   if(STQA){const fo=infraKetuk(wxp,wyp);if(fo&&fo.k==='lumbung'){lepasSel();SND.play('pop',.8);bukaPanen();return}if(fo&&fo.k==='riwayatgamer'){lepasSel();SND.play('pop',.8);bukaRiwayatGamer();return}if(fo){lepasSel();SND.play('pop',.8);open3D(null,-1,{type:'infra_'+fo.k,infra:true,name:fo.name,label:fo.label,ket:fo.ket,day:11,by:'negerikomen'});return}}
   if(STQA&&wxp>STD.x&&wxp<STD.x+STD.w&&wyp>STD.y-60&&wyp<STD.y+STD.h){lepasSel();SND.play('pop',.8);bukaLiga(LIGA_QA);return}
   {const pi=PLANG_POS.findIndex(p=>Math.abs(wxp-p.x)<T*1.5&&Math.abs(wyp-p.y)<T*1.05);if(pi>=0)return selectDusun(pi)}
@@ -2656,6 +2664,10 @@ function showResult(s){const box=$('result');box.className='result';box.innerHTM
     if(KK_ON){const mine=(kkGet()||{}).u===String(r.name).toLowerCase();const kb=el('button','btn '+(mine?'gold3':'kkb'),mine?'🔑 Kartu kamu':'🔑 Kartu Komen');kb.type='button';kb.onclick=()=>kkBuka(r.name);acts.append(kb)}
     BLD.forEach(b=>{const w=(window.LOWONGAN||{})[bKey(b)];if(bossOf(b)===r.name&&w&&w.pelamar&&(kkGet()||{}).u===r.name){const pb=el('button','btn gold3','📝 '+w.pelamar+' pelamar di '+(b.name||'bangunanmu'));pb.type='button';pb.onclick=()=>kkBuka(r.name);acts.append(pb)}});
     BLD.forEach(b=>{if(bossOf(b)===r.name&&(kkGet()||{}).u!==r.name&&(window.LOWONGAN||{})[bKey(b)]){const lb=el('button','btn gold3 lamar','📝 Lamar kerja di '+(b.name||'sini'));lb.type='button';lb.onclick=()=>kkLamar(b);acts.append(lb)}})}
+  else if(s.kind==='sb'){const D=desaBangun(),SK=D.SK||[],used=kavTerisi(),isi=SK.filter(p=>used.has(p.x+','+p.y)).length,nb=0;
+    left.append(el('h2',null,'🏡 Dusun Baru'),el('p',null,[`📍 ${NAMA_DESA_LAMA}`,`${fmt(isi)} warga`,`${fmt(SK.length-isi)} kavling kosong`,`${(D.SB||[]).length} blok`].join(' · ')),
+      el('p',null,'Dusun terbaru di barat Desa Awalkomen, dibuka buat warga baru yang komen RUMAH. Belum punya nama? Nanti warga yang pilih!'));
+    const bi=el('button','btn','📊 Info lengkap Dusun Baru');bi.type='button';bi.onclick=()=>bukaDusunBaru();acts.append(bi)}
   else if(s.kind==='d'){const k=s.k,nm=dsnNama(k),n=RES.filter(r=>dsnOf(r.x,r.y)===k).length,nb=BLD.filter(b=>{const w=b.w||3;return dsnOf(b.x+(w-1)/2,b.y+(w-1)/2)===k}).length;
     left.append(el('h2',null,'🏡 '+(nm.nama||('Dusun '+DSN_NO[k]))),el('p',null,[nm.nama?`Dusun ${DSN_NO[k]}`:'',`📍 ${NAMA_DESA_LAMA}`,`${n} warga`,`${nb} bangunan`].filter(Boolean).join(' · ')),
       el('p',null,nm.nama?(nm.oleh?`Nama usulan @${nm.oleh}, dipilih warga lewat like terbanyak.`:'Nama pilihan warga.'):'Belum punya nama. Usulkan nama dusun di komen video terbaru @negerikomen. Like terbanyak jadi namanya!'))}

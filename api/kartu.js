@@ -115,7 +115,7 @@ async function wargaPlus(D, u, extra) {
 }
 const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','kuning','oranye','ungu','ungu muda','coklat','hitam','abu-abu','putih','emas','tosca','navy','krem','marun','terakota'];
 // 🛠️ Modif Rumah: warga atur sendiri dari pilihan yang tersedia, bayar 6 Receh tiap simpan, langsung jadi
-const MODIF = { atap: ['pelana', 'limas', 'joglo', 'datar', 'kubah'], tembok: ['polos', 'bata', 'kayu', 'batu', 'batik'], jendela: ['kotak', 'bulat', 'lengkung', 'besar'], pintu: ['kayu', 'ganda', 'lengkung', 'garasi'], genteng: ['tanah', 'metal', 'sirap', 'rumbia'], pagar: ['tanpa', 'kayu', 'bambu', 'besi', 'tanaman'], jalan: ['biasa', 'paving', 'batu', 'kerikil'], lampu: ['biasa', 'hangat'], halaman: ['rumput', 'garis', 'bunga', 'kebun'], pohon: ['rindang', 'cemara', 'kelapa', 'sakura'] };
+const MODIF = { atap: ['pelana', 'limas', 'joglo', 'datar', 'kubah'], tembok: ['polos', 'bata', 'kayu', 'batu', 'batik'], jendela: ['kotak', 'bulat', 'lengkung', 'besar'], pintu: ['kayu', 'ganda', 'lengkung', 'garasi'], genteng: ['tanah', 'metal', 'sirap', 'rumbia'], pagar: ['tanpa', 'kayu', 'bambu', 'besi', 'tanaman'], jalan: ['biasa', 'paving', 'batu', 'kerikil'], lampu: ['biasa', 'hangat'], halaman: ['rumput', 'garis', 'bunga', 'kebun'], pohon: ['rindang', 'cemara', 'kelapa', 'trembesi'] };
 const MODIF_URUT = ['atap', 'tembok', 'jendela', 'pintu', 'genteng', 'pagar', 'jalan', 'lampu', 'halaman', 'pohon']; // urutan isi md 'a|b|c|...' (riwayat rumah)
 const MODIF_HARGA = () => 6;
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));

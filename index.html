@@ -6154,7 +6154,7 @@ if(TT_ITEMS.length&&$('tancap')){$('tancap').hidden=false;
   {const ld=$('tancapLede');ld.textContent='Tontonan warga malam ini, kiriman tetangga ';TT_AKUN.forEach((a,k)=>{if(k)ld.append(' & ');ld.append(ttMention(a))});ld.append('.')}tancapCards($('tancapList'));$('tancapMore').remove();
   const bi=BLD.findIndex(b=>b.type==='layartancap');if(bi>=0){const go=el('button','demoSm','📍 Lihat di peta');go.type='button';go.style.marginTop='12px';go.onclick=()=>{select({kind:'b',i:bi});scrollMap()};$('tancap').append(go)}}
 /* juragan genteng: pita di atas */
-{const j=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(j>=0)RES[j].juragan=true}
+{RES.forEach(r=>delete r.juragan);setTimeout(()=>{if(JUR!==-2)return;try{const j=JUR=juraganIdx();if(j>=0)RES[j].juragan=true;dirty=true}catch(e){}},9000)} // tunggu data traktiran terbaru dari server dulu, biar pas loading tidak menampilkan Juragan lama
 /* ---------- mulai ---------- */
 resize();Object.assign(cam,homeView());
 new ResizeObserver(()=>{const keep={...cam};resize();if(window.__KEEPCAM){Object.assign(cam,keep);window.__KEEPCAM=0}else if(sel)Object.assign(cam,{cx:keep.cx,cy:keep.cy});else Object.assign(cam,homeView());dirty=true}).observe(cv);

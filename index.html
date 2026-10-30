@@ -4331,7 +4331,7 @@ function drawMarkasHK(v,t){if(!STQA||!DESA||!DESA.MHK||(!HK_QA&&Date.now()<HK_MU
   ctx.setTransform(1,0,0,1,0,0)}
 window.__hkAda=()=>{try{return !!(hkBuka()&&hkAktif())}catch(e){return false}};window.__HK={render:()=>renderHarta(),data:()=>HK,pos:()=>HK_POS,muat:hkMuat,tempat:hkTempat};
 window.__NAGA={jl:s=>nagaJalur(s),o3:()=>openDemoNaga(),tiang:()=>nagaTiang(),pt:()=>NAGA_PT,pilih:u=>{const k=kkResIdx(u);if(k>=0)select({kind:'r',i:k},{instant:true})}}; // untuk tes
-window.mbulMain=mbulMain;function mbulMain(){const M=window.MBUL_MODE;if(!M)return true;if(typeof M==='string')return M!=='pulang';return !(M.m==='pulang'&&Date.now()-M.at<3600e3)}
+window.mbulMain=mbulMain;function mbulMain(){if(/[?&]mbulbobo=1/.test(location.search))return false; /* QA: paksa MBULAN bobo di atap, cuma di perangkat sendiri */const M=window.MBUL_MODE;if(!M)return true;if(typeof M==='string')return M!=='pulang';return !(M.m==='pulang'&&Date.now()-M.at<3600e3)}
 function mbulKetuk(o,cx,cy){try{SND.miaw(o.P&&o.P.bulan?.5:1)}catch(e){}document.querySelectorAll('.gento-pop').forEach(x=>x.remove());
   const me=(kkGet()||{}).u,own=o.r.name===me||!!window.__MBUL_QA,main=mbulMain();
   const p=el('div','gento-pop');p.style.left=Math.min(innerWidth-12,Math.max(12,cx))+'px';p.style.top=Math.max(12,cy-14)+'px';

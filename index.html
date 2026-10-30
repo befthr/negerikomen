@@ -3807,7 +3807,14 @@ async function bqApi(aksi,body){const q=bqInit(),b=q.b,ok=x=>Object.assign({ok:t
     return {ok:false,error:'Karyawan tidak bisa diberhentikan. Kontraknya selesai sendiri.'}}
   if(aksi==='bonus'){const n=Math.floor(+body.n),kr=b.staf.find(x=>x.user===String(body.target||'').toLowerCase());if(kr&&kr.gaji>0)return {ok:false,error:'Karyawan ini sudah digaji tetap. Bonus cuma buat karyawan sukarela.'};if(!(n>=1&&n<=3))return {ok:false,error:'Bonus 1–3 Receh.'};if(n>q.saldo)return {ok:false,error:'Recehan-mu belum cukup buat bonus '+n+' Receh.'};q.saldo-=n;return ok()}
   return ok({daftar:[],list:[],lowongan:{},staf:{}})}
-async function kkApi(aksi,body,auth){if(BOS_QA()&&aksi!=='pilihan')return bqApi(aksi,body||{});if(QA9&&aksi!=='pilihan')return qa9Api(aksi,body||{});const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
+const RGQA=/[?&]riwayatqa=1/.test(location.search); // QA Riwayat Para Gamer: data contoh banyak pemain, cuma tampilan di perangkat sendiri (tidak ke server)
+function rgqaApi(aksi){const N=['warga.contoh1','si_petani','kang_cangkul','mbak_padi','bocil.sawah','pak_tani88','dek_gabah','raja_panen','sawahku.indah','juragan_beras','orang_desa','anak_kampung','tukang_bajak','petani.muda','cah_ndeso','bu_lurah.qa','mas_jerami','nenek_kebun','adik_benih','kakak_lumbung','si_kerbau','jagoan_sawah','putri_padi','mbah_tani','gabah.emas'];
+ const hr=d=>new Date(Date.now()+7*3600e3-d*864e5).toISOString().slice(0,10),acak=(i,d)=>N[(i*7+d*3)%N.length],skor=(i,d)=>Math.max(8,240-i*9-(d*7)%13),H=[5,3,2,...Array(17).fill(1)];
+ if(aksi.startsWith('panen-papan'))return{tgl:hr(0),top:[],kemarin:[],riwayat:[...Array(12)].map((_,d)=>({tgl:hr(d+1),juara:[0,1,2].map(i=>({u:acak(i,d),v:skor(i,d),n:H[i]}))})),hadiah:H,maks:3};
+ if(aksi.startsWith('panen-hari')){const tg=(aksi.match(/tg=([\d-]+)/)||[])[1],d=Math.max(0,Math.round((Date.parse(hr(0))-Date.parse(tg))/864e5)-1);return{tgl:tg,top:N.map((_,i)=>({u:acak(i,d),v:skor(i,d),n:H[i]||0}))}}
+ if(aksi.startsWith('konsol-rank'))return{rank:{penalti:[{u:'si_petani',v:14},{u:'bocil.sawah',v:12},{u:'raja_panen',v:9}],bakso:[{u:'mbak_padi',v:360},{u:'kang_cangkul',v:340},{u:'dek_gabah',v:280}],egrang:[{u:'juragan_beras',v:64},{u:'cah_ndeso',v:58},{u:'petani.muda',v:41}]}};return null}
+if(RGQA)addEventListener('load',()=>setTimeout(()=>{try{bukaRiwayatGamer()}catch(e){}},2500));
+async function kkApi(aksi,body,auth){if(RGQA){const m=rgqaApi(aksi);if(m)return m}if(BOS_QA()&&aksi!=='pilihan')return bqApi(aksi,body||{});if(QA9&&aksi!=='pilihan')return qa9Api(aksi,body||{});const o={method:body?'POST':'GET',headers:{}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}
   const k=kkGet();if(auth&&k)o.headers.Authorization='Bearer '+k.t;
   let r,j;try{r=await fetch('/api/kartu?aksi='+aksi,o);j=await r.json()}catch(e){return {ok:false,error:'Internet lagi lemot. Coba lagi ya.'}}
   if(r.status===401&&auth){kkSet(null)}return Object.assign({ok:r.ok},j)}

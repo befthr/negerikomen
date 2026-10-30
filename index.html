@@ -4745,7 +4745,7 @@ function kkWargaAdmin(body){const w=el('div','kk-kol');w.append(el('b',null,'�
   const ta=el('textarea');ta.rows=5;ta.placeholder='budi123 | Budi | merah | putih\nsiti_n | Siti | | ';ta.style.cssText='width:100%;box-sizing:border-box;border:2px solid #1C2520;border-radius:10px;padding:8px;font:inherit';const msg=el('p','kk-msg'),row=el('div','kk-row');
   row.append(kkBtn('🏠 Masukkan ke peta','sm gold3',async e=>{const L=wargaParse(ta.value).filter(o=>kkResIdx(o.name)<0);if(!L.length){msg.className='kk-msg err';msg.textContent='Tidak ada warga baru (format salah atau sudah jadi warga).';return}
     const P=wargaKavling(L.length*20);if(P.length<L.length){msg.className='kk-msg err';msg.textContent='Kavling kosong kurang.';return}
-    if(!await kkYakin('Tambah '+L.length+' warga?',L.map(o=>'@'+o.name).join(', '),'Ya, masukkan'))return;e.target.disabled=true;
+    if(!await kkYakin('Tambah '+L.length+' warga?',L.slice(0,8).map(o=>'@'+o.name).join(', ')+(L.length>8?` … dan ${L.length-8} lainnya`:''),'Ya, masukkan'))return;e.target.disabled=true;
     const per=Math.max(1,Math.floor(P.length/L.length)),r=await kkApi('tambah-warga',{list:L.map((o,k)=>({...o,cand:P.filter((_,j)=>j%L.length===k).slice(0,20)}))},true);e.target.disabled=false;
     msg.className='kk-msg'+(r.ok?'':' err');msg.textContent=r.ok?`✅ Masuk ${r.masuk.length} warga`+(r.tolak.length?` · ⚠️ ditolak: ${r.tolak.map(t=>'@'+t.u+' ('+t.why+')').join(', ')}`:''):(r.error||'Gagal');
     if(r.ok){ta.value='';fetch('/api/kartu?aksi=pilihan&r='+Date.now()).then(x=>x.ok?x.json():null).then(j=>{if(j)wargaBaruTerapkan(j.wargaBaru)}).catch(()=>{})}}),

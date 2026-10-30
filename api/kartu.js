@@ -172,7 +172,7 @@ async function koleksi(u) { const v = jparse(await kv(['HGET', 'itemplus', u]));
 const hariIni = () => { const w = new Date(Date.now() + 7 * 3600e3); return Math.round((Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - Date.UTC(2026, 9, 18)) / 864e5) };
 
 // SAMA dengan histOf() di index.html: versi tampilan rumah (warna & bentuk) dari hari ke hari
-const LOOK = ['roof', 'wall', 'style'];
+const LOOK = ['roof', 'wall', 'style', 'md'];
 const sameLook = (a, b) => LOOK.every(k => (a[k] == null ? null : a[k]) === (b[k] == null ? null : b[k]));
 function histOf(r) {
   const d0 = +r.day || 1, ev = [], B = r.base || {};
@@ -653,6 +653,9 @@ export default async function handler(req, res) {
       if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, harga]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
       const v = { ...m, wall, roof, ...(atas ? { atas } : {}), at: Date.now(), n: ((lama && lama.n) || 0) + 1 };
       if (atas) await kv(['HSET', 'tingkatplus', s.u, JSON.stringify({ ...tkInfo, lantai: tkInfo.lantai || nLt, atas })]);
+      { const NM = k => ({ pelana: 'pelana', limas: 'limas', joglo: 'joglo', datar: 'datar', kubah: 'kubah' })[k] || k; // versi baru di riwayat rumah
+        const ex = jparse(await kv(['HGET', 'warnaplus', s.u])) || []; ex.push({ day: +D.day || 0, note: `🛠️ Modif rumah: atap ${NM(m.atap)}, tembok ${m.tembok}, jendela ${m.jendela}, pintu ${m.pintu}`, wall, roof, md: [m.atap, m.tembok, m.jendela, m.pintu].join('|') });
+        await kvMany([['HSET', 'warnaplus', s.u, JSON.stringify(ex)], ['HDEL', 'pilihan', s.u]]) }
       await kvMany([['HSET', 'modifplus', s.u, JSON.stringify(v)], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -harga, ket: '🛠️ Modif rumah' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49],
         ['LPUSH', 'belanja:log', JSON.stringify({ u: s.u, j: 'modif', it: [], l: 0, at: Date.now() })], ['LTRIM', 'belanja:log', 0, 59]]);
       return res.status(200).json({ ok: true, langsung: true, harga, modif: v, kartu: await infoKartu(D, s.u) });

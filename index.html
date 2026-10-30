@@ -2879,7 +2879,7 @@ function ufo3D(g){const T=THREE,U=new T.Group();U.position.set(0,6.2,0);g.add(U)
     L.forEach((m,k)=>m.material.emissiveIntensity=((Math.floor(s*6)+k)%3===0)?2.2:.3);sinar.material.opacity=.16+.1*Math.sin(s*3.2)});}
 // 🛠️ Modif Rumah: motif tembok (tekstur), gaya atap & jendela/pintu di 3D
 const MODIF_OPS={atap:[['pelana','Pelana'],['limas','Limas'],['joglo','Joglo'],['datar','Datar'],['kubah','Kubah']],tembok:[['polos','Polos'],['bata','Bata'],['kayu','Kayu'],['batu','Batu'],['batik','Batik']],jendela:[['kotak','Kotak'],['bulat','Bulat'],['lengkung','Lengkung'],['besar','Kaca besar']],pintu:[['kayu','Kayu'],['ganda','Ganda'],['lengkung','Lengkung'],['garasi','Garasi']]};
-function modifTerapkan(u,m){const i=kkResIdx(u);if(i<0||!m)return;const r=RES[i];if(r.style)return;r.modif={atap:m.atap,tembok:m.tembok,jendela:m.jendela,pintu:m.pintu};if(m.wall)r.wall=m.wall;if(m.roof)r.roof=m.roof;if(Array.isArray(m.atas)&&m.atas.length)r.atas=m.atas;r._modifN=m.n||1;dirty=true}
+function modifTerapkan(u,m){const i=kkResIdx(u);if(i<0||!m)return;const r=RES[i];if(r.style)return;r.md=[m.atap,m.tembok,m.jendela,m.pintu].join('|');r.modif={atap:m.atap,tembok:m.tembok,jendela:m.jendela,pintu:m.pintu};if(m.wall)r.wall=m.wall;if(m.roof)r.roof=m.roof;if(Array.isArray(m.atas)&&m.atas.length)r.atas=m.atas;r._modifN=m.n||1;dirty=true}
 const MODIF_TEX={};function modifTex(motif,wall){const key=motif+'|'+wall;if(MODIF_TEX[key])return MODIF_TEX[key];const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
   const base=new THREE.Color(wall),hx='#'+base.getHexString(),dk=base.clone().multiplyScalar(.78),dh='#'+dk.getHexString(),lt=base.clone().lerp(new THREE.Color('#FFFFFF'),.25),lh='#'+lt.getHexString();
   x.fillStyle=hx;x.fillRect(0,0,256,256);
@@ -3626,7 +3626,8 @@ function perksOf(r){const L=[];
 /* riwayat per rumah: tampilan rumah (warna & bentuk) dari hari ke hari, supaya warga bisa lihat/minta balik ke tampilan lama.
    Bendera emas, mahkota juragan & badge tidak ikut berubah. Sumber: r.base (tampilan awal), rumah impian (style),
    traktiran yang memberi warna pilihan, dan r.history [{day,note,roof,wall,style}] untuk ganti tampilan berikutnya. */
-const LOOK=['roof','wall','style'];
+const LOOK=['roof','wall','style','md']; // md = modif rumah 'atap|tembok|jendela|pintu' (versi rumah ikut menyimpan modif)
+function mdSync(o){if(o&&o.md&&!o.style){const [atap,tembok,jendela,pintu]=String(o.md).split('|');o.modif={atap,tembok,jendela,pintu}}else if(o)delete o.modif;return o}
 const sameLook=(a,b)=>LOOK.every(k=>(a[k]==null?null:a[k])===(b[k]==null?null:b[k]));
 function histOf(r){const d0=+r.day||1,ev=[],B=r.base||{},S=r._asli||r; // S = tampilan asli dari data.js (sebelum pilihan warga)
   if((r.style||S.style)&&!(r.history||[]).some(h=>h&&'style' in h))ev.push({day:+r.styleDay||3,txt:'🏆 Menang lomba rumah impian, rumahnya dibangun ulang',set:{style:S.style,roof:S.roof,wall:S.wall}});
@@ -3730,7 +3731,7 @@ async function kkApi(aksi,body,auth){if(BOS_QA()&&aksi!=='pilihan')return bqApi(
 function kkResIdx(u){return RES.findIndex(x=>String(x.name).toLowerCase()===String(u).toLowerCase())}
 function kkPakaiLokal(i,n){window.__HCV=(window.__HCV||0)+1;const r=RES[i];if(!r)return;const V=histOf(r);if(!V[n])return;
   if(!r._asli){r._asli={};LOOK.forEach(k=>r._asli[k]=r[k])}
-  const look=V[n].look;LOOK.forEach(k=>{if(look[k]==null)delete r[k];else r[k]=look[k]});r._pilih=n===V.length-1?null:n;dirty=true}
+  const look=V[n].look;LOOK.forEach(k=>{if(look[k]==null)delete r[k];else r[k]=look[k]});mdSync(r);r._pilih=n===V.length-1?null:n;dirty=true}
 async function kkPakai(i,n){const res=await kkApi('pilih',{n},true);
   if(!res.ok){toast(res.error||'Gagal ganti rumah');return false}
   kkPakaiLokal(i,n);toast(`Tersimpan! Rumahmu sekarang pakai versi ${n+1}. Jatah minggu ini sisa ${res.kartu.jatah.sisa}.`);try{SND.play('ting',.6)}catch(_){}
@@ -3833,14 +3834,14 @@ function kkTrakteerUrl(){const u=D.trakteer&&D.trakteer.url;return u&&/^https:\/
 function kkGBtn(depan,harga,cls,fn){const b=kkBtn('',cls,fn);const im=el('img','kk-gico');im.src=/Receh/.test(harga)?'receh.svg':'genteng.png';im.alt='';b.append(document.createTextNode(depan),im,document.createTextNode(harga));return b}
 function kkWarna(body,c,i,n){const r0=RES[i],V=histOf(r0);if(n==null)n=aktifOf(r0);
   // rumah yang diwarnai = versi pilihan (bentuk & warna versi itu)
-  const r={...r0};LOOK.forEach(k=>{const v=V[n].look[k];if(v==null)delete r[k];else r[k]=v});
+  const r={...r0};LOOK.forEach(k=>{const v=V[n].look[k];if(v==null)delete r[k];else r[k]=v});mdSync(r);
   const gl=r.style==='globe',sr=r.style==='serigala';
   let W=r.wall||(gl?'biru':sr?'abu-abu':'putih'),R=r.roof||(gl?'hijau':sr?'abu-abu':'merah');body.innerHTML='';
   const NL=r.style?1:Math.max(1,Math.min(3,+(c.tingkat||r0.tingkat)||1)),A=[];for(let k=1;k<NL;k++)A.push((Array.isArray(c.atas)&&c.atas[k-1])||(Array.isArray(r0.atas)&&r0.atas[k-1])||W);
   const LB=gl?['Laut','Pulau']:sr?['Bulu','Telinga']:['Dinding','Atap'];
   kkBack(body,()=>kkUbah(body,c,i,'rumah'));body.append(el('h3',null,'🎨 Ganti warna rumah'),el('p','kk-note','📌 Rumah yang sudah ada nggak hilang. Semua versi rumahmu tetap tercatat milikmu, dan bisa kamu pakai lagi kapan saja lewat Lihat 3D.'));
   if(V.length>1){const pk=el('div','kk-vpick');pk.append(el('b',null,'1. Pilih rumah yang mau diwarnai'));const g=el('div','kk-vrow');
-    V.forEach((v,k)=>{const b=el('button','kk-vb'+(k===n?' on':''));b.type='button';const rv={...r0};LOOK.forEach(q=>{const x=v.look[q];if(x==null)delete rv[q];else rv[q]=x});
+    V.forEach((v,k)=>{const b=el('button','kk-vb'+(k===n?' on':''));b.type='button';const rv={...r0};LOOK.forEach(q=>{const x=v.look[q];if(x==null)delete rv[q];else rv[q]=x});mdSync(rv);
       b.append(kkRumahMini(rv),el('span',null,'Versi '+(k+1)));b.onclick=()=>kkWarna(body,c,i,k);g.append(b)});pk.append(g);body.append(pk)}
   body.append(el('p','kk-muted',`${V.length>1?'2. ':''}Pilih warna ${LB[0].toLowerCase()} dan ${LB[1].toLowerCase()}. Hasilnya jadi versi baru di riwayat rumahmu, tanpa memakai jatah ganti.`));
   const pv=el('div','kk-pv');body.append(pv);
@@ -4907,7 +4908,6 @@ fetch('/api/kartu?aksi=pilihan').then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.
   Object.entries(j.item||{}).forEach(([u,l])=>kkItemLokal(u,l));
   renderGoalK(+j.goal||0);
   Object.entries(j.jalan||{}).forEach(([u,v])=>{const i=kkResIdx(u);if(i>=0)RES[i].jalan=v});
-  Object.entries(j.modif||{}).forEach(([u,m])=>modifTerapkan(u,m));
   window.JUR_LOG=j.juraganLog||[];Object.entries(j.donasi||{}).forEach(([u,n])=>{const i=kkResIdx(u);if(i<0||!(n>0))return;const r=RES[i];if(r._donor0===undefined)r._donor0=+r.donor||0;r.donor=r._donor0+n});
   if((j.emas&&j.emas.length)||Object.keys(j.donasi||{}).length||(j.juraganLog||[]).length)try{renderSups()}catch(e){}
   try{const jj=JUR=juraganIdx();RES.forEach(r=>delete r.juragan);if(jj>=0)RES[jj].juragan=true;dirty=true}catch(e){} // pita Juragan ikut traktiran terbaru
@@ -5831,7 +5831,7 @@ async function open3D(r,i,bd0){document.querySelectorAll('.v3skill').forEach(x=>
       const blob=await makeCard(cv,r,i,bd0);dist=keep.dist;pitch=keep.pitch;rd.setPixelRatio(dpr);size();showCard(blob,bd0?{name:String(bd0.name||'bangunan').toLowerCase().replace(/\s+/g,'-')}:r)}
     catch(e){toast('Gagal bikin gambar. Coba lagi ya.')}finally{dist=keep.dist;pitch=keep.pitch;btn.disabled=false}};
   swap=look=>{scn.remove(g);g.traverse(o=>{if(o.geometry)o.geometry.dispose()});
-    const rr={...r};LOOK.forEach(k=>{if(look[k]==null)delete rr[k];else rr[k]=look[k]});if(look._tk!=null)rr.tingkat=look._tk;({g,flag}=build3D(rr));scn.add(g);fit()};if(want)swap(want);
+    const rr={...r};LOOK.forEach(k=>{if(look[k]==null)delete rr[k];else rr[k]=look[k]});mdSync(rr);if(look._tk!=null)rr.tingkat=look._tk;({g,flag}=build3D(rr));scn.add(g);fit()};if(want)swap(want);
   SND.play('ting',.6)}
 
 /* kartu rumah untuk dibagikan (1080x1920, cocok untuk Story) */

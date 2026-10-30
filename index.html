@@ -5471,7 +5471,7 @@ let MAIN_AT=0;async function renderMainTab(paksa){const box=$('mainIsi');if(!box
     const top=(j.top||[]).slice(0,3);if(top.length){kartu.append(el('div','pn-rwt','📊 Ranking hari ini'));const ul=el('ul','pn-rk');top.forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'));ul.append(li)});kartu.append(ul)}else kartu.append(el('p','kk-muted','Belum ada yang main hari ini. Jadi yang pertama! 👀'))}
   const b1=kkBtn('🌾 Main Panen Sawah','gold3',()=>bukaPanen());b1.style.width='100%';b1.style.marginTop='10px';kartu.append(b1);
   const b2=kkBtn('🏆 Riwayat Para Gamer','sm',()=>bukaRiwayatGamer());b2.style.cssText+=';width:100%;margin-top:8px';
-  const lain=el('p','kk-muted');lain.style.cssText='font-size:12.5px;margin:12px 0 0';lain.append('🕹️ Mau main lebih banyak? Konsol ');const a=el('a',null,'playadalahmain');a.href='#';a.onclick=e=>{e.preventDefault();window.__pilihTab&&window.__pilihTab('toko')};lain.append(a,' (14 game) ada di tab Toko.');
+  const lain=el('p','kk-muted');lain.style.cssText='font-size:12.5px;margin:12px 0 0';lain.append('🕹️ Mau main lebih banyak? Konsol ');const a=el('a',null,'playadalahmain');a.href='#';a.onclick=e=>{e.preventDefault();window.__pilihTab&&window.__pilihTab('toko')};lain.append(a,' (14 game) ada di tab Toko. Cuma buat seru-seruan ya, skornya masuk papan rekor tapi nggak dapat hadiah Receh.');
   box.innerHTML='';box.append(kartu,b2,lain);box.dataset.ok='1'}
 window.renderMainTab=renderMainTab;
 function infraRiwayat(x,y){const c=ctx,k=T;

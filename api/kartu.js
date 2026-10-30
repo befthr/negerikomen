@@ -127,6 +127,12 @@ const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
 const KONSOL_G = ['penalti', 'genteng', 'pancing', 'bakso', 'ayam', 'karung', 'layang', 'memori', 'pinang', 'kentongan', 'karet', 'pesawat', 'tambang', 'egrang'];
 const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 400, karung: 80, layang: 600, memori: 140, pinang: 40, kentongan: 80, karet: 400, pesawat: 3000, tambang: 60, egrang: 5000 };
 const KATALOG = { sepeda: 2, motor: 4, ayam: 1, kucing: 2, kambing: 2, lampu: 1, mangga: 1, kolam: 2, ayunan: 2, papan: 2, robot: 22, patromax: 12, sorot: 19, naga: 25, mbulan: 20, karpet: 23, konsol: 4, bougenville: 2 };
+const PASAR_BUKA = Date.UTC(2026, 9, 31, 12, 0); // 🧺 Pasar Senggol buka Sabtu 31 Okt 2026 19.00 WIB
+const PASAR_EKS = ['robot', 'patromax', 'sorot', 'naga', 'mbulan', 'karpet', 'konsol']; // barang eksklusif & konsol tidak boleh dijual di pasar
+const PASAR_MAKS = 3; // maks lapak aktif per warga
+async function pasarData() { const [pl, lg] = await kvMany([['HGETALL', 'pasar:lapak'], ['LRANGE', 'pasar:log', 0, 9]]); const lapak = [];
+  for (let i = 0; pl && i + 1 < pl.length; i += 2) { const v = jparse(pl[i + 1]); if (v) lapak.push({ lid: v.lid, u: v.u, id: v.o && v.o.id, warna: v.o && v.o.warna || null, h: v.h, at: v.at }) }
+  lapak.sort((x, y) => y.at - x.at); return { buka: PASAR_BUKA, lapak, laku: (lg || []).map(jparse).filter(Boolean) } }
 const MAKS_PAJANG = 3; // ⚙️ batas item dipajang di pekarangan (ubah juga di api/_terapkan.js). Web ikut otomatis.
 // karyawan bangunan milik warga: pemilik atur sendiri dari Kartu Komen (tanpa gaji; bonus Receh opsional dari Recehan pemilik)
 const MAKS_STAF = 3, KONTRAK_HARI = 30, KONTRAK_OK = [7, 14, 30]; const hariK = v => { const h = +String(v || '').split(':')[0]; return KONTRAK_OK.includes(h) ? h : KONTRAK_HARI };
@@ -465,7 +471,7 @@ export default async function handler(req, res) {
         }
       } catch (e) { }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, modif, maksPajang: MAKS_PAJANG, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, karpet: { owner: kpp || null, mode: jparse(kpm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, modif, maksPajang: MAKS_PAJANG, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, pasar: await pasarData().catch(() => null), karpet: { owner: kpp || null, mode: jparse(kpm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });
@@ -1020,6 +1026,42 @@ export default async function handler(req, res) {
       if (!(await kv(['SET', 'jalan:cd:' + s.u, '1', 'NX', 'EX', 60]))) return res.status(429).json({ error: 'Kendaraanmu masih jalan. Tunggu sebentar ya.' });
       const at = Date.now(); await kv(['HSET', 'jalan', s.u, JSON.stringify({ id, at })]);
       return res.status(200).json({ ok: true, id, at });
+    }
+    if (aksi === 'pasar-jual' || aksi === 'pasar-batal' || aksi === 'pasar-beli') { // 🧺 Pasar Senggol: jual-beli barang bekas antar warga pakai Receh (barang dititipkan ke lapak sampai laku/batal)
+      if (Date.now() < PASAR_BUKA && s.u !== OWNER) return res.status(403).json({ error: 'Pasar Senggol buka jam 19.00 WIB ya! 🧺' });
+      const NMI = id => ({ sepeda: 'Sepeda', motor: 'Motor', ayam: 'Ayam', kucing: 'Kucing', kambing: 'Kambing', lampu: 'Lampu taman', mangga: 'Pohon mangga', kolam: 'Kolam ikan', ayunan: 'Ayunan', papan: 'Papan nama', bougenville: 'Bougenville' })[id] || id;
+      const balik = async (u, o) => { const kol = await koleksi(u); if (!kol.own.some(x => x.id === o.id)) { kol.own.push(o); if (!kol.pajang.includes(o.id) && kol.pajang.length < MAKS_PAJANG) kol.pajang.push(o.id) } await kv(['HSET', 'itemplus', u, JSON.stringify(kol)]) };
+      if (aksi === 'pasar-jual') {
+        const id = String(body.id || ''), h = Math.floor(+body.h);
+        if (!KATALOG[id] || PASAR_EKS.includes(id)) return res.status(400).json({ error: 'Barang ini tidak bisa dijual di Pasar Senggol.' });
+        if (!(h >= 1 && h <= KATALOG[id])) return res.status(400).json({ error: `Harga ${NMI(id)} bekas 1–${KATALOG[id]} Receh (tidak boleh lebih mahal dari harga baru).` });
+        if (!(await kv(['SET', 'pasar:jeda:' + s.u, '1', 'NX', 'EX', 3]))) return res.status(429).json({ error: 'Pelan-pelan, tunggu sebentar ya.' });
+        const P = await pasarData(); if (P.lapak.filter(l => l.u === s.u).length >= PASAR_MAKS) return res.status(400).json({ error: `Maksimal ${PASAR_MAKS} lapak per warga. Batalkan salah satu dulu ya.` });
+        const kol = await koleksi(s.u), o = kol.own.find(x => x.id === id); if (!o) return res.status(400).json({ error: 'Kamu tidak punya ' + NMI(id) + '.' });
+        kol.own = kol.own.filter(x => x.id !== id); kol.pajang = kol.pajang.filter(x => x !== id);
+        const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let lid = 'L'; for (let i = 0; i < 7; i++) lid += A[crypto.randomInt(A.length)];
+        const ob = { id, ...(o.warna ? { warna: o.warna } : {}) }; // teks papan nama tidak ikut dijual
+        await kvMany([['HSET', 'itemplus', s.u, JSON.stringify(kol)], ['HSET', 'pasar:lapak', lid, JSON.stringify({ lid, u: s.u, o: ob, h, at: Date.now() })]]);
+        return res.status(200).json({ ok: true, lid, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
+      }
+      const lid = String(body.lid || '').slice(0, 20), l = jparse(await kv(['HGET', 'pasar:lapak', lid]));
+      if (!l) return res.status(404).json({ error: 'Yah, barangnya sudah laku atau lapaknya sudah tutup.' });
+      if (aksi === 'pasar-batal') {
+        if (l.u !== s.u && s.u !== OWNER) return res.status(403).json({ error: 'Ini bukan lapakmu.' });
+        if (!(+(await kv(['HDEL', 'pasar:lapak', lid])))) return res.status(409).json({ error: 'Barangnya keburu laku!' });
+        await balik(l.u, l.o); return res.status(200).json({ ok: true, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
+      }
+      if (l.u === s.u) return res.status(400).json({ error: 'Ini lapakmu sendiri 😄' });
+      const kb = await koleksi(s.u); if (kb.own.some(x => x.id === l.o.id)) return res.status(400).json({ error: 'Kamu sudah punya ' + NMI(l.o.id) + '.' });
+      const after = await kv(['HINCRBY', 'saldo', s.u, -l.h]);
+      if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, l.h]); return res.status(400).json({ error: `Recehan belum cukup. Butuh ${l.h} Receh.` }) }
+      if (!(+(await kv(['HDEL', 'pasar:lapak', lid])))) { await kv(['HINCRBY', 'saldo', s.u, l.h]); return res.status(409).json({ error: 'Yah, keduluan warga lain! Receh-mu tidak terpotong.' }) }
+      const now = Date.now();
+      await kvMany([['HINCRBY', 'saldo', l.u, l.h], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: now, n: -l.h, ket: 'Pasar Senggol: beli ' + NMI(l.o.id) + ' dari @' + l.u })], ['LTRIM', 'saldo:log:' + s.u, 0, 49],
+        ['LPUSH', 'saldo:log:' + l.u, JSON.stringify({ at: now, n: l.h, ket: 'Pasar Senggol: ' + NMI(l.o.id) + ' laku ke @' + s.u })], ['LTRIM', 'saldo:log:' + l.u, 0, 49],
+        ['LPUSH', 'pasar:log', JSON.stringify({ id: l.o.id, h: l.h, dari: l.u, ke: s.u, at: now })], ['LTRIM', 'pasar:log', 0, 49]]);
+      await balik(s.u, { ...l.o, day: +D.day || 0 });
+      return res.status(200).json({ ok: true, beli: l.o.id, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'pajang') {
       const kol = await koleksi(s.u), punya = kol.own.map(o => o.id);

@@ -2472,7 +2472,7 @@ function karpetFase(){const ow=window.KARPET_OWNER;if(!ow)return -1;const M=wind
 let KT_ON=null;
 function karpetTerbang(v,t){const p=karpetFase(),ow=window.KARPET_OWNER,i=ow?kkResIdx(ow):-1,r=i>=0?RES[i]:null;
   const on=!!(r&&p>=0);if(KT_ON!==(on?r.name:null)){RES.forEach(x=>{if(x._kt)x._kt=false});if(on)r._kt=true;KT_ON=on?r.name:null;window.__HCV=(window.__HCV||0)+1}
-  if(!on){window.__KT_HIT=null;return}const HX=NK.wx(r.x),HY=NK.wx(r.y),R2=T*42,a0=Math.atan2(HY,HX),E=a=>[Math.cos(a)*R2,Math.sin(a)*R2*.92],e2=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+  window.__KT_LBL=null;if(!on){window.__KT_HIT=null;return}const HX=NK.wx(r.x),HY=NK.wx(r.y),R2=T*42,a0=Math.atan2(HY,HX),E=a=>[Math.cos(a)*R2,Math.sin(a)*R2*.92],e2=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
   let X,Y,ang;if(p<.12){const u=e2(p/.12),[ex,ey]=E(a0);X=HX+(ex-HX)*u;Y=HY+(ey-HY)*u;ang=Math.atan2(ey-HY,ex-HX)}else if(p<.88){const a=a0+(p-.12)/.76*6.2832;[X,Y]=E(a);ang=a+Math.PI/2}else{const u=e2((p-.88)/.12),[ex,ey]=E(a0);X=ex+(HX-ex)*u;Y=ey+(HY-ey)*u;ang=Math.atan2(HY-ey,HX-ex)}
   const lh=T*1.7*Math.min(1,p/.05,(1-p)/.05),tt=t||0,z=v.z;ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);
   if(p>.04&&p<.96){ctx.save();ctx.setLineDash([T*.14,T*.1]);ctx.lineWidth=T*.06;ctx.strokeStyle='rgba(28,37,32,.55)';ctx.fillStyle='rgba(230,215,168,.55)';ctx.beginPath();ctx.roundRect(HX-T*.45,HY-T*.4,T*.9,T*.8,T*.12);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.font=`${T*.42}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🪄',HX,HY);ctx.restore()} // kavling kosong: penanda rumah lagi terbang
@@ -2482,8 +2482,8 @@ function karpetTerbang(v,t){const p=karpetFase(),ow=window.KARPET_OWNER,i=ow?kkR
     ctx.strokeStyle='#1F4E8C';ctx.lineWidth=T*.05;ctx.strokeRect(-w*.78,-h*.72,w*1.56,h*1.44);ctx.fillStyle='#F2C230';for(let k=0;k<7;k++)[-1,1].forEach(sd=>ctx.fillRect(-w+k*w/3-1.5,sd*(h+T*.05)-(sd<0?T*.18:0),3,T*.18))}
   ctx.scale(1.25,1.25);ctx.translate(-HX,-HY);NK.drawHouse(r,1,1);ctx.restore();
   for(let k=0;k<5;k++){const a=tt*3+k*1.26,rr=T*(1.5+.2*Math.sin(tt*4+k));ctx.fillStyle=`rgba(255,226,122,${.5+.5*Math.sin(tt*6+k)})`;ctx.beginPath();ctx.arc(X+Math.cos(a)*rr,Y-lh+Math.sin(a)*rr*.6,T*.07,0,7);ctx.fill()}
-  {const k=dpr/z,fs=12*k,fs2=9.5*k,ty=Y-lh-T*2.2*sc-fs*1.6;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${fs}px Poppins,sans-serif`;const t1='@'+r.name,t2='🪄 Karpet Terbang',w1=ctx.measureText(t1).width;ctx.font=`700 ${fs2}px Poppins,sans-serif`;const w2=ctx.measureText(t2).width,W=Math.max(w1,w2)+14*k,H=fs+fs2+10*k;
-    ctx.fillStyle='rgba(28,37,32,.78)';ctx.beginPath();ctx.roundRect(X-W/2,ty-H/2,W,H,7*k);ctx.fill();ctx.fillStyle='#FFFFFF';ctx.font=`700 ${fs}px Poppins,sans-serif`;ctx.fillText(t1,X,ty-fs2*.55);ctx.fillStyle='#FFE27A';ctx.font=`700 ${fs2}px Poppins,sans-serif`;ctx.fillText(t2,X,ty+fs*.5);window.__KT_HIT={u:r.name,x:X,y:Y-lh,r:T*2.3*sc,lx0:X-W/2,lx1:X+W/2,ly0:ty-H/2,ly1:ty+H/2}} // label sama gaya dengan label lain (pil gelap), baris kedua kuning
+  window.__KT_LBL=()=>{ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);const k=dpr/z,fs=12*k,fs2=9.5*k,ty=Y-lh-T*2.2*sc-fs*1.6;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${fs}px Poppins,sans-serif`;const t1='@'+r.name,t2='🪄 Karpet Terbang',w1=ctx.measureText(t1).width;ctx.font=`700 ${fs2}px Poppins,sans-serif`;const w2=ctx.measureText(t2).width,W=Math.max(w1,w2)+14*k,H=fs+fs2+10*k;
+    ctx.fillStyle='rgba(28,37,32,.94)';ctx.beginPath();ctx.roundRect(X-W/2,ty-H/2,W,H,7*k);ctx.fill();ctx.fillStyle='#FFFFFF';ctx.font=`700 ${fs}px Poppins,sans-serif`;ctx.fillText(t1,X,ty-fs2*.55);ctx.fillStyle='#FFE27A';ctx.font=`700 ${fs2}px Poppins,sans-serif`;ctx.fillText(t2,X,ty+fs*.5);window.__KT_HIT={u:r.name,x:X,y:Y-lh,r:T*2.3*sc,lx0:X-W/2,lx1:X+W/2,ly0:ty-H/2,ly1:ty+H/2};ctx.restore()} // label digambar SETELAH label warga (paling atas); sama gaya dengan label lain (pil gelap), baris kedua kuning
   ctx.restore()}
 // 🎈 Warga baru (masuk < 24 jam): balon warna-warni di atap. Cuma muncul saat zoom dekat supaya peta tidak ramai.
 function balonBaru(v,t){const zc=v.z/dpr;if(zc<.42)return;const now=Date.now(),W=v.W,H=v.H,pad=T*2*v.z;const C=['#E2453C','#F2C230','#3E8FC9','#2E9C6A','#FF6FA8','#8E5AA8'];
@@ -2569,7 +2569,7 @@ function frame(now){
     try{if(PILIH)drawPilih(v,reduce?0:t)}catch(e){console.error(e)}
     if(sel&&sel.kind==='d')drawDusunSel(v,reduce?0:t);if(sel&&sel.kind==='sb')try{drawDusunBaruSel(v,reduce?0:t)}catch(e){}
     if(qOn){const p=questPos(reduce?0:t);ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawUfo(p.x,p.y,reduce?0:t,1);ctx.setTransform(1,0,0,1,0,0)}
-    {const _t0=DBG?performance.now():0;ctx.setTransform(1,0,0,1,0,0);drawLabels(v,reduce?0:t);if(DBG){DBG.m.label=(DBG.m.label||0)*.9+(performance.now()-_t0)*.1;dbgTick(now)}}};
+    {const _t0=DBG?performance.now():0;ctx.setTransform(1,0,0,1,0,0);drawLabels(v,reduce?0:t);if(window.__KT_LBL)try{window.__KT_LBL()}catch(e){console.error(e)}if(DBG){DBG.m.label=(DBG.m.label||0)*.9+(performance.now()-_t0)*.1;dbgTick(now)}}};
     // mode Hemat saat peta digeser/di-zoom: seluruh gambar peta (+ tepi) dibuat sekali, lalu cuma digeser → perangkat lemah tetap lancar
     if(GFX==='hemat'&&(window.__GESER||fly)&&!PILIH&&!qOn&&!(sel&&(sel.kind==='d'||sel.kind==='sb'))){let F=window.__FC;const zm=F&&F.z!==z,mx=Math.round(v.W*(zm?.12:.3)),my=Math.round(v.H*(zm?.12:.3)); // saat zoom: tepi kecil biar gambar ulang cepat
       if(F&&F.z!==z){if(!F.zt||Math.abs(F.zl-z)>1e-6){F.zt=now;F.zl=z}}

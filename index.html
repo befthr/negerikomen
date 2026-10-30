@@ -2440,6 +2440,9 @@ function drawMalam(v,t){const {n,senja}=malamNow();window.__MALAM_N=n;if(n<=0&&s
 // dari jauh bulan MBULAN dibesarkan & diangkat di atas label nama pemilik (label ukurannya tetap di layar)
 function mbulKZ(z){return Math.max(1,Math.min(2,.45/z))} // sedikit dibesarkan dari jauh, tapi tetap ikut mengecil seperti benda lain di peta
 function mbulAngkat(z,S){const d=window.__CDPR||window.devicePixelRatio||1;return Math.max(0,34*d/z+11*(S||.6)*3.4*mbulKZ(z)-NK.T*2.8)} // tepat di atas label nama pemilik, tidak kejauhan
+// jalan penghubung Dusun Baru → kampung lama: bagian yang masuk area kampung digambar di atas lapisan kampung (biar nyambung di semua zoom)
+function sukaKonektor(v){const D=DESA;if(!D||!D.SB||!D.SB.length)return;const SL=S*T,z=v.z,rows=new Set();D.SB.forEach(([bx,by])=>{if(bx===-10){rows.add(by);rows.add(by+1)}});const x0=-9*SL,x1=SUKA_KX;
+  ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);ctx.lineCap='butt';[...rows].filter(r=>r%2===0).forEach(r=>{const y=r*SL;[['#9AA0A6',T*.8+3],['#6E7378',T*.8]].forEach(([c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke()});ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1.6;ctx.setLineDash([8,10]);ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1-T*.4,y);ctx.stroke();ctx.setLineDash([])});ctx.restore()}
 // MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
 function mbulLok(v){const L=window.__MBUL_LOK;if(!L||!L.length||!window.__GAMBAR_MBUL)return;const M=window.__MBUL||[];const ada=new Set(M.map(o=>o.r.name));const baru=L.filter(o=>!ada.has(o.r.name));if(!baru.length)return;M.push(...baru);ctx.save();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);window.__GAMBAR_MBUL(baru);ctx.restore()}
 function mbulBulan(v,t,n){const c=ctx,z=v.z,T=NK.T;(window.__MBUL||[]).forEach(o=>{if(!o.P||!o.P.bulan)return;const S=o.s,E=(x,y,a,b,f,rt)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,rt||0,0,7);c.fill()},L=(w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round'};
@@ -2502,7 +2505,7 @@ function frame(now){
     try{BLD.forEach(b=>{if(!b.ikut)return;if(b._ox==null){b._ox=b.x;b._oy=b.y}const r=RES[kkResIdx(b.by)];if(r&&r.lok==='pantai'&&!r._tr){b.x=r.x+b.ikut[0];b.y=r.y+b.ikut[1];b._luar=1}else{b.x=b._ox;b.y=b._oy;b._luar=0}})}catch(e){}
     const gambar=v=>{
     {const _t0=DBG?performance.now():0;NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});if(DBG)DBG.m.dunia=(DBG.m.dunia||0)*.9+(performance.now()-_t0)*.1}
-    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);try{drawDesaTimur(v,reduce?0:t)}catch(e){console.error(e)}try{drawAngkot(v,reduce?0:t)}catch(e){console.error(e)}drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
+    {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);try{sukaKonektor(v)}catch(e){}try{drawDesaTimur(v,reduce?0:t)}catch(e){console.error(e)}try{drawAngkot(v,reduce?0:t)}catch(e){console.error(e)}drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
     try{mbulLok(v)}catch(e){console.error(e)} // MBULAN rumah lok digambar paling akhir: selalu di atas genteng/bangunan
     {const _t0=DBG?performance.now():0;try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.langit=(DBG.m.langit||0)*.9+(performance.now()-_t0)*.1}
@@ -5401,7 +5404,13 @@ async function bukaRiwayatGamer(){panenCss();const body=kkModal();{const m=$('kk
     if(!RW.length){const p0=el('p','kk-muted','Belum ada juara. Juara pertama diumumkan setelah tengah malam. Siapa duluan? 👀');p0.style.fontSize='13px';sec.append(p0);continue}
     const C={};RW.forEach(d=>(d.juara||[]).forEach((o,i)=>{const c=C[o.u]||(C[o.u]={u:o.u,e:0,p:0,b:0});[ 'e','p','b'][i]&&c[['e','p','b'][i]]++}));
     const L=Object.values(C).sort((a,b)=>b.e-a.e||b.p-a.p||b.b-a.b).slice(0,5);const hs=el('div','pn-rwt','🏅 Paling sering juara');sec.append(hs);const ul=el('ul','pn-rk');L.forEach((c,i)=>{const li=el('li');li.append(el('span','n',String(i+1)),el('span','u','@'+c.u),el('span','h',(c.e?'🥇'+c.e+' ':'')+(c.p?'🥈'+c.p+' ':'')+(c.b?'🥉'+c.b:'')));ul.append(li)});sec.append(ul);
-    const box=el('div','pn-rw');RW.forEach((d,k)=>box.append(riwayatHariEl(d,k===0)));sec.append(box)}}
+    const box=el('div','pn-rw');RW.forEach((d,k)=>box.append(riwayatHariEl(d,k===0)));sec.append(box)}
+  // 🕹️ playadalahmain: rekor tertinggi tiap game (sepanjang masa, tanpa hadiah)
+  {const KG=[['penalti','⚽','Adu Penalti'],['genteng','🏠','Tangkap Genteng'],['pancing','🎣','Pancing Ikan'],['bakso','🍜','Racik Bakso'],['ayam','🐔','Kejar Ayam'],['karung','🥔','Balap Karung'],['layang','🪁','Layangan'],['memori','🃏','Memori Genteng'],['pinang','🎋','Panjat Pinang'],['kentongan','🔔','Tebak Kentongan'],['karet','🪢','Lompat Karet'],['pesawat','✈️','Pesawat Nembak'],['tambang','💪','Tarik Tambang'],['egrang','🦯','Egrang']];
+   const sec=el('div');sec.style.marginTop='16px';sec.append(el('b',null,'🕹️ playadalahmain'));const nt=el('p','kk-muted','Rekor tertinggi tiap game sepanjang masa. Ini buat gengsi aja ya, nggak ada hadiah Receh 😄');nt.style.fontSize='12.5px';const ld=el('p','kk-muted','Memuat…');sec.append(nt,ld);body.append(sec);
+   const QAk=/[?&](panen|konsol)qa=1/.test(location.search),j=await kkApi('konsol-rank'+(QAk?'&qa=1':''));ld.remove();const R=(j&&j.rank)||{};
+   const ada=KG.filter(([g])=>(R[g]||[]).length);if(!ada.length){sec.append(el('p','kk-muted','Belum ada rekor. Yang punya atau sewa playadalahmain, ayo cetak rekor pertama! 🎮'));return}
+   const box=el('div','pn-rw');ada.forEach(([g,ic,nm])=>{box.append(el('div','pn-rwt',ic+' '+nm));const ul=el('ul','pn-rk');R[g].slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',fmt(o.v)));ul.append(li)});box.append(ul)});sec.append(box)}}
 window.bukaRiwayatGamer=bukaRiwayatGamer;
 // 🎮 tab "Main" di samping: kartu tiap mini game + jalan pintas ke Riwayat Para Gamer
 let MAIN_AT=0;async function renderMainTab(paksa){const box=$('mainIsi');if(!box)return;if(!paksa&&Date.now()-MAIN_AT<20000&&box.dataset.ok)return;MAIN_AT=Date.now();panenCss();
@@ -5723,8 +5732,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
     ctx.lineCap='round';[['#9AA0A6',T*.8+3],['#6E7378',T*.8]].forEach(([c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ed.forEach(([a,b,c2,d2])=>{if(!vis((a+c2)/2,(b+d2)/2,Math.abs(c2-a)+Math.abs(d2-b)+T*2))return;ctx.moveTo(a,b);ctx.lineTo(c2,d2)});ctx.stroke()});
     ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1.6;ctx.setLineDash([8,10]);ctx.beginPath();ed.forEach(([a,b,c2,d2])=>{ctx.moveTo(a,b);ctx.lineTo(c2,d2)});ctx.stroke();ctx.setLineDash([]);ctx.lineCap='butt';
     const used=kavTerisi(),w=T*.8;D.SK.forEach(p=>{if(used.has(p.x+','+p.y))return;const X=(p.x-C)*T,Y=(p.y-C)*T;if(!vis(X,Y,T))return;ctx.fillStyle='#E6D3A8';ctx.fillRect(X-w/2,Y-w/2,w,w);ctx.fillStyle='rgba(120,90,40,.2)';ctx.fillRect(X-w/2,Y+w/2-3,w,3);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=1.3;ctx.setLineDash([4,3]);ctx.strokeRect(X-w/2+3,Y-w/2+3,w-6,w-6);ctx.setLineDash([])});
-    // gapura nama dusun di jalan masuk
-    {const gx=-9*SL-T*.2,gy=0;if(vis(gx,gy,T*6)){papan(gx-T*2.6,gy-T*1.15,'🏡 DUSUN BARU',T*.42,'#F2C230','#1C2520')}}}
+  }
   // 🍵 kebun teh bertingkat di tiap kavling Atas Gunung (selalu kelihatan, biar beda jelas dari kavling biasa)
   D.EKS.forEach(e=>{if(e.lok!=='gunung')return;const x=NK.wx(e.x),y=NK.wx(e.y);if(!vis(x,y,T*3))return;ctx.save();ctx.translate(x,y);
     ctx.fillStyle='#B9D77A';ctx.beginPath();ctx.ellipse(0,T*.1,T*1.95,T*1.6,0,0,7);ctx.fill();ctx.strokeStyle='#8FB55A';ctx.lineWidth=T*.06;ctx.stroke();
@@ -5774,7 +5782,7 @@ function drawDesa(v,t){if(!STQA)return;const D=desaBangun(),z=v.z;ctx.setTransfo
    ctx.fillStyle='#5A3A1E';ctx.fillRect(X-w*.32-4*d,y0+h-2*d,7*d,f*1.1);ctx.fillRect(X+w*.32-4*d,y0+h-2*d,7*d,f*1.1);
    ctx.fillStyle='#2F6B4F';ctx.fillRect(x0,y0,w,h);ctx.fillStyle='#F4EFE3';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,h-6*d);ctx.fillStyle='#2F6B4F';ctx.fillRect(x0+3*d,y0+3*d,w-6*d,f*.32);
    ctx.strokeStyle='#1C2520';ctx.lineWidth=2.5*d;ctx.strokeRect(x0,y0,w,h);ctx.fillStyle='#1C2520';ctx.fillText(tx,X,Y+f*.15);ctx.restore()};
-  lb((D.GANG.gx||(M.x0+M.x1)/2)-T*4.5,M.y1+T*.7,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x-wd.rx*.2,wd.y+wd.ry+T*2.2,'💧 Waduk');{const SB=D.SB||[],SL=S*T;if(SB.length){const mx=Math.min(...SB.map(b=>b[0]))*SL;lb(mx-T*7,(F.y0+F.y1)/2-T*6,'🌲 Hutan');const cx=SB.reduce((a,b)=>a+b[0],0)/SB.length*SL+SL/2,cy=SB.reduce((a,b)=>a+b[1],0)/SB.length*SL+SL/2;lb(cx,cy,'🏡 Dusun Baru')}else lb(F.x1-T*5,(F.y0+F.y1)/2,'🌲 Hutan')}lb(D.sungai2[0][0]+T*4.2,D.sungai2[0][1]+T*4.6,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y-T*1.6,'🌾 Sawah terasering');
+  lb((D.GANG.gx||(M.x0+M.x1)/2)-T*4.5,M.y1+T*.7,'⛰️ Pegunungan');if(D.pantai)lb(D.pantai.x,D.pantai.y,'🏖️ Pantai Senja');lb(wd.x-wd.rx*.2,wd.y+wd.ry+T*2.2,'💧 Waduk');{const SB=D.SB||[],SL=S*T;if(SB.length){const mx=Math.min(...SB.map(b=>b[0]))*SL;const byc=Math.round(SB.reduce((a,b)=>a+b[1],0)/SB.length),rowMin=Math.min(...SB.filter(b=>b[1]===byc).map(b=>b[0]))*SL;lb(rowMin-T*7,byc*SL+SL*.5,'🏡 Dusun Baru');lb(rowMin-T*9,byc*SL-SL*3,'🌲 Hutan') /* papan di luar blok (di hutan), tidak menutupi jalan */}else lb(F.x1-T*5,(F.y0+F.y1)/2,'🌲 Hutan')}lb(D.sungai2[0][0]+T*4.2,D.sungai2[0][1]+T*4.6,'🌊 Air terjun');lb(D.sawah.x+D.sawah.cols*D.sawah.w/2,D.sawah.y-T*1.6,'🌾 Sawah terasering');
   ctx.setTransform(1,0,0,1,0,0)}
 function stdPos(){desaBangun()}
 function drawStadion(v,t){if(!STQA)return;stdPos();const z=v.z;ctx.setTransform(z,0,0,z,v.ox,v.oy);const {x,y,w,h}=STD;

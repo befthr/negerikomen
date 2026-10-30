@@ -3810,7 +3810,7 @@ async function bqApi(aksi,body){const q=bqInit(),b=q.b,ok=x=>Object.assign({ok:t
 const RGQA=/[?&]riwayatqa=1/.test(location.search); // QA Riwayat Para Gamer: data contoh banyak pemain, cuma tampilan di perangkat sendiri (tidak ke server)
 function rgqaApi(aksi){const N=['warga.contoh1','si_petani','kang_cangkul','mbak_padi','bocil.sawah','pak_tani88','dek_gabah','raja_panen','sawahku.indah','juragan_beras','orang_desa','anak_kampung','tukang_bajak','petani.muda','cah_ndeso','bu_lurah.qa','mas_jerami','nenek_kebun','adik_benih','kakak_lumbung','si_kerbau','jagoan_sawah','putri_padi','mbah_tani','gabah.emas'];
  const hr=d=>new Date(Date.now()+7*3600e3-d*864e5).toISOString().slice(0,10),acak=(i,d)=>N[(i*7+d*3)%N.length],skor=(i,d)=>Math.max(8,240-i*9-(d*7)%13),H=[5,3,2,...Array(17).fill(1)];
- if(aksi.startsWith('panen-papan'))return{tgl:hr(0),top:[],kemarin:[],riwayat:[...Array(12)].map((_,d)=>({tgl:hr(d+1),juara:[0,1,2].map(i=>({u:acak(i,d),v:skor(i,d),n:H[i]}))})),hadiah:H,maks:3};
+ if(aksi.startsWith('panen-papan'))return{tgl:hr(0),top:N.slice(0,18).map((_,i)=>({u:acak(i,9),v:skor(i,9)})),kemarin:[],riwayat:[...Array(12)].map((_,d)=>({tgl:hr(d+1),juara:[0,1,2].map(i=>({u:acak(i,d),v:skor(i,d),n:H[i]}))})),hadiah:H,maks:3};
  if(aksi.startsWith('panen-hari')){const tg=(aksi.match(/tg=([\d-]+)/)||[])[1],d=Math.max(0,Math.round((Date.parse(hr(0))-Date.parse(tg))/864e5)-1);return{tgl:tg,top:N.map((_,i)=>({u:acak(i,d),v:skor(i,d),n:H[i]||0}))}}
  if(aksi.startsWith('konsol-rank'))return{rank:{penalti:[{u:'si_petani',v:14},{u:'bocil.sawah',v:12},{u:'raja_panen',v:9}],bakso:[{u:'mbak_padi',v:360},{u:'kang_cangkul',v:340},{u:'dek_gabah',v:280}],egrang:[{u:'juragan_beras',v:64},{u:'cah_ndeso',v:58},{u:'petani.muda',v:41}]}};return null}
 if(RGQA)addEventListener('load',()=>setTimeout(()=>{try{bukaRiwayatGamer()}catch(e){}},2500));
@@ -5429,17 +5429,28 @@ function riwayatHariEl(d,atas){const w=el('div');const hari=d.tgl?new Date(d.tgl
   if(d.tgl&&umur>=1&&umur<=10){const b=el('button','pn-semua','👥 Lihat semua pemain');b.type='button';b.onclick=async()=>{b.disabled=true;b.textContent='⏳ Memuat…';const QAp=/[?&]panenqa=1/.test(location.search);const j=await kkApi('panen-hari&tg='+d.tgl+(QAp?'&qa=1':''));if(!j||j.ok===false||!j.top){b.disabled=false;b.textContent=(j&&j.error)||'Gagal memuat, coba lagi';return}isi(j.top);u2.classList.add('sc');b.remove();w.append(el('div','pn-rwt',`${j.top.length} warga ikut panen hari itu`))};w.append(b)}
   return w}
 async function bukaRiwayatGamer(){panenCss();const body=kkModal();{const m=$('kk'),t0=Date.now();if(m)m.onclick=e=>{if(e.target===m&&Date.now()-t0>600)kkTutup()}}
-  body.append(el('h3',null,'🎮 Riwayat Para Gamer'),el('p',null,'Gedung kenangan para juara mini game kampung. Di sini tercatat juara 1–3 tiap hari selama sebulan terakhir 🏆'));
+  body.append(el('h3',null,'🎮 Riwayat Para Gamer'),el('p',null,'Gedung kenangan para juara mini game kampung. Pilih tanggal buat lihat ranking hari itu. Riwayat juara tersimpan sebulan 🏆'));
   const tb=el('div','kk-tabs'),area=el('div');body.append(tb,area);let tab='panen';
   const pasang=k=>{tab=k;[...tb.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));area.innerHTML='';(k==='panen'?isiPanen:isiKonsol)(area)};
   [['panen','🌾 Panen Sawah'],['konsol','🕹️ playadalahmain']].forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.onclick=()=>pasang(k);tb.append(b)});
   const isiPanen=async body=>{const QAp=/[?&]panenqa=1/.test(location.search),G=GAME_RIWAYAT.filter(g=>g.buka());if(!G.length){body.append(el('p','kk-muted','Belum ada mini game yang buka.'));return}
   for(const g of G){const sec=el('div');sec.append(el('b',null,g.n));const ld=el('p','kk-muted','Memuat…');sec.append(ld);body.append(sec);
-    const j=await g.muat(QAp);ld.remove();const RW=(j&&j.riwayat)||[];
-    if(!RW.length){const p0=el('p','kk-muted','Belum ada juara. Juara pertama diumumkan setelah tengah malam. Siapa duluan? 👀');p0.style.fontSize='13px';sec.append(p0);continue}
+    const j=await g.muat(QAp);ld.remove();const RW=(j&&j.riwayat)||[],HD=(j&&j.hadiah)||[],tgH=(j&&j.tgl)||new Date(Date.now()+252e5).toISOString().slice(0,10);
+    // 📅 filter tanggal (default: hari ini, ranking sementara yang masih berjalan)
+    const fmt=t=>new Date(t+'T12:00:00+07:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'}),TG=[tgH,...RW.map(d=>d.tgl).filter(t=>t&&t!==tgH)];
+    const fb=el('div','pn-tg'),lst=el('div');sec.append(fb,lst);
+    const tampil=async t=>{[...fb.children].forEach(x=>x.classList.toggle('on',x.dataset.t===t));lst.innerHTML='';const ul=el('ul','pn-rk sc'),ket=el('div','pn-rwt');
+      const isi=L=>{L.forEach((o,i)=>{const li=el('li');li.append(el('span','n',i<3?['🥇','🥈','🥉'][i]:String(i+1)),el('span','u','@'+o.u),el('span','v',o.v+' 🌾'),el('span','h',(o.n!=null?o.n:HD[i])>0?'+'+(o.n!=null?o.n:HD[i])+' Receh':''));ul.append(li)})};
+      if(t===tgH){const T=(j&&j.top)||[];if(!T.length){lst.append(el('p','kk-muted',panenOn()?'Belum ada yang panen hari ini. Jadi yang pertama! 🌾':'Panen Sawah buka jam 13.00. Siapa duluan? 👀'));return}
+        ket.textContent=`⏳ Ranking sementara · ${T.length} warga sudah panen · hadiah dibagikan 00.00`;lst.append(ket);isi(T);lst.append(ul);return}
+      const umur=Math.round((Date.parse(tgH)-Date.parse(t))/864e5);
+      if(umur<=10){const w=el('p','kk-muted','Memuat…');lst.append(w);const r=await kkApi('panen-hari&tg='+t+(QAp?'&qa=1':''));w.remove();if(r&&r.top&&r.top.length){ket.textContent=`${r.top.length} warga ikut panen hari itu`;lst.append(ket);isi(r.top);lst.append(ul);return}}
+      const d=RW.find(x=>x.tgl===t);ket.textContent='🏆 Juara 1–3 (ranking lengkap cuma disimpan 10 hari)';lst.append(ket);isi((d&&d.juara)||[]);lst.append(ul)};
+    TG.forEach(t=>{const x=el('button',null,t===tgH?'📍 Hari ini':fmt(t));x.type='button';x.dataset.t=t;x.onclick=()=>tampil(t);fb.append(x)});tampil(tgH);
+    if(!RW.length)continue;
     const C={};RW.forEach(d=>(d.juara||[]).forEach((o,i)=>{const c=C[o.u]||(C[o.u]={u:o.u,e:0,p:0,b:0});[ 'e','p','b'][i]&&c[['e','p','b'][i]]++}));
     const L=Object.values(C).sort((a,b)=>b.e-a.e||b.p-a.p||b.b-a.b).slice(0,5);const hs=el('div','pn-rwt','🏅 Paling sering juara');sec.append(hs);const ul=el('ul','pn-rk');L.forEach((c,i)=>{const li=el('li');li.append(el('span','n',String(i+1)),el('span','u','@'+c.u),el('span','h',(c.e?'🥇'+c.e+' ':'')+(c.p?'🥈'+c.p+' ':'')+(c.b?'🥉'+c.b:'')));ul.append(li)});sec.append(ul);
-    const box=el('div','pn-rw');RW.forEach((d,k)=>box.append(riwayatHariEl(d,k===0)));sec.append(box)}};
+}};
   const isiKonsol=async body=>{ // 🕹️ playadalahmain: rekor tertinggi tiap game (sepanjang masa, tanpa hadiah) + ajakan sewa/beli
   {const KG=[['penalti','⚽','Adu Penalti'],['genteng','🏠','Tangkap Genteng'],['pancing','🎣','Pancing Ikan'],['bakso','🍜','Racik Bakso'],['ayam','🐔','Kejar Ayam'],['karung','🥔','Balap Karung'],['layang','🪁','Layangan'],['memori','🃏','Memori Genteng'],['pinang','🎋','Panjat Pinang'],['kentongan','🔔','Tebak Kentongan'],['karet','🪢','Lompat Karet'],['pesawat','✈️','Pesawat Nembak'],['tambang','💪','Tarik Tambang'],['egrang','🦯','Egrang']];
    const sec=el('div');{const k=kkGet(),cta=el('div','mg-k');cta.append(el('div','mg-h','🕹️ Mau ikut cetak rekor?'),el('p',null,'14 mini game seru di konsol playadalahmain. Sewa 1 hari atau beli selamanya, skor terbaikmu langsung masuk papan rekor!'));const rw=el('div','kk-row');
@@ -5476,6 +5487,7 @@ function infraRiwayat(x,y){const c=ctx,k=T;
   c.fillStyle='#1C2520';c.font=`800 ${k*.32}px Poppins,'Noto Color Emoji',sans-serif`;const lbl='🎮 RIWAYAT PARA GAMER';const tw=c.measureText(lbl).width+k*.5;c.fillRect(x-tw/2,y-k*1.95,tw,k*.56);c.fillStyle='#F2C230';c.fillText(lbl,x,y-k*1.67)}
 let PANEN_CSS=false;function panenCss(){if(PANEN_CSS)return;PANEN_CSS=true;const st=document.createElement('style');st.textContent=`
 .pn-rk{list-style:none;margin:8px 0 0;padding:0}
+.pn-tg+div .pn-rk.sc{max-height:300px}.pn-tg{display:flex;gap:6px;overflow-x:auto;padding:4px 0 6px;margin-top:6px;scrollbar-width:thin}.pn-tg button{flex:none;border:2px solid #E2D3A6;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:800;color:#1C2520;cursor:pointer}.pn-tg button.on{background:#1C2520;border-color:#1C2520;color:#F2C230}
 .mg-k{background:#F6F1E3;border:2px solid #E2D3A6;border-radius:14px;padding:12px}.mg-k p{margin:6px 0;font-size:14px;line-height:1.45}.mg-h{font-weight:800;font-size:16px}.mg-me{font-weight:700;color:#2F6B4F}
 .pn-semua{display:block;margin:4px 0 2px auto;background:none;border:0;color:#2F6B4F;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;padding:4px 6px}
 .pn-rw{max-height:230px;overflow-y:auto;overscroll-behavior:contain;border:2px solid #EFE6CC;border-radius:12px;padding:4px 6px;margin-top:6px}.pn-rwt{font-size:12px;font-weight:800;color:#8A6A10;margin:8px 4px 0}.pn-rk.sc{max-height:208px;overflow-y:auto;overscroll-behavior:contain;border:2px solid #EFE6CC;border-radius:12px;padding:4px}.pn-rk li.pisah{justify-content:center;color:#8A6A10;font-size:12px;font-weight:700;background:none}.pn-rk li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;font-size:14px}.pn-rk li:nth-child(odd){background:#F6F1E3}.pn-rk li.me{outline:2px solid #F2C230;background:#FFF6D6}

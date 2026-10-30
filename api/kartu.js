@@ -121,8 +121,8 @@ const MODIF_URUT = ['atap', 'tembok', 'jendela', 'pintu', 'genteng', 'pagar', 'j
 const MODIF_HARGA = () => 12;
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
 // pesanan ubah rumah & item (harga dalam Genteng)
-const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };
-const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 10 : (kini >= 2 ? 4 : 14); // tingkat 2: 10 Receh · tingkat 3: 14 Receh (naik dari tingkat 2: 4 Receh)
+const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 5 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };
+const HARGA_TINGKAT = (mau, kini) => mau === 2 ? 15 : (kini >= 2 ? 5 : 20); // tingkat 2: 15 Receh · tingkat 3: 20 Receh (naik dari tingkat 2: 5 Receh) · sejak 30 Okt
 const GAJI = 2; // gaji karyawan fasilitas per pekan (Receh)
 const KONSOL_G = ['penalti', 'genteng', 'pancing', 'bakso', 'ayam', 'karung', 'layang', 'memori', 'pinang', 'kentongan', 'karet', 'pesawat', 'tambang', 'egrang'];
 const KONSOL_MAX = { penalti: 5, genteng: 800, pancing: 400, bakso: 900, ayam: 400, karung: 80, layang: 600, memori: 140, pinang: 40, kentongan: 80, karet: 400, pesawat: 3000, tambang: 60, egrang: 5000 };
@@ -695,7 +695,7 @@ export default async function handler(req, res) {
         }
       } else if (jenis === 'emas') {
         if (info.emas) return res.status(400).json({ error: 'Rumahmu sudah punya bendera emas.' });
-        isi = { harga: 2 };
+        isi = { harga: 5 };
       } else if (jenis === 'ruko') {
         return res.status(400).json({ error: 'Ruko sedang ditutup sementara. Mau kerja sama usaha? DM @negerikomen ya.' }); // ruko nonaktif
         const wall = String(body.wall || ''), roof = String(body.roof || '');

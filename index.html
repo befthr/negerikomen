@@ -3381,8 +3381,8 @@ else if(o.id==='mbulan'){q.position.set(0,2.85+(Math.max(1,Math.min(3,+r.tingkat
   const hc=document.createElement('canvas');hc.width=hc.height=96;{const x=hc.getContext('2d');x.font='72px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('💕',48,52)}
   const HT=[0,1,2].map(()=>{const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(hc),transparent:true,depthWrite:false}));sp.scale.setScalar(.32);sp.visible=false;day.add(sp);return sp});
   let atas=false;const naikkan=()=>{if(atas||!g.userData.raksasa)return;atas=true; // ada GENTO: Mbul selalu kelihatan di atas genteng (tidak ketutup kaki/badan robot)
-    const cl=new T.Mesh(new T.PlaneGeometry(.001,.001),new T.MeshBasicMaterial({colorWrite:false,depthWrite:false}));cl.frustumCulled=false;cl.renderOrder=40;cl.onBeforeRender=rd=>{if(!rd.getRenderTarget())rd.clearDepth()};q.add(cl);
-    q.traverse(o2=>{if(o2!==cl&&(o2.isMesh||o2.isSprite))o2.renderOrder=41});mg.position.y=2.3;q.scale.setScalar(3.3)};
+    // tidak lagi 'selalu di atas' (bikin Mbul kelihatan tembus badan robot dari belakang) → digeser ke sisi atap yang jauh dari GENTO, kedalaman normal
+    q.position.x+=.75;q.position.z+=.95;mg.position.y=2.3;q.scale.setScalar(3.3)};
   A.push(t=>{const m=!!window.__PMX_MALAM;day.visible=!m;nite.visible=m;pl.intensity=m?2.2:0;const s=t*.001;naikkan();
     bod.scale.y=.78+.03*Math.sin(s*1.6);zs.forEach((z,i)=>{const p=((s*.35)+i/3)%1;z.position.set(.75+p*.35,.85+p*.7,.1);z.material.opacity=Math.sin(p*Math.PI)});
     {const pe=(performance.now()-purAt)/1000,k=pe<4?Math.sin(Math.min(1,pe/4)*Math.PI):0;nite.scale.setScalar(1+.35*k);nite.position.y=.08*Math.sin(s*.9)+.6*k;pl.intensity=m?2.2+3*k:0}{const ee=(performance.now()-elusAt)/1000;HT.forEach((h,i)=>{const f=ee-i*.25;h.visible=!m&&f>0&&f<2;if(h.visible){h.position.set(.6+.15*Math.sin(f*5+i),.9+f*.55,(i-1)*.2);h.material.opacity=1-f/2}});tl.rotation.y=ee<2?.7*Math.sin(ee*14):.25*Math.sin(s*1.3)}st.forEach((x,i)=>{const a=s*.3+i*.9;x.position.set(Math.cos(a)*1.05,1.65+.5*Math.sin(a*1.7+i),Math.sin(a)*1.05);x.scale.setScalar(.6+.5*Math.abs(Math.sin(s*2+i)))})})}

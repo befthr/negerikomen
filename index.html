@@ -2515,13 +2515,13 @@ function bukaPasar(){const body=kkModal();{const m=$('kk'),t0=Date.now();if(m)m.
 function pasarIsi(box){box.innerHTML='';const P=window.PASAR||{lapak:[],laku:[]},me=String((kkGet()||{}).u||'').toLowerCase();
   const kotak=(t)=>{const d=el('div');d.style.cssText='margin:12px 0;padding:10px 12px;border:2px solid #E2D3A6;border-radius:14px;background:#FFFDF6';d.append(el('b',null,t));box.append(d);return d};
   const rp=(n)=>{const s=el('span');s.style.cssText='display:inline-flex;align-items:center;gap:3px;font-weight:800';const im=document.createElement('img');im.src='receh.svg';im.alt='';im.style.cssText='width:16px;height:16px';s.append(im,document.createTextNode(n+' Receh'));return s};
-  const L=(P.lapak||[]).filter(l=>KK_ITEM[l.id]),d1=kotak('🛒 Lagi dijual ('+L.length+')');
-  if(!L.length)d1.append(el('p','kk-muted','Belum ada lapak. Jadi yang pertama buka lapak!'));
+  const L=(P.lapak||[]).filter(l=>KK_ITEM[l.id]),LM=L.filter(l=>l.u===me),LO=L.filter(l=>l.u!==me),tab=window.__PASAR_TAB||'beli';
+  {const tb=el('div','eksc-tabs');tb.style.cssText+=';border-color:#1C2520;margin-top:10px';[['beli','🛒 Lagi dijual',LO.length],['jual','🏷️ Jual barangku',LM.length]].forEach(([k,t,n])=>{const b=el('button','eksc-tab'+(tab===k?' on':''));b.type='button';b.append(document.createTextNode(t+' '),el('i',null,String(n)));b.onclick=()=>{window.__PASAR_TAB=k;pasarIsi(box)};tb.append(b)});box.append(tb)} // 2 tab: belanja & jualan
   // gaya marketplace (Tokopedia/Shopee): kartu produk 2 kolom, gambar besar, harga menonjol, label diskon & eksklusif
   const lalu=at=>{const m=Math.max(1,Math.round((Date.now()-at)/6e4));return m<60?m+' mnt lalu':m<1440?Math.round(m/60)+' jam lalu':Math.round(m/1440)+' hari lalu'};
   const BG=['#FDEBD3','#E3F1DD','#E2ECF8','#F7E3EC','#F3EBD7','#EDE6F6'];
-  const grid=el('div');grid.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px';if(L.length)d1.append(grid);
-  L.forEach((l,k)=>{const mine=l.u===me,eks=PASAR_EKS.includes(l.id),baru=(KK_ITEM[l.id]||{}).h,cd=el('div');cd.style.cssText='background:#fff;border:2px solid '+(mine?'#2F9E6A':'#E2D3A6')+';border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:'+(mine?'default':'pointer');
+  const isiGrid=(LL,dst)=>{const grid=el('div');grid.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px';if(LL.length)dst.append(grid);
+  LL.forEach((l,k)=>{const mine=l.u===me,eks=PASAR_EKS.includes(l.id),baru=(KK_ITEM[l.id]||{}).h,cd=el('div');cd.style.cssText='background:#fff;border:2px solid '+(mine?'#2F9E6A':'#E2D3A6')+';border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:'+(mine?'default':'pointer');
     const im=el('div');im.style.cssText='position:relative;aspect-ratio:1/1;background:'+BG[k%BG.length]+';display:flex;align-items:center;justify-content:center';const ic=kkItemSVG(l.id,null,l.warna);ic.style.cssText='width:62%;height:62%';im.append(ic);
     const pill=(t,css)=>{const b=el('span',null,t);b.style.cssText='position:absolute;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:99px;'+css;im.append(b)};
     if(baru&&baru>l.h)pill('-'+Math.round((1-l.h/baru)*100)+'%','top:6px;left:6px;background:#C4402F;color:#fff');
@@ -2534,10 +2534,13 @@ function pasarIsi(box){box.innerHTML='';const P=window.PASAR||{lapak:[],laku:[]}
     let bt;if(mine)bt=kkBtn('Tutup lapak','sm',async e=>{e.stopPropagation();bt.disabled=true;const r=await pasarApi('pasar-batal',{lid:l.lid});if(!r.ok){toast(r.error||'Gagal, coba lagi');bt.disabled=false;return}window.PASAR=r.pasar||window.PASAR;toast('📦 Lapak '+pasarNm(l.id)+' ditutup');pasarIsi(box)});
     else{const beli=e=>{if(e)e.stopPropagation();if(!me){pasarLogin();return}pasarKonfirm(l,async(ok)=>{const r=await pasarApi('pasar-beli',{lid:l.lid});if(!r.ok){toast(r.error||'Gagal, coba lagi');window.PASAR=r.pasar||window.PASAR;ok(false);pasarIsi(box);return}
       window.PASAR=r.pasar||window.PASAR;try{SND.play('ting',.9)}catch(e){}ok(true);toast('🎉 '+pasarNm(l.id)+' bekas @'+l.u+' jadi milikmu!');pasarLokal(me,l,'beli');pasarIsi(box)})};bt=kkBtn('Beli','sm gold3',beli);cd.onclick=()=>beli()}
-    bt.style.cssText+=';width:100%;margin-top:auto';const sp=el('div');sp.style.height='4px';bd.append(nm,hr,sl,tm,sp,bt);cd.append(im,bd);grid.append(cd)});
-  const d2=kotak('🏷️ Jual barangku');d2.append(el('p','kk-muted','Pilih barang yang mau dilepas dan pasang harganya. Barangmu tetap ada di pekarangan sampai laku. Kalau laku, Receh langsung masuk ke kartumu.'));
+    bt.style.cssText+=';width:100%;margin-top:auto';const sp=el('div');sp.style.height='4px';bd.append(nm,hr,sl,tm,sp,bt);cd.append(im,bd);grid.append(cd)})};
+  if(tab==='beli'){const d1=kotak('🛒 Barang lagi dijual ('+LO.length+')');if(!LO.length)d1.append(el('p','kk-muted','Belum ada lapak dari warga lain. Coba cek lagi nanti!'));isiGrid(LO,d1);
+    const LK=(P.laku||[]).slice(0,6);if(LK.length){const d3=kotak('✅ Baru laku');LK.forEach(x=>{const p=el('div','kk-muted','@'+x.ke+' beli '+pasarNm(x.id)+' dari @'+x.dari+' · '+x.h+' Receh');p.style.padding='3px 0';d3.append(p)})}}
+  else{if(LM.length){const dm=kotak('🧺 Lapakku ('+LM.length+'/3)');isiGrid(LM,dm)}
+  const d2=kotak(LM.length>=3?'🏷️ Pasang barang baru (lapak penuh)':'🏷️ Pasang barang baru');d2.append(el('p','kk-muted','Pilih barang yang mau dilepas dan pasang harganya. Barangmu tetap ada di pekarangan sampai laku. Kalau laku, Receh langsung masuk ke kartumu.'));
   if(!me)d2.append(kkBtn('🔑 Ambil Kartu Komen dulu','sm gold3',pasarLogin));else{const b=kkBtn('📦 Pilih barang yang mau dijual','sm gold3',()=>pasarJual(d2,b,box));d2.append(b)}
-  const LK=(P.laku||[]).slice(0,6);if(LK.length){const d3=kotak('✅ Baru laku');LK.forEach(x=>{const p=el('div','kk-muted','@'+x.ke+' beli '+pasarNm(x.id)+' dari @'+x.dari+' · '+x.h+' Receh');p.style.padding='3px 0';d3.append(p)})}
+  }
   box.append(el('p','kk-note','ℹ️ Harga bekas paling mahal sama dengan harga baru. ⭐ Barang eksklusif dijual seharga baru. Kalau laku, mode pilihan pemilik lama (misalnya Karpet Terbang Manual) kembali ke awal buat pemilik baru. Skor playadalahmain tetap tercatat atas nama pemilik lama. Maks 3 lapak per warga. Barang yang dijual tetap tampil di pekarangan sampai laku.'))}
 // konfirmasi beli: jendela kecil di atas daftar (bukan tombol berubah), biar jelas apa yang dibeli & berapa Receh terpotong
 // konfirmasi jual: jelaskan apa yang terjadi (barang tetap di pekarangan, Receh masuk kalau laku, bisa ditutup kapan saja)

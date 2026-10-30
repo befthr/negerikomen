@@ -2461,6 +2461,17 @@ function bukaDusunBaru(){const D=desaBangun(),SK=D.SK||[],used=kavTerisi(),isi=S
   const bar=el('div');bar.style.cssText='height:14px;border-radius:99px;background:#EEE6CF;border:2px solid #1C2520;overflow:hidden;margin:12px 0 4px';const fl=el('div');fl.style.cssText=`height:100%;width:${tot?Math.max(2,isi/tot*100):0}%;background:#2F9E6A`;bar.append(fl);body.append(bar,el('p','kk-muted',`${tot?Math.round(isi/tot*100):0}% terisi · luasnya ±${lebar}×${tinggi} blok, hampir seluas Desa Awalkomen!`));
   body.append(kkBtn('🗺️ Lihat seluruh Dusun Baru','sm gold3',()=>{kkTutup();const cx=(Math.min(...xs)+Math.max(...xs)+1)*SL/2,cy=(Math.min(...ys)+Math.max(...ys)+1)*SL/2;flyTo({cx,cy,zoom:clampZ(.14)},900);scrollMap()}))}
 // MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
+// 🎈 Warga baru (masuk < 24 jam): balon warna-warni di atap. Cuma muncul saat zoom dekat supaya peta tidak ramai.
+function balonBaru(v,t){const zc=v.z/dpr;if(zc<.42)return;const now=Date.now(),W=v.W,H=v.H,pad=T*2*v.z;const C=['#E2453C','#F2C230','#3E8FC9','#2E9C6A','#FF6FA8','#8E5AA8'];
+  ctx.save();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);let n=0;
+  for(const r of RES){if(!r.at||now-r.at>864e5||r._tr)continue;const X=NK.wx(r.x),Y=NK.wx(r.y),sx=X*v.z+v.ox,sy=Y*v.z+v.oy;if(sx<-pad||sx>W+pad||sy<-pad*2||sy>H+pad)continue;if(++n>400)break;
+    const h=((r.x*73856093)^(r.y*19349663))>>>0,sd=(h%1000)/1000,tk=(+r.tingkat>1?(Math.min(3,+r.tingkat)-1)*6:0);
+    for(let k=0;k<2;k++){const sw=Math.sin(t*1.6+sd*6+k*1.7)*T*.12,bx=X+(k?T*.16:-T*.12)+sw,by=Y-tk-T*(k?1.05:1.25)+Math.sin(t*2.1+sd*4+k)*T*.04,R=T*.2;
+      ctx.strokeStyle='rgba(28,37,32,.55)';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(X+(k?2:-2),Y-tk-T*.15);ctx.quadraticCurveTo(X+sw*.5,(Y-tk+by)/2,bx,by+R);ctx.stroke();
+      ctx.fillStyle=C[(h+k*3)%C.length];ctx.beginPath();ctx.ellipse(bx,by,R*.86,R,0,0,7);ctx.fill();ctx.strokeStyle='rgba(28,37,32,.6)';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(bx-R*.3,by-R*.35,R*.2,R*.28,-.5,0,7);ctx.fill()}
+  }
+  ctx.restore()}
 function mbulLok(v){const L=window.__MBUL_LOK;if(!L||!L.length||!window.__GAMBAR_MBUL)return;const M=window.__MBUL||[];const ada=new Set(M.map(o=>o.r.name));const baru=L.filter(o=>!ada.has(o.r.name));if(!baru.length)return;M.push(...baru);ctx.save();ctx.setTransform(v.z,0,0,v.z,v.ox,v.oy);window.__GAMBAR_MBUL(baru);ctx.restore()}
 function mbulBulan(v,t,n){const c=ctx,z=v.z,T=NK.T;(window.__MBUL||[]).forEach(o=>{if(!o.P||!o.P.bulan)return;const S=o.s,E=(x,y,a,b,f,rt)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,a,b,rt||0,0,7);c.fill()},L=(w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round'};
   c.save();c.setTransform(z,0,0,z,v.ox,v.oy);c.globalCompositeOperation='source-over';c.globalAlpha=1;
@@ -2524,6 +2535,7 @@ function frame(now){
     {const _t0=DBG?performance.now():0;NK.drawWorld(v,{residents:RES,buildings:BLD,free:FREE},reduce?0:t,{vehicles:true,life:GFX_SET[GFX].life,noRides:true});if(DBG)DBG.m.dunia=(DBG.m.dunia||0)*.9+(performance.now()-_t0)*.1}
     {const _t0=DBG?performance.now():0;try{drawDesaC(v,reduce?0:t);try{sukaKonektor(v)}catch(e){}try{drawDesaTimur(v,reduce?0:t)}catch(e){console.error(e)}try{drawAngkot(v,reduce?0:t)}catch(e){console.error(e)}drawStadion(v,reduce?0:t);drawMarkasHK(v,reduce?0:t)}catch(e){console.error(e)}try{BLD.forEach(bb=>{if(bb._luar){ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawBuilding(bb,1,1)}});ctx.setTransform(1,0,0,1,0,0)}catch(e){}if(DBG)DBG.m.desa=(DBG.m.desa||0)*.9+(performance.now()-_t0)*.1}
     try{ctx.setTransform(z,0,0,z,v.ox,v.oy);NK.drawRides(RES,reduce?0:t);ctx.setTransform(1,0,0,1,0,0)}catch(e){console.error(e)}
+    try{balonBaru(v,reduce?0:t)}catch(e){console.error(e)}
     try{mbulLok(v)}catch(e){console.error(e)} // MBULAN rumah lok digambar paling akhir: selalu di atas genteng/bangunan
     {const _t0=DBG?performance.now():0;try{NK.drawLangit(v,reduce?0:t)}catch(e){console.error(e)}if(DBG)DBG.m.langit=(DBG.m.langit||0)*.9+(performance.now()-_t0)*.1}
     {const _t0=DBG?performance.now():0;try{drawMalam(v,t)}catch(e){}if(DBG)DBG.m.malam=(DBG.m.malam||0)*.9+(performance.now()-_t0)*.1}

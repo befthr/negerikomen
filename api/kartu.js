@@ -27,8 +27,9 @@
 //   POST reset-jatah {target} (Bearer kartu @negerikomen) → kembalikan jatah ganti rumah warga minggu ini
 import crypto from 'crypto';
 import { terapkan, bolehOtomatis } from './_terapkan.js';
-import { EKS, DK } from './_kavling.js';
+import { EKS, DK, SK } from './_kavling.js';
 const DKS = new Set(DK.map(([x, y]) => x + ',' + y)); // kavling biasa Desa Komen-Komen Sejahtera
+const SKS = new Set(SK.map(([x, y]) => x + ',' + y)); // kavling biasa Dusun Sukamaju
 // ===== Jasa Pindahan Pak Kades =====
 const PINDAH = { truk: { harga: 3, dur: 1800 }, heli: { harga: 8, dur: 180 } }; // Truk Titut 30 mnt (kavling biasa) · Helikoper 3 mnt (khusus kavling eksklusif)
 const JEDA_PINDAH = 7 * 864e2; // boleh pindah lagi setelah 7 hari
@@ -907,9 +908,9 @@ export default async function handler(req, res) {
         if (!okU(u)) { tolak.push({ u: String(o && o.name || ''), why: 'username tidak valid' }); continue }
         if (ada.has(u)) { tolak.push({ u, why: 'sudah jadi warga' }); continue }
         // beberapa calon kavling dari perangkat kades; ambil yang pertama masih kosong menurut server
-        const C = (Array.isArray(o.cand) && o.cand.length ? o.cand : [o]).slice(0, 40).map(p => [Math.round(+p.x), Math.round(+p.y)]), hit = C.find(([x, y]) => (kavBaruOk(x, y) || DKS.has(x + ',' + y)) && !pakai.has(x + ',' + y)); // kampung lama penuh → kavling Desa Komen-Komen Sejahtera
+        const C = (Array.isArray(o.cand) && o.cand.length ? o.cand : [o]).slice(0, 40).map(p => [Math.round(+p.x), Math.round(+p.y)]), hit = C.find(([x, y]) => (kavBaruOk(x, y) || DKS.has(x + ',' + y) || SKS.has(x + ',' + y)) && !pakai.has(x + ',' + y)); // kampung lama penuh → kavling Desa Komen-Komen Sejahtera
         if (!hit) { tolak.push({ u, why: 'kavling tidak tersedia' }); continue } const [x, y] = hit;
-        const r = { name: u, x, y, day: +D.day || 0, at: Date.now() }; if (DKS.has(x + ',' + y)) r.lok = 'desa'; const nk = String(o.nick || '').trim().slice(0, 24); if (nk) r.nick = nk;
+        const r = { name: u, x, y, day: +D.day || 0, at: Date.now() }; if (DKS.has(x + ',' + y)) r.lok = 'desa'; else if (SKS.has(x + ',' + y)) r.lok = 'suka'; const nk = String(o.nick || '').trim().slice(0, 24); if (nk) r.nick = nk;
         if (WARNA_OK.includes(o.roof)) r.roof = o.roof; if (WARNA_OK.includes(o.wall)) r.wall = o.wall;
         ada.add(u); pakai.add(x + ',' + y); ok.push(u); cmds.push(['HSET', 'warga:baru', u, JSON.stringify(r)]) }
       if (cmds.length) await kvMany(cmds); DATA = null;

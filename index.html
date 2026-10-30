@@ -2471,9 +2471,9 @@ if(PASAR_QA&&PASAR_QA!=='tutup'){const n=Date.now(),L=[['motor','agus.kampung',3
 function pasarQAApi(aksi,b){const P=window.PASAR,me=(kkGet()||{}).u||'kamu',K=window.__PASAR_QA_KOL;
   if(aksi==='saya')return {ok:true,kartu:{u:me,saldo:window.__PASAR_QA_SALDO??9,items:K}};
   if(aksi==='pasar-jual'){const o=K.own.find(x=>x.id===b.id);if(!o)return {ok:false,error:'Kamu tidak punya barang itu.'};if(P.lapak.filter(l=>l.u===me).length>=3)return {ok:false,error:'Maksimal 3 lapak per warga. Batalkan salah satu dulu ya.'};
-    K.own=K.own.filter(x=>x!==o);K.pajang=K.pajang.filter(x=>x!==b.id);P.lapak.unshift({lid:'QA'+Date.now(),u:me,id:b.id,warna:o.warna||null,h:b.h,at:Date.now()});return {ok:true,pasar:P}}
+    P.lapak.unshift({lid:'QA'+Date.now(),u:me,id:b.id,warna:o.warna||null,h:b.h,at:Date.now()});return {ok:true,pasar:P}}
   const l=P.lapak.find(x=>x.lid===b.lid);if(!l)return {ok:false,error:'Yah, barangnya sudah laku atau lapaknya sudah tutup.'};
-  if(aksi==='pasar-batal'){P.lapak=P.lapak.filter(x=>x!==l);K.own.push({id:l.id,warna:l.warna});return {ok:true,pasar:P}}
+  if(aksi==='pasar-batal'){P.lapak=P.lapak.filter(x=>x!==l);return {ok:true,pasar:P}}
   if(aksi==='pasar-beli'){const sd=window.__PASAR_QA_SALDO??9;if(K.own.some(x=>x.id===l.id))return {ok:false,error:'Kamu sudah punya '+((KK_ITEM[l.id]||{}).n||l.id)+'.'};if(sd<l.h)return {ok:false,error:'Recehan belum cukup. Butuh '+l.h+' Receh.'};
     window.__PASAR_QA_SALDO=sd-l.h;P.lapak=P.lapak.filter(x=>x!==l);K.own.push({id:l.id,warna:l.warna});P.laku.unshift({id:l.id,h:l.h,dari:l.u,ke:me,at:Date.now()});return {ok:true,beli:l.id,pasar:P}}
   return {ok:false,error:'?'}}
@@ -2519,22 +2519,22 @@ function pasarIsi(box){box.innerHTML='';const P=window.PASAR||{lapak:[],laku:[]}
   if(!L.length)d1.append(el('p','kk-muted','Belum ada lapak. Jadi yang pertama buka lapak!'));
   L.forEach(l=>{const row=el('div');row.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed #E2D3A6';const ic=kkItemSVG(l.id,null,l.warna);ic.style.cssText='width:44px;height:44px;flex:none';
     const tx=el('div');tx.style.cssText='flex:1;min-width:0';const baru=(KK_ITEM[l.id]||{}).h;tx.append(el('b',null,pasarNm(l.id)+(l.warna?' · '+l.warna:'')),el('div','kk-muted','bekas @'+l.u),rp(l.h));if(baru&&baru>l.h){const sm=el('small','kk-muted',' (baru '+baru+')');sm.style.textDecoration='line-through';tx.append(sm)}
-    let bt;if(l.u===me)bt=kkBtn('Tutup lapak','sm',async()=>{bt.disabled=true;const r=await pasarApi('pasar-batal',{lid:l.lid});if(!r.ok){toast(r.error||'Gagal, coba lagi');bt.disabled=false;return}window.PASAR=r.pasar||window.PASAR;toast('📦 '+pasarNm(l.id)+' kembali ke rumahmu');pasarLokal(me,l,'balik');pasarIsi(box)});
+    let bt;if(l.u===me)bt=kkBtn('Tutup lapak','sm',async()=>{bt.disabled=true;const r=await pasarApi('pasar-batal',{lid:l.lid});if(!r.ok){toast(r.error||'Gagal, coba lagi');bt.disabled=false;return}window.PASAR=r.pasar||window.PASAR;toast('📦 Lapak '+pasarNm(l.id)+' ditutup');pasarIsi(box)});
     else{let yakin=false;bt=kkBtn('Beli','sm gold3',async()=>{if(!me){pasarLogin();return}if(!yakin){yakin=true;bt.textContent='Yakin? '+l.h+' Receh';setTimeout(()=>{yakin=false;if(bt.isConnected)bt.textContent='Beli'},4000);return}bt.disabled=true;const r=await pasarApi('pasar-beli',{lid:l.lid});if(!r.ok){toast(r.error||'Gagal, coba lagi');bt.disabled=false;bt.textContent='Beli';yakin=false;window.PASAR=r.pasar||window.PASAR;return}
       window.PASAR=r.pasar||window.PASAR;try{SND.play('ting',.9)}catch(e){}toast('🎉 '+pasarNm(l.id)+' bekas @'+l.u+' jadi milikmu!');pasarLokal(me,l,'beli');pasarIsi(box)})}
     bt.style.flex='none';row.append(ic,tx,bt);d1.append(row)});
-  const d2=kotak('🏷️ Jual barangku');d2.append(el('p','kk-muted','Pilih barang yang mau dilepas, pasang harganya, lalu barangmu pindah ke lapak. Kalau laku, Receh langsung masuk ke kartumu.'));
+  const d2=kotak('🏷️ Jual barangku');d2.append(el('p','kk-muted','Pilih barang yang mau dilepas dan pasang harganya. Barangmu tetap ada di pekarangan sampai laku. Kalau laku, Receh langsung masuk ke kartumu.'));
   if(!me)d2.append(kkBtn('🔑 Ambil Kartu Komen dulu','sm gold3',pasarLogin));else{const b=kkBtn('📦 Pilih barang yang mau dijual','sm gold3',()=>pasarJual(d2,b,box));d2.append(b)}
   const LK=(P.laku||[]).slice(0,6);if(LK.length){const d3=kotak('✅ Baru laku');LK.forEach(x=>{const p=el('div','kk-muted','@'+x.ke+' beli '+pasarNm(x.id)+' dari @'+x.dari+' · '+x.h+' Receh');p.style.padding='3px 0';d3.append(p)})}
-  box.append(el('p','kk-note','ℹ️ Harga bekas paling mahal sama dengan harga baru. Barang eksklusif & playadalahmain tidak bisa dijual. Maks 3 lapak per warga. Barang di lapak tidak tampil di pekarangan sampai laku atau lapaknya ditutup.'))}
+  box.append(el('p','kk-note','ℹ️ Harga bekas paling mahal sama dengan harga baru. Barang eksklusif & playadalahmain tidak bisa dijual. Maks 3 lapak per warga. Barang yang dijual tetap tampil di pekarangan sampai laku.'))}
 function pasarLogin(){kkTutup();toast('Cari rumahmu dulu, lalu pencet Kartu Komen untuk ambil kartu 🔑');const q=$('q');if(q){q.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(()=>q.focus(),450)}}
 async function pasarJual(d2,b,box){b.disabled=true;b.textContent='Memuat barangmu…';const r=await pasarApi('saya');b.remove();if(!r.ok){d2.append(el('p','kk-msg err',r.error||'Gagal memuat kartu'));return}
-  const own=((r.kartu.items||{}).own||[]).filter(o=>KK_ITEM[o.id]&&!PASAR_EKS.includes(o.id));if(!own.length){d2.append(el('p','kk-muted','Belum ada barang yang bisa dijual. (Barang eksklusif & playadalahmain tidak bisa dijual.)'));return}
+  const me2=String(r.kartu.u||'').toLowerCase(),diL=new Set(((window.PASAR||{}).lapak||[]).filter(l=>l.u===me2).map(l=>l.id)),own=((r.kartu.items||{}).own||[]).filter(o=>KK_ITEM[o.id]&&!PASAR_EKS.includes(o.id)&&!diL.has(o.id));if(!own.length){d2.append(el('p','kk-muted','Belum ada barang yang bisa dijual. (Barang eksklusif & playadalahmain tidak bisa dijual.)'));return}
   const wrap=el('div');wrap.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:8px 0';let pilih=null;const form=el('div');
   own.forEach(o=>{const c=el('button','btn sm');c.type='button';c.style.cssText='display:flex;align-items:center;gap:6px';const ic=kkItemSVG(o.id,null,o.warna);ic.style.cssText='width:26px;height:26px';c.append(ic,document.createTextNode(pasarNm(o.id)));
     c.onclick=()=>{pilih=o;[...wrap.children].forEach(x=>x.classList.remove('gold3'));c.classList.add('gold3');form.innerHTML='';const mx=(KK_ITEM[o.id]||{}).h||1,inp=el('input');inp.type='number';inp.min=1;inp.max=mx;inp.value=Math.max(1,Math.ceil(mx/2));inp.style.cssText='width:80px;padding:6px 8px;border:2px solid #1C2520;border-radius:10px;font:inherit';
       const lb=el('div','kk-muted','Harga '+pasarNm(o.id)+' bekas (1–'+mx+' Receh):');const go=kkBtn('🧺 Pasang di lapak','sm gold3',async()=>{const h=Math.floor(+inp.value);if(!(h>=1&&h<=mx)){toast('Harga 1–'+mx+' Receh ya');return}go.disabled=true;const q=await pasarApi('pasar-jual',{id:o.id,h});if(!q.ok){toast(q.error||'Gagal, coba lagi');go.disabled=false;return}
-        window.PASAR=q.pasar||window.PASAR;try{SND.play('pop',.8)}catch(e){}toast('🧺 '+pasarNm(o.id)+' sudah dipajang di lapak!');pasarLokal(String((kkGet()||{}).u||'').toLowerCase(),{id:o.id},'jual');pasarIsi(box)});
+        window.PASAR=q.pasar||window.PASAR;try{SND.play('pop',.8)}catch(e){}toast('🧺 '+pasarNm(o.id)+' sudah dipajang di lapak!');pasarIsi(box)});
       const rw=el('div');rw.style.cssText='display:flex;gap:8px;align-items:center;margin-top:6px';rw.append(inp,go);form.append(lb,rw)};wrap.append(c)});
   d2.append(wrap,form)}
 function pasarLokal(u,l,jenis){try{const i=kkResIdx(u);if(i<0)return;const r=RES[i],it=(r.items||[]).filter(o=>(o&&o.id||o)!==l.id);if(jenis!=='jual'&&it.length<ITEM_MAKS())it.push({id:l.id,...(l.warna?{warna:l.warna}:{})});r.items=it;

@@ -1037,11 +1037,12 @@ export default async function handler(req, res) {
         if (!(h >= 1 && h <= KATALOG[id])) return res.status(400).json({ error: `Harga ${NMI(id)} bekas 1–${KATALOG[id]} Receh (tidak boleh lebih mahal dari harga baru).` });
         if (!(await kv(['SET', 'pasar:jeda:' + s.u, '1', 'NX', 'EX', 3]))) return res.status(429).json({ error: 'Pelan-pelan, tunggu sebentar ya.' });
         const P = await pasarData(); if (P.lapak.filter(l => l.u === s.u).length >= PASAR_MAKS) return res.status(400).json({ error: `Maksimal ${PASAR_MAKS} lapak per warga. Batalkan salah satu dulu ya.` });
+        if (P.lapak.some(l => l.u === s.u && l.id === id)) return res.status(400).json({ error: NMI(id) + '-mu sudah ada di lapak.' });
         const kol = await koleksi(s.u), o = kol.own.find(x => x.id === id); if (!o) return res.status(400).json({ error: 'Kamu tidak punya ' + NMI(id) + '.' });
-        kol.own = kol.own.filter(x => x.id !== id); kol.pajang = kol.pajang.filter(x => x !== id);
+        // barang TETAP di rumah penjual (masih tampil di pekarangan) sampai laku
         const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let lid = 'L'; for (let i = 0; i < 7; i++) lid += A[crypto.randomInt(A.length)];
         const ob = { id, ...(o.warna ? { warna: o.warna } : {}) }; // teks papan nama tidak ikut dijual
-        await kvMany([['HSET', 'itemplus', s.u, JSON.stringify(kol)], ['HSET', 'pasar:lapak', lid, JSON.stringify({ lid, u: s.u, o: ob, h, at: Date.now() })]]);
+        await kv(['HSET', 'pasar:lapak', lid, JSON.stringify({ lid, u: s.u, o: ob, h, at: Date.now() })]);
         return res.status(200).json({ ok: true, lid, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
       }
       const lid = String(body.lid || '').slice(0, 20), l = jparse(await kv(['HGET', 'pasar:lapak', lid]));
@@ -1049,14 +1050,15 @@ export default async function handler(req, res) {
       if (aksi === 'pasar-batal') {
         if (l.u !== s.u && s.u !== OWNER) return res.status(403).json({ error: 'Ini bukan lapakmu.' });
         if (!(+(await kv(['HDEL', 'pasar:lapak', lid])))) return res.status(409).json({ error: 'Barangnya keburu laku!' });
-        await balik(l.u, l.o); return res.status(200).json({ ok: true, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
+        return res.status(200).json({ ok: true, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
       }
       if (l.u === s.u) return res.status(400).json({ error: 'Ini lapakmu sendiri 😄' });
       const kb = await koleksi(s.u); if (kb.own.some(x => x.id === l.o.id)) return res.status(400).json({ error: 'Kamu sudah punya ' + NMI(l.o.id) + '.' });
+      if (!(await koleksi(l.u)).own.some(x => x.id === l.o.id)) { await kv(['HDEL', 'pasar:lapak', lid]); return res.status(410).json({ error: 'Yah, barangnya sudah tidak ada di penjual. Lapaknya ditutup.' }) }
       const after = await kv(['HINCRBY', 'saldo', s.u, -l.h]);
       if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, l.h]); return res.status(400).json({ error: `Recehan belum cukup. Butuh ${l.h} Receh.` }) }
       if (!(+(await kv(['HDEL', 'pasar:lapak', lid])))) { await kv(['HINCRBY', 'saldo', s.u, l.h]); return res.status(409).json({ error: 'Yah, keduluan warga lain! Receh-mu tidak terpotong.' }) }
-      const now = Date.now();
+      const now = Date.now(); { const ks = await koleksi(l.u); ks.own = ks.own.filter(x => x.id !== l.o.id); ks.pajang = ks.pajang.filter(x => x !== l.o.id); await kv(['HSET', 'itemplus', l.u, JSON.stringify(ks)]) } // baru diambil dari rumah penjual saat laku
       await kvMany([['HINCRBY', 'saldo', l.u, l.h], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: now, n: -l.h, ket: 'Pasar Senggol: beli ' + NMI(l.o.id) + ' dari @' + l.u })], ['LTRIM', 'saldo:log:' + s.u, 0, 49],
         ['LPUSH', 'saldo:log:' + l.u, JSON.stringify({ at: now, n: l.h, ket: 'Pasar Senggol: ' + NMI(l.o.id) + ' laku ke @' + s.u })], ['LTRIM', 'saldo:log:' + l.u, 0, 49],
         ['LPUSH', 'pasar:log', JSON.stringify({ id: l.o.id, h: l.h, dari: l.u, ke: s.u, at: now })], ['LTRIM', 'pasar:log', 0, 49]]);

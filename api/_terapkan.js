@@ -11,6 +11,7 @@ export async function terapkan(kv, kvMany, jenis, kode, v, ok, oleh) {
       const ex = jparse(await kv(['HGET', 'warnaplus', v.u])) || [];
       ex.push({ day, note: v.gratis ? '🎨 Ganti warna (gratis warga baru)' : '🎨 Ganti warna (1 Receh)', wall: v.wall, roof: v.roof, style: v.style === undefined ? undefined : v.style });
       await kvMany([['HSET', 'warnaplus', v.u, JSON.stringify(ex)], ['HDEL', 'pilihan', v.u]]);
+      { const md = jparse(await kv(['HGET', 'modifplus', v.u])); if (md) await kv(['HSET', 'modifplus', v.u, JSON.stringify({ ...md, wall: v.wall, roof: v.roof })]) } // rumah yang sudah dimodif: warna barunya ikut
       if (Array.isArray(v.atas) && v.atas.length) { const tk = jparse(await kv(['HGET', 'tingkatplus', v.u])) || {}; await kv(['HSET', 'tingkatplus', v.u, JSON.stringify({ ...tk, lantai: tk.lantai || v.atas.length + 1, atas: v.atas })]) }
     } else if (jenis === 'emas') {
       await kv(['HSET', 'emasplus', v.u, JSON.stringify({ day, kode })]);

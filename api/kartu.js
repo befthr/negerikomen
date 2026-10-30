@@ -114,6 +114,9 @@ async function wargaPlus(D, u, extra) {
   return { ...r, history: [...(r.history || []), ...ex.map(e => ({ ...e, x: 1 }))] };
 }
 const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','kuning','oranye','ungu','ungu muda','coklat','hitam','abu-abu','putih','emas','tosca','navy','krem','marun','terakota'];
+// 🛠️ Modif Rumah: warga atur sendiri dari pilihan yang tersedia, bayar sekali (pertama 8 Receh, ubah lagi 6 Receh), langsung jadi
+const MODIF = { atap: ['pelana', 'limas', 'joglo', 'datar', 'kubah'], tembok: ['polos', 'bata', 'kayu', 'batu', 'batik'], jendela: ['kotak', 'bulat', 'lengkung', 'besar'], pintu: ['kayu', 'ganda', 'lengkung', 'garasi'] };
+const MODIF_HARGA = (punya) => punya ? 6 : 8;
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
 // pesanan ubah rumah & item (harga dalam Genteng)
 const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };
@@ -415,6 +418,7 @@ export default async function handler(req, res) {
       for (let i = 0; rr && i + 1 < rr.length; i += 2) { const v = jparse(rr[i + 1]); if (v) ruko[rr[i]] = { wall: v.wall, roof: v.roof } }
       for (let i = 0; ri && i + 1 < ri.length; i += 2) { const v = jparse(ri[i + 1]); if (!v || !Array.isArray(v.pajang) || !v.pajang.length) continue;
         item[ri[i]] = v.pajang.map(id => { const o = (v.own || []).find(x => x.id === id); return o ? { id, ...(o.teks ? { teks: o.teks } : {}), ...(o.warna ? { warna: o.warna } : {}) } : null }).filter(Boolean) }
+      const modif = {}; { const mm = await kv(['HGETALL', 'modifplus']) || []; for (let i = 0; i + 1 < mm.length; i += 2) { const v = jparse(mm[i + 1]); if (v) modif[mm[i]] = v } }
       let juraganLog = [];
       try { // 👑 catat otomatis tiap kali Juragan Genteng berganti (data.js + donasi live), biar Riwayat Juragan selalu terbarui
         const DK = await dataKampung(req), tot = {};
@@ -424,11 +428,11 @@ export default async function handler(req, res) {
         juraganLog = ((await kv(['LRANGE', 'juragan:log', 0, 49])) || []).map(jparse).filter(Boolean);
         if (L.length && L[0][1] >= 2 && !(L[1] && L[1][1] === L[0][1])) {
           const H = DK.juraganHistory || [], akhir = juraganLog[0] ? juraganLog[0].u : (H.length ? H[H.length - 1].u : null);
-          if (akhir !== L[0][0]) { const e = { u: L[0][0], g: L[0][1], at: Date.now(), dari: akhir }; await kv(['LPUSH', 'juragan:log', JSON.stringify(e)]); juraganLog.unshift(e) }
+          if (akhir !== L[0][0]) { const e = { u: L[0][0], g: L[0][1], at: Date.now(), dari: akhir, gDari: akhir ? (tot[akhir] || 0) : 0 }; await kv(['LPUSH', 'juragan:log', JSON.stringify(e)]); juraganLog.unshift(e) }
         }
       } catch (e) { }
       res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
-      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
+      return res.status(200).json({ wargaBaru: await wargaBaru(wbr || []), pilihan: out, juraganLog, modif, extra, emas: re || [], ruko, item, tingkat, atas, robot: rb || null, gento: jparse(gmd) || null, pindah: (() => { const o = {}; for (let i = 0; pdh && i + 1 < pdh.length; i += 2) { const v = jparse(pdh[i + 1]); if (v) o[pdh[i]] = v } return o })(), pindahLog: (plog || []).map(jparse).filter(Boolean), idaman: await papanIdaman(awalMinggu()), idamanLalu: await papanIdaman(awalMinggu() - 7 * 864e5, 3), patromax: pmx || null, sorot: srt || null, mbulan: { owner: mbp || null, mode: jparse(mbm) || null }, naga: { owner: ngp || null, mode: jparse(ngmd) || null, sembur: (ngs || []).map(jparse).filter(v => v && Date.now() - v.at < 15 * 60e3) }, belanja: (bl || []).map(jparse).filter(Boolean), staf, lowongan, donasi, jalan, goal: +gg || 0, aktif: await kartuAktif() });
     }
     if (aksi === 'reaksi-info' && req.method === 'GET') { // reaksi rumah, tamu hari ini, buku tamu
       const t = cleanU(req.query.u); if (!okU(t)) return res.status(400).json({ error: 'Warga tidak dikenal' });
@@ -633,6 +637,22 @@ export default async function handler(req, res) {
       const t = cleanU(body.target);
       if (!okU(t) || !warga(D, t)) return res.status(404).json({ error: 'Warga @' + t + ' tidak ditemukan' });
       return res.status(200).json({ token: await buatSesi(t), u: t });
+    }
+    if (aksi === 'modif') { // 🛠️ Modif Rumah (pakai Recehan, langsung jadi)
+      const r = await wargaPlus(D, s.u); if (!r) return res.status(404).json({ error: 'Rumahmu tidak ditemukan' });
+      if (r.style) return res.status(400).json({ error: 'Rumahmu rumah spesial hadiah kontes, bentuknya eksklusif dan tidak bisa dimodif.' });
+      const m = {}; for (const k of Object.keys(MODIF)) { const v = String((body.m || {})[k] || MODIF[k][0]); if (!MODIF[k].includes(v)) return res.status(400).json({ error: 'Pilihan ' + k + ' tidak tersedia.' }); m[k] = v }
+      const wall = String(body.wall || ''), roof = String(body.roof || ''); if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna tembok dan atap dulu.' });
+      const lama = jparse(await kv(['HGET', 'modifplus', s.u])), harga = MODIF_HARGA(!!lama);
+      if (lama && Object.keys(MODIF).every(k => lama[k] === m[k]) && lama.wall === wall && lama.roof === roof) return res.status(400).json({ error: 'Modifnya sama persis dengan rumahmu sekarang.' });
+      const info = await infoKartu(D, s.u);
+      if ((info.saldo || 0) < harga) return res.status(400).json({ error: `Modif rumah ${harga} Receh. Recehan-mu ${info.saldo || 0} Receh. Isi Recehan dulu ya!` });
+      const after = await kv(['HINCRBY', 'saldo', s.u, -harga]);
+      if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, harga]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
+      const v = { ...m, wall, roof, at: Date.now(), n: ((lama && lama.n) || 0) + 1 };
+      await kvMany([['HSET', 'modifplus', s.u, JSON.stringify(v)], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -harga, ket: '🛠️ Modif rumah' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49],
+        ['LPUSH', 'belanja:log', JSON.stringify({ u: s.u, j: 'modif', it: [], l: 0, at: Date.now() })], ['LTRIM', 'belanja:log', 0, 59]]);
+      return res.status(200).json({ ok: true, langsung: true, harga, modif: v, kartu: await infoKartu(D, s.u) });
     }
     if (aksi === 'minta-warna' || aksi === 'minta-ubah') {
       const jenis = aksi === 'minta-warna' ? 'warna' : String(body.jenis || '');

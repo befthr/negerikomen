@@ -293,6 +293,29 @@ const igGet = async url => { const r = await fetch(url); const j = await r.json(
 const igUrl = (id, after, rep = true) => 'https://graph.instagram.com/v21.0/' + id + '/comments?fields=text,from{username}' + (rep ? ',replies.limit(50){id,text,from{username}}' : '') + '&limit=50' + (after ? '&after=' + encodeURIComponent(after) : '') + '&access_token=' + encodeURIComponent(IG_TOKEN);
 // ambil komentar + balasan; kalau Instagram menolak field balasan, ulang tanpa balasan (biar pengecekan tetap jalan)
 const getC = async (id, after) => { try { return await igGet(igUrl(id, after, true)) } catch (e) { return await igGet(igUrl(id, after, false)) } };
+// 🏠 OTOMATIS: warga yang komen "RUMAH" di postingan terbaru langsung dapat rumah (Desa Komen-Komen Sejahtera → Dusun Baru)
+const RUMAH_RX = /\b(r+u+m+a+h*\w*|rmh|rumh|runah+|rumag)\b/;
+let LAST_REQ = null;
+const HURUF_HIAS = { 'ʀ': 'r', 'ᴜ': 'u', 'ᴍ': 'm', 'ᴀ': 'a', 'ʜ': 'h', 'ᥙ': 'u', 'ᥲ': 'a', 'һ': 'h', 'ꭈ': 'r', 'υ': 'u', 'ꩇ': 'm', 'ɑ': 'a' };
+const normR = s => String(s || '').normalize('NFKC').replace(/[ʀᴜᴍᴀʜᥙᥲһꭈυꩇɑ]/g, c => HURUF_HIAS[c]).toLowerCase().normalize('NFKD').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const WARNA_KATA = [['merah muda','merah muda'],['pink','merah muda'],['biru muda','biru muda'],['hijau muda','hijau muda'],['ungu muda','ungu muda'],['navy','navy'],['maron','marun'],['marun','marun'],['tosca','tosca'],['merah','merah'],['biru','biru'],['hijau','hijau'],['ijo','hijau'],['kuning','kuning'],['oranye','oranye'],['oren','oranye'],['orange','oranye'],['ungu','ungu'],['coklat','coklat'],['cokelat','coklat'],['hitam','hitam'],['abu','abu-abu'],['putih','putih'],['krem','krem'],['cream','krem']];
+function warnaDari(tx) { const cari = t => { let best = null; for (const [k, v] of WARNA_KATA) { const i = (' ' + t + ' ').indexOf(' ' + k); if (i >= 0 && (!best || i < best[0])) best = [i, v] } return best && best[1] };
+  const o = {}; const g = tx.match(/(genteng|atap|atapnya)\s+(warna\s+)?([a-z ]{2,20})/), w = tx.match(/(tembok|dinding)\s+(warna\s+)?([a-z ]{2,20})/);
+  if (g) o.roof = cari(g[3]); if (w) o.wall = cari(w[3]); if (!g && !w) { const c = cari(tx); if (c) o.wall = c } return o }
+async function autoRumah(RB) {
+  if (!RB.length || !LAST_REQ) return 0; if ((await kv(['GET', 'rumah:auto'])) === 'off') return 0;
+  DATA = null; const D = await dataKampung(LAST_REQ), pd = await pindahSemua();
+  const ada = new Set((D.residents || []).map(r => String(r.name).toLowerCase())), baru = new Map();
+  for (const o of RB) if (okU(o.u) && !ada.has(o.u) && !baru.has(o.u)) baru.set(o.u, o.tx);
+  if (!baru.size) return 0;
+  const pakai = new Set((D.residents || []).map(r => r.x + ',' + r.y)); Object.values(pd).forEach(v => { if (v) pakai.add(v.x + ',' + v.y) });
+  const free = [...DK.map(p => [p, 'desa']), ...SK.map(p => [p, 'suka'])].filter(([[x, y]]) => !pakai.has(x + ',' + y));
+  const cmds = [], now = Date.now(); let i = 0;
+  for (const [u, tx] of baru) { if (i >= 150) break; const f = free[i++]; if (!f) break; const [[x, y], lok] = f;
+    const r = { name: u, x, y, day: +D.day || 0, at: now, lok, auto: 1, ...warnaDari(tx) }; if (r.roof && !WARNA_OK.includes(r.roof)) delete r.roof; if (r.wall && !WARNA_OK.includes(r.wall)) delete r.wall;
+    cmds.push(['HSET', 'warga:baru', u, JSON.stringify(r)], ['LPUSH', 'rumah:auto:log', JSON.stringify({ u, at: now })]) }
+  if (cmds.length) { cmds.push(['LTRIM', 'rumah:auto:log', 0, 499]); await kvMany(cmds); DATA = null } return cmds.length
+}
 async function segarkanKomen() {
   if (!(await kv(['SET', 'igc:lock', '1', 'NX', 'EX', 20]))) return false;
   let media = jparse(await kv(['GET', 'igc:media']));
@@ -304,7 +327,9 @@ async function segarkanKomen() {
   const list = jparse(await kv(['GET', 'igc:list'])) || [], ada = new Set(list.map(c => c.id));
   // komentar utama + BALASAN-nya (banyak warga membalas komentar petunjuk yang di-pin, bukan komen baru)
   const satu = c => { if (!c || !c.id || ada.has(c.id)) return; ada.add(c.id);
-    const tx = norm(c.text); if (/\d/.test(tx)) list.push({ id: c.id, by: cleanU(c.from && c.from.username), tx }) };
+    const tx = norm(c.text), by = cleanU(c.from && c.from.username); if (/\d/.test(tx)) list.push({ id: c.id, by, tx });
+    { const t2 = normR(c.text); if (by && by !== OWNER && RUMAH_RX.test(t2) && !/^(kunci|bangun)\b/.test(t2) && !/rumah sakit/.test(t2)) RB.push({ u: by, tx: t2 }) } };
+  const RB = [];
   const induk = new Set(jparse(await kv(['GET', 'igc:induk'])) || []);
   const tambah = j => (j.data || []).forEach(c => { satu(c); ((c.replies && c.replies.data) || []).forEach(satu);
     if (c && c.id && cleanU(c.from && c.from.username) === OWNER) induk.add(c.id) });
@@ -336,6 +361,7 @@ async function segarkanKomen() {
     (r.data || []).forEach(satu);
     for (let p = 0; p < 4 && r.paging && r.paging.next; p++) { r = await igGet(r.paging.next); (r.data || []).forEach(satu) }
   } catch (e) { } }
+  try { await autoRumah(RB) } catch (e) { }
   const simpan = list.slice(-IGC_MAKS);
   await kvMany([['SET', 'igc:list', JSON.stringify(simpan), 'EX', 3 * 864e2], ['SET', 'igc:cur', JSON.stringify(cur), 'EX', 3 * 864e2], ['SET', 'igc:at', String(Date.now()), 'EX', 3 * 864e2], ['SET', 'igc:induk', JSON.stringify(indukL), 'EX', 7 * 864e2]]);
   return true;
@@ -381,6 +407,7 @@ async function panenPapan(pre, u, nh) {
   return out;
 }
 export default async function handler(req, res) {
+  LAST_REQ = req;
   res.setHeader('Cache-Control', 'no-store');
   if (!KV_URL || !KV_TOKEN) return res.status(500).json({ error: 'Database belum tersambung' });
   const aksi = String((req.query && req.query.aksi) || '');
@@ -406,6 +433,7 @@ export default async function handler(req, res) {
     }
     if (aksi === 'pilihan' && req.method === 'GET') {
       try { await cairkanGaji() } catch (e) { }
+      try { if (IG_TOKEN && (await kv(['SET', 'igc:auto', '1', 'NX', 'EX', 300]))) await segarkanKomen() } catch (e) { } // 🏠 cek komen RUMAH baru tiap ±5 menit (hemat jatah API Instagram)
       const raw = await kv(['HGETALL', 'pilihan']) || [], out = {};
       for (let i = 0; i + 1 < raw.length; i += 2) { const p = jparse(raw[i + 1]); if (p) out[raw[i]] = { n: p.n, nv: p.nv } }
       const rx = await kv(['HGETALL', 'warnaplus']) || [], extra = {};
@@ -918,6 +946,12 @@ export default async function handler(req, res) {
         ada.add(u); pakai.add(x + ',' + y); ok.push(u); cmds.push(['HSET', 'warga:baru', u, JSON.stringify(r)]) }
       if (cmds.length) await kvMany(cmds); DATA = null;
       return res.status(200).json({ ok: true, masuk: ok, tolak });
+    }
+    if (aksi === 'rumah-auto') { // kades: nyalakan/matikan rumah otomatis dari komen RUMAH
+      if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });
+      if (body.on === true || body.on === false) await kv(['SET', 'rumah:auto', body.on ? 'on' : 'off']);
+      const [st, lg] = await kvMany([['GET', 'rumah:auto'], ['LRANGE', 'rumah:auto:log', 0, 29]]);
+      return res.status(200).json({ ok: true, on: st !== 'off', log: (lg || []).map(jparse).filter(Boolean) });
     }
     if (aksi === 'hapus-warga') { // kades: batalkan warga baru (hanya yang ditambahkan lewat Kartu, bukan dari data.js)
       if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' });

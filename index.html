@@ -3075,7 +3075,7 @@ function build3DRumah(r){const T=THREE,g=new T.Group();
   // pohon & semak
   const PH=MD&&MD.pohon||'rindang';const tree=(x,z,s)=>{if(PH!=='rindang'){pohon3D(g,T,M,PH,x,z,s);return}const t=new T.Mesh(new T.CylinderGeometry(.08*s,.12*s,.8*s,8),M('#7A5230'));t.position.set(x,.4*s,z);t.castShadow=true;g.add(t);
     const c=new T.Mesh(new T.SphereGeometry(.6*s,16,12),M('#4F8F3E'));c.position.set(x,1.05*s,z);c.castShadow=true;g.add(c)};
-  tree(-4.4,-2.9,1.1);tree(4.3,2.7,.8);if(MD&&PH!=='rindang'){tree(-5.6,3.6,.95);tree(5.4,-4.6,1.05)} // modif pohon: 2 pohon tambahan
+  tree(-4.4,-2.9,1.1);tree(4.3,2.7,.8); // modif pohon cuma ganti jenis 2 pohon bawaan (bukan tambah pohon, biar item Pohon mangga tetap bernilai)
   [[-2.3,2.2],[2.4,-2.4],[-1.8,-2.8]].forEach(([x,z])=>{const b=new T.Mesh(new T.SphereGeometry(.35,12,10),M('#5E9E46'));b.position.set(x,.25,z);b.castShadow=true;g.add(b)});
   let flag=null;
   if(MD){if((MD.pagar&&MD.pagar!=='tanpa')||(MD.jalan&&MD.jalan!=='biasa')||(MD.halaman&&MD.halaman!=='rumput')){if(MD.jalan&&MD.jalan!=='biasa')jalan0.visible=false;try{pekarangan3D(g,T,M,MD,PK,!!r.juragan)}catch(e){console.error(e)}}

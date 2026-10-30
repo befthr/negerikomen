@@ -644,12 +644,15 @@ export default async function handler(req, res) {
       const m = {}; for (const k of Object.keys(MODIF)) { const v = String((body.m || {})[k] || MODIF[k][0]); if (!MODIF[k].includes(v)) return res.status(400).json({ error: 'Pilihan ' + k + ' tidak tersedia.' }); m[k] = v }
       const wall = String(body.wall || ''), roof = String(body.roof || ''); if (!okWarna(wall) || !okWarna(roof)) return res.status(400).json({ error: 'Pilih warna tembok dan atap dulu.' });
       const lama = jparse(await kv(['HGET', 'modifplus', s.u])), harga = MODIF_HARGA(!!lama);
-      if (lama && Object.keys(MODIF).every(k => lama[k] === m[k]) && lama.wall === wall && lama.roof === roof) return res.status(400).json({ error: 'Modifnya sama persis dengan rumahmu sekarang.' });
+      const tkInfo = jparse(await kv(['HGET', 'tingkatplus', s.u])) || {}, nLt = Math.max(1, Math.min(3, +tkInfo.lantai || +r.tingkat || 1)); let atas = null; // rumah tingkat: warna tiap lantai atas ikut diatur
+      if (nLt > 1 && Array.isArray(body.atas)) { atas = body.atas.slice(0, nLt - 1).map(String); if (atas.length !== nLt - 1 || !atas.every(okWarna)) return res.status(400).json({ error: 'Pilih warna tiap lantai dulu.' }) }
+      if (lama && Object.keys(MODIF).every(k => lama[k] === m[k]) && lama.wall === wall && lama.roof === roof && JSON.stringify(atas || null) === JSON.stringify(lama.atas || null)) return res.status(400).json({ error: 'Modifnya sama persis dengan rumahmu sekarang.' });
       const info = await infoKartu(D, s.u);
       if ((info.saldo || 0) < harga) return res.status(400).json({ error: `Modif rumah ${harga} Receh. Recehan-mu ${info.saldo || 0} Receh. Isi Recehan dulu ya!` });
       const after = await kv(['HINCRBY', 'saldo', s.u, -harga]);
       if (after < 0) { await kv(['HINCRBY', 'saldo', s.u, harga]); return res.status(400).json({ error: 'Recehan belum cukup.' }) }
-      const v = { ...m, wall, roof, at: Date.now(), n: ((lama && lama.n) || 0) + 1 };
+      const v = { ...m, wall, roof, ...(atas ? { atas } : {}), at: Date.now(), n: ((lama && lama.n) || 0) + 1 };
+      if (atas) await kv(['HSET', 'tingkatplus', s.u, JSON.stringify({ ...tkInfo, lantai: tkInfo.lantai || nLt, atas })]);
       await kvMany([['HSET', 'modifplus', s.u, JSON.stringify(v)], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: Date.now(), n: -harga, ket: '🛠️ Modif rumah' })], ['LTRIM', 'saldo:log:' + s.u, 0, 49],
         ['LPUSH', 'belanja:log', JSON.stringify({ u: s.u, j: 'modif', it: [], l: 0, at: Date.now() })], ['LTRIM', 'belanja:log', 0, 59]]);
       return res.status(200).json({ ok: true, langsung: true, harga, modif: v, kartu: await infoKartu(D, s.u) });

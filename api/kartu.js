@@ -114,9 +114,9 @@ async function wargaPlus(D, u, extra) {
   return { ...r, history: [...(r.history || []), ...ex.map(e => ({ ...e, x: 1 }))] };
 }
 const WARNA_OK = ['merah','merah muda','biru','biru muda','hijau','hijau muda','kuning','oranye','ungu','ungu muda','coklat','hitam','abu-abu','putih','emas','tosca','navy','krem','marun','terakota'];
-// 🛠️ Modif Rumah: warga atur sendiri dari pilihan yang tersedia, bayar sekali (pertama 8 Receh, ubah lagi 6 Receh), langsung jadi
+// 🛠️ Modif Rumah: warga atur sendiri dari pilihan yang tersedia, bayar 6 Receh tiap simpan, langsung jadi
 const MODIF = { atap: ['pelana', 'limas', 'joglo', 'datar', 'kubah'], tembok: ['polos', 'bata', 'kayu', 'batu', 'batik'], jendela: ['kotak', 'bulat', 'lengkung', 'besar'], pintu: ['kayu', 'ganda', 'lengkung', 'garasi'] };
-const MODIF_HARGA = (punya) => punya ? 6 : 8;
+const MODIF_HARGA = () => 6;
 const okWarna = w => WARNA_OK.includes(w) || /^#[0-9a-fA-F]{6}$/.test(String(w || ''));
 // pesanan ubah rumah & item (harga dalam Genteng)
 const JENIS = { warna: { awal: 'WARNA', harga: 1 }, emas: { awal: 'EMAS', harga: 2 }, ruko: { awal: 'RUKO', harga: 20 }, item: { awal: 'ITEM', harga: 0 }, tingkat: { awal: 'TINGKAT', harga: 0 } };

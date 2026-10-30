@@ -5423,19 +5423,25 @@ function riwayatHariEl(d,atas){const w=el('div');const hari=d.tgl?new Date(d.tgl
   return w}
 async function bukaRiwayatGamer(){panenCss();const body=kkModal();{const m=$('kk'),t0=Date.now();if(m)m.onclick=e=>{if(e.target===m&&Date.now()-t0>600)kkTutup()}}
   body.append(el('h3',null,'🎮 Riwayat Para Gamer'),el('p',null,'Gedung kenangan para juara mini game kampung. Di sini tercatat juara 1–3 tiap hari selama sebulan terakhir 🏆'));
-  const QAp=/[?&]panenqa=1/.test(location.search),G=GAME_RIWAYAT.filter(g=>g.buka());if(!G.length){body.append(el('p','kk-muted','Belum ada mini game yang buka.'));return}
+  const tb=el('div','kk-tabs'),area=el('div');body.append(tb,area);let tab='panen';
+  const pasang=k=>{tab=k;[...tb.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));area.innerHTML='';(k==='panen'?isiPanen:isiKonsol)(area)};
+  [['panen','🌾 Panen Sawah'],['konsol','🕹️ playadalahmain']].forEach(([k,t])=>{const b=el('button',null,t);b.type='button';b.dataset.k=k;b.onclick=()=>pasang(k);tb.append(b)});
+  const isiPanen=async body=>{const QAp=/[?&]panenqa=1/.test(location.search),G=GAME_RIWAYAT.filter(g=>g.buka());if(!G.length){body.append(el('p','kk-muted','Belum ada mini game yang buka.'));return}
   for(const g of G){const sec=el('div');sec.append(el('b',null,g.n));const ld=el('p','kk-muted','Memuat…');sec.append(ld);body.append(sec);
     const j=await g.muat(QAp);ld.remove();const RW=(j&&j.riwayat)||[];
     if(!RW.length){const p0=el('p','kk-muted','Belum ada juara. Juara pertama diumumkan setelah tengah malam. Siapa duluan? 👀');p0.style.fontSize='13px';sec.append(p0);continue}
     const C={};RW.forEach(d=>(d.juara||[]).forEach((o,i)=>{const c=C[o.u]||(C[o.u]={u:o.u,e:0,p:0,b:0});[ 'e','p','b'][i]&&c[['e','p','b'][i]]++}));
     const L=Object.values(C).sort((a,b)=>b.e-a.e||b.p-a.p||b.b-a.b).slice(0,5);const hs=el('div','pn-rwt','🏅 Paling sering juara');sec.append(hs);const ul=el('ul','pn-rk');L.forEach((c,i)=>{const li=el('li');li.append(el('span','n',String(i+1)),el('span','u','@'+c.u),el('span','h',(c.e?'🥇'+c.e+' ':'')+(c.p?'🥈'+c.p+' ':'')+(c.b?'🥉'+c.b:'')));ul.append(li)});sec.append(ul);
-    const box=el('div','pn-rw');RW.forEach((d,k)=>box.append(riwayatHariEl(d,k===0)));sec.append(box)}
-  // 🕹️ playadalahmain: rekor tertinggi tiap game (sepanjang masa, tanpa hadiah)
+    const box=el('div','pn-rw');RW.forEach((d,k)=>box.append(riwayatHariEl(d,k===0)));sec.append(box)}};
+  const isiKonsol=async body=>{ // 🕹️ playadalahmain: rekor tertinggi tiap game (sepanjang masa, tanpa hadiah) + ajakan sewa/beli
   {const KG=[['penalti','⚽','Adu Penalti'],['genteng','🏠','Tangkap Genteng'],['pancing','🎣','Pancing Ikan'],['bakso','🍜','Racik Bakso'],['ayam','🐔','Kejar Ayam'],['karung','🥔','Balap Karung'],['layang','🪁','Layangan'],['memori','🃏','Memori Genteng'],['pinang','🎋','Panjat Pinang'],['kentongan','🔔','Tebak Kentongan'],['karet','🪢','Lompat Karet'],['pesawat','✈️','Pesawat Nembak'],['tambang','💪','Tarik Tambang'],['egrang','🦯','Egrang']];
-   const sec=el('div');sec.style.marginTop='16px';sec.append(el('b',null,'🕹️ playadalahmain'));const nt=el('p','kk-muted','Rekor tertinggi tiap game sepanjang masa. Ini buat gengsi aja ya, nggak ada hadiah Receh 😄');nt.style.fontSize='12.5px';const ld=el('p','kk-muted','Memuat…');sec.append(nt,ld);body.append(sec);
+   const sec=el('div');{const k=kkGet(),cta=el('div','mg-k');cta.append(el('div','mg-h','🕹️ Mau ikut cetak rekor?'),el('p',null,'14 mini game seru di konsol playadalahmain. Sewa 1 hari atau beli selamanya, skor terbaikmu langsung masuk papan rekor!'));const rw=el('div','kk-row');
+     rw.append(kkBtn('🎟️ Sewa 1 hari · 1 Receh','sm gold3',()=>{if(!k){toast('Ambil Kartu Komen dulu ya, buat bayar pakai Recehan');return}kkTutup();kkBuka(k.u)}),kkBtn('🛒 Beli selamanya · 4 Receh','sm',()=>{kkTutup();kkBelanja('item')}));cta.append(rw);sec.append(cta)}
+   sec.append(el('b',null,'🏆 Papan rekor'));const nt=el('p','kk-muted','Rekor tertinggi tiap game sepanjang masa. Ini buat gengsi aja ya, nggak ada hadiah Receh 😄');nt.style.fontSize='12.5px';const ld=el('p','kk-muted','Memuat…');sec.append(nt,ld);body.append(sec);
    const QAk=/[?&](panen|konsol)qa=1/.test(location.search),j=await kkApi('konsol-rank'+(QAk?'&qa=1':''));ld.remove();const R=(j&&j.rank)||{};
    const ada=KG.filter(([g])=>(R[g]||[]).length);if(!ada.length){sec.append(el('p','kk-muted','Belum ada rekor. Yang punya atau sewa playadalahmain, ayo cetak rekor pertama! 🎮'));return}
-   const box=el('div','pn-rw');ada.forEach(([g,ic,nm])=>{box.append(el('div','pn-rwt',ic+' '+nm));const ul=el('ul','pn-rk');R[g].slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',fmt(o.v)));ul.append(li)});box.append(ul)});sec.append(box)}}
+   const box=el('div','pn-rw');ada.forEach(([g,ic,nm])=>{box.append(el('div','pn-rwt',ic+' '+nm));const ul=el('ul','pn-rk');R[g].slice(0,3).forEach((o,i)=>{const li=el('li');li.append(el('span','n',['🥇','🥈','🥉'][i]),el('span','u','@'+o.u),el('span','v',fmt(o.v)));ul.append(li)});box.append(ul)});sec.append(box)}};
+  pasang('panen')}
 window.bukaRiwayatGamer=bukaRiwayatGamer;
 // 🎮 tab "Main" di samping: kartu tiap mini game + jalan pintas ke Riwayat Para Gamer
 let MAIN_AT=0;async function renderMainTab(paksa){const box=$('mainIsi');if(!box)return;if(!paksa&&Date.now()-MAIN_AT<20000&&box.dataset.ok)return;MAIN_AT=Date.now();panenCss();

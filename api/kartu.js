@@ -354,8 +354,8 @@ async function cariKomen(u, frasa) {
 // 🌾 Panen Sawah: mini game gratis harian (Lumbung Pak Tani). 3x main/hari, skor terbaik masuk ranking harian (reset 00.00 WIB).
 // Hadiah otomatis untuk 20 besar kemarin, dibayar saat papan/ main pertama dibuka setelah ganti hari.
 const PANEN_HARI1 = '2026-10-30'; // data sebelum hari pertama (skor tes) tidak ditampilkan di riwayat
-const PANEN_BUKA = Date.UTC(2026, 9, 30, 6, 0), PANEN_MAIN = 3, PANEN_MAX = 260, PANEN_HADIAH_LAMA = [5, 3, 2, ...Array(17).fill(1)], PANEN_HADIAH_BARU = [3, 2, 1];
-// hadiah 20 besar berlaku s/d ranking Minggu 1 Nov 2026; mulai ranking Senin 2 Nov cuma juara 1–3 (3/2/1 Receh)
+const PANEN_BUKA = Date.UTC(2026, 9, 30, 6, 0), PANEN_MAIN = 3, PANEN_MAX = 260, PANEN_HADIAH_LAMA = [5, 3, 2, ...Array(17).fill(1)], PANEN_HADIAH_BARU = [3, 2, 1, 1, 1];
+// hadiah 20 besar berlaku s/d ranking Minggu 1 Nov 2026; mulai ranking Senin 2 Nov cuma 5 besar (3/2/1/1/1 Receh)
 const hadiahTgl = tg => tg >= '2026-11-02' ? PANEN_HADIAH_BARU : PANEN_HADIAH_LAMA;
 async function panenBayar(pre) {
   for (let d = 3; d >= 1; d--) {

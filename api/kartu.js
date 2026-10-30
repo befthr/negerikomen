@@ -354,14 +354,16 @@ async function cariKomen(u, frasa) {
 // 🌾 Panen Sawah: mini game gratis harian (Lumbung Pak Tani). 3x main/hari, skor terbaik masuk ranking harian (reset 00.00 WIB).
 // Hadiah otomatis untuk 20 besar kemarin, dibayar saat papan/ main pertama dibuka setelah ganti hari.
 const PANEN_HARI1 = '2026-10-30'; // data sebelum hari pertama (skor tes) tidak ditampilkan di riwayat
-const PANEN_BUKA = Date.UTC(2026, 9, 30, 6, 0), PANEN_MAIN = 3, PANEN_MAX = 260, PANEN_HADIAH = [5, 3, 2, ...Array(17).fill(1)];
+const PANEN_BUKA = Date.UTC(2026, 9, 30, 6, 0), PANEN_MAIN = 3, PANEN_MAX = 260, PANEN_HADIAH_LAMA = [5, 3, 2, ...Array(17).fill(1)], PANEN_HADIAH_BARU = [3, 2, 1];
+// hadiah 20 besar berlaku s/d ranking Minggu 1 Nov 2026; mulai ranking Senin 2 Nov cuma juara 1–3 (3/2/1 Receh)
+const hadiahTgl = tg => tg >= '2026-11-02' ? PANEN_HADIAH_BARU : PANEN_HADIAH_LAMA;
 async function panenBayar(pre) {
   for (let d = 3; d >= 1; d--) {
     const tg = tglWIB(-d);
     if (!(await kv(['SET', pre + 'bayar:' + tg, '1', 'NX', 'EX', 30 * 864e2]))) continue;
-    const a = await kv(['ZREVRANGE', pre + 'rank:' + tg, 0, PANEN_HADIAH.length - 1, 'WITHSCORES']) || [], J = [], cmds = [], now = Date.now();
+    const HH = hadiahTgl(tg), a = await kv(['ZREVRANGE', pre + 'rank:' + tg, 0, PANEN_HADIAH_LAMA.length - 1, 'WITHSCORES']) || [], J = [], cmds = [], now = Date.now();
     for (let i = 0; i + 1 < a.length; i += 2) {
-      const u = a[i], v = +a[i + 1], n = PANEN_HADIAH[i / 2]; J.push({ u, v, n });
+      const u = a[i], v = +a[i + 1], n = HH[i / 2] || 0; J.push({ u, v, n });
       if (pre === 'panen:' && n > 0) cmds.push(['HINCRBY', 'saldo', u, n], ['LPUSH', 'saldo:log:' + u, JSON.stringify({ at: now, n, ket: '🌾 Juara ' + (i / 2 + 1) + ' Panen Sawah (' + tg + ')' })], ['LTRIM', 'saldo:log:' + u, 0, 49]);
     }
     cmds.push(['SET', pre + 'juara:' + tg, JSON.stringify(J), 'EX', 40 * 864e2]);
@@ -374,7 +376,7 @@ async function panenPapan(pre, u, nh) {
   const [a, jk, ...rw] = await kvMany([['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES'], ['GET', pre + 'juara:' + kem], ...HR.map(d => ['GET', pre + 'juara:' + d])]);
   const top = []; for (let i = 0; a && i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1] });
   const riwayat = HR.map((d, i) => ({ tgl: d, juara: (jparse(rw[i]) || []).slice(0, 3) })).filter(x => x.juara.length);
-  const out = { tgl: tg, top, kemarin: kem >= PANEN_HARI1 ? (jparse(jk) || []) : [], riwayat, hadiah: PANEN_HADIAH, maks: PANEN_MAIN };
+  const out = { tgl: tg, top, kemarin: kem >= PANEN_HARI1 ? (jparse(jk) || []) : [], riwayat, hadiah: hadiahTgl(tg), hadiahBaru: PANEN_HADIAH_BARU, ubahHadiah: '2026-11-02', maks: PANEN_MAIN };
   if (u) { const [m, b, rk] = await kvMany([['GET', pre + 'main:' + tg + ':' + u], ['ZSCORE', pre + 'rank:' + tg, u], ['ZREVRANK', pre + 'rank:' + tg, u]]); out.saya = { main: +m || 0, sisa: pre === 'panenqa:' ? PANEN_MAIN : Math.max(0, PANEN_MAIN - (+m || 0)), best: b == null ? null : +b, rank: rk == null ? null : +rk + 1 } }
   return out;
 }
@@ -392,7 +394,7 @@ export default async function handler(req, res) {
       const boleh = [...Array(10)].map((_, i) => tglWIB(-(i + 1))).filter(d => d >= PANEN_HARI1);
       if (!boleh.includes(tg)) return res.status(400).json({ error: 'Ranking hari itu sudah tidak tersimpan' });
       const a = await kv(['ZREVRANGE', pre + 'rank:' + tg, 0, 499, 'WITHSCORES']) || [], top = [];
-      for (let i = 0; i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1], n: PANEN_HADIAH[i / 2] || 0 });
+      for (let i = 0; i + 1 < a.length; i += 2) top.push({ u: a[i], v: +a[i + 1], n: hadiahTgl(tg)[i / 2] || 0 });
       return res.status(200).json({ tgl: tg, top });
     }
     // ranking konsol playadalahmain (publik): 10 besar tiap game. ?qa=1 = papan uji (terpisah dari papan asli)

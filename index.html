@@ -727,7 +727,7 @@ SLOTS.sort((a,b)=>a.k-b.k);
 
 const BTYPES={
   warung:{label:'Warung'},warkop:{label:'Warung kopi'},masjid:{label:'Masjid'},lapangan:{label:'Lapangan'},
-  sekolah:{label:'Sekolah'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Rumah sakit'},
+  sekolah:{label:'Sekolah'},mall:{label:'Mall'},pasar:{label:'Pasar'},taman:{label:'Taman'},puskesmas:{label:'Rumah sakit'},
   umum:{label:'Bangunan umum'},posronda:{label:'Pos ronda'},
   padang:{label:'Rumah makan padang'},bakso:{label:'Warung bakso'},polisi:{label:'Kantor polisi'},layartancap:{label:'Layar tancap'},tugu:{label:'Tugu pendukung'},penginapan:{label:'Penginapan'},coffeeshop:{label:'Coffee shop'},tokokampung:{label:'Toko Pak Kades'},tb:{label:'Toko bangunan'},tk:{label:'TK/PAUD'},dealer:{label:'Dealer motor & sepeda'},hiburan:{label:'Taman hiburan'},monumen:{label:'Monumen & museum'},tps:{label:'Tempat pengolahan sampah'},bandara:{label:'Bandara'},pasarmalam:{label:'Pasar malam'}
 };
@@ -1419,6 +1419,13 @@ function drawBuilding(b,s,a){
     ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.ellipse(px,py,26,5,0,0,7);ctx.fill();ctx.fillStyle='#E2453C';ctx.beginPath();ctx.moveTo(px-6,py);ctx.lineTo(px+4,py-18);ctx.lineTo(px+10,py-18);ctx.lineTo(px+6,py);ctx.lineTo(px+10,py+18);ctx.lineTo(px+4,py+18);ctx.closePath();ctx.fill();
     ctx.fillStyle='#3E8FC9';ctx.fillRect(px-26,py-8,6,16);ctx.fillStyle='#2F4A5E';ctx.fillRect(px+18,py-2,5,4);
     ctx.fillStyle='#E2453C';ctx.beginPath();ctx.moveTo(X+108,Y+98);ctx.lineTo(X+108,Y+108);ctx.lineTo(X+116,Y+103);ctx.closePath();ctx.fill();ctx.fillStyle='#7A5230';ctx.fillRect(X+107,Y+98,1.5,16);
+  }else if(t==='mall'){ // 🏬 Mall: gedung kaca besar, papan MALL, pintu kaca, parkiran
+    ctx.fillStyle='#CFC8B8';ctx.fillRect(X+4,Y+4,Z-8,Z-8);
+    box(X+10,Y+10,100,58,'#E9EEF2','#7E8A96');ctx.fillStyle='#7FB7DD';for(let i=0;i<6;i++)for(let j=0;j<3;j++)ctx.fillRect(X+15+i*16,Y+16+j*15,12,10);
+    ctx.fillStyle='#C4402F';ctx.fillRect(X+28,Y+3,64,12);ctx.fillStyle='#FFF';ctx.font='bold 9px Poppins,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('MALL',X+60,Y+9.5);
+    ctx.fillStyle='#2F4A5E';ctx.fillRect(X+48,Y+58,24,10);ctx.fillStyle='#9FD3F2';ctx.fillRect(X+50,Y+59,9,8);ctx.fillRect(X+61,Y+59,9,8);
+    ctx.fillStyle='#6E7378';ctx.fillRect(X+8,Y+76,104,34);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=1.2;for(let i=0;i<7;i++){ctx.beginPath();ctx.moveTo(X+12+i*15,Y+78);ctx.lineTo(X+12+i*15,Y+92);ctx.stroke()}
+    [['#E2453C',0],['#2F74B5',2],['#F2C230',4],['#2E9C6A',5]].forEach(([c,k])=>{ctx.fillStyle=SH;ctx.fillRect(X+15+k*15,Y+82,10,7);ctx.fillStyle=c;ctx.fillRect(X+14+k*15,Y+80,10,7)});
   }else if(t==='pasarmalam'){ // Pasar Malam: tenda warna-warni, lampu gantung, komidi putar
     ctx.fillStyle='#4A3B5C';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     const cols=['#E2453C','#F2C230','#3E8FC9','#2E9C6A','#FF6FA8','#FF9F43'];
@@ -1930,7 +1937,7 @@ return {sungai:()=>SG,DT,inDT,JALUR,diJalur,wallHex,wibToday,shopOn,jobOn,T,N,C,
 const $=id=>document.getElementById(id);
 const D=Object.assign({day:1,kavling:50,followers:null,target:1000,residents:[],buildings:null,voucher:null,updated:null},window.NK_DATA||{});
 const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.isFinite(r.y));
-const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y));
+const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&!(b.mulai&&Date.now()<Date.parse(b.mulai))); // bangunan baru tampil mulai jam pengumuman
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
 const KERJA_IK={rental:['🎮','PENJAGA RENTAL'],posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG'],monumen:['🏛️','KARYAWAN MUSEUM'],tps:['♻️','PETUGAS TPS'],bandara:['✈️','KARYAWAN BANDARA'],pasarmalam:['🎪','PASAR MALAM'],hiburan:['🎡','TAMAN HIBURAN'],coffeeshop:['☕','BARISTA'],tb:['🧱','TOKO BANGUNAN'],dealer:['🛵','DEALER MOTOR'],tokokampung:['🛒','TOKO KADES'],layartancap:['🎬','LAYAR TANCAP'],penginapan:['🏨','PENGINAPAN'],sekolah:['🏫','SEKOLAH'],puskesmas:['🏥','RUMAH SAKIT'],tk:['🧸','TK / PAUD']};
 const KERJA_WR={monumen:'#C0392B',tps:'#2E9C6A',bandara:'#2F74B5',pasarmalam:'#7A3CFF',hiburan:'#E2453C',coffeeshop:'#6B4527',tb:'#C4502F',dealer:'#2F74B5',tokokampung:'#E2A23A',warung:'#2E86C1',posronda:'#2F6B4F',masjid:'#2E9C6A',bakso:'#C4502F',padang:'#B5452A',sekolah:'#2F74B5',puskesmas:'#D9302F',tk:'#E2574C',penginapan:'#8E5AA8',layartancap:'#1C2520',rental:'#5B3A9E'};
@@ -3881,6 +3888,11 @@ function build3DB(b){const T=THREE,g=new T.Group();
     const tw=new T.Mesh(new T.BoxGeometry(.3,.05,.9),M('#E2453C'));tw.position.set(-1.05,.1,0);pl.add(tw);
     [[.6,.2],[-.3,.2],[-.3,-.2],[.6,-.2]].forEach(([x,z])=>{const w=new T.Mesh(new T.CylinderGeometry(.08,.08,.06,10),M('#222'));w.rotation.x=Math.PI/2;w.position.set(x,-.38,z*2);pl.add(w)});
     box(.1,1,.1,'#7A5230',-2.5,.5,2.5);box(.1,1,.1,'#7A5230',-.3,.5,2.5);sign(b.name?b.name.toUpperCase():'BANDARA','#3E8FC9','#FFFFFF',2.4,.42,-1.4,1.05,2.57);
+  }else if(ty==='mall'){ // 🏬 Mall 3D
+    box(5.6,.06,5.6,'#CFC8B8',0,.03,0);box(4.6,2.6,2.6,'#E9EEF2',0,1.3,-.9);box(4.7,.15,2.7,'#7E8A96',0,2.65,-.9);
+    for(let i=0;i<6;i++)for(let j=0;j<3;j++)box(.55,.45,.04,'#7FB7DD',-1.9+i*.76,.6+j*.7,.42,{emissive:'#2a6f8f',emissiveIntensity:.15});
+    sign('MALL CENTRAL','#C4402F','#FFFFFF',2.6,.55,0,3.05,-.1);box(1,.9,.1,'#2F4A5E',0,.45,.45);
+    [['#E2453C',-1.8],['#2F74B5',-.6],['#F2C230',.6],['#2E9C6A',1.8]].forEach(([c,x])=>{box(.7,.35,.4,c,x,.2,1.9);box(.5,.2,.36,'#9FD3F2',x,.45,1.9)});
   }else if(ty==='pasarmalam'){
     const cols=['#E2453C','#F2C230','#3E8FC9','#2E9C6A','#FF6FA8'];
     [[-2,-1.3],[0,-1.5],[2,-1.3],[-2.2,1.3],[2.2,1.3]].forEach(([x,z],i)=>{box(1.2,.7,1,'#F3E8D2',x,.35,z);const tn=new T.Mesh(new T.ConeGeometry(.95,.7,4),M(cols[i]));tn.rotation.y=Math.PI/4;tn.position.set(x,1.05,z);tn.castShadow=true;g.add(tn)});

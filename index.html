@@ -2155,9 +2155,9 @@ if(AWARDS.length&&false){/* Papan Penghargaan disembunyikan (sudah lebih dari se
 
 /* kalender kejutan: petunjuk misterius tiap hari, terbuka jam 19.00 saat fiturnya dirilis (buka:true diisi saat deploy rilis) */
 const KEJUTAN=[ // pekan 2–7 Nov 2026 (pekan lalu: Gerbang Desa Awalkomen, Jasa Pindahan, Harta Karun, TVKN, Panen Sawah, Pasar Senggol). buka: nyalakan saat fiturnya rilis
-  {d:'2026-11-02',ic:'🏍️',q:'Dusun Baru bakal berisik suara mesin…',n:'Motorcross Series Dusun Baru',spill:1,buka:false},
+  {d:'2026-11-02',ic:'🏍️',q:'Dusun Baru bakal berisik suara mesin…',n:'Motorcross Series Dusun Baru',spill:1,buka:false,svg:'<svg width="78%" height="78%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g stroke="#1C2520" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><circle cx="15" cy="44" r="10" fill="#2B2B2B"/><circle cx="15" cy="44" r="4" fill="#C9CED2"/><circle cx="50" cy="44" r="10" fill="#2B2B2B"/><circle cx="50" cy="44" r="4" fill="#C9CED2"/><path d="M15 44 L27 30 L40 30 L50 44" fill="none" stroke-width="3"/><path d="M24 31 L22 24 L38 22 L44 28 L40 31 Z" fill="#F2C230"/><path d="M38 22 L47 18 L50 22 L44 28 Z" fill="#E2453C"/><path d="M48 16 L50 44" fill="none" stroke-width="3"/><path d="M44 30 L56 31" fill="none" stroke="#E2453C" stroke-width="3"/><path d="M47 18 L49 12 L53 12" fill="none" stroke-width="3"/><path d="M8 30 L20 27 L22 32 L11 35 Z" fill="#E2453C"/><rect x="26" y="25" width="9" height="6" rx="1" fill="#fff"/><path d="M29 36 L34 36 L36 41 L28 41 Z" fill="#8A8F94"/></g><g fill="#1C2520"><circle cx="15" cy="34" r="1.6"/><circle cx="25" cy="44" r="1.6"/><circle cx="15" cy="54" r="1.6"/><circle cx="5" cy="44" r="1.6"/><circle cx="50" cy="34" r="1.6"/><circle cx="60" cy="44" r="1.6"/><circle cx="50" cy="54" r="1.6"/><circle cx="40" cy="44" r="1.6"/></g></svg>'},
   {d:'2026-11-03',ic:'🧮',q:'Siap-siap asah otak…',n:'Mini Game Kuis & MTK',spill:1,buka:false},
-  {d:'2026-11-04',ic:'🌦️',q:'Rahasia… tebak sendiri!',n:'TVKN Siaran Langsung · Cuaca Kampung',buka:false},
+  {d:'2026-11-04',ic:'📺',q:'Mbak Tena siap siaran langsung… langit kampung bakal berubah!',n:'TVKN Siaran Langsung · Cuaca Kampung',spill:1,buka:false},
   {d:'2026-11-05',ic:'🤫',q:'Rahasia… tebak sendiri!',n:'',buka:false},
   {d:'2026-11-06',ic:'🤫',q:'Rahasia… tebak sendiri!',n:'',buka:false},
   {d:'2026-11-07',ic:'🤫',q:'Rahasia… tebak sendiri!',n:'',buka:false}];
@@ -2170,6 +2170,7 @@ function renderKejutan(){const box=$('kjtList');if(!box)return;box.innerHTML='';
       kt.append(el('small',null,sisa>0?(jb<18?'🔓 DIBUKA SIANG INI ':'🔓 DIBUKA MALAM INI ')+String(jb).padStart(2,'0')+'.00'+(sisa<=180?' · '+(sisa>=60?Math.floor(sisa/60)+' jam ':'')+(sisa%60?sisa%60+' menit ':'')+'lagi':''):'🔓 SEBENTAR LAGI'),...(k.spill?[Object.assign(el('b',null,k.n),{style:'display:block'})]:[]),el('i',null,k.q))}
     else if(k.d<hari){li.className='lock';ki.textContent='⏳';kt.append(el('small',null,'SEBENTAR LAGI'),el('i',null,k.q))}
     else{li.className='lock';ki.textContent=k.spill?k.ic:'❓';kt.append(el('small',null,'🔒 TERKUNCI'),...(k.spill?[Object.assign(el('b',null,k.n),{style:'display:block'})]:[]),el('i',null,k.q))}
+    if(k.svg&&ki.textContent===k.ic){ki.innerHTML=k.svg;ki.style.display='flex';ki.style.alignItems='center';ki.style.justifyContent='center'}
     li.append(kd,ki,kt);box.append(li)});
   const hb=KEJUTAN.filter(k=>k.buka);if(hb.length===KEJUTAN.length)$('kejutan').hidden=true}
 window.KEJUTAN=KEJUTAN;window.renderKejutan=renderKejutan;
@@ -2560,7 +2561,7 @@ function drawMX(v,t){const g=mxGeo();if(!g)return;const z=v.z,{x0,x1,yc}=g;if(x1
   c.strokeStyle='#FFFFFF';c.lineWidth=2;c.setLineDash([4,4]);c.strokeRect(x0-T*.2,y0-T*.2,w+T*.4,h+T*.4);c.setLineDash([]); // pagar
   {const fx=x0+T*1.9,fy=y0+T*.1;for(let i=0;i<4;i++)for(let j=0;j<2;j++){c.fillStyle=(i+j)%2?'#1C2520':'#fff';c.fillRect(fx+i*T*.22,fy+j*T*.22,T*.22,T*.22)}c.fillStyle='#555';c.fillRect(fx-T*.06,fy,T*.06,T*1.1)} // bendera start
   for(let i=0;i<5;i++){c.fillStyle=['#E2453C','#2F74B5','#F2C230','#2E9C6A','#E07A3E'][i];c.fillRect(x0+w*.35+i*T*.9,y0+h-T*.05,T*.7,T*.35)} // tribun kecil
-  const bw=T*6.2,bx=(x0+x1)/2,by=yc-T*2.95;c.fillStyle='#8A5A32';c.fillRect(bx-bw/2,by-T*.42,bw,T*.84);c.strokeStyle='#4A3018';c.lineWidth=2.5;c.strokeRect(bx-bw/2,by-T*.42,bw,T*.84);c.fillStyle='#FFE9A8';c.font=`800 ${T*.44}px Poppins,'Noto Color Emoji',sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('🏍️ SIRKUIT MOTORCROSS',bx,by+1);
+  const bw=T*6.2,bx=(x0+x1)/2,by=yc-T*2.95;c.fillStyle='#8A5A32';c.fillRect(bx-bw/2,by-T*.42,bw,T*.84);c.strokeStyle='#4A3018';c.lineWidth=2.5;c.strokeRect(bx-bw/2,by-T*.42,bw,T*.84);c.fillStyle='#FFE9A8';c.font=`800 ${T*.44}px Poppins,'Noto Color Emoji',sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('🏁 SIRKUIT MOTORCROSS',bx,by+1);
   c.fillStyle='#C4402F';c.fillRect(bx-T*1.7,by+T*.5,T*3.4,T*.62);c.strokeStyle='#1C2520';c.lineWidth=2;c.strokeRect(bx-T*1.7,by+T*.5,T*3.4,T*.62);c.fillStyle='#fff';c.font=`800 ${T*.34}px Poppins,sans-serif`;c.fillText('SEGERA HADIR',bx,by+T*.82);
   c.restore()}
 function etalaseRect(){const g=etalaseGeo();return g&&{x0:g.x0-T*.3,x1:g.x1+T*.3,y0:g.yc-T*3,y1:g.yc+T*2.4}}
@@ -2837,7 +2838,7 @@ function tap(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clie
   if(STQA&&DESA){const q=DESA.RT;if(wxp>q.x&&wxp<q.x+q.w&&wyp>q.y-T*2&&wyp<q.y+q.h){lepasSel();SND.play('pop',.8);bukaRental();return}}
   if(STQA&&DESA){const g=DESA.GM;if(wxp>g.x&&wxp<g.x+g.w&&wyp>g.y-T*2&&wyp<g.y+g.h){lepasSel();SND.play('pop',.8);const ow=window.ROBOT_OWNER,k=ow?RES.findIndex(r=>String(r.name).toLowerCase()===ow):-1;if(k>=0){toast(gentoDiRumah()?'🤖 GENTO lagi di rumah @'+ow:'🤖 GENTO milik @'+ow+' lagi istirahat di hanggar');select({kind:'r',i:k});return}openDemoGento();return}}
   if(STQA&&DESA&&NAMA_DESA_OLEH){const g=DESA.gate;if(Math.abs(wxp-g.x)<T*6.8&&Math.abs(wyp-g.y)<T*2.5){const k=RES.findIndex(r=>String(r.name).toLowerCase()===NAMA_DESA_OLEH);if(k>=0){lepasSel();SND.play('pop',.8);toast('🏷️ '+NAMA_DESA+' — usulan @'+NAMA_DESA_OLEH);select({kind:'r',i:k});return}}}
-  if(STQA&&DESA&&DESA.SPARK){const R=etalaseRect();if(R&&wxp>R.x0&&wxp<R.x1&&wyp>R.y0&&wyp<R.y1){lepasSel();SND.play('pop',.8);bukaEtalase();return}const M=mxRect();if(M&&wxp>M.x0&&wxp<M.x1&&wyp>M.y0&&wyp<M.y1){lepasSel();SND.play('pop',.8);toast('🏍️ Sirkuit Motorcross segera hadir! Pantau terus kampung ya');return}} // 🛍️ Etalase & 🏍️ Motorcross
+  if(STQA&&DESA&&DESA.SPARK){const R=etalaseRect();if(R&&wxp>R.x0&&wxp<R.x1&&wyp>R.y0&&wyp<R.y1){lepasSel();SND.play('pop',.8);bukaEtalase();return}const M=mxRect();if(M&&wxp>M.x0&&wxp<M.x1&&wyp>M.y0&&wyp<M.y1){lepasSel();SND.play('pop',.8);toast('🏁 Sirkuit Motorcross segera hadir! Pantau terus kampung ya');return}} // 🛍️ Etalase & 🏍️ Motorcross
   if(STQA&&DESA&&DESA.SPARK){const R=pasarRect();if(R&&wxp>R.x0&&wxp<R.x1&&wyp>R.y0&&wyp<R.y1){lepasSel();SND.play('pop',.8);bukaPasar();return}} // 🧺 Pasar Senggol
   if(STQA&&DESA&&DESA.SPARK){const P=DESA.SPARK,SL=S*T,cx=(P.bx0+P.bx1+1)*SL/2,cy=P.by*SL+SL*.5;if(Math.abs(wxp-cx)<T*4.5&&wyp>cy-T*2.2&&wyp<cy+T*1.6){selectDusunBaru();return}}
   if(STQA){const fo=infraKetuk(wxp,wyp);if(fo&&fo.k==='lumbung'){lepasSel();SND.play('pop',.8);bukaPanen();return}if(fo&&fo.k==='riwayatgamer'){lepasSel();SND.play('pop',.8);bukaRiwayatGamer();return}if(fo){lepasSel();SND.play('pop',.8);open3D(null,-1,{type:'infra_'+fo.k,infra:true,name:fo.name,label:fo.label,ket:fo.ket,day:11,by:'negerikomen'});return}}

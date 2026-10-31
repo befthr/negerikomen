@@ -418,6 +418,7 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 #result{flex-direction:column!important;align-items:stretch!important;flex-wrap:nowrap!important}
 #result>div:first-child{width:100%;min-width:0}
 #result>.acts{width:100%;flex-wrap:nowrap}
+#result>.acts:has(>.btn:nth-child(4)){flex-wrap:wrap}#result>.acts:has(>.btn:nth-child(4))>.btn{flex:1 1 calc(50% - 4px);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* 4 tombol (mis. pemilik GENTO): jadi 2 baris, tidak saling tumpuk */
 #result>.acts:has(.lamar){flex-wrap:wrap}#result>.acts>.btn.lamar{flex:1 0 100%;max-width:none;white-space:normal;order:9}
 #result>.acts>.btn{max-width:220px}
 .gfxbar .gtog{display:none}
@@ -484,7 +485,9 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 </head>
 <body>
 <div class="tt-warn" id="ttWarn" role="alert"><span class="tt-ic">⚠️</span><span><b>Negeri Komen TIDAK punya akun TikTok.</b> Akun resmi cuma Instagram <a href="https://instagram.com/negerikomen" target="_blank" rel="noopener">@negerikomen</a>. Ada akun TikTok yang ngaku-ngaku Pak Kades? Jangan percaya, tolong <b>report</b> ya! 🙏</span><button type="button" aria-label="Tutup" id="ttX">✕</button></div>
-<script>try{if(localStorage.getItem('nk-ttwarn')==='1')document.getElementById('ttWarn').hidden=true}catch(e){}document.getElementById('ttX').onclick=function(){document.getElementById('ttWarn').hidden=true;try{localStorage.setItem('nk-ttwarn','1')}catch(e){}}</script>
+<script>
+(function(){const of=window.fetch;if(!of)return;window.__SKEW=0;window.fetch=function(...a){return of.apply(this,a).then(r=>{try{const u=String(a[0]&&a[0].url||a[0]);if(u.indexOf('/api/')>=0){const d=Date.parse(r.headers.get('date')||'');if(d){const k=d-Date.now();window.__SKEW=Math.abs(k)>8000?k:0}}}catch(e){}return r})}})(); // ⏱️ jam perangkat warga bisa ngaco (mis. maju 30 menit): pakai jam server buat Karpet Terbang & GENTO
+try{if(localStorage.getItem('nk-ttwarn')==='1')document.getElementById('ttWarn').hidden=true}catch(e){}document.getElementById('ttX').onclick=function(){document.getElementById('ttWarn').hidden=true;try{localStorage.setItem('nk-ttwarn','1')}catch(e){}}</script>
 <div class="wrap">
   <header class="top">
     <a class="brand" href="./"><img src="logo.png" alt="" width="40" height="40"><b>Negeri Komen</b></a>
@@ -1068,7 +1071,7 @@ function gCore(now,M,hx,hy,u){
   const ph=sh(String(u))%G_CY,c=Math.floor((now+ph)/G_CY),st=c*G_CY-ph;if(M&&st<gCmdEnd(M))return null;
   return gRoam(now-st-G_HOME,5*G_LEG,c*13+sh(String(u))%997,hx,hy)}
 function gentoPos(hx,hy,u,ms){if(window.__GENTO_DIAM)return null;try{if(ms==null&&window.KARPET_OWNER&&String(window.KARPET_OWNER).toLowerCase()===String(u).toLowerCase()&&window.karpetFase&&window.karpetFase()>=0)return null}catch(e){} // 🪄 rumah lagi naik Karpet Terbang: GENTO ikut duduk di rumah, tidak main keliling
-if(!(window.NK_DATA&&window.NK_DATA.gentoMain)&&!window.__GENTO_QA)return null;const now=(ms==null?Date.now():ms)/1000,M=window.GENTO_MODE||null;
+if(!(window.NK_DATA&&window.NK_DATA.gentoMain)&&!window.__GENTO_QA)return null;const now=(ms==null?Date.now()+(window.__SKEW||0):ms)/1000,M=window.GENTO_MODE||null;
   const a=gCore(now,M,hx,hy,u);if(!a)return null;const b=gCore(now+.2,M,hx,hy,u)||{x:hx,y:hy};
   const dx=b.x-a.x,dy=b.y-a.y;a.ang=Math.hypot(dx,dy)>.05?Math.atan2(dy,dx):-Math.PI/2;return a}
 window.__gentoPos=gentoPos;
@@ -2639,7 +2642,7 @@ function bukaDusunBaru(){const D=desaBangun(),SK=D.SK||[],used=kavTerisi(),isi=S
   body.append(kkBtn('🗺️ Lihat seluruh Dusun Baru','sm gold3',()=>{kkTutup();const cx=(Math.min(...xs)+Math.max(...xs)+1)*SL/2,cy=(Math.min(...ys)+Math.max(...ys)+1)*SL/2;flyTo({cx,cy,zoom:clampZ(.14)},900);scrollMap()}))}
 // MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
 // 🪄 Karpet Terbang: rumah pemilik terbang keliling kampung (otomatis tiap jam menit ke-30 WIB, atau manual saat dipencet). 120 detik.
-window.karpetFase=()=>karpetFase();function karpetFase(){const ow=window.KARPET_OWNER;if(!ow)return -1;const M=window.KARPET_MODE||{},now=Date.now(),DUR=12e4;let st=null;
+window.karpetFase=()=>karpetFase();function karpetFase(){const ow=window.KARPET_OWNER;if(!ow)return -1;const M=window.KARPET_MODE||{},now=Date.now()+(window.__SKEW||0),DUR=12e4;let st=null;
   if(window.__KARPET_QA_AT)st=window.__KARPET_QA_AT;else if(M.set==='manual'){if(M.at&&now-M.at<DUR)st=M.at}else{const w=now+252e5,h=Math.floor(w/36e5)*36e5+18e5;if(w>=h&&w-h<DUR)st=now-(w-h)}
   if(st!=null&&M.pul&&M.pul>=st)return -1; // pemilik suruh pulang
   return st==null||now-st>=DUR?-1:(now-st)/DUR}

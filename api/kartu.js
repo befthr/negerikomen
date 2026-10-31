@@ -641,7 +641,7 @@ export default async function handler(req, res) {
       const g = String(body.g || ''), v = Math.floor(+body.v), qa = !!body.qa;
       if (!KONSOL_G.includes(g) || !(v >= 0 && v <= KONSOL_MAX[g])) return res.status(400).json({ error: 'Skor tidak valid' });
       if (qa) { if (s.u !== OWNER) return res.status(403).json({ error: 'Khusus kepala desa' }) }
-      else { const info = await infoKartu(D, s.u); if (!info.items.own.some(o => o.id === 'konsol')) { if (!info.sewaKonsol) return res.status(403).json({ error: 'Khusus pemilik / penyewa playadalahmain' }) } }
+      else { const info = await infoKartu(D, s.u); if (!info.items.own.some(o => o.id === 'konsol')) { const jaga = (D.karyawanDesa || []).some(x => x && x.type === 'rental' && x.user === s.u && (!x.until || x.until >= tglWIB()) && (!x.mulai || Date.now() >= Date.parse(x.mulai))); if (!info.sewaKonsol && !jaga) return res.status(403).json({ error: 'Khusus pemilik / penyewa playadalahmain' }) } }
       const key = (qa ? 'konsolqa:' : 'konsol:') + g;
       await kv(['ZADD', key, 'GT', String(v), s.u]); const rk = await kv(['ZREVRANK', key, s.u]);
       return res.status(200).json({ ok: true, rank: rk == null ? null : +rk + 1 });

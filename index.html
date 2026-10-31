@@ -904,7 +904,7 @@ function drawKavling(p,s,t,i){
 function wallHex(r){return (typeof r.wall==='string'&&/^#[0-9a-fA-F]{6}$/.test(r.wall)?r.wall:null)||WALL_HEX[r.wall]||WALLS[Math.floor(ih(r.x,r.y,4)*WALLS.length)]}
 function wibToday(){return new Date(Date.now()+252e5).toISOString().slice(0,10)}
 function shopOn(r,d){const o=r&&r.shop;if(!o||!o.name||typeof o.until!=='string')return false;d=d||wibToday();return o.until>=d&&(!o.start||o.start<=d)}
-function jobOn(r,d){const j=r&&r.job;if(!j)return false;if(j==='proyek')return true;if(typeof j==='object'&&j.type==='proyek'){d=d||wibToday();return !j.until||j.until>=d}return false}
+function jobOn(r,d){const j=r&&r.job;if(!j)return false;if(j==='proyek')return true;if(typeof j==='object'&&j.type==='proyek'){if(j.mulai&&Date.now()<Date.parse(j.mulai))return false;d=d||wibToday();return !j.until||j.until>=d}return false}
 // warna rumah unik: globe (dinding=laut, atap=pulau), serigala (dinding=bulu, atap=telinga); kosong = warna bawaan
 function uniqCol(r){const c=v=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:ROOF_HEX[v];
   return {sea:(r.wall&&c(r.wall))||'#3E8FC9',land:(r.roof&&c(r.roof))||'#6FB35A',fur:(r.wall&&r.wall!=='abu-abu'&&c(r.wall))||'#8E9499',ear:(r.roof&&r.roof!=='abu-abu'&&c(r.roof))||'#5E656B'}}
@@ -1936,7 +1936,8 @@ const KERJA_IK={rental:['🎮','PENJAGA RENTAL'],posronda:['🔦','RUMAH SATPAM'
 const KERJA_WR={monumen:'#C0392B',tps:'#2E9C6A',bandara:'#2F74B5',pasarmalam:'#7A3CFF',hiburan:'#E2453C',coffeeshop:'#6B4527',tb:'#C4502F',dealer:'#2F74B5',tokokampung:'#E2A23A',warung:'#2E86C1',posronda:'#2F6B4F',masjid:'#2E9C6A',bakso:'#C4502F',padang:'#B5452A',sekolah:'#2F74B5',puskesmas:'#D9302F',tk:'#E2574C',penginapan:'#8E5AA8',layartancap:'#1C2520',rental:'#5B3A9E'};
 const KERJA_IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
 const bKey=b=>b.type+'@'+(b._ox!=null?b._ox:b.x)+','+(b._oy!=null?b._oy:b.y);
-function hitungKerja(){RES.forEach(r=>{delete r.kerja});const add=(b,x)=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday()))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}};BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>add(b,x)));
+function kerjaMulai(x){return !(x&&x.mulai&&Date.now()<Date.parse(x.mulai))} // karyawan baru tampil mulai jam pengumuman
+function hitungKerja(){RES.forEach(r=>{delete r.kerja});const add=(b,x)=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday())||!kerjaMulai(x))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}};BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>add(b,x)));
   // karyawan bangunan desa baru (bukan di BLD), contoh di data.js: "karyawanDesa":[{"type":"rental","user":"namaig","role":"Penjaga Rental","until":"2026-11-27"}]
   (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>x&&add({type:x.type,name:x.type==='rental'?'playadalahmain':(x.tempat||'')},x))}
 // item pekarangan yang tampil: Penjaga Rental otomatis dapat konsol playadalahmain di halaman (selama kontrak)
@@ -2156,7 +2157,7 @@ try{renderKejutan();setInterval(()=>{try{renderKejutan()}catch(_){}},6e4)}catch(
 function renderKaryawan(){const box=$('kryList');if(!box)return;const BL={jan:0};const bln=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const tgl=d=>{const [y,m,dd]=String(d).split('-').map(Number);return dd+' '+bln[m-1]};const ic={posronda:'🔦',warung:'🏪',masjid:'🕌',penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
   const L=[];BLD.forEach(b=>staffOf(b).forEach(x=>L.push({u:x.user,role:x.role||'Karyawan',tempat:b.name||'',ic:ic[b.type]||'👷',until:x.until})));
-  (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>{if(x&&x.user&&!(x.until&&x.until<NK.wibToday()))L.push({u:x.user,role:x.role||'Karyawan',tempat:x.type==='rental'?'Rental playadalahmain':(x.tempat||''),ic:x.type==='rental'?'🎮':'👷',until:x.until})});
+  (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>{if(x&&x.user&&!(x.until&&x.until<NK.wibToday())&&kerjaMulai(x))L.push({u:x.user,role:x.role||'Karyawan',tempat:x.type==='rental'?'Rental playadalahmain':(x.tempat||''),ic:x.type==='rental'?'🎮':'👷',until:x.until})});
   box.innerHTML='';if(!L.length){$('kryCard').hidden=true;return}$('kryCard').hidden=false;
   // tab per tempat kerja: Semua + tiap bangunan
   let tb=$('kryTabs');if(!tb){tb=el('div','jtabs');tb.id='kryTabs';box.before(tb)}tb.innerHTML='';
@@ -2241,7 +2242,7 @@ BLD.map((b,i)=>({b,i})).sort((x,y)=>(y.b.day||1)-(x.b.day||1)||y.i-x.i).forEach(
 BLD.length&&$('bList').querySelectorAll('li').forEach(li=>li.dataset.desa='lama');
 // fasilitas di desa baru (digambar terpisah di peta): ditaruh paling atas, bisa difilter per desa
 {const ke=(f)=>()=>{try{if(!DESA)desaBangun();const o=f();if(o)flyTo({cx:o.x,cy:o.y,zoom:clampZ(.5)},900);scrollMap()}catch(e){console.error(e)}};
- const nRental=(Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).filter(x=>x&&x.type==='rental'&&!(x.until&&x.until<NK.wibToday())).length;
+ const nRental=(Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).filter(x=>x&&x.type==='rental'&&!(x.until&&x.until<NK.wibToday())&&kerjaMulai(x)).length;
  const BARU=[
   {ic:'⚽',nm:'Stadion Desa',meta:'👑 Kepala desa · ⚽ Liga Dusun',go:()=>{bukaStadion()}},
   {ic:'🎮',nm:'Rental playadalahmain',meta:'👑 Kepala desa · '+nRental+' karyawan',go:ke(()=>{const q=DESA.RT;return {x:q.x+q.w/2,y:q.y+q.h/2}})},
@@ -4100,7 +4101,7 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
       kkBtn('🏠 Ganti di 3D','kk-gratis',()=>{kkTutup();select({kind:'r',i},{instant:true});V3BACK=()=>kkBuka(c.u);open3D(RES[i],i)}))}
   else if(i>=0)body.append(el('p','kk-muted','Rumahmu baru punya 1 versi. Versi baru muncul kalau rumahmu menang lomba, dapat hadiah quest, atau ganti warna lewat traktir.'));
   if(i>=0&&!c.admin)kkBagianUbah(body,c,i);
-  if(!c.admin){const punyaK=(c.items&&c.items.own||[]).some(o=>o.id==='konsol');
+  if(!c.admin){const punyaK=(c.items&&c.items.own||[]).some(o=>o.id==='konsol')||(Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).some(x=>x&&x.type==='rental'&&String(x.user).toLowerCase()===String(c.u||'').toLowerCase()&&!(x.until&&x.until<NK.wibToday())&&kerjaMulai(x)); // penjaga rental boleh main
     // pemilik konsol: kotak main di atas, tepat di bawah Recehan
     const sw=!punyaK&&c.sewaKonsol&&c.sewaKonsol>Date.now();
     if(i>=0)kkJasaBox(body,c,i,punyaK,sw);

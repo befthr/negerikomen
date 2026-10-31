@@ -1067,7 +1067,8 @@ function gCore(now,M,hx,hy,u){
   else if(M&&M.dari)return gCore(now,M.dari,hx,hy,u);
   const ph=sh(String(u))%G_CY,c=Math.floor((now+ph)/G_CY),st=c*G_CY-ph;if(M&&st<gCmdEnd(M))return null;
   return gRoam(now-st-G_HOME,5*G_LEG,c*13+sh(String(u))%997,hx,hy)}
-function gentoPos(hx,hy,u,ms){if(window.__GENTO_DIAM)return null;if(!(window.NK_DATA&&window.NK_DATA.gentoMain)&&!window.__GENTO_QA)return null;const now=(ms==null?Date.now():ms)/1000,M=window.GENTO_MODE||null;
+function gentoPos(hx,hy,u,ms){if(window.__GENTO_DIAM)return null;try{if(ms==null&&window.KARPET_OWNER&&String(window.KARPET_OWNER).toLowerCase()===String(u).toLowerCase()&&window.karpetFase&&window.karpetFase()>=0)return null}catch(e){} // 🪄 rumah lagi naik Karpet Terbang: GENTO ikut duduk di rumah, tidak main keliling
+if(!(window.NK_DATA&&window.NK_DATA.gentoMain)&&!window.__GENTO_QA)return null;const now=(ms==null?Date.now():ms)/1000,M=window.GENTO_MODE||null;
   const a=gCore(now,M,hx,hy,u);if(!a)return null;const b=gCore(now+.2,M,hx,hy,u)||{x:hx,y:hy};
   const dx=b.x-a.x,dy=b.y-a.y;a.ang=Math.hypot(dx,dy)>.05?Math.atan2(dy,dx):-Math.PI/2;return a}
 window.__gentoPos=gentoPos;
@@ -2638,14 +2639,14 @@ function bukaDusunBaru(){const D=desaBangun(),SK=D.SK||[],used=kavTerisi(),isi=S
   body.append(kkBtn('🗺️ Lihat seluruh Dusun Baru','sm gold3',()=>{kkTutup();const cx=(Math.min(...xs)+Math.max(...xs)+1)*SL/2,cy=(Math.min(...ys)+Math.max(...ys)+1)*SL/2;flyTo({cx,cy,zoom:clampZ(.14)},900);scrollMap()}))}
 // MBULAN milik warga di rumah lok (pantai/gunung/desa): lapisan desa sering di-cache, jadi MBULAN digambar ulang tiap frame di sini
 // 🪄 Karpet Terbang: rumah pemilik terbang keliling kampung (otomatis tiap jam menit ke-30 WIB, atau manual saat dipencet). 120 detik.
-function karpetFase(){const ow=window.KARPET_OWNER;if(!ow)return -1;const M=window.KARPET_MODE||{},now=Date.now(),DUR=12e4;let st=null;
+window.karpetFase=()=>karpetFase();function karpetFase(){const ow=window.KARPET_OWNER;if(!ow)return -1;const M=window.KARPET_MODE||{},now=Date.now(),DUR=12e4;let st=null;
   if(window.__KARPET_QA_AT)st=window.__KARPET_QA_AT;else if(M.set==='manual'){if(M.at&&now-M.at<DUR)st=M.at}else{const w=now+252e5,h=Math.floor(w/36e5)*36e5+18e5;if(w>=h&&w-h<DUR)st=now-(w-h)}
   if(st!=null&&M.pul&&M.pul>=st)return -1; // pemilik suruh pulang
   return st==null||now-st>=DUR?-1:(now-st)/DUR}
 let KT_ON=null;
 function karpetTerbang(v,t){const PV=window.__KT_PV,pvOn=!!(PV&&Date.now()-PV.at<PV.dur&&Date.now()>=PV.at),p=pvOn?(Date.now()-PV.at)/PV.dur:karpetFase(),ow=pvOn?PV.u:window.KARPET_OWNER,i=ow?kkResIdx(ow):-1,r=i>=0?RES[i]:null;
   const on=!!(r&&p>=0);if(KT_ON!==(on?r.name:null)){RES.forEach(x=>{if(x._kt)x._kt=false});if(on)r._kt=true;KT_ON=on?r.name:null;window.__HCV=(window.__HCV||0)+1}
-  window.__KT_LBL=null;window.__KT_DRAW=null;window.__KT_SR=null;if(!on){window.__KT_HIT=null;return}const HX=NK.wx(r.x),HY=NK.wx(r.y),R2=T*42,a0=Math.atan2(HY,HX),E=a=>[Math.cos(a)*R2,Math.sin(a)*R2*.92],e2=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+  window.__KT_LBL=null;window.__KT_DRAW=null;window.__KT_RB=null;window.__KT_SR=null;if(!on){window.__KT_HIT=null;return}const HX=NK.wx(r.x),HY=NK.wx(r.y),R2=T*42,a0=Math.atan2(HY,HX),E=a=>[Math.cos(a)*R2,Math.sin(a)*R2*.92],e2=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
   let X,Y,ang;if(p<.12){const u=e2(p/.12),[ex,ey]=E(a0);X=HX+(ex-HX)*u;Y=HY+(ey-HY)*u;ang=Math.atan2(ey-HY,ex-HX)}else if(p<.88){const a=a0+(p-.12)/.76*6.2832;[X,Y]=E(a);ang=a+Math.PI/2}else{const u=e2((p-.88)/.12),[ex,ey]=E(a0);X=ex+(HX-ex)*u;Y=ey+(HY-ey)*u;ang=Math.atan2(HY-ey,HX-ex)}
   const lh=T*1.7*Math.min(1,p/.05,(1-p)/.05),tt=t||0,z=v.z;ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);
   if(p>.04&&p<.96){ctx.save();ctx.setLineDash([T*.14,T*.1]);ctx.lineWidth=T*.06;ctx.strokeStyle='rgba(28,37,32,.55)';ctx.fillStyle='rgba(230,215,168,.55)';ctx.beginPath();ctx.roundRect(HX-T*.45,HY-T*.4,T*.9,T*.8,T*.12);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.font=`${T*.42}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🪄',HX,HY);ctx.restore()} // kavling kosong: penanda rumah lagi terbang
@@ -2656,10 +2657,10 @@ function karpetTerbang(v,t){const PV=window.__KT_PV,pvOn=!!(PV&&Date.now()-PV.at
     ctx.strokeStyle='#1F4E8C';ctx.lineWidth=T*.05;ctx.strokeRect(-w*.78,-h*.72,w*1.56,h*1.44);ctx.fillStyle='#F2C230';for(let k=0;k<7;k++)[-1,1].forEach(sd=>ctx.fillRect(-w+k*w/3-1.5,sd*(h+T*.05)-(sd<0?T*.18:0),3,T*.18))}
   ctx.scale(1.25,1.25);ctx.translate(-HX,-HY);NK.drawHouse(r,1,1);ctx.restore()};
   const AR=[window.__ROBOT||[],window.__MBUL||[],window.__PATRO||[],window.__SOROT||[]],L0=AR.map(x=>x.length);KD();
-  window.__KT_DRAW=()=>{const L1=AR.map(x=>x.length);ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);const n=window.__MALAM_N||0;try{if('filter' in ctx)ctx.filter='brightness('+(1-.35*n).toFixed(2)+')';KD()}finally{ctx.restore();AR.forEach((x,i)=>x.length=L1[i])}}; // malam: gambar ulang di atas lapisan gelap & lampu, biar tidak tembus
+  window.__KT_DRAW=()=>{const L1=AR.map(x=>x.length);ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);const n=window.__MALAM_N||0;try{if('filter' in ctx)ctx.filter='brightness('+(1-.35*n).toFixed(2)+')';KD();if(window.__KT_RB&&window.__KT_RB.length&&window.__GAMBAR_ROBOT)window.__GAMBAR_ROBOT(window.__KT_RB)}finally{ctx.restore();AR.forEach((x,i)=>x.length=L1[i])}}; // malam: gambar ulang di atas lapisan gelap & lampu, biar tidak tembus
   {const k=sc*1.25,mx=x=>X+(x-HX)*k,my=y=>Y-lh+(y-HY)*k,nw=AR.map((x,i)=>x.slice(L0[i])); // barang eksklusif lain milik pemilik (GENTO, MBULAN, Patromax, Sorot) ikut terbang bersama rumahnya
     nw[0].forEach(o=>{if(o.roam)return;o.x=mx(o.x);o.y=my(o.y);o.s*=k});nw[1].forEach(o=>{o.hx=mx(o.hx);o.hy=my(o.hy);o.s*=k});nw[2].forEach(o=>{o.x=mx(o.x);o.y=my(o.y);o.s*=k});nw[3].forEach(o=>{o.x=mx(o.x);o.y=my(o.y);o.s*=k});
-    ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);try{const rb=nw[0].filter(o=>!o.roam);if(rb.length&&window.__GAMBAR_ROBOT)window.__GAMBAR_ROBOT(rb)}catch(e){}try{if(nw[1].length&&window.__GAMBAR_MBUL){const mm=window.mbulMain;window.mbulMain=()=>false;try{window.__GAMBAR_MBUL(nw[1])}finally{window.mbulMain=mm}}}catch(e){}ctx.restore()}
+    ctx.save();ctx.setTransform(z,0,0,z,v.ox,v.oy);try{const rb=nw[0].filter(o=>!o.roam);window.__KT_RB=rb;if(rb.length&&window.__GAMBAR_ROBOT)window.__GAMBAR_ROBOT(rb)}catch(e){}try{if(nw[1].length&&window.__GAMBAR_MBUL){const mm=window.mbulMain;window.mbulMain=()=>false;try{window.__GAMBAR_MBUL(nw[1])}finally{window.mbulMain=mm}}}catch(e){}ctx.restore()}
   for(let k=0;k<5;k++){const a=tt*3+k*1.26,rr=T*(1.5+.2*Math.sin(tt*4+k));ctx.fillStyle=`rgba(255,226,122,${.5+.5*Math.sin(tt*6+k)})`;ctx.beginPath();ctx.arc(X+Math.cos(a)*rr,Y-lh+Math.sin(a)*rr*.6,T*.07,0,7);ctx.fill()}
   {const hs=T*z/dpr,fsS=Math.round(10.5*dpr),fsB=Math.round(13*dpr),sx=v.ox+X*z,sy=v.oy+(Y-lh-T*1.3*sc)*z,top=hs<20?sy-fsS*1.55:sy-fsB*1.9;ctx.save();ctx.setTransform(1,0,0,1,0,0);const c=NK.tag(sx,top-2*dpr,pvOn?'🪄 CONTOH KARPET TERBANG':'🪄 KARPET TERBANG','',fsS,true,false,true)||{x:sx-40,y:top-30,w:80,h:28};ctx.restore(); // chip nama barang digambar SEBELUM lapisan malam → ikut redup persis seperti label GENTO (karpet tidak punya lampu)
   window.__KT_LBL=()=>{ctx.save();ctx.setTransform(1,0,0,1,0,0);const nm='@'+r.name;let b;if(hs<20){ctx.globalAlpha=.88;b=NK.tag(sx,sy,nm,'',fsS,true,false,true);ctx.globalAlpha=1}else b=NK.tag(sx,sy,nm,'',fsB,true,true,false);b=b||{x:sx-40,y:sy-30,w:80,h:30};ctx.restore();const x0=Math.min(b.x,c.x),x1=Math.max(b.x+b.w,c.x+c.w),y0=Math.min(b.y,c.y),y1=Math.max(b.y+b.h,c.y+c.h);window.__KT_HIT={u:r.name,x:X,y:Y-lh,r:T*2.3*sc,lx0:(x0-v.ox)/z,lx1:(x1-v.ox)/z,ly0:(y0-v.oy)/z,ly1:(y1-v.oy)/z}}} // @pemilik gaya Juragan Genteng, digambar paling atas

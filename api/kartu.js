@@ -1030,17 +1030,18 @@ export default async function handler(req, res) {
     if (aksi === 'pasar-riwayat') return res.status(200).json({ ok: true, riwayat: ((await kv(['LRANGE', 'pasar:riwayat:' + s.u, 0, 49])) || []).map(jparse).filter(Boolean) }); // 🧾 riwayat jual-beli Pasar Senggol milik sendiri
     if (aksi === 'pasar-jual' || aksi === 'pasar-batal' || aksi === 'pasar-beli') { // 🧺 Pasar Senggol: jual-beli barang bekas antar warga pakai Receh (barang dititipkan ke lapak sampai laku/batal)
       if (Date.now() < PASAR_BUKA && s.u !== OWNER) return res.status(403).json({ error: 'Pasar Senggol buka jam 19.00 WIB ya! 🧺' });
-      const NMI = id => ({ sepeda: 'Sepeda', motor: 'Motor', ayam: 'Ayam', kucing: 'Kucing', kambing: 'Kambing', lampu: 'Lampu taman', mangga: 'Pohon mangga', kolam: 'Kolam ikan', ayunan: 'Ayunan', papan: 'Papan nama', bougenville: 'Bougenville', robot: 'GENTO', patromax: 'Patromax', sorot: 'Lampu Sorot Langit', naga: 'NAGASARI', mbulan: 'MBULAN', karpet: 'Karpet Terbang', konsol: 'playadalahmain' })[id] || id;
+      const NMI = id => ({ sepeda: 'Sepeda', motor: 'Motor', ayam: 'Ayam', kucing: 'Kucing', kambing: 'Kambing', lampu: 'Lampu taman', mangga: 'Pohon mangga', kolam: 'Kolam ikan', ayunan: 'Ayunan', papan: 'Papan nama', bougenville: 'Bougenville', robot: 'GENTO', patromax: 'Patromax', sorot: 'Lampu Sorot Langit', naga: 'NAGASARI', mbulan: 'MBULAN', karpet: 'Karpet Terbang', konsol: 'playadalahmain', tiket_truk: 'Tiket Truk Titut', tiket_heli: 'Tiket Helikoper' })[id] || id;
       const balik = async (u, o) => { const kol = await koleksi(u); if (!kol.own.some(x => x.id === o.id)) { kol.own.push(o); if (o.id !== 'naga' && !kol.pajang.includes(o.id)) { if (PASAR_EKS.includes(o.id)) kol.pajang = [o.id, ...kol.pajang].slice(0, MAKS_PAJANG); else if (kol.pajang.length < MAKS_PAJANG) kol.pajang.push(o.id) } } await kv(['HSET', 'itemplus', u, JSON.stringify(kol)]) }; // barang eksklusif selalu dipajang (geser barang biasa kalau penuh)
       if (aksi === 'pasar-jual') {
-        const id = String(body.id || ''), eks = PASAR_EKS.includes(id), h = eks ? KATALOG[id] : Math.floor(+body.h); // barang eksklusif: harga tetap = harga baru
-        if (!KATALOG[id]) return res.status(400).json({ error: 'Barang ini tidak bisa dijual di Pasar Senggol.' });
+        const id = String(body.id || ''), eks = PASAR_EKS.includes(id), hMax = KATALOG[id] || (id === 'tiket_truk' ? PINDAH.truk.harga : id === 'tiket_heli' ? PINDAH.heli.harga : 0), h = eks ? hMax : Math.floor(+body.h); // barang eksklusif: harga tetap = harga baru
+        const tk = id === 'tiket_truk' ? 'truk' : id === 'tiket_heli' ? 'heli' : null; // 🎫 tiket Jasa Pindahan juga bisa dijual
+        if (!KATALOG[id] && !tk) return res.status(400).json({ error: 'Barang ini tidak bisa dijual di Pasar Senggol.' });
         if (eks && (await kv(['GET', id + ':pemilik'])) !== s.u) return res.status(400).json({ error: 'Kamu bukan pemilik barang eksklusif ini.' });
-        if (!(h >= 1 && h <= KATALOG[id])) return res.status(400).json({ error: `Harga ${NMI(id)} bekas 1–${KATALOG[id]} Receh (tidak boleh lebih mahal dari harga baru).` });
+        if (!(h >= 1 && h <= hMax)) return res.status(400).json({ error: `Harga ${NMI(id)} bekas 1–${hMax} Receh (tidak boleh lebih mahal dari harga baru).` });
         if (!(await kv(['SET', 'pasar:jeda:' + s.u, '1', 'NX', 'EX', 3]))) return res.status(429).json({ error: 'Pelan-pelan, tunggu sebentar ya.' });
         const P = await pasarData(); if (P.lapak.filter(l => l.u === s.u).length >= PASAR_MAKS) return res.status(400).json({ error: `Maksimal ${PASAR_MAKS} lapak per warga. Batalkan salah satu dulu ya.` });
         if (P.lapak.some(l => l.u === s.u && l.id === id)) return res.status(400).json({ error: NMI(id) + '-mu sudah ada di lapak.' });
-        const kol = await koleksi(s.u), o = kol.own.find(x => x.id === id); if (!o) return res.status(400).json({ error: 'Kamu tidak punya ' + NMI(id) + '.' });
+        const kol = await koleksi(s.u), o = tk ? ((await tiketKu(s.u))[tk] >= 1 ? { id } : null) : kol.own.find(x => x.id === id); if (!o) return res.status(400).json({ error: 'Kamu tidak punya ' + NMI(id) + '.' });
         // barang TETAP di rumah penjual (masih tampil di pekarangan) sampai laku
         const A = 'abcdefghjkmnpqrstuvwxyz23456789'; let lid = 'L'; for (let i = 0; i < 7; i++) lid += A[crypto.randomInt(A.length)];
         const ob = { id, ...(o.warna ? { warna: o.warna } : {}) }; // teks papan nama tidak ikut dijual
@@ -1055,6 +1056,20 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
       }
       if (l.u === s.u) return res.status(400).json({ error: 'Ini lapakmu sendiri 😄' });
+      const tkb = l.o.id === 'tiket_truk' ? 'truk' : l.o.id === 'tiket_heli' ? 'heli' : null;
+      if (tkb) { // 🎫 beli tiket bekas: tiket pindah dari penjual ke pembeli
+        if (!warga(D, s.u)) return res.status(403).json({ error: 'Cuma warga yang punya rumah yang bisa beli tiket pindahan.' });
+        if ((await tiketKu(s.u))[tkb] >= 1) return res.status(400).json({ error: 'Kamu masih punya ' + NMI(l.o.id) + '. Pakai dulu ya!' });
+        if ((await tiketKu(l.u))[tkb] < 1) { await kv(['HDEL', 'pasar:lapak', lid]); return res.status(410).json({ error: 'Yah, tiketnya sudah dipakai penjual. Lapaknya ditutup.' }) }
+        const af = await kv(['HINCRBY', 'saldo', s.u, -l.h]); if (af < 0) { await kv(['HINCRBY', 'saldo', s.u, l.h]); return res.status(400).json({ error: `Recehan belum cukup. Butuh ${l.h} Receh.` }) }
+        if (!(+(await kv(['HDEL', 'pasar:lapak', lid])))) { await kv(['HINCRBY', 'saldo', s.u, l.h]); return res.status(409).json({ error: 'Yah, keduluan warga lain! Receh-mu tidak terpotong.' }) }
+        const sisaP = await kv(['HINCRBY', 'tiket', l.u + ':' + tkb, -1]); if (sisaP < 0) { await kvMany([['HINCRBY', 'tiket', l.u + ':' + tkb, 1], ['HINCRBY', 'saldo', s.u, l.h]]); return res.status(410).json({ error: 'Yah, tiketnya sudah dipakai penjual. Receh-mu tidak terpotong.' }) }
+        const now = Date.now();
+        await kvMany([['HINCRBY', 'tiket', s.u + ':' + tkb, 1], ['HINCRBY', 'saldo', l.u, l.h], ['LPUSH', 'saldo:log:' + s.u, JSON.stringify({ at: now, n: -l.h, ket: 'Pasar Senggol: beli ' + NMI(l.o.id) + ' dari @' + l.u })], ['LTRIM', 'saldo:log:' + s.u, 0, 49],
+          ['LPUSH', 'saldo:log:' + l.u, JSON.stringify({ at: now, n: l.h, ket: 'Pasar Senggol: ' + NMI(l.o.id) + ' laku ke @' + s.u })], ['LTRIM', 'saldo:log:' + l.u, 0, 49], ['LPUSH', 'pasar:log', JSON.stringify({ id: l.o.id, h: l.h, dari: l.u, ke: s.u, at: now })], ['LTRIM', 'pasar:log', 0, 49],
+          ['LPUSH', 'pasar:riwayat:' + s.u, JSON.stringify({ j: 'beli', id: l.o.id, h: l.h, u: l.u, at: now })], ['LTRIM', 'pasar:riwayat:' + s.u, 0, 49], ['LPUSH', 'pasar:riwayat:' + l.u, JSON.stringify({ j: 'jual', id: l.o.id, h: l.h, u: s.u, at: now })], ['LTRIM', 'pasar:riwayat:' + l.u, 0, 49]]);
+        return res.status(200).json({ ok: true, beli: l.o.id, pasar: await pasarData(), kartu: await infoKartu(D, s.u) });
+      }
       const kb = await koleksi(s.u); if (kb.own.some(x => x.id === l.o.id)) return res.status(400).json({ error: 'Kamu sudah punya ' + NMI(l.o.id) + '.' });
       if (!(await koleksi(l.u)).own.some(x => x.id === l.o.id) || (PASAR_EKS.includes(l.o.id) && (await kv(['GET', l.o.id + ':pemilik'])) !== l.u)) { await kv(['HDEL', 'pasar:lapak', lid]); return res.status(410).json({ error: 'Yah, barangnya sudah tidak ada di penjual. Lapaknya ditutup.' }) }
       const after = await kv(['HINCRBY', 'saldo', s.u, -l.h]);

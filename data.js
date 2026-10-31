@@ -4,8 +4,8 @@
 window.NK_DATA = {
  "version": 1,
  "account": "negerikomen",
- "day": 12,
- "updated": "2026-10-30",
+ "day": 13,
+ "updated": "2026-10-31",
  "kavling": 1650,
  "followers": 3264,
  "target": 1000,

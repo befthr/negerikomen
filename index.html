@@ -4108,7 +4108,15 @@ function kkTampil(body,c,baru){body.innerHTML='';kkBack(body,null);
     const mg=el('div','kk-game'+(H.length?' riw':''));mg.append(el('div','kk-gh'));mg.firstChild.append(el('b',null,'🎮 Mini game terakhir'));
     if(H.length){const ul=el('ul','kk-mgl');H.forEach(o=>{const li=el('li');li.append(el('span',null,NG[o.g]),el('b',null,String(o.v)),el('small',null,new Date(o.at).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})));ul.append(li)});mg.append(ul)}
     else{mg.setAttribute('aria-disabled','true');mg.firstChild.append(el('span','kk-soon',punyaK?'Belum main':'Segera'));mg.append(el('p','kk-muted',punyaK?'Skor terakhirmu di mini game akan muncul di sini. Ayo main!':'Skor dan peringkatmu di mini game Negeri Komen akan muncul di sini.'))}
-    body.append(mg)}
+    body.append(mg);
+    // 🌾 Panen Sawah (semua warga bisa main): skor & peringkat hari ini + kemarin
+    {const pg=el('div','kk-game riw');pg.append(el('div','kk-gh'));pg.firstChild.append(el('b',null,'🌾 Panen Sawah'));const isi=el('div','kk-muted','Memuat…');pg.append(isi);mg.before(pg);
+     kkApi('panen-saya',{},true).then(r=>{if(!r||!r.ok){isi.textContent='Belum bisa memuat skor Panen Sawah.';return}const S=r.saya||{},me=String(c.u||'').toLowerCase();isi.remove();const ul=el('ul','kk-mgl');
+      const li=(a,b,c2)=>{const x=el('li');x.append(el('span',null,a),el('b',null,b),el('small',null,c2||''));ul.append(x)};
+      if(S.best!=null)li('Hari ini',S.best+' karung','peringkat #'+S.rank+' dari '+((r.top||[]).length));else li('Hari ini','belum main','sisa '+(S.sisa??3)+'/'+(r.maks||3)+' kali');
+      const K=(r.kemarin||[]),ki=K.findIndex(o=>String(o.u||'').toLowerCase()===me);if(ki>=0)li('Kemarin',(K[ki].v??'')+' karung','juara #'+(ki+1)+(K[ki].n?' · +'+K[ki].n+' Receh':''));
+      pg.append(ul);if(S.best==null||S.sisa>0){const b=kkBtn('🌾 Main Panen Sawah','sm gold3',()=>{kkTutup();try{bukaPanen()}catch(e){}});b.style.marginTop='8px';pg.append(b)}}).catch(()=>{isi.textContent='Belum bisa memuat skor Panen Sawah.'})}
+    if(!H.length&&!punyaK&&!sw)mg.remove()} // kotak konsol cuma untuk pemilik/penyewa playadalahmain
   if(c.admin){const n0=body.children.length;kkStatus(body);kkAdmin(body);try{kkWargaAdmin(body)}catch(e){console.error(e)}try{kkTiketAdmin(body)}catch(e){}try{kkAdminTabs(body,n0)}catch(e){console.error(e)}}
   const lk=el('div','kk-links'),a1=el('button',null,'Keluarkan perangkat lain'),a2=el('button',null,'Keluar dari perangkat ini');a1.type=a2.type='button';
   // konfirmasi dulu sebelum keluar

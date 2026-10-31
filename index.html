@@ -904,7 +904,7 @@ function drawKavling(p,s,t,i){
 function wallHex(r){return (typeof r.wall==='string'&&/^#[0-9a-fA-F]{6}$/.test(r.wall)?r.wall:null)||WALL_HEX[r.wall]||WALLS[Math.floor(ih(r.x,r.y,4)*WALLS.length)]}
 function wibToday(){return new Date(Date.now()+252e5).toISOString().slice(0,10)}
 function shopOn(r,d){const o=r&&r.shop;if(!o||!o.name||typeof o.until!=='string')return false;d=d||wibToday();return o.until>=d&&(!o.start||o.start<=d)}
-function jobOn(r,d){const j=r&&r.job;if(!j)return false;if(j==='proyek')return true;if(typeof j==='object'&&j.type==='proyek'){if(j.mulai&&Date.now()<Date.parse(j.mulai))return false;d=d||wibToday();return !j.until||j.until>=d}return false}
+function jobOn(r,d){const j=r&&r.job;if(!j)return false;if(j==='proyek')return true;if(typeof j==='object'&&j.type==='proyek'){if(j.mulai&&Date.now()<Date.parse(j.mulai)&&!/[?&]bangunqa=1/.test(location.search))return false;d=d||wibToday();return !j.until||j.until>=d}return false}
 // warna rumah unik: globe (dinding=laut, atap=pulau), serigala (dinding=bulu, atap=telinga); kosong = warna bawaan
 function uniqCol(r){const c=v=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:ROOF_HEX[v];
   return {sea:(r.wall&&c(r.wall))||'#3E8FC9',land:(r.roof&&c(r.roof))||'#6FB35A',fur:(r.wall&&r.wall!=='abu-abu'&&c(r.wall))||'#8E9499',ear:(r.roof&&r.roof!=='abu-abu'&&c(r.roof))||'#5E656B'}}
@@ -1261,6 +1261,14 @@ function drawBuilding(b,s,a){
       ctx.fillStyle=SH;ctx.beginPath();ctx.arc(px+3,py+4,11,0,7);ctx.fill();
       ctx.fillStyle=c;ctx.beginPath();ctx.arc(px,py,11,0,7);ctx.fill();
       ctx.fillStyle='rgba(255,255,255,.6)';ctx.beginPath();ctx.arc(px,py,3,0,7);ctx.fill()});
+  }else if(t==='sekolah'&&b.varian==='sd'){ // 🏫 SD: gedung 1 lantai merah-putih memanjang, lapangan upacara, perosotan & ayunan
+    ctx.fillStyle='#CDE6A8';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
+    box(X+10,Y+10,100,30,'#FFFFFF');ctx.fillStyle='#E2453C';ctx.fillRect(X+10,Y+32,100,8);gable(X+8,Y+8,104,28,'#C4402F',false);
+    ctx.fillStyle='#BFE3F2';for(let i=0;i<6;i++)ctx.fillRect(X+16+i*16,Y+22,9,7);
+    ctx.fillStyle='#E9DDBB';ctx.fillRect(X+50,Y+52,58,52);ctx.strokeStyle='#FFFFFF';ctx.lineWidth=2;ctx.strokeRect(X+56,Y+58,46,40);
+    flagPole(X+79,Y+66,26);
+    ctx.fillStyle='#2F74B5';ctx.fillRect(X+14,Y+58,6,26);ctx.fillStyle='#F2C230';ctx.beginPath();ctx.moveTo(X+20,Y+58);ctx.lineTo(X+38,Y+84);ctx.lineTo(X+32,Y+86);ctx.lineTo(X+18,Y+64);ctx.fill(); // perosotan
+    ctx.strokeStyle='#7A5230';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X+14,Y+104);ctx.lineTo(X+22,Y+90);ctx.lineTo(X+40,Y+90);ctx.lineTo(X+46,Y+104);ctx.stroke();ctx.fillStyle='#E2453C';ctx.fillRect(X+25,Y+98,6,3);ctx.fillRect(X+33,Y+98,6,3); // ayunan
   }else if(t==='sekolah'){
     ctx.fillStyle='#D9C9A0';ctx.fillRect(X+6,Y+6,Z-12,Z-12);
     const AT=b.atap||'#C4502F';box(X+12,Y+12,96,36,'#FFFFFF');gable(X+10,Y+10,100,34,AT,false);
@@ -1937,13 +1945,13 @@ return {sungai:()=>SG,DT,inDT,JALUR,diJalur,wallHex,wibToday,shopOn,jobOn,T,N,C,
 const $=id=>document.getElementById(id);
 const D=Object.assign({day:1,kavling:50,followers:null,target:1000,residents:[],buildings:null,voucher:null,updated:null},window.NK_DATA||{});
 const RES=(D.residents||[]).filter(r=>r&&r.name&&Number.isFinite(r.x)&&Number.isFinite(r.y));
-const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&!(b.mulai&&Date.now()<Date.parse(b.mulai))); // bangunan baru tampil mulai jam pengumuman
+const BLD=(D.buildings&&D.buildings.length?D.buildings:NK.STARTER).filter(b=>b&&Number.isFinite(b.x)&&Number.isFinite(b.y)&&!(b.mulai&&Date.now()<Date.parse(b.mulai)&&!/[?&]bangunqa=1/.test(location.search))); // bangunan baru tampil mulai jam pengumuman (QA: ?bangunqa=1)
 // rumah karyawan (satpam, penjaga warung, dst): lencana di atap + papan di pekarangan
 const KERJA_IK={rental:['🎮','PENJAGA RENTAL'],posronda:['🔦','RUMAH SATPAM'],warung:['🏪','PENJAGA WARUNG'],masjid:['🕌','RUMAH MARBOT'],bakso:['🍜','KARYAWAN BAKSO'],padang:['🍛','KARYAWAN PADANG'],monumen:['🏛️','KARYAWAN MUSEUM'],tps:['♻️','PETUGAS TPS'],bandara:['✈️','KARYAWAN BANDARA'],pasarmalam:['🎪','PASAR MALAM'],hiburan:['🎡','TAMAN HIBURAN'],coffeeshop:['☕','BARISTA'],tb:['🧱','TOKO BANGUNAN'],dealer:['🛵','DEALER MOTOR'],tokokampung:['🛒','TOKO KADES'],layartancap:['🎬','LAYAR TANCAP'],penginapan:['🏨','PENGINAPAN'],sekolah:['🏫','SEKOLAH'],puskesmas:['🏥','RUMAH SAKIT'],tk:['🧸','TK / PAUD']};
 const KERJA_WR={monumen:'#C0392B',tps:'#2E9C6A',bandara:'#2F74B5',pasarmalam:'#7A3CFF',hiburan:'#E2453C',coffeeshop:'#6B4527',tb:'#C4502F',dealer:'#2F74B5',tokokampung:'#E2A23A',warung:'#2E86C1',posronda:'#2F6B4F',masjid:'#2E9C6A',bakso:'#C4502F',padang:'#B5452A',sekolah:'#2F74B5',puskesmas:'#D9302F',tk:'#E2574C',penginapan:'#8E5AA8',layartancap:'#1C2520',rental:'#5B3A9E'};
 const KERJA_IC={penginapan:'🏨',sekolah:'🏫',puskesmas:'🏥',tk:'🧸'};
 const bKey=b=>b.type+'@'+(b._ox!=null?b._ox:b.x)+','+(b._oy!=null?b._oy:b.y);
-function kerjaMulai(x){return !(x&&x.mulai&&Date.now()<Date.parse(x.mulai))} // karyawan baru tampil mulai jam pengumuman
+function kerjaMulai(x){return !(x&&x.mulai&&Date.now()<Date.parse(x.mulai))||/[?&]bangunqa=1/.test(location.search)} // karyawan baru tampil mulai jam pengumuman
 function hitungKerja(){RES.forEach(r=>{delete r.kerja});const add=(b,x)=>{if(!x||!x.user||(x.until&&x.until<NK.wibToday())||!kerjaMulai(x))return;const r=RES.find(q=>q.name===x.user);if(r&&!r.kerja){const ik=KERJA_IK[b.type]||[KERJA_IC[b.type]||'👷',String(x.role||'KARYAWAN').toUpperCase()];r.kerja={role:x.role||'Karyawan',bn:b.name,ic:ik[0],papan:ik[1],prop:b.type,until:x.until||''}}};BLD.forEach(b=>(Array.isArray(b.staff)?b.staff:[]).forEach(x=>add(b,x)));
   // karyawan bangunan desa baru (bukan di BLD), contoh di data.js: "karyawanDesa":[{"type":"rental","user":"namaig","role":"Penjaga Rental","until":"2026-11-27"}]
   (Array.isArray(D.karyawanDesa)?D.karyawanDesa:[]).forEach(x=>x&&add({type:x.type,name:x.type==='rental'?'playadalahmain':(x.tempat||'')},x))}
@@ -3778,6 +3786,14 @@ function build3DB(b){const T=THREE,g=new T.Group();
       const c=new T.Mesh(new T.ConeGeometry(.24,.6,12),M('#2F7D5B'));c.position.set(x,3.5,z);g.add(c);box(.5,.08,.5,'#E2B63B',x,2.6,z)});
     sign((b.name||'MASJID').toUpperCase(),'#2F7D5B','#FFFFFF',2.4,.38,0,2.2,1.24);
     box(1.4,.04,1.4,'#C9B48A',0,.02,2.5);
+  }else if(ty==='sekolah'&&b.varian==='sd'){ // 🏫 SD 3D: 1 lantai merah-putih, lapangan upacara, perosotan & ayunan
+    box(5.4,.06,2.4,'#E9DDBB',.4,.03,1.6);
+    box(5,1.3,1.5,'#FFFFFF',0,.65,-1.2);box(5,.3,1.52,'#E2453C',0,.15,-1.2);box(5.2,.16,1.7,'#C4402F',0,1.38,-1.2);
+    for(let i=0;i<6;i++)box(.5,.5,.06,'#BFE3F2',-2+i*.8,.8,-.43);box(.7,.9,.08,'#8A5A3C',0,.45,-.42);
+    sign(b.name?b.name.toUpperCase():'SD','#E2453C','#FFFFFF',3.4,.42,0,1.75,-.6);
+    const fp=new T.Mesh(new T.CylinderGeometry(.04,.05,2.6,8),M('#CCCCCC',{metalness:.4}));fp.position.set(.9,1.3,1.6);g.add(fp);box(.5,.16,.02,'#E2453C',1.15,2.45,1.6);box(.5,.16,.02,'#FFFFFF',1.15,2.29,1.6);
+    box(.12,1,.12,'#2F74B5',-2,.5,1);box(.5,.08,.5,'#2F74B5',-2,1,1);const sl=box(.4,.06,1.3,'#F2C230',-2,.55,1.6);sl.rotation.x=.6;
+    box(.08,1,.08,'#7A5230',-1.2,.5,2.3);box(.08,1,.08,'#7A5230',-.4,.5,2.3);box(.9,.08,.08,'#7A5230',-.8,1,2.3);box(.25,.05,.15,'#E2453C',-.8,.35,2.3);
   }else if(ty==='sekolah'){
     box(5,.06,1.6,'#C9B48A',0,.03,2.3);
     box(4.4,1.3,1.6,'#FFFFFF',0,.65,-.9);box(4.4,1.2,1.6,'#FFFFFF',0,1.9,-.9);box(4.6,.14,1.8,b.atap||'#C4502F',0,2.57,-.9);

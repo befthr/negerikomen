@@ -2568,7 +2568,7 @@ function mxRect(){const g=mxGeo();return g&&{x0:g.x0,x1:g.x1,y0:g.yc-T*3.4,y1:g.
 function etalaseKe(){const g=etalaseGeo();if(!g)return;flyTo({cx:(g.x0+g.x1)/2,cy:g.yc,zoom:clampZ(1)},900);scrollMap();setTimeout(bukaEtalase,1000)}
 function bukaEtalase(){const body=kkModal();body.append(el('h3',null,'🛍️ Etalase Kampung'));
   body.append(el('p','kk-muted','Barang pilihan Pak Kades di Shopee. Ketuk "Lihat di Shopee" buat buka tokonya.'));
-  {const n=el('div','etl-note');n.append(el('b',null,'🔗 Ini link affiliate'),el('span',null,'Kalau beli lewat link ini, Pak Kades dapat komisi kecil buat bangun kampung. Harganya tetap sama buatmu. Minta izin orang tua dulu ya sebelum belanja 🙏'));body.append(n)}
+  {const n=el('div','etl-note');n.append(el('span',null,'🔗 Link affiliate Pak Kades. Lihat-lihat aja boleh, nggak wajib beli 😄 Kalau mau belanja, minta izin orang tua dulu ya 🙏'));body.append(n)}
   const L=etalaseDaf();if(!L.length){body.append(el('p','etl-kosong','🧺 Etalasenya lagi ditata Pak Kades. Mampir lagi nanti ya!'))}
   else{const g=el('div','etl-grid');L.forEach(x=>{const cd=el('div','etl-card');const im=el('div','etl-im');if(x.img){const i=document.createElement('img');i.src=x.img;i.alt='';i.loading='lazy';i.referrerPolicy='no-referrer';i.onerror=()=>{im.textContent=x.ic||'🛍️'};im.append(i)}else im.textContent=x.ic||'🛍️';
     const a=document.createElement('a');a.className='etl-go';a.href=x.u;a.target='_blank';a.rel='sponsored noopener noreferrer';a.textContent='Lihat di Shopee ›';cd.append(im,el('b',null,x.n),...(x.d?[el('small',null,x.d)]:[]),a);g.append(cd)});body.append(g)}

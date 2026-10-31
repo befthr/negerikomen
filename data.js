@@ -36,6 +36,7 @@ window.NK_DATA = {
  "gento": true,
  "gentoMain": true,
  "gaji": { "default": 2, "warung": 2, "satpam": 2, "bakso": 2, "padang": 2, "marbot": 2, "proyek": 2 },
+ "etalase": [{"n": "Poster Peta Dunia", "d": "Poster edukasi anak", "ic": "🗺️", "img": "etalase/peta-dunia.jpg", "u": "https://s.shopee.co.id/2LZVZrAyE6"}],
  "karyawanDesa": [{"type": "rental", "user": "ayubi_glen", "role": "Penjaga Rental", "sejak": "2026-10-31", "mulai": "2026-10-31T19:00:00+07:00", "until": "2026-11-30"}, {"type": "rental", "user": "_4bib", "role": "Penjaga Rental", "sejak": "2026-10-31", "mulai": "2026-10-31T19:00:00+07:00", "until": "2026-11-30"}, {"type": "rental", "user": "nadhifaakanshaa", "role": "Penjaga Rental", "sejak": "2026-10-31", "mulai": "2026-10-31T19:00:00+07:00", "until": "2026-11-30"}],
 "dusun": [{"nama":"SukaMaju","oleh":"zildjian.video"}, {"nama":"Perjuangan","oleh":"_kykoo.12"}, {"nama":"Senja Awan","oleh":"4hmad_3devc"}, {"nama":"dimsumentaii","oleh":"eriinvm_"}, {"nama":"Rosavelle","oleh":"dainosssss"}],
  "residents": [

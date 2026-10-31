@@ -418,6 +418,7 @@ html.peta-fs,html.peta-fs body{overflow:hidden!important}html.peta-fs #nkmFab{di
 #result{flex-direction:column!important;align-items:stretch!important;flex-wrap:nowrap!important}
 #result>div:first-child{width:100%;min-width:0}
 #result>.acts{width:100%;flex-wrap:nowrap}
+@media (max-width:699px){#result::after{content:'';display:block;flex:0 0 56px;height:56px;width:100%}} /* ruang kosong di bawah kartu: tombol 📋 Menu tidak menutupi tombol terakhir */
 #result>.acts:has(>.btn:nth-child(4)){flex-wrap:wrap}#result>.acts:has(>.btn:nth-child(4))>.btn{flex:1 1 calc(50% - 4px);min-width:0;white-space:normal;line-height:1.2;padding-top:8px;padding-bottom:8px} /* 4 tombol (mis. pemilik GENTO): jadi 2 baris, tidak saling tumpuk */
 #result>.acts:has(.lamar){flex-wrap:wrap}#result>.acts>.btn.lamar{flex:1 0 100%;max-width:none;white-space:normal;order:9}
 #result>.acts>.btn{max-width:220px}

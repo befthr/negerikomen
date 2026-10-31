@@ -3195,7 +3195,7 @@ window.NK_DATA = {
   { "type": "tps", "name": "TPS Dusun Perjuangan", "by": "alifrmnxhrn", "day": 10, "x": 65, "y": 41, "w": 3, "staff": [] },
   { "type": "bandara", "name": "Bandara Negeri Komen", "by": "_kykoo.12", "day": 10, "x": 59, "y": 35, "w": 3, "staff": [] },
   { "type": "pasarmalam", "name": "Pasar Malam", "by": "eriinvm_", "day": 10, "x": 59, "y": 53, "w": 3, "staff": [] },
-  { "type": "sekolah", "name": "SD Negeri 3 Negeri Komen", "varian": "sd", "by": "nabila_razhar", "day": 13, "x": 53, "y": 35, "w": 3, "mulai": "2026-10-31T19:00:00+07:00", "staff": [] },
+  { "type": "sekolah", "name": "SD Negeri 3 Negeri Komen", "varian": "sd", "by": "nabila_razhar", "day": 13, "x": 65, "y": 35, "w": 3, "mulai": "2026-10-31T19:00:00+07:00", "staff": [] },
   { "type": "mall", "name": "Mall Central Negeri Komen", "by": "4hmad_3devc", "day": 13, "x": 35, "y": 47, "w": 3, "mulai": "2026-10-31T19:00:00+07:00", "staff": [] }
  ],
  "awards": [
